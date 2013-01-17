@@ -44,7 +44,7 @@ public class Diff {
 	
 	public void addToSet(String from, String to) {
 		HashSet<Long> fromSet = AnalysisUtil.initSetFromFile(from),
-			toSet = AnalysisUtil.initSetFromFile(from);
+			toSet = AnalysisUtil.initSetFromFile(to);
 		toSet.addAll(fromSet);
 		AnalysisUtil.writeSetToFile(to, toSet);
 	}
