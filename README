@@ -1,0 +1,39 @@
+In this directory, there is a directory "src" containing the soruce code for basic analysis for the hashset files. Also, there is also a "config" script file
+for setting up stuff. When you download the "src/" and "config", PLEASE create a new directory and put them in that directory. Then run the "config" script with "source ./config" command, which will generate class files, put them in "classes" directory and add the "classes" directory to your "CLASSPATH" environment variable.
+
+There are main classes provided. One is called "GenerateStats" and the other is "Diff". 
+
+1. For "GenerateStats", you could pass a hashlog directory of a specific program
+to it, it will generate some infomation and put it in the directory you specified. You should use this class in the following way:
+(Provided you run it in the same shell you execute the config file; Otherwise, you should add the "classes" directory to your CLASSPATH environment manually.
+
+java GenerateStats <HASHLOG_DIRECTORY>
+
+OR
+
+java GenerateStats <HASHLOG_DIRECTORY> <OUTPUT_DIRECTORY>    # you specify a output directory, by default it is the current directory
+
+Be careful here because the <HASHLOG_DIRECTORY> should be the topmost directory for a specific program in the HASHLOG directory. 
+For example, "/scratch/crowd-safe-test-data/hashlog/ls_2013-01-10_19-52-45/ls" is a directory in my machine(you can probably see the same hierarchy in your machine
+after you run the test scripts), you should specify "/scratch/crowd-safe-test-data/hashlog/ls_2013-01-10_19-52-45/" as your HASHLOG_DIRECTORY,
+rather than "/scratch/crowd-safe-test-data/hashlog/ls_2013-01-10_19-52-45/ls" or "/scratch/crowd-safe-test-data/hashlog/". Therefor, if you want to generate the
+information for "ls", then you should probably run this:
+
+java GenerateStats /scratch/crowd-safe-test-data/hashlog/ls_2013-01-10_19-52-45/
+
+After running this, you will get a directory in the current directory named as "ls-13-01-17_14-54-36/", which is the program followed by a timestamp. There are a few
+files in this output directory, you can copy the "total_hashes.dat" to another directory you want to do your analysis. This file is actually the one that contains all
+the hash codes generated from the test scripts.
+
+2. For "Diff", you could compare one file to another that both contains hash codes. The usage is as the following:
+
+java Diff ls.hashlog.dat total_hashes.dat    # output some infomation about the new hash codes found in "ls.hashlog" compared to "total_hashes.dat"
+                                             # doesn't write any of these files
+
+java Diff ls.hashlog.dat total_hashes.dat    # same as the above one, but also output the hash codes to the terminal"
+
+java Diff -a ls.hashlog.dat total_hashes.dat    # add the new hash codes found in "ls.hashlog.dat" to "total_hashes.dat"
+
+
+In general, you could first use GenerateStats to generate the overall information for a specific program like "ls," copy the total_hashes.dat file to another place.
+After that, you manually run some execution with "uncovered options" of that program under Dynamorio. Then you could compare the "hashlog" file for that specific manual to the "total_hashes.dat" to see the new hash codes for that manual excution or add it to the "total_hashes.dat."
