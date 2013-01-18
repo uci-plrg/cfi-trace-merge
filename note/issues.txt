@@ -1,0 +1,12 @@
+1.  So far we consider the all the hash codes of a program as a whole set, leaving out the order of their generation. However,
+    the order of sub-group of hash codes can represent some specific sequence of instructions in program!!!
+
+2.  The library shares lots of same hash codes that seems not very interesting. Maybe at some point we can consider splitting
+    library code from original code. However, since library code can be statically compiled into the binary, it will make
+	things more complicated.
+
+3.  The way we chain the basic block need to improve ---- the order of hash code.
+
+4.  The threshold of the spike in the "unique hash" graph.
+
+5.  It seems to me that java program running on JVM under DR will be a big problem.
