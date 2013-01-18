@@ -9,4 +9,5 @@
 
 4.  The threshold of the spike in the "unique hash" graph.
 
-5.  It seems to me that java program running on JVM under DR will be a big problem.
+5.  Running interpreted programs such as java, python and perl under DR is a big problem, but we don't try to take it into
+    account so far.
