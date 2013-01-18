@@ -1,0 +1,5 @@
+This document contains all the unusual cases I've seen so far!
+
+1. Running jvm under DR is unsuccessful with infinite output "Expected a link that never happened".
+
+

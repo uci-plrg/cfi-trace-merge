@@ -1,0 +1,16 @@
+This document contains the cases for better coverage of the DR-Launcher test scripts.
+
+1.  The string operation related library functions such as "strlen" "memset" "memcpy" usually have many exit points. This
+    makes the join of the "RET" block and the next block and to some degree generate uninteresting new hash codes.
+
+2.  For programs that need directory as its parameters, using absolute path and relative path would make the program run
+    sightly different, e.g., "tar -cf test.tar ../ext" and "tar -cf test.tar /home/.../build/ext" will have slight difference.
+
+3.  The output redirection make the program run differently.
+3.a One thing worth noting is that the working directory is also a factory of the environment, but it should not affect too 
+    much on most programs.
+
+4.  The properties of files or directories affect the program. Known examples are given as following: a) executing "ls" with a
+    directory containing only regular files and symbolic links is different; b) executing "ls -l /dev" and "ls -l /" is very
+	different because the "/dev" directory contains lots of "device files"; c) executing programs on files or directory is
+	different, e.g., "ls /scratch" and "ls /home/user/.../build" are different.
