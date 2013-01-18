@@ -27,7 +27,7 @@ public class AnalysisUtil {
 		return res;
 	}
 
-	public static Long toLittleEndian(Long l) {
+	public static Long reverseForLittleEndian(Long l) {
 		if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
 			ByteBuffer bbuf = ByteBuffer.allocate(8);
 			bbuf.order(ByteOrder.BIG_ENDIAN);
@@ -63,7 +63,7 @@ public class AnalysisUtil {
 			Long hashCode;
 			while (true) {
 				hashCode = in.readLong();
-				set.add(toLittleEndian(hashCode));
+				set.add(reverseForLittleEndian(hashCode));
 			}
 		} catch (EOFException e) {
 			// end of line
@@ -90,7 +90,7 @@ public class AnalysisUtil {
 					+ " file.");
 
 			for (Long l : hashset) {
-				dataOutput.writeLong(toLittleEndian(l));
+				dataOutput.writeLong(reverseForLittleEndian(l));
 			}
 
 			System.out.println("Finish outputing hash set to " + outputFileName

@@ -24,8 +24,7 @@ public class Diff {
 			System.out.println("Number of new hash codes: " + s1_s2.size());
 			if (showNewHashes == 1) {
 				for (Long l : s1_s2) {
-					System.out.println(Long.toHexString(AnalysisUtil
-							.toLittleEndian(l)));
+					System.out.println(Long.toHexString(l));
 				}
 			}
 			// System.out.println("Minus of set2 and set1 is " + s2_s1.size());
