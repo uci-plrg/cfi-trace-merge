@@ -46,8 +46,9 @@ public class GenerateStats {
 		PrintStream outPlot = null,
 				outInfo = null; 
 		
-		HashSet<Long> totalHashes = new HashSet<Long>();
-		int count = 0, runIndex = 0;
+		HashSet<Long> totalPairHashes = new HashSet<Long>(),
+			totalBlockHashes = new HashSet<Long>();
+		int countPair = 0, countBlock = 0, runIndex = 0;
 
 		this.progName = AnalysisUtil.getProgName(dir.getName());
 		
@@ -63,7 +64,7 @@ public class GenerateStats {
 					+ "unique_hash.dat"));
 			outInfo = new PrintStream(new FileOutputStream(outputDir.getAbsoluteFile() + "/"
 					+ "info.dat"));
-			outPlot.println("#File Count\tNew Unique Hashes(Log)\tTotal Hashes(Log)\n");
+			outPlot.println("#File Count\tNew Pair Hashes(Log)\tNew Block Hashes(Log)\tTotal Hashes(Log)\n");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -75,7 +76,8 @@ public class GenerateStats {
 		String[] runs = progFile.list();
 
 		for (String run : runs) {
-			count = 0;
+			countPair = 0;
+			countBlock = 0;
 			runIndex++;
 			
 			int runNumber = 0;
@@ -85,43 +87,54 @@ public class GenerateStats {
 				continue;
 			}
 			
-			HashSet<Long> totalHashes4Run = new HashSet<Long>();
+			HashSet<Long> totalPairHashes4Run = new HashSet<Long>();
 			for (int i = 0; i < programs.length; i++) {
 				File fRun = new File(dir.getAbsolutePath() + "/" + programs[i]
 						+ "/" + run);
 				for (String fName : fRun.list()) {
-					if (fName.indexOf("hashlog") != -1) {
+					if (fName.indexOf("pair-hash") != -1) {
 						HashSet<Long> set = AnalysisUtil.initSetFromFile(fRun
 								.getAbsolutePath() + "/" + fName);
-						totalHashes4Run.addAll(set);
+						totalPairHashes4Run.addAll(set);
 						for (Long l : set) {
-							if (!totalHashes.contains(l)) {
-								totalHashes.add(l);
-								count++;
-								if (count == 1) {
+							if (!totalPairHashes.contains(l)) {
+								totalPairHashes.add(l);
+								countPair++;
+								if (countPair == 1) {
 									outInfo.println("----------" + fRun.getAbsolutePath() + "----------");
 								}
-								if (count < 50) {
+								if (countPair < 50) {
 									outInfo.println(Long.toHexString(l));
 								}
+							}
+						}
+					} else if (fName.indexOf("block-hash") != -1) {
+						HashSet<Long> set = AnalysisUtil.initSetFromFile(fRun
+								.getAbsolutePath() + "/" + fName);
+						
+						for (Long l : set) {
+							if (!totalBlockHashes.contains(l)) {
+								totalBlockHashes.add(l);
+								countBlock++;
 							}
 						}
 					}
 				}
 			}
-			if (count > 0) {
-				outInfo.println("Number of new hashes in this run: " + count);
+			if (countPair > 0) {
+				outInfo.println("Number of new hashes in this run: " + countPair);
 				this.dumpCommand(outInfo, progFile.getAbsolutePath() + "/run" + runNumber + "/command.txt");
 				outInfo.println();
 			}
 			
-			this.newHashesCounter.put(runNumber, count);
+			this.newHashesCounter.put(runNumber, countPair);
 			// outPlot.println(runIndex + "\t" + Math.log(count) + "\t" + Math.log(totalHashes4Run.size()));
-			outPlot.println(runIndex + "\t" + count + "\t" + totalHashes4Run.size());
+//			outPlot.println(runIndex + "\t" + countPair + "\t" + totalPairHashes4Run.size());
+			outPlot.println(runIndex + "\t" + countPair + "\t" + countBlock + "\t" + totalPairHashes4Run.size());
 		}
 		
 		AnalysisUtil.writeSetToFile(outputDir.getAbsolutePath() + "/"
-				+ "total_hashes.dat", totalHashes);
+				+ "total_hashes.dat", totalPairHashes);
 		
 		outPlot.flush();
 		outPlot.close();

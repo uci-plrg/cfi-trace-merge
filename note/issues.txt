@@ -11,3 +11,13 @@
 
 5.  Running interpreted programs such as java, python and perl under DR is a big problem, but we don't try to take it into
     account so far.
+
+6.  The performace of current version of DR is much slower than the original DR. For example, using gcc to complie a simple
+    program will take relatively long time.
+
+**
+7.  We need to reconsider the way we compute the hash value for the basic blocks. For example, if we add a few lines to the source
+    code of a program and recompile it, it will generate many different different hash codes for basic blocks. An RIP-relative load
+	instruction "mov 0ffset(%rip),%eax" in the two version will get different hash values, though they have the same structure and
+	essentially do the same things. This is found when I try to inject some "bad code lines" into a program. It turns out that the
+	main structure of the program remains unchanged but the change of "addresses" causes many new hash values.
