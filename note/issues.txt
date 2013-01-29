@@ -21,3 +21,6 @@
 	instruction "mov 0ffset(%rip),%eax" in the two version will get different hash values, though they have the same structure and
 	essentially do the same things. This is found when I try to inject some "bad code lines" into a program. It turns out that the
 	main structure of the program remains unchanged but the change of "addresses" causes many new hash values.
+
+8.  Be careful when comparing the good version and bad version of 'ls.' To avoid the alignment problem, try to make the name of both executable
+    the same, otherwise their will be some uninteresting hash codes.

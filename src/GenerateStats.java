@@ -12,16 +12,18 @@ public class GenerateStats {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy-MM-dd_HH-mm-ss");
 
 	public static void main(String[] argvs) {
-		if (argvs.length > 2 || argvs.length == 0) {
-			System.out.println("Usage: java GenerateStats <Target_Hashlog_Directory>");
-			System.out.println("or     java GenerateStats <Target_Hashlog_Directory> <Output_Directory>");
-			return;
-		}
-		GenerateStats generateStats = new GenerateStats();
-		if (argvs.length == 1)
-			generateStats.generateStats(new File(argvs[0]), ".");
-		else
-			generateStats.generateStats(new File(argvs[0]), argvs[1]);
+		int iTmp = 5 * 2 / 7;
+		System.out.println(iTmp);
+//		if (argvs.length > 2 || argvs.length == 0) {
+//			System.out.println("Usage: java GenerateStats <Target_Hashlog_Directory>");
+//			System.out.println("or     java GenerateStats <Target_Hashlog_Directory> <Output_Directory>");
+//			return;
+//		}
+//		GenerateStats generateStats = new GenerateStats();
+//		if (argvs.length == 1)
+//			generateStats.generateStats(new File(argvs[0]), ".");
+//		else
+//			generateStats.generateStats(new File(argvs[0]), argvs[1]);
 	}
 	
 	private void dumpCommand(PrintStream out, String commandFile) {
@@ -64,7 +66,7 @@ public class GenerateStats {
 					+ "unique_hash.dat"));
 			outInfo = new PrintStream(new FileOutputStream(outputDir.getAbsoluteFile() + "/"
 					+ "info.dat"));
-			outPlot.println("#File Count\tNew Pair Hashes(Log)\tNew Block Hashes(Log)\tTotal Hashes(Log)\n");
+			outPlot.println("#Index\tNew-Pair\tNew-Block\tTotal-Pairs4-RuntTotal-Pairs\tTotal-Blocks\n");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -130,7 +132,10 @@ public class GenerateStats {
 			this.newHashesCounter.put(runNumber, countPair);
 			// outPlot.println(runIndex + "\t" + Math.log(count) + "\t" + Math.log(totalHashes4Run.size()));
 //			outPlot.println(runIndex + "\t" + countPair + "\t" + totalPairHashes4Run.size());
-			outPlot.println(runIndex + "\t" + countPair + "\t" + countBlock + "\t" + totalPairHashes4Run.size());
+////			outPlot.println("#" + runNumber + "  " + runIndex + "\t" + countPair + "\t" + countBlock + "\t" + 
+//					totalPairHashes4Run.size() + "\t" + totalPairHashes.size()+ "\t" + totalBlockHashes.size());
+			outPlot.println(runIndex + "\t" + countPair + "\t" + countBlock + "\t" + 
+					totalPairHashes4Run.size() + "\t" + totalPairHashes.size()+ "\t" + totalBlockHashes.size());
 		}
 		
 		AnalysisUtil.writeSetToFile(outputDir.getAbsolutePath() + "/"
