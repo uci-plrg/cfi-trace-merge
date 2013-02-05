@@ -10,20 +10,24 @@ public class GenerateStats {
 	private HashMap<Integer, Integer> newHashesCounter = new HashMap<Integer, Integer>();
 	
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy-MM-dd_HH-mm-ss");
+	
+	HashSet<Long> totalPairHashes = new HashSet<Long>();
+	HashSet<Long> totalBlockHashes = new HashSet<Long>();
 
 	public static void main(String[] argvs) {
-		int iTmp = 5 * 2 / 7;
-		System.out.println(iTmp);
 //		if (argvs.length > 2 || argvs.length == 0) {
 //			System.out.println("Usage: java GenerateStats <Target_Hashlog_Directory>");
 //			System.out.println("or     java GenerateStats <Target_Hashlog_Directory> <Output_Directory>");
 //			return;
 //		}
-//		GenerateStats generateStats = new GenerateStats();
-//		if (argvs.length == 1)
-//			generateStats.generateStats(new File(argvs[0]), ".");
-//		else
-//			generateStats.generateStats(new File(argvs[0]), argvs[1]);
+		GenerateStats generateStats = new GenerateStats();
+		if (argvs.length == 1)
+			generateStats.generateStats(new File(argvs[0]), ".");
+		else if (argvs.length == 2){
+			generateStats.generateStats(new File(argvs[0]), argvs[1]);
+		} else {
+			generateStats.generateStats(new File(argvs[0]), argvs[1], argvs[2], argvs[3]);
+		}
 	}
 	
 	private void dumpCommand(PrintStream out, String commandFile) {
@@ -39,6 +43,12 @@ public class GenerateStats {
 			e.printStackTrace();
 		}
 	}
+	
+	public void generateStats(File dir, String targetDir, String prePairSetFilename, String preBlockSetFilename) {
+		totalPairHashes = AnalysisUtil.initSetFromFile(prePairSetFilename);
+		totalBlockHashes = AnalysisUtil.initSetFromFile(preBlockSetFilename);
+		generateStats(dir, targetDir);
+	}
 
 	public void generateStats(File dir, String targetDir) {
 		if (dir == null) {
@@ -48,8 +58,8 @@ public class GenerateStats {
 		PrintStream outPlot = null,
 				outInfo = null; 
 		
-		HashSet<Long> totalPairHashes = new HashSet<Long>(),
-			totalBlockHashes = new HashSet<Long>();
+//		totalPairHashes = new HashSet<Long>();
+//		totalBlockHashes = new HashSet<Long>();
 		int countPair = 0, countBlock = 0, runIndex = 0;
 
 		this.progName = AnalysisUtil.getProgName(dir.getName());
@@ -140,6 +150,8 @@ public class GenerateStats {
 		
 		AnalysisUtil.writeSetToFile(outputDir.getAbsolutePath() + "/"
 				+ "total_hashes.dat", totalPairHashes);
+		AnalysisUtil.writeSetToFile(outputDir.getAbsolutePath() + "/"
+				+ "total_block_hashes.dat", totalBlockHashes);
 		
 		outPlot.flush();
 		outPlot.close();

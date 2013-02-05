@@ -6,12 +6,43 @@ import java.nio.ByteOrder;
 
 public class ProgOverlap {
 
+	public class Points {
+		int x, y;
+		
+		Points() {
+			
+		}
+		
+		Points(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+		
+		public boolean equals(Object o) {
+			if (o == null)
+				return false;
+			if (o.getClass() != Points.class) {
+				return false;
+			} else {
+				Points p = (Points) o;
+				if (p.x == x && p.y == y)
+					return true;
+				else
+					return false;
+			}
+		}
+	}
+	
 	public HashMap<Vector<Integer>, HashSet<Long>> setMap = new HashMap<Vector<Integer>, HashSet<Long>>();
 
 	public HashSet<Long>[] hashes;
 
 	public HashSet<Long> union;
 	public int progNum = 0;
+	
+	public HashSet<Long>[] transHashes;
+	public HashSet<Long> transUnion;
+	public Hashtable<Long, Points> transTable;
 
 	public String[] progNames;
 	public String[] hashsetFilenames;
@@ -32,17 +63,21 @@ public class ProgOverlap {
 		ProgOverlap po = new ProgOverlap(argvs.length);
 		
 		for(int i = 0; i < argvs.length; i++) {
-			File f = new File(argvs[i]);
-	    	po.progNames[i] = AnalysisUtil.getProgName(f.getName());
-	    	po.hashsetFilenames[i] = argvs[i] + "/total_hashes.dat";
+//			File f = new File(argvs[i]);
+//	    	po.progNames[i] = AnalysisUtil.getProgName(f.getName());
+//	    	po.hashsetFilenames[i] = argvs[i] + "/total_hashes.dat";
+			
+			po.progNames[i] = argvs[i].substring(0, argvs[i].indexOf('.')) + i;
+			po.hashsetFilenames[i] = argvs[i];
 		}
 		
 		//File outputDir = new File(argvs[argvs.length - 1]);
 		po.initSetMap(po.hashsetFilenames);
-		//po.outputOverlapInfo();
+		po.outputOverlapInfo();
+		//po.outputTransGraph();
 		
-		HashSet<Long> runSet = AnalysisUtil.initSetFromFile(ProgOverlap.execFile);
-		po.classifyProg(runSet);
+//		HashSet<Long> runSet = AnalysisUtil.initSetFromFile(ProgOverlap.execFile);
+//		po.classifyProg(runSet);
 	}
 	
 	public void outputOverlapInfo() {
@@ -52,7 +87,7 @@ public class ProgOverlap {
 		}
 		
 		System.out.println();
-		System.out.println("total hashes union : " + union.size());
+		System.out.println("total hashes unoutputSetGraphion : " + union.size());
 		for (Vector<Integer> vi : setMap.keySet()) {
 			for (int i = 0; i < vi.size(); i++) {
 				if (i != vi.size() - 1)
@@ -63,6 +98,28 @@ public class ProgOverlap {
 			System.out.println(setMap.get(vi).size());
 		}
 		
+		System.out.println("Mutual overlap:");
+		outputMutualOverlap();
+	}
+	
+	public void outputTransGraph() {
+		for (int i = 0; i < hashes.length; i++) {
+			for (Long l : hashes[i]) {
+				System.out.println(transTable.get(l).x + "\t" + transTable.get(l).y);
+			}
+			System.out.println();
+			System.out.println();
+		}
+	}
+	
+	
+	public void outputMutualOverlap() {
+		for (int i = 0; i < hashes.length; i++) {
+			for (int j = i + 1; j < hashes.length; j++) {
+				System.out.print(progNames[i] + " & " + progNames[j] + " : ");
+				System.out.println(AnalysisUtil.intersection(hashes[i], hashes[j]).size());
+			}
+		}
 	}
 
 	public HashMap<Vector<Integer>, Integer> classifyProg(HashSet<Long> set) {
@@ -120,18 +177,48 @@ public class ProgOverlap {
 		    hashes[i]=AnalysisUtil.initSetFromFile(fileNames[i]);
 		    union.addAll(hashes[i]);
 		}
+		
 		for(Long l: union) {
 		    Vector<Integer> intvector=new Vector<Integer>();
 
 		    for(int i = 0 ; i < fileNames.length; i++) {
-				if (hashes[i].contains(l))
+				if (hashes[i].contains(l)) {
 				    intvector.add(i);
+				    
+				}
 		    }
 		    if (!setMap.containsKey(intvector)) {
 				setMap.put(intvector, new HashSet<Long>());
 		    }
 		    setMap.get(intvector).add(l);
+		    
 		}
+		
+		
+		int row = 1, column = 1, range = 0, columnStart = 1;
+		
+		transTable = new Hashtable<Long, Points>();
+		for (int i = 0; i < hashes.length; i++) {
+			range = (int) Math.sqrt(hashes[i].size()) + 1;
+			row = 1;
+			column = columnStart;
+			
+			for (Long l : hashes[i]) {
+				if (transTable.get(l) == null) {
+					Points p = new Points(row, column);
+					transTable.put(l, p);
+					column++;
+					if (columnStart + column >= range) {
+						column = 1;
+						row++;
+					}
+				}
+			}
+			columnStart += range;
+		}
+		
+		
+		
    	 }
     
 }

@@ -24,3 +24,9 @@
 
 8.  Be careful when comparing the good version and bad version of 'ls.' To avoid the alignment problem, try to make the name of both executable
     the same, otherwise their will be some uninteresting hash codes.
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+9.  The difficulty of grouping is as the following: a) It doesn't seem reasonable to group different programs according to the size of the
+running hashset because it varies so much. For example, for dot, a normal run will generate roughly 30,000 hash codes and only 5,000 ones for
+checking the version, i.e. 'dot -V'. b) For those runs with small sizes, only a limited number of hash codes actually comes from the function of that program(most of the others from library). This makes grouping according to size of intersection difficult.
