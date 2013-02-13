@@ -5,51 +5,25 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class ProgOverlap {
-
-	public class Points {
-		int x, y;
-		
-		Points() {
-			
-		}
-		
-		Points(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-		
-		public boolean equals(Object o) {
-			if (o == null)
-				return false;
-			if (o.getClass() != Points.class) {
-				return false;
-			} else {
-				Points p = (Points) o;
-				if (p.x == x && p.y == y)
-					return true;
-				else
-					return false;
-			}
-		}
-	}
 	
 	public HashMap<Vector<Integer>, HashSet<Long>> setMap = new HashMap<Vector<Integer>, HashSet<Long>>();
 
 	public HashSet<Long>[] hashes;
 
+	public HashMap<Long, Integer> freqTable;
 	public HashSet<Long> union;
 	public int progNum = 0;
 	
 	public HashSet<Long>[] transHashes;
 	public HashSet<Long> transUnion;
-	public Hashtable<Long, Points> transTable;
+//	public Hashtable<Long, Points> transTable;
 
 	public String[] progNames;
 	public String[] hashsetFilenames;
 	
 	
-	private static String execFileDir = "/home/peizhaoo/crowd-safe-dynamorio-launcher/crowd-safe-dynamorio-launcher/stats/";
-	private static String execFile = execFileDir + "tar.hashlog.2013-01-15.19-08-35.dat";
+//	private static String execFileDir = "/home/peizhaoo/crowd-safe-dynamorio-launcher/crowd-safe-dynamorio-launcher/stats/";
+//	private static String execFile = execFileDir + "tar.hashlog.2013-01-15.19-08-35.dat";
 	
 	public ProgOverlap(int length) {
 		progNames = new String[length];
@@ -102,15 +76,15 @@ public class ProgOverlap {
 		outputMutualOverlap();
 	}
 	
-	public void outputTransGraph() {
-		for (int i = 0; i < hashes.length; i++) {
-			for (Long l : hashes[i]) {
-				System.out.println(transTable.get(l).x + "\t" + transTable.get(l).y);
-			}
-			System.out.println();
-			System.out.println();
-		}
-	}
+//	public void outputTransGraph() {
+//		for (int i = 0; i < hashes.length; i++) {
+//			for (Long l : hashes[i]) {
+//				System.out.println(transTable.get(l).x + "\t" + transTable.get(l).y);
+//			}
+//			System.out.println();
+//			System.out.println();
+//		}
+//	}
 	
 	
 	public void outputMutualOverlap() {
@@ -166,6 +140,20 @@ public class ProgOverlap {
 		
 		return distributionMap;
 	}
+	
+	public void initFreqTable(String[] fileNames) {
+		freqTable = new HashMap<Long, Integer>();
+
+		for(int i=0;i<fileNames.length;i++) {
+		    hashes[i]=AnalysisUtil.initSetFromFile(fileNames[i]);
+		    for (Long l : hashes[i]) {
+		    	if (freqTable.keySet().contains(l)) {
+		    		freqTable.put(l, freqTable.get(l) + 1);
+		    	}
+		    	
+		    }
+		}
+	}
 
     public void initSetMap(String[] fileNames) {
 
@@ -193,32 +181,6 @@ public class ProgOverlap {
 		    setMap.get(intvector).add(l);
 		    
 		}
-		
-		
-		int row = 1, column = 1, range = 0, columnStart = 1;
-		
-		transTable = new Hashtable<Long, Points>();
-		for (int i = 0; i < hashes.length; i++) {
-			range = (int) Math.sqrt(hashes[i].size()) + 1;
-			row = 1;
-			column = columnStart;
-			
-			for (Long l : hashes[i]) {
-				if (transTable.get(l) == null) {
-					Points p = new Points(row, column);
-					transTable.put(l, p);
-					column++;
-					if (columnStart + column >= range) {
-						column = 1;
-						row++;
-					}
-				}
-			}
-			columnStart += range;
-		}
-		
-		
-		
    	 }
     
 }

@@ -13,6 +13,8 @@ public class GenerateStats {
 	
 	HashSet<Long> totalPairHashes = new HashSet<Long>();
 	HashSet<Long> totalBlockHashes = new HashSet<Long>();
+	
+	HashSet<Long> allIntersection;
 
 	public static void main(String[] argvs) {
 //		if (argvs.length > 2 || argvs.length == 0) {
@@ -108,6 +110,11 @@ public class GenerateStats {
 						HashSet<Long> set = AnalysisUtil.initSetFromFile(fRun
 								.getAbsolutePath() + "/" + fName);
 						totalPairHashes4Run.addAll(set);
+						if (allIntersection == null) {
+							allIntersection = new HashSet<Long>(set);
+						}
+						allIntersection = AnalysisUtil.intersection(set, allIntersection);
+						
 						for (Long l : set) {
 							if (!totalPairHashes.contains(l)) {
 								totalPairHashes.add(l);
@@ -152,6 +159,8 @@ public class GenerateStats {
 				+ "total_hashes.dat", totalPairHashes);
 		AnalysisUtil.writeSetToFile(outputDir.getAbsolutePath() + "/"
 				+ "total_block_hashes.dat", totalBlockHashes);
+		AnalysisUtil.writeSetToFile(outputDir.getAbsolutePath() + "/"
+				+ "intersection_hashes.dat", allIntersection);
 		
 		outPlot.flush();
 		outPlot.close();

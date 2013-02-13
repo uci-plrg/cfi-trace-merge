@@ -8,11 +8,29 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
 
+	private static void findHashFiles(File file, ArrayList<File> lists) {
+		for (File f : file.listFiles()) {
+			if (f.isDirectory()) {
+				findHashFiles(f, lists);
+			} else if (f.getName().indexOf("pair-hash") != -1) {
+				lists.add(f);
+			}
+		}
+	}
+	
+	public static ArrayList<File> getAllHashFiles(String dir) {
+		ArrayList<File> hashFiles = new ArrayList<File>();
+		File dirFile = new File(dir);
+		findHashFiles(dirFile, hashFiles);
+		return hashFiles;
+	}
+	
 	public static HashSet<Long> minus(HashSet<Long> s1, HashSet<Long> s2) {
 		HashSet<Long> res = new HashSet<Long>(s1);
 		for (Long elem : s2)
@@ -41,9 +59,14 @@ public class AnalysisUtil {
 	
 
 	public static String getProgName(String dirName) {
+		File f = new File(dirName);
+		dirName = f.getName();
 		int endIndex = dirName.indexOf('-');
 		if (endIndex > dirName.indexOf('_') && dirName.indexOf('_') != -1) {
 			endIndex = dirName.indexOf('_');
+		}
+		if (endIndex > dirName.indexOf('.') && dirName.indexOf('.') != -1) {
+			endIndex = dirName.indexOf('.');
 		}
 		return dirName.substring(0, endIndex);
 	}
