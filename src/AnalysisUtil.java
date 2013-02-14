@@ -93,8 +93,11 @@ public class AnalysisUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// in.flush();
-		// in.close();
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return set;
 	}
 
