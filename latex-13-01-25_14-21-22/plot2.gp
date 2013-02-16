@@ -1,10 +1,11 @@
 #set title "Totla hashes and unique hashes for each execution(Latex)"
 #set xlabel "Execution"
-#unset xtics
-#unset xlabel
-#unset ylabel
-#unset title
-set logscale y
+unset ytics
+#set ytics at right
+unset xlabel
+unset ylabel
+unset title
+#set logscale y
 set key at 1100,1800
 #set xr [0:]
 #set yr [0:]
