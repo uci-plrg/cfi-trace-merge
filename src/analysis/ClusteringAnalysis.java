@@ -84,21 +84,20 @@ public class ClusteringAnalysis {
 		}
 		System.out.printf("%7s", "");
 		for (int i = 0; i < paths.length; i++) {
-			System.out.printf("%7s", i + AnalysisUtil.getProgName(paths[i]));
+			System.out.printf("%7s", i + progNames[i]);
 		}
 		System.out.println();
 		float min = 1.5f, max = 1.5f;
-		StringBuilder strBuilder = null;
+		StringBuilder strBuilder = new StringBuilder();
 		for (int i = 0; i < paths.length; i++) {
-			System.out.printf("%7s", i + AnalysisUtil.getProgName(paths[i]));
+			System.out.printf("%7s", i + progNames[i]);
 			for (int j = 0; j < paths.length; j++) {
-				// if (i <= j)
-				System.out.printf("% 7.1f", distMatrix[i][j]);
-				// else
-				// System.out.printf("%7s", " ");
+				if (i <= j)
+					System.out.printf("% 7.1f", distMatrix[i][j]);
+				else
+					System.out.printf("%7s", " ");
 				if (distMatrix[i][j] < 1.5f && j > i) {
-					String progName1 = AnalysisUtil.getProgName(paths[i]), progName2 = AnalysisUtil
-							.getProgName(paths[j]);
+					String progName1 = progNames[i], progName2 = progNames[j];
 					String str = "";
 					if (progName1.equals(progName2)) {
 						str = String.format("%d%s %d%s :%.1f\n", i, progName1,
@@ -108,10 +107,6 @@ public class ClusteringAnalysis {
 								j, progName2, distMatrix[i][j]);
 					}
 					strBuilder.append(str);
-					// strBuilder.append(i +
-					// AnalysisUtil.getProgName(fileNames[i]) + " " + j +
-					// AnalysisUtil.getProgName(fileNames[j]) + " " +
-					// distMatrix[i][j] + "\n");
 					if (distMatrix[i][j] < min)
 						min = distMatrix[i][j];
 				}
@@ -204,8 +199,8 @@ public class ClusteringAnalysis {
 			return;
 		}
 		
-		ArrayList<String> listFiles = null;
 		if (!(dir4Files == null && dir4Runs == null)) {
+			ArrayList<String> listFiles = new ArrayList<String>();
 			if (dir4Files != null) {
 				listFiles = AnalysisUtil.getAllHashFiles(dir4Files);
 			}
@@ -215,9 +210,10 @@ public class ClusteringAnalysis {
 			}
 			AnalysisUtil.saveStringPerline(recordFile, listFiles, append);
 		}
-		
 		ArrayList<String> strList = AnalysisUtil.getStringPerline(recordFile);
 		String[] strArray = strList.toArray(new String[strList.size()]);
+		
 		ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray);
+		clusterAnalysis.outputDistMatrix();
 	}
 }
