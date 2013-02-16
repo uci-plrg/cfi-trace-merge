@@ -1,4 +1,4 @@
-package utils.gnu.getopt;
+package gnu.getopt;
 
 
 /*

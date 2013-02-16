@@ -19,47 +19,50 @@ import java.util.HashSet;
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
 
-	private static void findHashFiles(File dir, ArrayList<File> lists) {
+	private static void findHashFiles(File dir, ArrayList<String> lists) {
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory()) {
 				findHashFiles(f, lists);
 			} else if (f.getName().indexOf("pair-hash") != -1) {
-				lists.add(f);
+				lists.add(f.getAbsolutePath());
 			}
 		}
 	}
 	
-	public static ArrayList<File> getAllHashFiles(String dir) {
-		ArrayList<File> hashFiles = new ArrayList<File>();
+	public static ArrayList<String> getAllHashFiles(String dir) {
+		ArrayList<String> hashFiles = new ArrayList<String>();
 		File dirFile = new File(dir);
 		findHashFiles(dirFile, hashFiles);
 		return hashFiles;
 	}
 	
-	private static void findRunDirs(File dir, ArrayList<File> lists) {
+	private static void findRunDirs(File dir, ArrayList<String> lists) {
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory() && f.getName().indexOf("run") == -1) {
 				findRunDirs(f, lists);
 			} else if (f.isDirectory() && f.getName().indexOf("run") != -1) {
-				lists.add(f);
+				lists.add(f.getAbsolutePath());
 			}
 		}
 	}
 	
-	public static HashSet<Long> getSetFromRunDir(File runDir) {
-		ArrayList<File> fileList = getAllHashFiles(runDir.getAbsolutePath());
-		File[] files = fileList.toArray(new File[fileList.size()]);
-		return mergeSet(files);
-	}
-	
-	public static ArrayList<File> getAllRunDirs(String dir) {
-		ArrayList<File> runDirs = new ArrayList<File>();
+	public static ArrayList<String> getAllRunDirs(String dir) {
+		ArrayList<String> runDirs = new ArrayList<String>();
 		File rootDir = new File(dir);
 		findRunDirs(rootDir, runDirs);
 		return runDirs;
 	}
 	
-	public ArrayList<String> getStringPerline(String filename) {
+	
+	public static HashSet<Long> getSetFromRunDir(String runDir) {
+		ArrayList<String> fileList = getAllHashFiles(runDir);
+		String[] strArray = fileList.toArray(new String[fileList.size()]);
+		return mergeSet(strArray);
+	}
+	
+	
+	
+	public static ArrayList<String> getStringPerline(String filename) {
 		ArrayList<String> list = new ArrayList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -76,9 +79,9 @@ public class AnalysisUtil {
 		return list;
 	}
 	
-	public void saveStringPerline(String filename, ArrayList<String> list) {
+	public static void saveStringPerline(String filename, ArrayList<String> list, boolean append) {
 		try {
-			PrintWriter pw = new PrintWriter(new FileOutputStream(filename));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(filename, append));
 			for (String str : list) {
 				pw.println(str);
 			}
@@ -87,6 +90,23 @@ public class AnalysisUtil {
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static String getProgNameFromPath(String path) {
+		File f = new File(path);
+		if (f.isDirectory()) {
+			if (f.getName().indexOf("run") != -1) {
+				return f.getParentFile().getName();
+			} else {
+				return null;
+			}
+		} else {
+			if (f.getName().indexOf("pair-hash") != -1) {
+				return f.getName();
+			} else {
+				return null;
+			}
 		}
 	}
 	
@@ -128,6 +148,17 @@ public class AnalysisUtil {
 		return dirName.substring(0, endIndex);
 	}
 	
+	public static HashSet<Long> getSetFromPath(String path) {
+		File f = new File(path);
+		if (!f.exists())
+			return null;
+		if (f.isDirectory()) {
+			return getSetFromRunDir(path);
+		} else {
+			return initSetFromFile(path);
+		}
+	}
+	
 	public static HashSet<Long> mergeSet(HashSet<Long>...sets) {
 		HashSet<Long> resSet = new HashSet<Long>();
 		for (int i = 0; i < sets.length; i++) {
@@ -135,8 +166,9 @@ public class AnalysisUtil {
 		}
 		return resSet;
 	}
+
 	
-	public static HashSet<Long> mergeSet(File...hashFiles) {
+	public static HashSet<Long> mergeSet(String...hashFiles) {
 		HashSet<Long> resSet = new HashSet<Long>();
 		for (int i = 0; i < hashFiles.length; i++) {
 			resSet.addAll(initSetFromFile(hashFiles[i]));

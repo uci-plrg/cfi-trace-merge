@@ -20,7 +20,7 @@
 /* Boston, MA  02111-1307 USA
 /**************************************************************************/
 
-package utils.gnu.getopt;
+package gnu.getopt;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

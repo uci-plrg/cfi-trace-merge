@@ -1,5 +1,7 @@
 package analysis;
 
+import gnu.getopt.Getopt;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,7 +9,6 @@ import java.util.HashSet;
 import java.io.File;
 
 import utils.AnalysisUtil;
-import utils.gnu.getopt.Getopt;
 
 /**
  * There are two steps to use this class:
@@ -21,50 +22,31 @@ import utils.gnu.getopt.Getopt;
 public class ClusteringAnalysis {
 	private HashSet<Long>[] hashes;
 	private HashMap<Long, Integer> freqTable;
-	//private HashMap<Integer, HashSet<Long>> cacheHashes;
 	private float[][] distMatrix;
-	private float[] factors;
-	private String[] fileNames;
-	private File[] runDirs;
-	private StringBuilder strBuilder;
+	private float[] scores;
+	private String[] paths;
+	private String[] progNames;
 
 	public ClusteringAnalysis() {
 
 	}
 
-	public ClusteringAnalysis(File[] runDirs) {
-		this.runDirs = runDirs;
-		this.fileNames = new String[runDirs.length];
-		for (int i = 0; i < fileNames.length; i++) {
-			fileNames[i] = runDirs[i].getAbsolutePath();
-		}
-		init();
-		computeAllDist();
-	}
-
 	public ClusteringAnalysis(String[] paths) {
-		this.fileNames = paths;
-		this.runDirs = new File[paths.length];
+		this.paths = paths;
+		progNames = new String[paths.length];
 		for (int i = 0; i < paths.length; i++) {
-			File f = new File(paths[i]);
-			runDirs[i] = f;
-			if (f.isDirectory() && f.getName().indexOf("run") != -1) {
-				fileNames[i] = f.getParentFile().getName();
-			} else if(f.getName().indexOf("pair-hash") != -1) {
-				fileNames[i] = f.getName();
-			}
+			progNames[i] = AnalysisUtil.getProgNameFromPath(paths[i]);
 		}
 		init();
 		computeAllDist();
 	}
 
 	public void computeAllDist() {
-		for (int i = 0; i < factors.length; i++) {
-			factors[i] = 0.0f;
-			// HashSet<Long> set = AnalysisUtil.initSetFromFile(fileNames[i]);
+		for (int i = 0; i < scores.length; i++) {
+			scores[i] = 0.0f;
 			for (Long l : hashes[i]) {
 				// factors[i] += (1.0f / (freqTable.get(l) * freqTable.get(l)));
-				factors[i] += (1.0f / freqTable.get(l));
+				scores[i] += (1.0f / freqTable.get(l));
 				// factors[i] += 1.0f;
 			}
 		}
@@ -73,8 +55,8 @@ public class ClusteringAnalysis {
 		long beginTime, endTime, veryBeginning, veryEnding;
 		veryBeginning = System.currentTimeMillis();
 		beginTime = System.currentTimeMillis();
-		for (int i = 0; i < fileNames.length; i++) {
-			for (int j = i; j < fileNames.length; j++) {
+		for (int i = 0; i < paths.length; i++) {
+			for (int j = i; j < paths.length; j++) {
 				if (count == 1000) {
 					endTime = System.currentTimeMillis();
 					System.out.println("Time for 1000 distance computation"
@@ -97,25 +79,26 @@ public class ClusteringAnalysis {
 	}
 
 	public void outputDistMatrix() {
-		for (int i = 0; i < fileNames.length; i++) {
-			System.out.println(fileNames[i]);
+		for (int i = 0; i < paths.length; i++) {
+			System.out.println(paths[i]);
 		}
 		System.out.printf("%7s", "");
-		for (int i = 0; i < fileNames.length; i++) {
-			System.out.printf("%7s", i + AnalysisUtil.getProgName(fileNames[i]));
+		for (int i = 0; i < paths.length; i++) {
+			System.out.printf("%7s", i + AnalysisUtil.getProgName(paths[i]));
 		}
 		System.out.println();
 		float min = 1.5f, max = 1.5f;
-		for (int i = 0; i < fileNames.length; i++) {
-			System.out.printf("%7s", i + AnalysisUtil.getProgName(fileNames[i]));
-			for (int j = 0; j < fileNames.length; j++) {
+		StringBuilder strBuilder = null;
+		for (int i = 0; i < paths.length; i++) {
+			System.out.printf("%7s", i + AnalysisUtil.getProgName(paths[i]));
+			for (int j = 0; j < paths.length; j++) {
 				// if (i <= j)
 				System.out.printf("% 7.1f", distMatrix[i][j]);
 				// else
 				// System.out.printf("%7s", " ");
 				if (distMatrix[i][j] < 1.5f && j > i) {
-					String progName1 = AnalysisUtil.getProgName(fileNames[i]), progName2 = AnalysisUtil
-							.getProgName(fileNames[j]);
+					String progName1 = AnalysisUtil.getProgName(paths[i]), progName2 = AnalysisUtil
+							.getProgName(paths[j]);
 					String str = "";
 					if (progName1.equals(progName2)) {
 						str = String.format("%d%s %d%s :%.1f\n", i, progName1,
@@ -142,38 +125,35 @@ public class ClusteringAnalysis {
 		System.out.printf("Maximum distance: %.1f\n", max);
 		System.out.print(strBuilder.toString());
 	}
+	
+	/**
+	 * This function needs to analyze how well the distance equation works,
+	 * especially in two aspects: 1. the minimum distance of different runs of
+	 * the same program; 2. the maximum distance of different runs of different
+	 * programs.
+	 */
+	public void analyze() {
+		
+	}
 
 	private float computeDist(int i, int j) {
-		HashSet<Long> hash1 = hashes[i], hash2 = hashes[j];
-		// HashSet<Long> hash1 = AnalysisUtil.initSetFromFile(fileNames[i]),
-		// hash2 = AnalysisUtil.initSetFromFile(fileNames[j]);
-		HashSet<Long> inter = AnalysisUtil.intersection(hash1, hash2);
-		// float dist = 0.0f, factor = (float) inter.size()
-		// / (hash1.size() + hash2.size() - inter.size());
-		float dist = 0.0f;
+		HashSet<Long> inter = AnalysisUtil.intersection(hashes[i], hashes[j]);
+		float interScore = 0.0f;
 		for (Long l : inter) {
-			// dist += 1.0f / (freqTable.get(l) * freqTable.get(l));
-			dist += 1.0f / freqTable.get(l);
-			// dist += 1.0f;
+			interScore += 1.0f / freqTable.get(l);
 		}
-		return 2 / (dist / factors[i] + dist / factors[j]) - 1;
+		return 2 / (interScore / scores[i] + interScore / scores[j]) - 1;
 	}
 
 	private void init() {
-		distMatrix = new float[fileNames.length][fileNames.length];
-		factors = new float[fileNames.length];
-		strBuilder = new StringBuilder();
-		hashes = new HashSet[fileNames.length];
+		distMatrix = new float[paths.length][paths.length];
+		scores = new float[paths.length];
+		hashes = new HashSet[paths.length];
 		freqTable = new HashMap<Long, Integer>();
 
-		for (int i = 0; i < fileNames.length; i++) {
-			HashSet<Long> set;
-			hashes[i] = AnalysisUtil.getSetFromRunDir(runDirs[i]);
-			//hashes[i] = AnalysisUtil.initSetFromFile(fileNames[i]);
-			
-			set = hashes[i];
-			for (Long l : set) {
-				// for (Long l : hashes[i]) {
+		for (int i = 0; i < paths.length; i++) {
+			hashes[i] = AnalysisUtil.getSetFromPath(paths[i]);
+			for (Long l : hashes[i]) {
 				if (freqTable.keySet().contains(l)) {
 					freqTable.put(l, freqTable.get(l) + 1);
 				} else {
@@ -186,9 +166,9 @@ public class ClusteringAnalysis {
 	
 	public static void main(String[] argvs) {
 
-		Getopt g = new Getopt("ClusteringAnalysis", argvs, "of:d:");
+		Getopt g = new Getopt("ClusteringAnalysis", argvs, "o::f:d:");
 		int c;
-		boolean append = true;
+		boolean append = true, error = false;
 		String dir4Files = null, dir4Runs = null,
 			recordFile = null;
 		while ((c = g.getopt()) != -1) {
@@ -198,38 +178,46 @@ public class ClusteringAnalysis {
 					break;
 				case 'f':
 					dir4Files = g.getOptarg();
+					if (dir4Files.startsWith("-"))
+						error = true;
 					break;
 				case 'd':
 					dir4Runs = g.getOptarg();
+					if (dir4Runs.startsWith("-"))
+						error = true;
 					break;
 				case '?':
+					error = true;
 					System.out.println("parse error for option: -" + (char) g.getOptopt());
 					break;
 				default:
 					break;	
 			}
 		}
+		if (error)
+			return;
+		int index = g.getOptind();
+		if (index < argvs.length)
+			recordFile = argvs[index];
+		else {
+			System.out.println("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
+			return;
+		}
 		
-		System.out.println("append: " + append);
-		System.out.println("dir4Files: " + dir4Files);
-		System.out.println("dir4Runs: " + dir4Runs);
-		System.out.println("recordFile: " + recordFile);
+		ArrayList<String> listFiles = null;
+		if (!(dir4Files == null && dir4Runs == null)) {
+			if (dir4Files != null) {
+				listFiles = AnalysisUtil.getAllHashFiles(dir4Files);
+			}
+			if (dir4Runs != null) {
+				ArrayList<String> list = AnalysisUtil.getAllRunDirs(dir4Runs);
+				listFiles.addAll(list);
+			}
+			AnalysisUtil.saveStringPerline(recordFile, listFiles, append);
+		}
 		
-		
-//		if (append) {
-//			
-//		}
-		// ArrayList<File> hashFiles = AnalysisUtil.getAllHashFiles(argvs[0]);
-		// String[] fileNames = new String[hashFiles.size()];
-		// for (int i = 0; i < fileNames.length; i++) {
-		// fileNames[i] = hashFiles.get(i).getAbsolutePath();
-		// }
-		// Arrays.sort(fileNames);
-	
-//		ArrayList<File> runDirLists = AnalysisUtil.getAllRunDirs(argvs[0]);
-//		File[] runDirs = runDirLists.toArray(new File[runDirLists.size()]);
-//		ClusteringAnalysis test = new ClusteringAnalysis(runDirs);
-		//ClusteringTest test = new ClusteringTest(fileNames);
-		//test.outputDistMatrix();
+		ArrayList<String> strList = AnalysisUtil.getStringPerline(recordFile);
+		String[] strArray = strList.toArray(new String[strList.size()]);
+		ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray);
 	}
 }
