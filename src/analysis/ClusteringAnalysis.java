@@ -11,12 +11,17 @@ import java.io.File;
 import utils.AnalysisUtil;
 
 /**
+ * 
  * There are two steps to use this class:
  * 1. Extract all the execution source paths and store them in a file (one in a line),
  *    the line could be the specific hash file or the directory that contains all the
  *    hash file for that run.
  * 2. Read that file to initialize all the hash codes for each execution, then analyze them.
  *
+ *
+ *
+ * When calculating the distance matrix, we statically distribute the pairwise calculation
+ * workload to each thread (by default the number of threads is Tnum = 16). 
  */
 
 public class ClusteringAnalysis {
@@ -26,22 +31,93 @@ public class ClusteringAnalysis {
 	private float[] scores;
 	private String[] paths;
 	private String[] progNames;
+	
+	private int numThreads = 4;
+	private DistCalculationThread[] distThreads;
+	
+	private class DistCalculationThread implements Runnable{
+		private int fromIndex;
+		private int toIndex;
+		public Thread thread;
+		
+		private DistCalculationThread() {
+			
+		}
+		
+		public DistCalculationThread(int fromIndex, int toIndex) {
+			this.fromIndex = fromIndex;
+			this.toIndex = toIndex;
+			thread = new Thread(this);
+		}
+		
+		public void run() {
+			int count = 0;
+			long beginTime, endTime;
+			beginTime = System.currentTimeMillis();
+			int N = distMatrix[0].length;
+			
+			for (int k = fromIndex; k <= toIndex; k++) {
+				if (count == 1000) {
+					endTime = System.currentTimeMillis();
+					System.out.println("Time for 1000 distance computation of "
+							+ thread.getName() + "is: "
+							+ (endTime - beginTime) + " miliseconds");
+					beginTime = System.currentTimeMillis();
+					count = 0;
+				}
+				count++;
+				
+				int i = (int) ((2 * N + 1 - Math.sqrt((2 * N + 1) * (2 * N + 1) - 8 * k)) / 2),
+					j = k - i * (2 * N - i + 1) / 2 + i;
+				float f = computeDist(i, j);
+				distMatrix[i][j] = f;
+			}
+			
+		}
+		
+	}
 
 	public ClusteringAnalysis() {
 
 	}
 
-	public ClusteringAnalysis(String[] paths) {
+	public ClusteringAnalysis(String[] paths, int numThreads) {
 		this.paths = paths;
+		this.numThreads = numThreads;
 		progNames = new String[paths.length];
 		for (int i = 0; i < paths.length; i++) {
 			progNames[i] = AnalysisUtil.getProgNameFromPath(paths[i]);
 		}
 		init();
-		computeAllDist();
+		
+		int dimension = distMatrix[0].length,
+			interval = dimension * (dimension + 1) / 2 / numThreads,
+			beginIndex = 0,
+			endIndex = dimension * (dimension + 1) / 2 - 1;
+		
+		computeScoreOfSets();
+		
+		distThreads = new DistCalculationThread[numThreads];
+		for (int i = 0; i < distThreads.length - 1; i++) {
+			distThreads[i] = new DistCalculationThread(beginIndex, beginIndex + interval - 1);
+			beginIndex += interval;
+		}
+		distThreads[distThreads.length - 1] = new DistCalculationThread(beginIndex, endIndex);
+		
+		for (int i = 0; i < distThreads.length; i++) {
+			distThreads[i].thread.setName("Thread" + i);
+			distThreads[i].thread.start();
+		}
+		//computeAllDist();
 	}
 
-	public void computeAllDist() {
+	private void resetProgNames() {
+		for (int i = 0; i < progNames.length; i++) {
+			//progNames[i] = AnalysisUtil.getProgNameFromPath(path)
+		}
+	}
+	
+	private void computeScoreOfSets() {
 		for (int i = 0; i < scores.length; i++) {
 			scores[i] = 0.0f;
 			for (Long l : hashes[i]) {
@@ -50,7 +126,11 @@ public class ClusteringAnalysis {
 				// factors[i] += 1.0f;
 			}
 		}
-
+	}
+	
+	public void computeAllDist() {
+		computeScoreOfSets();
+		
 		int count = 0;
 		long beginTime, endTime, veryBeginning, veryEnding;
 		veryBeginning = System.currentTimeMillis();
@@ -75,7 +155,7 @@ public class ClusteringAnalysis {
 	}
 
 	private void merge() {
-
+		
 	}
 
 	public void outputDistMatrix() {
@@ -161,9 +241,12 @@ public class ClusteringAnalysis {
 	
 	public static void main(String[] argvs) {
 
-		Getopt g = new Getopt("ClusteringAnalysis", argvs, "o::f:d:");
+		Getopt g = new Getopt("ClusteringAnalysis", argvs, "onf:d:t:");
 		int c;
-		boolean append = true, error = false;
+		int numThreads = 4;
+		boolean append = true,
+			isAnalyzing = true,
+			error = false;
 		String dir4Files = null, dir4Runs = null,
 			recordFile = null;
 		while ((c = g.getopt()) != -1) {
@@ -180,6 +263,12 @@ public class ClusteringAnalysis {
 					dir4Runs = g.getOptarg();
 					if (dir4Runs.startsWith("-"))
 						error = true;
+					break;
+				case 't':
+					numThreads = Integer.parseInt(g.getOptarg());
+					break;
+				case 'n':
+					isAnalyzing = false;
 					break;
 				case '?':
 					error = true;
@@ -213,7 +302,9 @@ public class ClusteringAnalysis {
 		ArrayList<String> strList = AnalysisUtil.getStringPerline(recordFile);
 		String[] strArray = strList.toArray(new String[strList.size()]);
 		
-		ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray);
-		clusterAnalysis.outputDistMatrix();
+		if (isAnalyzing) {
+			ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray, numThreads);
+			//clusterAnalysis.outputDistMatrix();
+		}
 	}
 }

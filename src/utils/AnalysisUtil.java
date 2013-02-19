@@ -95,15 +95,18 @@ public class AnalysisUtil {
 	
 	public static String getProgNameFromPath(String path) {
 		File f = new File(path);
+		String progName;
 		if (f.isDirectory()) {
 			if (f.getName().indexOf("run") != -1) {
-				return f.getParentFile().getName();
+				progName = f.getParentFile().getName();
+				return progName;
 			} else {
 				return null;
 			}
 		} else {
 			if (f.getName().indexOf("pair-hash") != -1) {
-				return f.getName();
+				progName = f.getName();
+				return getProgName(progName);
 			} else {
 				return null;
 			}
