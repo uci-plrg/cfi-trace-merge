@@ -32,8 +32,14 @@ public class ClusteringAnalysis {
 	private String[] paths;
 	private String[] progNames;
 	
+	private HashMap<String, Integer> progName2Index;
+	private HashMap<Integer, String> index2ProgName;
+	
 	private int numThreads = 4;
 	private DistCalculationThread[] distThreads;
+	
+	// timing
+	long veryBeginning, veryEnding;
 	
 	private class DistCalculationThread implements Runnable{
 		private int fromIndex;
@@ -60,7 +66,7 @@ public class ClusteringAnalysis {
 				if (count == 1000) {
 					endTime = System.currentTimeMillis();
 					System.out.println("Time for 1000 distance computation of "
-							+ thread.getName() + "is: "
+							+ thread.getName() + " is: "
 							+ (endTime - beginTime) + " miliseconds");
 					beginTime = System.currentTimeMillis();
 					count = 0;
@@ -78,15 +84,23 @@ public class ClusteringAnalysis {
 	}
 
 	public ClusteringAnalysis() {
-
+		
 	}
 
 	public ClusteringAnalysis(String[] paths, int numThreads) {
 		this.paths = paths;
 		this.numThreads = numThreads;
 		progNames = new String[paths.length];
+		
+		progName2Index = new HashMap<String, Integer>();
+		index2ProgName = new HashMap<Integer, String>();
+		int index = 0;
 		for (int i = 0; i < paths.length; i++) {
 			progNames[i] = AnalysisUtil.getProgNameFromPath(paths[i]);
+			if (!progName2Index.containsKey(progNames[i])) {
+				progName2Index.put(progNames[i], index);
+				index2ProgName.put(index++, progNames[i]);
+			}
 		}
 		init();
 		
@@ -104,17 +118,28 @@ public class ClusteringAnalysis {
 		}
 		distThreads[distThreads.length - 1] = new DistCalculationThread(beginIndex, endIndex);
 		
+		
+		//computeAllDist();
+	}
+	
+	public void parallelComputeAllDist() {
+		// record the timing when the threads start
+		veryBeginning = System.nanoTime();
 		for (int i = 0; i < distThreads.length; i++) {
 			distThreads[i].thread.setName("Thread" + i);
 			distThreads[i].thread.start();
+			try {
+				distThreads[i].thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		//computeAllDist();
 	}
 
-	private void resetProgNames() {
-		for (int i = 0; i < progNames.length; i++) {
-			//progNames[i] = AnalysisUtil.getProgNameFromPath(path)
-		}
+	public void timeElapsed() {
+		veryEnding = System.nanoTime();
+		System.out.println("Total time:" + (veryEnding - veryBeginning) / 1000000000.0f
+				+ " seconds");
 	}
 	
 	private void computeScoreOfSets() {
@@ -154,25 +179,21 @@ public class ClusteringAnalysis {
 				+ " seconds");
 	}
 
-	private void merge() {
-		
-	}
-
 	public void outputDistMatrix() {
-		for (int i = 0; i < paths.length; i++) {
-			System.out.println(paths[i]);
-		}
-		System.out.printf("%7s", "");
-		for (int i = 0; i < paths.length; i++) {
-			System.out.printf("%7s", i + progNames[i]);
-		}
-		System.out.println();
+//		for (int i = 0; i < paths.length; i++) {
+//			System.out.println(paths[i]);
+//		}
+//		System.out.printf("%7s", "");
+//		for (int i = 0; i < paths.length; i++) {
+//			System.out.printf("%7s", i + progNames[i]);
+//		}
+//		System.out.println();
 		float min = 1.5f, max = 1.5f;
 		StringBuilder strBuilder = new StringBuilder();
 		for (int i = 0; i < paths.length; i++) {
 			System.out.printf("%7s", i + progNames[i]);
 			for (int j = 0; j < paths.length; j++) {
-				if (i <= j)
+				if (i < j)
 					System.out.printf("% 7.1f", distMatrix[i][j]);
 				else
 					System.out.printf("%7s", " ");
@@ -198,7 +219,7 @@ public class ClusteringAnalysis {
 		System.out.println("\n");
 		System.out.printf("Minimum distance: %.1f\n", min);
 		System.out.printf("Maximum distance: %.1f\n", max);
-		System.out.print(strBuilder.toString());
+		//System.out.print(strBuilder.toString());
 	}
 	
 	/**
@@ -208,7 +229,54 @@ public class ClusteringAnalysis {
 	 * programs.
 	 */
 	public void analyze() {
+		int numProgs = progName2Index.size();
+		float[] maxDistSameProg = new float[numProgs];
+		float[][] minDistDiffProg = new float[numProgs][numProgs];
+		// initialize the analysis statistics
+		for (int i = 0; i < numProgs; i++) {
+			maxDistSameProg[i] = 0.0f;
+			for (int j = 0; j < numProgs; j++) {
+				minDistDiffProg[i][j] = 100000000.0f;
+			}
+		}
 		
+		float maxSameProg = 0.0f, minDiffProg = 100000.0f;
+		int maxIndex = 0, minIndexI = 0, minIndexJ = 0;
+		for (int i = 0; i < distMatrix[0].length; i++) {	
+			for (int j = i + 1; j < distMatrix[0].length; j++) {
+				int indexI = progName2Index.get(progNames[i]),
+					indexJ = progName2Index.get(progNames[j]);
+				// same program
+				if (indexI == indexJ) {
+					if (distMatrix[i][j] > maxDistSameProg[indexI]) {
+						maxDistSameProg[indexI] = distMatrix[i][j];
+						if (maxSameProg < maxDistSameProg[indexI]) {
+							maxSameProg = maxDistSameProg[indexI];
+							maxIndex = indexI;
+						}
+					}
+				} else {
+					if (distMatrix[i][j] < minDistDiffProg[indexI][indexJ]) {
+						minDistDiffProg[indexI][indexJ] = distMatrix[i][j];
+						if (minDiffProg > minDistDiffProg[indexI][indexJ]) {
+							minDiffProg = minDistDiffProg[indexI][indexJ];
+							minIndexI = indexI;
+							minIndexJ = indexJ;
+						}
+					}
+				}
+			}
+		}
+		
+		// output the result
+		System.out.println("Max distance of the same program("
+				+ index2ProgName.get(maxIndex)
+				+ "): " + maxSameProg);
+		System.out.println("Min distance of different programs("
+				+ index2ProgName.get(minIndexI)
+				+ " & "
+				+ index2ProgName.get(minIndexJ)
+				+ "): " + minDiffProg);
 	}
 
 	private float computeDist(int i, int j) {
@@ -304,7 +372,11 @@ public class ClusteringAnalysis {
 		
 		if (isAnalyzing) {
 			ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray, numThreads);
-			//clusterAnalysis.outputDistMatrix();
+			clusterAnalysis.parallelComputeAllDist();
+			clusterAnalysis.outputDistMatrix();
+			clusterAnalysis.analyze();
+			clusterAnalysis.timeElapsed();
+			
 		}
 	}
 }
