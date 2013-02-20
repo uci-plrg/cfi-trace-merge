@@ -36,7 +36,7 @@ public class ClusteringAnalysis {
 	private HashMap<Integer, String> index2ProgName;
 	
 	private int numThreads = 4;
-	private DistCalculationThread[] distThreads;
+	public DistCalculationThread[] distThreads;
 	
 	// timing
 	long veryBeginning, veryEnding;
@@ -117,8 +117,6 @@ public class ClusteringAnalysis {
 			beginIndex += interval;
 		}
 		distThreads[distThreads.length - 1] = new DistCalculationThread(beginIndex, endIndex);
-		
-		
 		//computeAllDist();
 	}
 	
@@ -128,6 +126,8 @@ public class ClusteringAnalysis {
 		for (int i = 0; i < distThreads.length; i++) {
 			distThreads[i].thread.setName("Thread" + i);
 			distThreads[i].thread.start();
+		}
+		for (int i = 0; i < distThreads.length; i++) {
 			try {
 				distThreads[i].thread.join();
 			} catch (InterruptedException e) {
@@ -373,7 +373,7 @@ public class ClusteringAnalysis {
 		if (isAnalyzing) {
 			ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray, numThreads);
 			clusterAnalysis.parallelComputeAllDist();
-			clusterAnalysis.outputDistMatrix();
+			//clusterAnalysis.outputDistMatrix();
 			clusterAnalysis.analyze();
 			clusterAnalysis.timeElapsed();
 			
