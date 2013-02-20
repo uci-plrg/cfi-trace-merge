@@ -4,11 +4,14 @@ import gnu.getopt.Getopt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.io.File;
 
 import utils.AnalysisUtil;
+import utils.DistancePair;
+import utils.Heap;
 
 /**
  * 
@@ -142,14 +145,19 @@ public class ClusteringAnalysis {
 				+ " seconds");
 	}
 	
+	
+	private float scoreOfSet(HashSet<Long> set) {
+//		float score = 0.0f;
+//		for (Long l : set) {
+//			score += (1.0f / freqTable.get(l));
+//		}
+//		return score;
+		return set.size();
+	}
+	
 	private void computeScoreOfSets() {
 		for (int i = 0; i < scores.length; i++) {
-			scores[i] = 0.0f;
-			for (Long l : hashes[i]) {
-				// factors[i] += (1.0f / (freqTable.get(l) * freqTable.get(l)));
-				scores[i] += (1.0f / freqTable.get(l));
-				// factors[i] += 1.0f;
-			}
+			scores[i] = scoreOfSet(hashes[i]);
 		}
 	}
 	
@@ -246,12 +254,34 @@ public class ClusteringAnalysis {
 			maxInstanceJ = 0,
 			minInstanceI = 0,
 			minInstanceJ = 0;
+		float[] maxDistSameProgs = new float[numProgs];
+		float[] sumDistSameProgs = new float[numProgs];
+		int[] numSameProgs = new int[numProgs];
+		int[] maxSameProgInstanceIs = new int[numProgs];
+		int[] maxSameProgInstanceJs = new int[numProgs];
+		// store the closest N distances (N = 100) between different programs
+		int numMinDistDiffProgs = 100;
+		Heap<DistancePair> minDistDiffProgs = new Heap<DistancePair>(
+				new Comparator<DistancePair>() {
+					public int compare(DistancePair a, DistancePair b) {
+						return a.compareTo(b);
+					}
+				});
+		
+		
 		for (int i = 0; i < distMatrix[0].length; i++) {	
 			for (int j = i + 1; j < distMatrix[0].length; j++) {
 				int indexI = progName2Index.get(progNames[i]),
 					indexJ = progName2Index.get(progNames[j]);
 				// same program
 				if (indexI == indexJ) {
+					sumDistSameProgs[indexI] += distMatrix[i][j];
+					numSameProgs[indexI]++;
+					if (distMatrix[i][j] > maxDistSameProgs[indexI]) {
+						maxDistSameProgs[indexI] = distMatrix[i][j];
+						maxSameProgInstanceIs[indexI] = i;
+						maxSameProgInstanceJs[indexI] = j;
+					}
 					if (distMatrix[i][j] > maxDistSameProg[indexI]) {
 						maxDistSameProg[indexI] = distMatrix[i][j];
 						if (maxSameProg < maxDistSameProg[indexI]) {
@@ -262,6 +292,23 @@ public class ClusteringAnalysis {
 						}
 					}
 				} else {
+					if (minDistDiffProgs.size() < numMinDistDiffProgs) {
+						DistancePair distPair = new DistancePair(
+							index2ProgName.get(indexI),
+							index2ProgName.get(indexJ),
+							paths[i],
+							paths[j],
+							distMatrix[i][j]);
+						minDistDiffProgs.insertElem(distPair);
+					} else if (minDistDiffProgs.getMaxElem().dist > distMatrix[i][j]) {
+						DistancePair distPair = new DistancePair(
+								index2ProgName.get(indexI),
+								index2ProgName.get(indexJ),
+								paths[i],
+								paths[j],
+								distMatrix[i][j]);
+						minDistDiffProgs.swapMaxElemWith(distPair);
+					}
 					if (distMatrix[i][j] < minDistDiffProg[indexI][indexJ]) {
 						minDistDiffProg[indexI][indexJ] = distMatrix[i][j];
 						if (minDiffProg > minDistDiffProg[indexI][indexJ]) {
@@ -290,14 +337,29 @@ public class ClusteringAnalysis {
 				+ "): " + minDiffProg);
 		System.out.println(paths[minInstanceI]);
 		System.out.println(paths[minInstanceJ]);
+		
+		for (int i = 0; i < numProgs; i++) {
+			System.out.println("Average distance of program("
+					+ index2ProgName.get(i)
+					+ "): " + sumDistSameProgs[i] / numSameProgs[i]);
+			System.out.println("Max distance of program("
+					+ index2ProgName.get(i)
+					+ "): " + maxDistSameProgs[i]);
+			System.out.println(paths[maxSameProgInstanceIs[i]]);
+			System.out.println(paths[maxSameProgInstanceJs[i]]);
+		}
+		
+		// output the N closest pairs of different programs
+		System.out.println("The closest pairs of different programs: ");
+		while (minDistDiffProgs.size() > 0) {
+			DistancePair pair = minDistDiffProgs.removeMaxElem();
+			System.out.println(pair.progName1 + " & " + pair.progName2 + " dist: " + pair.dist);
+		}
 	}
 
 	private float computeDist(int i, int j) {
 		HashSet<Long> inter = AnalysisUtil.intersection(hashes[i], hashes[j]);
-		float interScore = 0.0f;
-		for (Long l : inter) {
-			interScore += 1.0f / freqTable.get(l);
-		}
+		float interScore = scoreOfSet(inter);
 		return 2 / (interScore / scores[i] + interScore / scores[j]) - 1;
 	}
 
@@ -321,7 +383,7 @@ public class ClusteringAnalysis {
 
 	
 	public static void main(String[] argvs) {
-
+		
 		Getopt g = new Getopt("ClusteringAnalysis", argvs, "onf:d:t:");
 		int c;
 		int numThreads = 4;
