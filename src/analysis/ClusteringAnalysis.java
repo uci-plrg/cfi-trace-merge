@@ -242,6 +242,10 @@ public class ClusteringAnalysis {
 		
 		float maxSameProg = 0.0f, minDiffProg = 100000.0f;
 		int maxIndex = 0, minIndexI = 0, minIndexJ = 0;
+		int maxInstanceI = 0,
+			maxInstanceJ = 0,
+			minInstanceI = 0,
+			minInstanceJ = 0;
 		for (int i = 0; i < distMatrix[0].length; i++) {	
 			for (int j = i + 1; j < distMatrix[0].length; j++) {
 				int indexI = progName2Index.get(progNames[i]),
@@ -253,6 +257,8 @@ public class ClusteringAnalysis {
 						if (maxSameProg < maxDistSameProg[indexI]) {
 							maxSameProg = maxDistSameProg[indexI];
 							maxIndex = indexI;
+							maxInstanceI = i;
+							maxInstanceJ = j;
 						}
 					}
 				} else {
@@ -262,6 +268,8 @@ public class ClusteringAnalysis {
 							minDiffProg = minDistDiffProg[indexI][indexJ];
 							minIndexI = indexI;
 							minIndexJ = indexJ;
+							minInstanceI = i;
+							minInstanceJ = j;
 						}
 					}
 				}
@@ -272,11 +280,16 @@ public class ClusteringAnalysis {
 		System.out.println("Max distance of the same program("
 				+ index2ProgName.get(maxIndex)
 				+ "): " + maxSameProg);
+		System.out.println(paths[maxInstanceI]);
+		System.out.println(paths[maxInstanceJ]);
+		
 		System.out.println("Min distance of different programs("
 				+ index2ProgName.get(minIndexI)
 				+ " & "
 				+ index2ProgName.get(minIndexJ)
 				+ "): " + minDiffProg);
+		System.out.println(paths[minInstanceI]);
+		System.out.println(paths[minInstanceJ]);
 	}
 
 	private float computeDist(int i, int j) {
