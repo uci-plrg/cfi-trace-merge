@@ -1,3 +1,13 @@
 Max distance of the same program(cvs): 41.35859
 Min distance of different programs(ls-good & dd): 0.70482314
 Total time:630.0455 seconds
+
+(this runs without cvs)
+Max distance of the same program(latex): 16.728045
+/scratch/crowd-safe-hashlog/latex_2013-01-29_12-26-24/latex/run40
+/scratch/crowd-safe-hashlog/latex_2013-01-29_12-26-24/latex/run909
+Min distance of different programs(ls-good & dd): 0.68432987
+/scratch/crowd-safe-hashlog/lsgood_2013-01-30_14-09-44/ls-good/run638
+/scratch/crowd-safe-hashlog/dd_2013-01-29_22-33-54/dd/run403
+Total time:404.05664 seconds
+
