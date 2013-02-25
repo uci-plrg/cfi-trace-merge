@@ -1,5 +1,7 @@
 package utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -134,14 +136,14 @@ public class Heap<Type> {
 	}
 	
 	public static void main(String[] argvs) {
-		MyComparator comparator = new MyComparator();
-		Heap<Integer> maxHeap;
-		Integer arr[] = {5, 3, 1, 6, 3, 8};
-		Heap.sortByHeap(arr, comparator);
-		for (int i = 0; i < arr.length; i++) {
-			System.out.print(arr[i] + " ");
-		}
-		System.out.println();
+//		MyComparator comparator = new MyComparator();
+//		Heap<Integer> maxHeap;
+//		Integer arr[] = {5, 3, 1, 6, 3, 8};
+//		Heap.sortByHeap(arr, comparator);
+//		for (int i = 0; i < arr.length; i++) {
+//			System.out.print(arr[i] + " ");
+//		}
+//		System.out.println();
 	}
 
 }

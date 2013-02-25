@@ -1,4 +1,4 @@
-package analysis;
+package analysis.set;
 
 import gnu.getopt.Getopt;
 
@@ -8,6 +8,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import utils.AnalysisUtil;
 import utils.DistancePair;
@@ -27,7 +33,7 @@ import utils.Heap;
  * workload to each thread (by default the number of threads is Tnum = 16). 
  */
 
-public class ClusteringAnalysis {
+public class ClusteringAnalysisSet {
 	private HashSet<Long>[] hashes;
 	private HashMap<Long, Integer> freqTable;
 	private float[][] distMatrix;
@@ -86,11 +92,11 @@ public class ClusteringAnalysis {
 		
 	}
 
-	public ClusteringAnalysis() {
+	public ClusteringAnalysisSet() {
 		
 	}
 
-	public ClusteringAnalysis(String[] paths, int numThreads) {
+	public ClusteringAnalysisSet(String[] paths, int numThreads) {
 		this.paths = paths;
 		this.numThreads = numThreads;
 		progNames = new String[paths.length];
@@ -146,18 +152,18 @@ public class ClusteringAnalysis {
 	}
 	
 	
-	private float scoreOfSet(HashSet<Long> set) {
-//		float score = 0.0f;
-//		for (Long l : set) {
-//			score += (1.0f / freqTable.get(l));
-//		}
-//		return score;
-		return set.size();
+	public static float scoreOfSet(HashSet<Long> set, HashMap<Long, Integer> freqTable) {
+		float score = 0.0f;
+		for (Long l : set) {
+			score += (1.0f / freqTable.get(l));
+		}
+		return score;
+//		return set.size();
 	}
 	
 	private void computeScoreOfSets() {
 		for (int i = 0; i < scores.length; i++) {
-			scores[i] = scoreOfSet(hashes[i]);
+			scores[i] = scoreOfSet(hashes[i], freqTable);
 		}
 	}
 	
@@ -354,12 +360,13 @@ public class ClusteringAnalysis {
 		while (minDistDiffProgs.size() > 0) {
 			DistancePair pair = minDistDiffProgs.removeMaxElem();
 			System.out.println(pair.progName1 + " & " + pair.progName2 + " dist: " + pair.dist);
+			System.out.println(pair.path1 + "\n" + pair.path2 + "\n");
 		}
 	}
 
 	private float computeDist(int i, int j) {
 		HashSet<Long> inter = AnalysisUtil.intersection(hashes[i], hashes[j]);
-		float interScore = scoreOfSet(inter);
+		float interScore = scoreOfSet(inter, freqTable);
 		return 2 / (interScore / scores[i] + interScore / scores[j]) - 1;
 	}
 
@@ -380,18 +387,47 @@ public class ClusteringAnalysis {
 			}
 		}
 	}
+	
+	public void storeFreqTableInFile(String fileName) {
+		try {
+			FileOutputStream fileOut =  new FileOutputStream(fileName);
+			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+			objectOut.writeObject(freqTable);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static HashMap<Long, Integer> loadFreqTableFromFile(String fileName) {
+		try {
+			FileInputStream fileIn =  new FileInputStream(fileName);
+			ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+			return (HashMap<Long, Integer>) objectIn.readObject();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	
 	public static void main(String[] argvs) {
 		
-		Getopt g = new Getopt("ClusteringAnalysis", argvs, "onf:d:t:");
+		Getopt g = new Getopt("ClusteringAnalysis", argvs, "xonf:d:t:m:");
 		int c;
 		int numThreads = 4;
 		boolean append = true,
 			isAnalyzing = true,
 			error = false;
 		String dir4Files = null, dir4Runs = null,
-			recordFile = null;
+			recordFile = null, freqFile = null;
+		String dir4Hashset1 = null, dir4Hashset2 = null;
+		boolean isDistance = false;
 		while ((c = g.getopt()) != -1) {
 			switch (c) {
 				case 'o':
@@ -413,21 +449,54 @@ public class ClusteringAnalysis {
 				case 'n':
 					isAnalyzing = false;
 					break;
+				case 'm':
+					freqFile = g.getOptarg();
+					break;
+				case 'x':
+					// this option is used to compute the distance of two sets
+					// it should work with -m option
+					isDistance = true;
+					break;
 				case '?':
 					error = true;
 					System.out.println("parse error for option: -" + (char) g.getOptopt());
 					break;
 				default:
+					error = true;
 					break;	
 			}
 		}
 		if (error)
 			return;
 		int index = g.getOptind();
-		if (index < argvs.length)
+		HashMap<Long, Integer> freqTable = null;
+		if (isDistance) {
+			freqTable = loadFreqTableFromFile(freqFile);
+			if (index < argvs.length)
+				dir4Hashset1 = argvs[index++];
+			if (index < argvs.length)
+				dir4Hashset2 = argvs[index++];
+		} else if (index < argvs.length) {
 			recordFile = argvs[index];
-		else {
+		} else {
 			System.out.println("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
+			return;
+		}
+		
+		
+		// output the distance info and then exit
+		if (isDistance) {
+			HashSet<Long> set1 = AnalysisUtil.getSetFromRunDir(dir4Hashset1),
+					set2 = AnalysisUtil.getSetFromRunDir(dir4Hashset2),
+					inter = AnalysisUtil.intersection(set1, set2);
+			float score1 = scoreOfSet(set1, freqTable),
+				score2 = scoreOfSet(set2, freqTable),
+				scoreInter = scoreOfSet(inter, freqTable),
+				dist = 2 /(scoreInter / score1 + scoreInter / score2) - 1;
+			System.out.println("Score of " + dir4Hashset1 + " is: " + score1);
+			System.out.println("Score of " + dir4Hashset2 + " is: " + score2);
+			System.out.println("Score of the intersection is: " + scoreInter);
+			System.out.println("Distance of the two sets is: " + dist);
 			return;
 		}
 		
@@ -446,12 +515,14 @@ public class ClusteringAnalysis {
 		String[] strArray = strList.toArray(new String[strList.size()]);
 		
 		if (isAnalyzing) {
-			ClusteringAnalysis clusterAnalysis = new ClusteringAnalysis(strArray, numThreads);
+			ClusteringAnalysisSet clusterAnalysis = new ClusteringAnalysisSet(strArray, numThreads);
+			if (freqFile != null) {
+				clusterAnalysis.storeFreqTableInFile(freqFile);
+			}
 			clusterAnalysis.parallelComputeAllDist();
 			//clusterAnalysis.outputDistMatrix();
 			clusterAnalysis.analyze();
 			clusterAnalysis.timeElapsed();
-			
 		}
 	}
 }

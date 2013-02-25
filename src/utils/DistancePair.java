@@ -1,6 +1,6 @@
 package utils;
 
-public class DistancePair implements Comparable {
+public class DistancePair implements Comparable<DistancePair> {
 	public final String progName1, progName2;
 	public final String path1, path2;
 	public final float dist;
@@ -13,7 +13,7 @@ public class DistancePair implements Comparable {
 		this.dist = dist;
 	}
 
-	public int compareTo(Object o) {
+	public int compareTo(DistancePair o) {
 		DistancePair other = (DistancePair) o;
 		if (dist > other.dist)
 			return 1;

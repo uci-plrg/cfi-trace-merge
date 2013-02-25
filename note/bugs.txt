@@ -2,4 +2,12 @@ This document contains all the unusual cases I've seen so far!
 
 1. Running jvm under DR is unsuccessful with infinite output "Expected a link that never happened".
 
+2. ./runcs tar -cvzf test.tar ../ext/    (stuck...)
+
+<Preferred vmm heap allocation failed>
+<Full size vmm heap allocation failed>
+<Starting application /bin/tar (7751)>
+<Initial options = -code_api -stack_size 56K -disable_traces -no_enable_traces -max_elide_jmp 0 -max_elide_call 0 -no_shared_traces -bb_ibl_targets -no_shared_trace_ibl_routine -no_inline_ignored_syscalls -native_exec_default_list '' -no_native_exec_managed_code -no_indcall2direct >
+<-- parent 7751 forked child 7759 -->
+
 

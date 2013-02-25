@@ -1,4 +1,6 @@
-package analysis;
+package analysis.set;
+
+import gnu.getopt.Getopt;
 
 import java.io.*;
 import java.util.*;
@@ -13,6 +15,7 @@ public class Diff {
 	public void diff(String filename1, String filename2, int showNewHashes) {
 		HashSet<Long> set1 = AnalysisUtil.initSetFromFile(filename1), set2 = AnalysisUtil
 				.initSetFromFile(filename2);
+		
 		if (set1.containsAll(set2) && set2.containsAll(set1))
 			System.out.println("No new hash codes found in set " + filename1 + "!");
 		else {
@@ -53,8 +56,41 @@ public class Diff {
 	}
 	
 	public static void main(String[] argvs) {
+//		Getopt g = new Getopt("Diff", argvs, "as");
+//		int c;
+//		boolean error = false;
+//		
+//		
+//		while ((c = g.getopt()) != -1) {
+//			switch (c) {
+//				case 'a':
+//					append = false;
+//					break;
+//				case 's':
+//					dir4Files = g.getOptarg();
+//					if (dir4Files.startsWith("-"))
+//						error = true;
+//					break;
+//				case '?':
+//					error = true;
+//					System.out.println("parse error for option: -" + (char) g.getOptopt());
+//					break;
+//				default:
+//					break;	
+//			}
+//		}
+//		if (error) {
+//			Diff.printDiffUsage();
+//			return;
+//		}
+//		
+//		HashMap<Long, Integer> freqTable = ClusteringAnalysis.loadFreqTableFromFile("freqFile");
+//		System.out.println("Freq Map Size: " + freqTable.size());
+		
 		Diff d = new Diff();
-		String from, to;
+
+		
+		String from = null, to = null;
 		if (argvs.length == 3) {
 			from = argvs[1];
 			to = argvs[2];
