@@ -62,6 +62,20 @@ public class ExecutionGraph {
 		init();
 		System.out.println("Finish initializing the graph for: " + tagFileName);
 	}
+	
+	/**
+	 * try to merge another graph with itself
+	 * !!! Seems that every two graphs can be merged,
+	 * so maybe there should be a way to evaluate how
+	 * much the two graphs conflict
+	 * One case is unmergable: two direct branch nodes with same
+	 * hash value but have different branch targets (Seems wired!!)
+	 * 
+	 * @param otherGraph
+	 */
+	public void mergeGraph(ExecutionGraph otherGraph) {
+		
+	}
 
 	public void dumpGraph(String fileName) {
 		File file = new File(fileName);
@@ -84,9 +98,17 @@ public class ExecutionGraph {
 				
 					HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
 					for (Node node : edges.keySet()) {
+						int flag = edges.get(node);
+						int ordinal = flag % 256;
+						String branchType;
+						if (flag / 256 == 1) {
+							branchType = "direct";
+						} else {
+							branchType = "indirect";
+						}
 						pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "->"
 								+ "node_" + Long.toHexString(node.hash) + "[label=\""
-								+ edges.get(node) + "_" + Long.toHexString(node.tag) + "\"]");
+								+ branchType + "_" + ordinal + "_" + Long.toHexString(node.tag) + "\"]");
 					}
 			}
 			
@@ -205,14 +227,34 @@ public class ExecutionGraph {
 		nodes.trimToSize();
 	}
 
-	// get the highest two byte of the tag, which represents the ordinal of the edge
+	// get the second highest byte of the tag,
+	// which represents the ordinal of the edge
+	// !!! At this point, just return the highest two bytes
 	public static int getEdgeOrdinal(long tag) {
-		//System.out.println(Long.toHexString(tag));
-		return new Long(tag >> 48).intValue();
+		Long res = tag >>> 48;
+		return res.intValue();
+//		int flag = new Long(tag >>> 48).intValue();
+//		return flag % 256;
+	}
+	
+	public static boolean isDirectBranch(long tag) {
+		int flag = new Long(tag >>> 48).intValue();
+		if (flag / 256 == 1) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	// get the lower 6 byte of the tag, which is a long integer
 	public static long getTagEffectiveValue(long tag) {
-		return tag << 16;
+		Long res = tag << 16;
+//		System.out.println(Long.toHexString(res));
+//		if (res >>> 56 != 0x7f)
+//			res = res << 36 >>> 36;
+//		else
+//			res = res << 36 >>> 36 | 0x7fl << 56;
+//		System.out.println(Long.toHexString(res));
+		return res;
 	}
 }
