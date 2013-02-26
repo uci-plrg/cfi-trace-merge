@@ -1,19 +1,29 @@
 package analysis.graph;
 
-import gnu.getopt.Getopt;
-
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import analysis.graph.ExecutionGraph.Node;
-
-import utils.GraphAnalysisUtil;
+import gnu.getopt.Getopt;
 
 public class ClusteringAnalysisGraph {
 	ExecutionGraph graph;
+	
+	ExecutionGraph[] graphs;
+	String[] runPaths;
 
 	public ClusteringAnalysisGraph(String tagFileName, String lookupFileName) {
 		this.graph = new ExecutionGraph(tagFileName, lookupFileName);
+	}
+	
+	private ExecutionGraph buildGraphFromRunDir(String path) {
+		ExecutionGraph g;
+		File runDir = new File(path);
+//		for (File f : runDir.listFiles()) {
+//			if (f.getName().indexOf("") != -1) {
+//				
+//			} else if
+//		}
+		return null;
 	}
 
 	public static void printUsage() {

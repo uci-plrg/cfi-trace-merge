@@ -5,7 +5,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -47,8 +46,8 @@ public class ExecutionGraph {
 
 	// the edges of the graph comes with an ordinal
 	private HashMap<Node, HashMap<Node, Integer>> adjacentList;
-
-	private String tagFileName, lookupFileName;
+	
+	private String runDirName;
 
 	// nodes in an array in the read order from file
 	private ArrayList<Node> nodes;
@@ -56,11 +55,22 @@ public class ExecutionGraph {
 	private HashMap<Long, Node> hashLookupTable;
 
 	public ExecutionGraph(String tagFileName, String lookupFileName) {
-		this.tagFileName = tagFileName;
-		this.lookupFileName = lookupFileName;
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
-		init();
+		init(lookupFileName, tagFileName);
 		System.out.println("Finish initializing the graph for: " + tagFileName);
+	}
+	
+	/**
+	 * this method is for programs that will fork and exec other programs
+	 * @param otherGraph
+	 * @return
+	 */
+	private void mergeGraphFromSameRun(ExecutionGraph otherGraph) {
+		for (Node n : otherGraph.adjacentList.keySet()) {
+			if (adjacentList.containsKey(n)) {
+				
+			}
+		}
 	}
 	
 	/**
@@ -68,12 +78,20 @@ public class ExecutionGraph {
 	 * !!! Seems that every two graphs can be merged,
 	 * so maybe there should be a way to evaluate how
 	 * much the two graphs conflict
-	 * One case is unmergable: two direct branch nodes with same
+	 * One case is unmergeable: two direct branch nodes with same
 	 * hash value but have different branch targets (Seems wired!!)
+	 * 
+	 * I am doing a trick here: programs in x86/linux seems to enter
+	 * their main function after a very similar dynamic-loading process,
+	 * at the end of which there is a indirect branch which jumps to the
+	 * real main blocks. In the environment of this machine, the hash value
+	 * of that 'final block' is 0x1d84443b9bf8a6b3.
 	 * 
 	 * @param otherGraph
 	 */
-	public void mergeGraph(ExecutionGraph otherGraph) {
+	public ExecutionGraph mergeGraph(ExecutionGraph otherGraph) {
+		//long hash = Long.valueOf("1d84443b9bf8a6b3", 16);
+		return null;
 		
 	}
 
@@ -121,7 +139,7 @@ public class ExecutionGraph {
 			pw.close();
 	}
 
-	private void init() {
+	private void init(String lookupFileName, String tagFileName) {
 		readGraphLookup(lookupFileName);
 		readGraph(tagFileName);
 	}
@@ -147,7 +165,10 @@ public class ExecutionGraph {
 				// it seems that they don't duplicate in the first few runs
 				if (hashLookupTable.containsKey(tag)) {
 					System.out.println("Something's wrong??");
-					return;
+					if (hashLookupTable.get(tag).hash != hash) {
+						System.out.println("Something's really wrong??");
+						return;
+					}
 				}
 				Node node = new Node(tag, hash);
 				hashLookupTable.put(tag, node);

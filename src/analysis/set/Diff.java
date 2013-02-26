@@ -1,12 +1,6 @@
 package analysis.set;
 
-import gnu.getopt.Getopt;
-
-import java.io.*;
 import java.util.*;
-import java.lang.Math;
-import java.math.BigInteger;
-import java.nio.*;
 
 import utils.AnalysisUtil;
 

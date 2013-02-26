@@ -1,6 +1,11 @@
 <project name="CS-Analysis">
 	<target name="compile">
-		<javac srcdir="./src" destdir="./classes" />
+		<mkdir dir="./classes" />
+		<javac srcdir="./src" destdir="./classes" >
+			<classpath>
+				<pathelement location="./lib/java-getopt-1.0.14.jar" />
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="clean">
