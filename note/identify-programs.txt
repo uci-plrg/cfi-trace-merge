@@ -17,5 +17,16 @@
    b. There are some kind of programs such as Latex that fork many process executing other programs, how to deal
       with that case??
 
+3. For indirect branch, we may need to treat them differently because they can actually jump to any place they
+   'want' to. If we do a 'flexible' merge, which means any indirect branches with different targets are mergeable,
+   then it turns out that any executions are mergeable. Therefore, we need to do some special treatment to them.
+   One interesting indirect branch is the entry of main. For different programs, the entry basic block of main are
+   different and maybe few collisions happen there (need further verification). Thus, if we can figure out a way
+   to identify that special 'indirect branch' point, most programs can be differentiated. One possible way to
+   automatically find out that point (rather than hardcoding) is use a statistical method. Usually, the number of
+   targets of a indirect branch is very limitted. If we see in the graph a point that has tens of hundreds or even
+   thousands of branch target, we have very high confidence to say it is the point!!
 
-
+   However, there is another problem to solve in the case of a hash collision or even same code in the first block
+   of main function. That's a really tough case!!! We need a survey on many many different existing programs to
+   verify how different that 'first main block' is.
