@@ -1,0 +1,10 @@
+<project name="CS-Analysis">
+	<target name="compile">
+		<javac srcdir="./src" destdir="./classes" />
+	</target>
+
+	<target name="clean">
+		<delete dir="./classes" />
+	</target>
+
+</project>
