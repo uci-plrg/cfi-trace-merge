@@ -1,0 +1,21 @@
+# This file contains issues about how to identify programs from hash sets or execution graphs.
+
+1. Set structure method does not seem to work to identify the programs, because of a few big problems.
+
+2. It is interesting to use the graph techniques, specifically, to check if the graphs are mergable. This method
+   is likely to involve more complication and be more expensive than set structure method. There are a few
+   concerns in case of merging different graphs.
+   a. What does it mean by 'mergable'?
+      Actually, any two execution can be thought to be mergable. There are massive use of indirect branches in
+	  the graph. One interesting observation here is that every program compiled with the same option (maybe also
+	  with the same version of C library) will have a very similar process (initializing the C library or related
+	  stuff). Right before it enter the main block of the program, there is a block that uses a indirect jump to
+	  enter the real main function. If we start from there, then it would be much easier to tell if two programs
+	  are from the same one because the subsequent blocks would be different.
+	  However, the problem is how to decide from a graph where this block is (where the entry point locates). It
+	  is not easy in terms of different OS, libray and environment.
+   b. There are some kind of programs such as Latex that fork many process executing other programs, how to deal
+      with that case??
+
+
+
