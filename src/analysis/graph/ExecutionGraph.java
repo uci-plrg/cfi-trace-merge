@@ -57,7 +57,8 @@ public class ExecutionGraph {
 	public ExecutionGraph(String tagFileName, String lookupFileName) {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		init(lookupFileName, tagFileName);
-		System.out.println("Finish initializing the graph for: " + tagFileName);
+		outputFirstMain();
+		//System.out.println("Finish initializing the graph for: " + tagFileName);
 	}
 	
 	/**
@@ -93,6 +94,24 @@ public class ExecutionGraph {
 		//long hash = Long.valueOf("1d84443b9bf8a6b3", 16);
 		return null;
 		
+	}
+	
+	public void outputFirstMain() {
+		Node n = null;
+		long hash = Long.valueOf("1d84443b9bf8a6b3", 16);
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes.get(i).hash == hash) {
+				n = nodes.get(i);
+				if (adjacentList.get(n).size() > 1) {
+					System.out.println("More than one target!");
+				} else {
+					for (Node node : adjacentList.get(n).keySet()) {
+						System.out.println(Long.toHexString(node.hash));
+					}
+				}
+				break;
+			}
+		}
 	}
 
 	public void dumpGraph(String fileName) {

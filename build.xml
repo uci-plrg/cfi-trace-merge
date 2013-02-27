@@ -1,15 +1,22 @@
 <project name="CS-Analysis">
-	<target name="compile">
-		<mkdir dir="./classes" />
-		<javac srcdir="./src" destdir="./classes" >
+	<property name="src.dir" value="./src" />
+	<property name="class.dir" value="./classes" />
+	<property name="lib.dir" value="./lib" />
+	
+	<property name="main.class" value="analysis.graph.ClusteringAnalysisGraph" />
+	<property name="getopt.jar" value="${lib.dir}/java-getopt-1.0.14.jar" />
+	
+	<target name="build">
+		<mkdir dir="${class.dir}" />
+		<javac srcdir="${src.dir}" destdir="${class.dir}" >
 			<classpath>
-				<pathelement location="./lib/java-getopt-1.0.14.jar" />
+				<pathelement location="${getopt.jar}" />
 			</classpath>
 		</javac>
 	</target>
-
+	
 	<target name="clean">
-		<delete dir="./classes" />
+		<delete dir="${class.dir}" />
 	</target>
 
 </project>
