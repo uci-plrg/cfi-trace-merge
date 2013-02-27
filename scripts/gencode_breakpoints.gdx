@@ -1,0 +1,12 @@
+# break at crowd-safe IBL loop in ibl routine at 0x41c6a400
+break *0x41c6a50e
+# break at crowd-safe IBL loop in ibl routine at 0x41c6a5c0
+break *0x41c6a6c2
+# break at crowd-safe IBL loop in ibl routine at 0x41c6a780
+break *0x41c6a88e
+# break at crowd-safe IBL loop in ibl routine at 0x41c6a940
+break *0x41c6aa4e
+# break at crowd-safe IBL loop in ibl routine at 0x41c6ab00
+break *0x41c6ac02
+# break at crowd-safe IBL loop in ibl routine at 0x41c6acc0
+break *0x41c6adce

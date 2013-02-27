@@ -1,6 +1,9 @@
 #!/bin/bash
 
-PROG_DIRs=/bin:/usr/bin
+# import the checking function
+. check-same-binary.sh
+
+PROG_DIRs=/bin
 
 HOME_DIR=~/cs-analysis-utils/cs-analysis-utils
 CLASS_PATH=$HOME_DIR/classes:$HOME_DIR/lib/java-getopt-1.0.14.jar
@@ -34,3 +37,5 @@ for dir in ${dirs[@]}; do
 done
 
 java -cp $CLASS_PATH $MAIN_CLASS -m $DST_FILE
+
+# calling checking function from 'check-same-binary.sh'
