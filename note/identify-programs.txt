@@ -43,6 +43,19 @@
    Binary files /usr/sbin/ck-log-system-restart and /usr/sbin/atd differ
    Binary files /usr/sbin/ck-log-system-stop and /usr/sbin/atd differ
 
+!! Another survey checks the first main blocks of several programs including ls, dd, tar, latex, sox and dot. Each
+   of them except dot is executed for 1000-2000 times (dot is executed for 720 times), and the first main blcoks
+   of these programs are the same except for latex, which actually executes two different programs (tex and
+   pdftex).
+   The following is the result of the survey:
+   131238f0aaa5b669:/scratch/crowd-safe-test-data/hashlog/graph/ls_2013-02-27_02-11-54/ls/run353
+   e4afd4cb74520269:/scratch/crowd-safe-test-data/hashlog/graph/dd_2013-02-27_00-19-06/dd/run353
+   68ccce2db5de4269:/scratch/crowd-safe-test-data/hashlog/graph/tar_2013-02-26_20-25-19/tar/run353
+   e4afd7bb64525669:/scratch/crowd-safe-test-data/hashlog/graph/latex_2013-02-26_09-47-46/latex/run353
+   608ede0964d62e69:/scratch/crowd-safe-test-data/hashlog/graph/sox_2013-02-27_01-04-46/sox/run353
+   be7962860f08f669:/scratch/crowd-safe-test-data/hashlog/graph/latex_2013-02-26_09-47-46/latex/run1018
+   aefd41de6d185669:/scratch/crowd-safe-test-data/hashlog/graph/dot_2013-02-26_15-05-09/dot/run353
+
    Something interesting here is that we should take a look at those programs with the same first main blocks to
    see how things will go (mainly check if they are mergeable after entering main function. We should notice that
    the same indirect thing may happen inside main, which means the are always mergeable in terms of 'flexible
