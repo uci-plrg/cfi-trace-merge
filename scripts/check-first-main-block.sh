@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# import the checking function
-. check-same-binary.sh
 
-PROG_DIRs=/bin
+#PROG_DIRs=/bin:/usr/sbin:/usr/bin
+PROG_DIRs=/usr/sbin
 
 HOME_DIR=~/cs-analysis-utils/cs-analysis-utils
 CLASS_PATH=$HOME_DIR/classes:$HOME_DIR/lib/java-getopt-1.0.14.jar
 MAIN_CLASS=analysis.graph.ClusteringAnalysisGraph
 DST_FILE=$HOME_DIR/dst.txt
+SAME_BLOCK_FILE=$HOME_DIR/same-block.txt
 
 TMP_LOG=~/cs-analysis-utils/cs-analysis-utils/log
+mkdir -p $TMP_LOG
 export DYNAMORIO_HOME=~/crowd-safe-dynamorio/crowd-safe-dynamorio/build
 export CROWD_SAFE_HASHLOG_DIR=$TMP_LOG
 
@@ -36,6 +37,12 @@ for dir in ${dirs[@]}; do
 	done
 done
 
-java -cp $CLASS_PATH $MAIN_CLASS -m $DST_FILE
+# collect all the program pairs that share the same first main block
+java -cp $CLASS_PATH $MAIN_CLASS -m $DST_FILE > $SAME_BLOCK_FILE
+
+# import the checking function
+. check-same-binary.sh
 
 # calling checking function from 'check-same-binary.sh'
+check-same-binary $SAME_BLOCK_FILE > $SAME_BLOCK_FILE
+

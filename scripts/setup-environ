@@ -1,0 +1,18 @@
+#!/bin/bash
+
+
+HOME_DIR=~/cs-analysis-utils/cs-analysis-utils
+CLASS_PATH=$HOME_DIR/classes:$HOME_DIR/lib/java-getopt-1.0.14.jar
+MAIN_CLASS=analysis.graph.ClusteringAnalysisGraph
+
+function same-block {
+	java -cp $CLASS_PATH $MAIN_CLASS -m $1
+
+}
+
+# import the checking function
+. check-same-binary.sh
+
+# calling checking function from 'check-same-binary.sh'
+#check-same-binary $1
+

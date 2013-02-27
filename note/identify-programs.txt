@@ -30,3 +30,26 @@
    However, there is another problem to solve in the case of a hash collision or even same code in the first block
    of main function. That's a really tough case!!! We need a survey on many many different existing programs to
    verify how different that 'first main block' is.
+
+!! A survey on 116 programs in /bin shows that 108 of them have a unique first main block hash, except for the
+   following 4 pairs, which are very similar programs. Applying the same test on /usr/sbin programs, 54 out of
+   57 programs have unique hash except for 2 pairs.
+   (The following 4 pairs of programs are from /bin)
+   Binary files /bin/hostname and /bin/dnsdomainname differ
+   Binary files /bin/ls and /bin/dir differ
+   Binary files /bin/true and /bin/false differ
+   Binary files /bin/vdir and /bin/dir differ
+   (The following 2 pairs of programs are from /usr/sbin)
+   Binary files /usr/sbin/ck-log-system-restart and /usr/sbin/atd differ
+   Binary files /usr/sbin/ck-log-system-stop and /usr/sbin/atd differ
+
+   Something interesting here is that we should take a look at those programs with the same first main blocks to
+   see how things will go (mainly check if they are mergeable after entering main function. We should notice that
+   the same indirect thing may happen inside main, which means the are always mergeable in terms of 'flexible
+   indirect branch merge.'
+
+*4. One thing is also worth a detailed check, which is a program calling the 'exec' system call to execute other
+   programs. In this case, since other programs have their own first main block, will it scew things up?? It may
+   depend on how programs are initialized and loaded in the 'exdc' way... This needs further detailed thinking and
+   research work!! 
+
