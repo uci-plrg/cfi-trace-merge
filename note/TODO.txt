@@ -1,0 +1,12 @@
+#1.  Check first main block of different versions of programs
+#2.  Manually wite some test cases, which includes cases such as library function calls, call 'exec' to execite
+     indirect branch like using function pointer. Also, try different compile option to see if it can change the
+	 blocks before the first main blocks. Besides, try the optimization option to check the optimized version of
+	 programs and compare them with the non-optimized version. The reason to do this is it may be possible somehow
+	 we need to cluster optimized version and non-optimized versions (possibly not!!!)
+#3.  Do a survey on how many indirect branch targets a program can possibly have at most
+4.  Expand the survey of programs' first main block to programs in /usr/bin or /usr/bin/X11 (some interative
+    programs) to verify the conjecture)
+5.  Try to change the environment of the program. However, this may be very hard because all machines we have now
+    are running in the exact same environment. Maybe I can try to use some kind of virtual machine...
+#6.  For those programs pair with same first main block, check if they can are mergeable!!!
