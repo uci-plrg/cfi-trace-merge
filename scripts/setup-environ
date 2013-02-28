@@ -11,7 +11,7 @@ function same-block {
 }
 
 # import the checking function
-. check-same-binary.sh
+. $HOME_DIR/scripts/check-same-binary.sh
 
 # calling checking function from 'check-same-binary.sh'
 #check-same-binary $1

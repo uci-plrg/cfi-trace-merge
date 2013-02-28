@@ -53,12 +53,29 @@ public class ExecutionGraph {
 	private ArrayList<Node> nodes;
 	
 	private HashMap<Long, Node> hashLookupTable;
+	
+	// if false, it means that the file doesn't exist or is in wrong format
+	private boolean isValidGraph = true;
 
 	public ExecutionGraph(String tagFileName, String lookupFileName) {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
-		init(lookupFileName, tagFileName);
-		outputFirstMain();
+		init(tagFileName, lookupFileName);
+		//outputFirstMain();
 		//System.out.println("Finish initializing the graph for: " + tagFileName);
+	}
+	
+	public static ExecutionGraph buildGraphFromRunDir(String runDir) {
+		File dir = new File(runDir);
+		String tagFile = null,
+			lookupFile = null;
+		for (File f : dir.listFiles()) {
+			if (f.getName().indexOf("bb-graph.") != -1) {
+				tagFile = f.getAbsolutePath();
+			} else if (f.getName().indexOf("bb-graph-hash.") != -1) {
+				lookupFile = f.getAbsolutePath();
+			}
+		}
+		return new ExecutionGraph(tagFile, lookupFile);
 	}
 	
 	/**
@@ -96,22 +113,26 @@ public class ExecutionGraph {
 		
 	}
 	
-	public void outputFirstMain() {
+	public long outputFirstMain() {
 		Node n = null;
-		long hash = Long.valueOf("1d84443b9bf8a6b3", 16);
+		long hash = Long.valueOf("1d84443b9bf8a6b3", 16),
+			firstMainHash = 0;
 		for (int i = 0; i < nodes.size(); i++) {
 			if (nodes.get(i).hash == hash) {
 				n = nodes.get(i);
 				if (adjacentList.get(n).size() > 1) {
 					System.out.println("More than one target!");
+					return 0;
 				} else {
 					for (Node node : adjacentList.get(n).keySet()) {
-						System.out.println(Long.toHexString(node.hash));
+						firstMainHash = node.hash;
+						//System.out.println(Long.toHexString(firstMainHash));
 					}
 				}
 				break;
 			}
 		}
+		return firstMainHash;
 	}
 
 	public void dumpGraph(String fileName) {
@@ -158,12 +179,20 @@ public class ExecutionGraph {
 			pw.close();
 	}
 
-	private void init(String lookupFileName, String tagFileName) {
-		readGraphLookup(lookupFileName);
-		readGraph(tagFileName);
+	private void init(String tagFileName, String lookupFileName) {
+		try {
+			readGraphLookup(lookupFileName);
+			readGraph(tagFileName);
+		} catch (NullPointerException e) {
+			isValidGraph = false;
+		}
+	}
+	
+	public boolean isValidGraph() {
+		return this.isValidGraph;
 	}
 
-	private void readGraphLookup(String fileName) {
+	private void readGraphLookup(String fileName) throws NullPointerException {
 		hashLookupTable = new HashMap<Long, Node>();
 		FileInputStream fileIn = null;
 		DataInputStream dataIn = null;
@@ -183,11 +212,21 @@ public class ExecutionGraph {
 				// first assume that they don't
 				// it seems that they don't duplicate in the first few runs
 				if (hashLookupTable.containsKey(tag)) {
-					System.out.println("Something's wrong??");
+					isValidGraph = false;
 					if (hashLookupTable.get(tag).hash != hash) {
-						System.out.println("Something's really wrong??");
-						return;
+						System.out.println("Something's wrong ----> invalid graph??");
+						System.out.println(Long.toHexString(hashLookupTable.get(tag).hash)
+								+ ":" + Long.toHexString(hash));
+						return;						
 					}
+//					System.out.println("Something's wrong ----> invalid graph??");
+//					return;
+					
+//					System.out.println("Something's wrong??");
+//					if (hashLookupTable.get(tag).hash != hash) {
+//						System.out.println("Something's really wrong??");
+//						return;
+//					}
 				}
 				Node node = new Node(tag, hash);
 				hashLookupTable.put(tag, node);
@@ -213,7 +252,7 @@ public class ExecutionGraph {
 	 * @param fileName
 	 * @return an ArrayList of tag seen in order (order in the file)
 	 */
-	private void readGraph(String fileName) {
+	private void readGraph(String fileName) throws NullPointerException {
 		File file = new File(fileName);
 		// V <= E / 2 + 1
 		int capacity = (int) file.length() / 16 / 2 + 1;

@@ -9,6 +9,8 @@ import java.util.HashSet;
 import utils.AnalysisUtil;
 
 import gnu.getopt.Getopt;
+import analysis.graph.ExecutionGraph;
+
 
 public class ClusteringAnalysisGraph {
 	ExecutionGraph graph;
@@ -18,6 +20,10 @@ public class ClusteringAnalysisGraph {
 
 	public ClusteringAnalysisGraph(String tagFileName, String lookupFileName) {
 		this.graph = new ExecutionGraph(tagFileName, lookupFileName);
+	}
+	
+	public ClusteringAnalysisGraph(String runDir) {
+		this.graph = ExecutionGraph.buildGraphFromRunDir(runDir);
 	}
 	
 	private ExecutionGraph buildGraphFromRunDir(String path) {
@@ -31,6 +37,8 @@ public class ClusteringAnalysisGraph {
 		return null;
 	}
 	
+	// string lines in 'fileName' should be in the format of
+	// <progName>:<hash-of-first-main-block>
 	public static void analyzeFirstMainBlock(String fileName) {
 		ArrayList<String> lines = AnalysisUtil.getStringPerline(fileName);
 		HashMap<Long, String> blocks = new HashMap<Long, String>();
@@ -52,6 +60,26 @@ public class ClusteringAnalysisGraph {
 			}
 		}
 	}
+	
+	public static void analyzeAllFirstMainBlock(String dirName) {
+		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(dirName);
+		HashMap<Long, String> firstMainHashes = new HashMap<Long, String>(); 
+		for (String runDir : runDirs) {
+			ExecutionGraph g = ExecutionGraph.buildGraphFromRunDir(runDir);
+			if (!g.isValidGraph()) {
+				System.out.println(runDir + " : invalid graph!");
+				continue;
+			}
+			long firstMainHash = g.outputFirstMain();
+			//String progName = AnalysisUtil.getProgNameFromPath(runDir);
+			if (!firstMainHashes.containsKey(firstMainHash)) {
+				firstMainHashes.put(firstMainHash, runDir);
+			}
+		}
+		for (long l : firstMainHashes.keySet()) {
+			System.out.println(Long.toHexString(l) + ":" + firstMainHashes.get(l));
+		}
+	}
 
 	public static void printUsage() {
 		System.out.println("Usage of ClusteringAnalysisGraph:");
@@ -64,11 +92,13 @@ public class ClusteringAnalysisGraph {
 	}
 
 	public static void main(String[] argvs) {
-		Getopt g = new Getopt("ClusteringAnalysisGraph", argvs, "t:l:g:m:");
+		Getopt g = new Getopt("ClusteringAnalysisGraph", argvs, "t:l:g:m:r:d:");
 		int opt = 0;
 		String tagFile = null, lookupFile = null;
 		String graphFileName = null;
 		String firstMainFile = null;
+		String runDirs = null;
+		String runDir = null;
 		boolean error = false;
 		while ((opt = g.getopt()) != -1) {
 			switch (opt) {
@@ -78,11 +108,19 @@ public class ClusteringAnalysisGraph {
 			case 'l':
 				lookupFile = g.getOptarg();
 				break;
+			case 'd':
+				// in this case, only provide the run directory
+				// instead of the tagFile and lookupFile 
+				runDir = g.getOptarg();
+				break;
 			case 'g':
 				graphFileName = g.getOptarg();
 				break;
 			case 'm':
 				firstMainFile = g.getOptarg();
+				break;
+			case 'r':
+				runDirs = g.getOptarg();
 				break;
 			case '?':
 				error = true;
@@ -99,12 +137,20 @@ public class ClusteringAnalysisGraph {
 		if (error)
 			return;
 		ClusteringAnalysisGraph analysis = null;
-		if (tagFile != null && lookupFile != null)
-			analysis = new ClusteringAnalysisGraph(tagFile, lookupFile);
+		if ((tagFile != null && lookupFile != null) || runDir != null) {
+			if (runDir == null) {
+				analysis = new ClusteringAnalysisGraph(tagFile, lookupFile);
+			} else {
+				analysis = new ClusteringAnalysisGraph(runDir);
+			}
+		}
 		if (graphFileName != null && analysis != null)
 			analysis.dumpGraph(graphFileName);
 		if (firstMainFile != null) {
 			analyzeFirstMainBlock(firstMainFile);
+		}
+		if (runDirs != null) {
+			analyzeAllFirstMainBlock(runDirs);
 		}
 	}
 

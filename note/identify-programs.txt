@@ -66,3 +66,14 @@
    depend on how programs are initialized and loaded in the 'exdc' way... This needs further detailed thinking and
    research work!! 
 
+5.  One thing about tag and hash is their uniqueness. At first glance, tag should be unique in the same execution.
+    However, it seems that the assumption is not true for cases that will fork-and-exec another programs. I guess
+	tag is the virtual address of the basic block so that fork-and-exec another process will make it possible for
+	the same execution to have the same tag. "If" this is the case, then tag will be useless...
+	
+	It might be useful to take a detailed look at how often hash collision happens. It will determine the how
+	reliable it is to base the graph matching problem on its uniqueness.
+
+
+
+
