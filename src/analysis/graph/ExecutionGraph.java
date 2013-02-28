@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import utils.AnalysisUtil;
 
@@ -154,20 +155,20 @@ public class ExecutionGraph {
 				pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "[label=\""
 						+ Long.toHexString(nodes.get(i).tag) + "\"]");
 				
-					HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
-					for (Node node : edges.keySet()) {
-						int flag = edges.get(node);
-						int ordinal = flag % 256;
-						String branchType;
-						if (flag / 256 == 1) {
-							branchType = "direct";
-						} else {
-							branchType = "indirect";
-						}
-						pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "->"
-								+ "node_" + Long.toHexString(node.hash) + "[label=\""
-								+ branchType + "_" + ordinal + "_" + Long.toHexString(node.tag) + "\"]");
+				HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
+				for (Node node : edges.keySet()) {
+					int flag = edges.get(node);
+					int ordinal = flag % 256;
+					String branchType;
+					if (flag / 256 == 1) {
+						branchType = "direct";
+					} else {
+						branchType = "indirect";
 					}
+					pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "->"
+							+ "node_" + Long.toHexString(node.hash) + "[label=\""
+							+ branchType + "_" + ordinal + "_" + Long.toHexString(node.tag) + "\"]");
+				}
 			}
 			
 			pw.print("}");
@@ -214,10 +215,10 @@ public class ExecutionGraph {
 				if (hashLookupTable.containsKey(tag)) {
 					isValidGraph = false;
 					if (hashLookupTable.get(tag).hash != hash) {
-						System.out.println("Something's wrong ----> invalid graph??");
+						//System.out.println("Something's wrong ----> invalid graph??");
 						System.out.println(Long.toHexString(hashLookupTable.get(tag).hash)
 								+ ":" + Long.toHexString(hash));
-						return;						
+						//return;						
 					}
 //					System.out.println("Something's wrong ----> invalid graph??");
 //					return;
@@ -259,6 +260,8 @@ public class ExecutionGraph {
 		nodes = null;
 		FileInputStream fileIn = null;
 		DataInputStream dataIn = null;
+		// to track how many tags does not exist in lookup file
+		HashSet<Long> hashesNotInLookup = new HashSet<Long>();
 		try {
 			fileIn = new FileInputStream(file);
 			dataIn = new DataInputStream(fileIn);
@@ -271,6 +274,17 @@ public class ExecutionGraph {
 						.reverseForLittleEndian(dataIn.readLong()));
 				Node node1 = hashLookupTable.get(tag1),
 						node2 = hashLookupTable.get(tag2);
+				// double check if tag1 and tag2 exist in the lookup file
+				if (node1 == null) {
+					//System.out.println(Long.toHexString(tag1) + " is not in lookup file");
+					hashesNotInLookup.add(tag1);
+				}
+				if (node2 == null) {
+					//System.out.println(Long.toHexString(tag2) + " is not in lookup file");
+					hashesNotInLookup.add(tag2);
+				}
+				if (node1 == null || node2 == null)
+					continue;
 
 				// also put the nodes into the adjacentList if they are not stored yet
 				// add node to an array, which is in their seen order in the file
@@ -295,6 +309,12 @@ public class ExecutionGraph {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("The following tag doesn't exist in lookup file");
+		for (long l : hashesNotInLookup) {
+			System.out.println(Long.toHexString(l));
+		}
+		System.out.println(hashesNotInLookup.size());
+		
 		if (dataIn != null) {
 			try {
 				dataIn.close();
@@ -304,6 +324,7 @@ public class ExecutionGraph {
 		}
 		// since V will never change once the graph is created
 		nodes.trimToSize();
+		
 	}
 
 	// get the second highest byte of the tag,
