@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +62,7 @@ public class ExecutionGraph {
 	public ExecutionGraph(String tagFileName, String lookupFileName) {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		init(tagFileName, lookupFileName);
-		//outputFirstMain();
+		outputFirstMain();
 		//System.out.println("Finish initializing the graph for: " + tagFileName);
 	}
 	
@@ -100,7 +101,7 @@ public class ExecutionGraph {
 	 * One case is unmergeable: two direct branch nodes with same
 	 * hash value but have different branch targets (Seems wired!!)
 	 * 
-	 * ####
+	 * ####42696542a8bb5822
 	 * I am doing a trick here: programs in x86/linux seems to enter
 	 * their main function after a very similar dynamic-loading process,
 	 * at the end of which there is a indirect branch which jumps to the
@@ -116,6 +117,9 @@ public class ExecutionGraph {
 	 * 
 	 * @param otherGraph
 	 */
+	
+	private long specialHash = new BigInteger("4f1f7a5c30ae8622", 16).longValue();
+	
 	public ExecutionGraph mergeGraph(ExecutionGraph otherGraph) {
 		//long hash = Long.valueOf("1d84443b9bf8a6b3", 16);
 		return null;
@@ -124,10 +128,9 @@ public class ExecutionGraph {
 	
 	public long outputFirstMain() {
 		Node n = null;
-		long hash = Long.valueOf("1d84443b9bf8a6b3", 16),
-			firstMainHash = 0;
+		long firstMainHash = 0;
 		for (int i = 0; i < nodes.size(); i++) {
-			if (nodes.get(i).hash == hash) {
+			if (nodes.get(i).hash == specialHash) {
 				n = nodes.get(i);
 				if (adjacentList.get(n).size() > 1) {
 					System.out.println("More than one target!");
@@ -135,7 +138,7 @@ public class ExecutionGraph {
 				} else {
 					for (Node node : adjacentList.get(n).keySet()) {
 						firstMainHash = node.hash;
-						//System.out.println(Long.toHexString(firstMainHash));
+						System.out.println(Long.toHexString(firstMainHash));
 					}
 				}
 				break;
@@ -317,11 +320,13 @@ public class ExecutionGraph {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("The following tag doesn't exist in lookup file");
+		if (hashesNotInLookup.size() != 0)
+			System.out.println("The following tag doesn't exist in lookup file");
 		for (long l : hashesNotInLookup) {
 			System.out.println(Long.toHexString(l));
 		}
-		System.out.println(hashesNotInLookup.size());
+		if (hashesNotInLookup.size() != 0)
+			System.out.println(hashesNotInLookup.size());
 		
 		if (dataIn != null) {
 			try {

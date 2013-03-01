@@ -2,7 +2,7 @@
 
 
 #PROG_DIRs=/bin:/usr/sbin:/usr/bin
-PROG_DIRs=/usr/sbin
+PROG_DIRs=/bin
 
 HOME_DIR=~/cs-analysis-utils/cs-analysis-utils
 CLASS_PATH=$HOME_DIR/classes:$HOME_DIR/lib/java-getopt-1.0.14.jar
