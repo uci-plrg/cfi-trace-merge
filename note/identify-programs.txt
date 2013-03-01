@@ -74,6 +74,16 @@
 	It might be useful to take a detailed look at how often hash collision happens. It will determine the how
 	reliable it is to base the graph matching problem on its uniqueness.
 
+6.  There is another point that will generate many different indirect links, which is the calling of shared
+    library. At the first time of calling a library function, _dl_runtime_resolve will be called to fix up the
+	function address in .plt. This results in a node in _dl_runtime_resolve, whose hash code is 0xb198739d13779210,
+	to generate tens of indirect edges in the same execution. Besides, after resolving the address for the first,
+	every call to the function is an indirect edge, and hash code of the block to make that indirect call is 0xff
+	!!!
 
+	The previously found node with hash code 0x1d84443b9bf8a6b3 is not the first main block.... It is actually the
+	first block of __libc_csu_init, which is the C-level constructor of the program. Why is it so different for 
+	different programs???
+	From http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html
 
 
