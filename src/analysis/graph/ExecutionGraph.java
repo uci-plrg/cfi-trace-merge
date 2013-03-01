@@ -100,11 +100,19 @@ public class ExecutionGraph {
 	 * One case is unmergeable: two direct branch nodes with same
 	 * hash value but have different branch targets (Seems wired!!)
 	 * 
+	 * ####
 	 * I am doing a trick here: programs in x86/linux seems to enter
 	 * their main function after a very similar dynamic-loading process,
 	 * at the end of which there is a indirect branch which jumps to the
 	 * real main blocks. In the environment of this machine, the hash value
-	 * of that 'final block' is 0x1d84443b9bf8a6b3.
+	 * of that 'final block' is 0x1d84443b9bf8a6b3. 
+	 * ####
+	 * 
+	 * FIXME
+	 * Something's wrong here, the block that finally jumps to main is
+	 * 0x4f1f7a5c30ae8622, and the previously found node is actually from
+	 * the constructor of the program (__libc_csu_init).
+	 * Things might get wrong here!!!
 	 * 
 	 * @param otherGraph
 	 */
