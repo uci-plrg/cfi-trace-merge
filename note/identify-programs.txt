@@ -56,6 +56,14 @@
    be7962860f08f669:/scratch/crowd-safe-test-data/hashlog/graph/latex_2013-02-26_09-47-46/latex/run1018
    aefd41de6d185669:/scratch/crowd-safe-test-data/hashlog/graph/dot_2013-02-26_15-05-09/dot/run353
 
+   The following is the result of the survey for the actual first main block:
+   2ce2d7b9cd9898d9:/scratch/crowd-safe-test-data/hashlog/graph/dd_2013-02-27_00-19-06/dd/run353
+   1157ceaa0:/scratch/crowd-safe-test-data/hashlog/graph/latex_2013-02-26_09-47-46/latex/run353
+   9cbb05822bfafc17:/scratch/crowd-safe-test-data/hashlog/graph/dot_2013-02-26_15-05-09/dot/run353
+   42696542a8bb5822:/scratch/crowd-safe-test-data/hashlog/graph/ls_2013-02-27_02-11-54/ls/run353
+   9914a009b26038c0:/scratch/crowd-safe-test-data/hashlog/graph/sox_2013-02-27_01-04-46/sox/run353
+   aeb8ae544e6b2a7:/scratch/crowd-safe-test-data/hashlog/graph/tar_2013-02-26_20-25-19/tar/run353
+
    Something interesting here is that we should take a look at those programs with the same first main blocks to
    see how things will go (mainly check if they are mergeable after entering main function. We should notice that
    the same indirect thing may happen inside main, which means the are always mergeable in terms of 'flexible
@@ -74,16 +82,6 @@
 	It might be useful to take a detailed look at how often hash collision happens. It will determine the how
 	reliable it is to base the graph matching problem on its uniqueness.
 
-6.  There is another point that will generate many different indirect links, which is the calling of shared
-    library. At the first time of calling a library function, _dl_runtime_resolve will be called to fix up the
-	function address in .plt. This results in a node in _dl_runtime_resolve, whose hash code is 0xb198739d13779210,
-	to generate tens of indirect edges in the same execution. Besides, after resolving the address for the first,
-	every call to the function is an indirect edge, and hash code of the block to make that indirect call is 0xff
-	!!!
 
-	The previously found node with hash code 0x1d84443b9bf8a6b3 is not the first main block.... It is actually the
-	first block of __libc_csu_init, which is the C-level constructor of the program. Why is it so different for 
-	different programs???
-	From http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html
 
 
