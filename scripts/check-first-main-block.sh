@@ -12,7 +12,7 @@ SAME_BLOCK_FILE=$HOME_DIR/same-block.txt
 
 TMP_LOG=~/cs-analysis-utils/cs-analysis-utils/log
 mkdir -p $TMP_LOG
-export DYNAMORIO_HOME=~/crowd-safe-dynamorio/crowd-safe-dynamorio/build
+export DYNAMORIO_HOME=~/crowd-safe-dynamorio/crowd-safe-dynamo-rio/build
 export CROWD_SAFE_HASHLOG_DIR=$TMP_LOG
 
 rm -rf $TMP_LOG/*
@@ -29,6 +29,7 @@ for dir in ${dirs[@]}; do
 		# first run the program under DR and store the files in $TMP_LOG
 		absolutePath=$(readlink -f $PROG_DIRS/$dir/$prog)
 		if [ -f $absolutePath ]; then
+			echo "$DYNAMORIO_HOME/runcs -b4 -g $absolutePath --version"
 			$DYNAMORIO_HOME/runcs -b4 -g $absolutePath --version
 		fi
 		prog=$absolutePath":"$(java -cp $CLASS_PATH $MAIN_CLASS -t $TMP_LOG/*.bb-graph.*.dat -l $TMP_LOG/*.bb-graph-hash.*.dat)

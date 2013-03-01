@@ -214,8 +214,15 @@ public class ExecutionGraph {
 			long tag = 0, hash = 0;
 			while (true) {
 				// the tag and hash here is already a big-endian value
-				tag = getTagEffectiveValue(AnalysisUtil
-						.reverseForLittleEndian(dataIn.readLong()));
+				long tagOriginal = AnalysisUtil
+						.reverseForLittleEndian(dataIn.readLong());
+				tag = getTagEffectiveValue(tagOriginal);
+				//System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
+				if (tagOriginal != tag) {
+//					System.out.println("Something wrong about reading the lookup file");
+//					System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
+				}
+				
 				hash = AnalysisUtil.reverseForLittleEndian(dataIn.readLong());
 //				System.out.println(Long.toHexString(tag));
 //				System.out.println(Long.toHexString(hash));
@@ -227,7 +234,7 @@ public class ExecutionGraph {
 					isValidGraph = false;
 					if (hashLookupTable.get(tag).hash != hash) {
 						//System.out.println("Something's wrong ----> invalid graph??");
-						System.out.println(Long.toHexString(hashLookupTable.get(tag).hash)
+						System.out.println(Long.toHexString(tag) + " -> " + Long.toHexString(hashLookupTable.get(tag).hash)
 								+ ":" + Long.toHexString(hash));
 						//return;						
 					}
@@ -281,8 +288,14 @@ public class ExecutionGraph {
 				long tag1 = AnalysisUtil.reverseForLittleEndian(dataIn.readLong());
 				int ordinal = getEdgeOrdinal(tag1);
 				tag1 = getTagEffectiveValue(tag1);
-				long tag2 = getTagEffectiveValue(AnalysisUtil
-						.reverseForLittleEndian(dataIn.readLong()));
+				long tag2Original = AnalysisUtil
+						.reverseForLittleEndian(dataIn.readLong());
+				long tag2 = getTagEffectiveValue(tag2Original);
+				if (tag2 != tag2Original) {
+					System.out.println("Something wrong about reading the graph");
+					System.out.println(Long.toHexString(tag2Original) + " : " + Long.toHexString(tag2));
+				}
+					
 				Node node1 = hashLookupTable.get(tag1),
 						node2 = hashLookupTable.get(tag2);
 				// double check if tag1 and tag2 exist in the lookup file
@@ -361,7 +374,9 @@ public class ExecutionGraph {
 	
 	// get the lower 6 byte of the tag, which is a long integer
 	public static long getTagEffectiveValue(long tag) {
-		Long res = tag << 16;
+		//System.out.print(Long.toHexString(tag));
+		Long res = tag << 16 >>> 16;
+		//System.out.println(":" + Long.toHexString(res));
 //		System.out.println(Long.toHexString(res));
 //		if (res >>> 56 != 0x7f)
 //			res = res << 36 >>> 36;
