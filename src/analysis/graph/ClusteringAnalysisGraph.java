@@ -22,6 +22,13 @@ public class ClusteringAnalysisGraph {
 		this.graph = new ExecutionGraph(tagFileName, lookupFileName);
 	}
 	
+	public ClusteringAnalysisGraph(String tagFileName, String lookupFileName, String blockFileName) {
+		if (blockFileName == null)
+			this.graph = new ExecutionGraph(tagFileName, lookupFileName);
+		else
+			this.graph = new ExecutionGraph(tagFileName, lookupFileName, blockFileName);
+	}
+	
 	public ClusteringAnalysisGraph(String runDir) {
 		this.graph = ExecutionGraph.buildGraphFromRunDir(runDir);
 	}
@@ -92,9 +99,9 @@ public class ClusteringAnalysisGraph {
 	}
 
 	public static void main(String[] argvs) {
-		Getopt g = new Getopt("ClusteringAnalysisGraph", argvs, "t:l:g:m:r:d:");
+		Getopt g = new Getopt("ClusteringAnalysisGraph", argvs, "t:l:g:m:r:d:b:");
 		int opt = 0;
-		String tagFile = null, lookupFile = null;
+		String tagFile = null, lookupFile = null, blockFile = null;
 		String graphFileName = null;
 		String firstMainFile = null;
 		String runDirs = null;
@@ -107,6 +114,9 @@ public class ClusteringAnalysisGraph {
 				break;
 			case 'l':
 				lookupFile = g.getOptarg();
+				break;
+			case 'b':
+				blockFile = g.getOptarg();
 				break;
 			case 'd':
 				// in this case, only provide the run directory
@@ -139,7 +149,7 @@ public class ClusteringAnalysisGraph {
 		ClusteringAnalysisGraph analysis = null;
 		if ((tagFile != null && lookupFile != null) || runDir != null) {
 			if (runDir == null) {
-				analysis = new ClusteringAnalysisGraph(tagFile, lookupFile);
+				analysis = new ClusteringAnalysisGraph(tagFile, lookupFile, blockFile);
 			} else {
 				analysis = new ClusteringAnalysisGraph(runDir);
 			}

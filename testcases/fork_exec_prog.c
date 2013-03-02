@@ -14,16 +14,18 @@ int fork_process(char *prog)
 		printf("%s\n", "An error occured when forking another process");
 		exit(-1);
 	}
+	int status;
+	wait(&status);
 	return pid;
 }
 
 int main(int argc, char **argv)
 {
+	printf("%s\n", "ls");
 	fork_process("/bin/ls");
+	printf("%s\n", "grep");
 	fork_process("/bin/grep");
+	printf("%s\n", "find");
 	fork_process("/usr/bin/find");
-	while (wait() > 0) {
-		;
-	}
 	return 1;
 }

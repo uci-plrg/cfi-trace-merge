@@ -144,6 +144,10 @@ public class AnalysisUtil {
 	public static String getProgName(String dirName) {
 		File f = new File(dirName);
 		dirName = f.getName();
+		if (dirName.startsWith("."))
+			return null;
+		if (dirName.indexOf('.') == -1)
+			return null;
 		int endIndex = dirName.indexOf('-');
 		if (endIndex > dirName.indexOf('_') && dirName.indexOf('_') != -1) {
 			endIndex = dirName.indexOf('_');
@@ -151,6 +155,11 @@ public class AnalysisUtil {
 		if (endIndex > dirName.indexOf('.') && dirName.indexOf('.') != -1) {
 			endIndex = dirName.indexOf('.');
 		}
+//		try {
+//			dirName.substring(0, endIndex);
+//		} catch (Exception e) {
+//			System.out.println(dirName);
+//		}
 		return dirName.substring(0, endIndex);
 	}
 	
