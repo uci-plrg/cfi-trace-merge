@@ -4,7 +4,7 @@
 HOME_DIR=~/cs-analysis-utils/cs-analysis-utils
 CLASS_PATH=$HOME_DIR/classes:$HOME_DIR/lib/java-getopt-1.0.14.jar
 MAIN_CLASS=analysis.graph.ClusteringAnalysisGraph
-export DYNAMORIO_HOME=~/crowd-safe-dynamorio/crowd-safe-dynamo-rio/build
+export DYNAMORIO_HOME=~/crowd-safe-dynamorio/crowd-safe-dynamorio/build
 export CROWD_SAFE_HASHLOG_DIR=$TMP_LOG
 
 function same-block {
