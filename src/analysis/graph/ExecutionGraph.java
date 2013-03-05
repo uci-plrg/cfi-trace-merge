@@ -59,9 +59,19 @@ public class ExecutionGraph {
 	
 	private HashMap<Long, Node> hashLookupTable;
 	
+	private HashSet<Long> blockHash;
+	
+	public void setBlockHash(String fileName) {
+		blockHash = AnalysisUtil.getSetFromPath(fileName);
+	}
+	
 	// if false, it means that the file doesn't exist or is in wrong format
 	private boolean isValidGraph = true;
 
+	public ExecutionGraph() {
+		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
+	}
+	
 	public ExecutionGraph(String tagFileName, String lookupTagFileName, String lookupHashFileName) {
 		progName = AnalysisUtil.getProgName(tagFileName);
 		
@@ -142,18 +152,23 @@ public class ExecutionGraph {
 		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
 		ArrayList<String> invalidFiles = new ArrayList<String>(); 
 		for (String progName : progName2TagFiles.keySet()) {
-//			if (progName.equals("dash"))
-//				continue;
+
 			ArrayList<String> tagFiles = progName2TagFiles.get(progName),
 				lookupFiles = progName2LookupFiles.get(progName),
 				blockFiles = progName2BlockFiles.get(progName);
-//			System.out.println(tagFiles.size());
 			for (int i = 0; i < tagFiles.size(); i++) {
 				ExecutionGraph graph;
-				if (i > blockFiles.size() - 1)
-					graph = new ExecutionGraph(tagFiles.get(i), lookupFiles.get(i), null);
-				else
-					graph = new ExecutionGraph(tagFiles.get(i), lookupFiles.get(i), blockFiles.get(i));
+				graph = new ExecutionGraph();
+				System.out.println(blockFiles.get(i));
+				System.out.println(tagFiles.get(i));
+				System.out.println(lookupFiles.get(i));
+				System.out.println();
+				
+				graph.setBlockHash(blockFiles.get(i));
+				graph.setProgName(progName);
+				graph.init(tagFiles.get(i), lookupFiles.get(i));
+				
+				
 				if (!graph.isValidGraph)
 					invalidFiles.add(tagFiles.get(i));
 				graph.setProgName(progName);
@@ -199,7 +214,8 @@ public class ExecutionGraph {
 		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
 		ArrayList<String> invalidFiles = new ArrayList<String>(); 
 		for (String progName : progName2TagFiles.keySet()) {
-			
+//			if (!progName.equals("tex"))
+//				continue;
 			ArrayList<String> tagFiles = progName2TagFiles.get(progName),
 				lookupTagFiles = progName2LookupTagFiles.get(progName),
 				lookupHashFiles = progName2LookupHashFiles.get(progName);
@@ -371,6 +387,16 @@ public class ExecutionGraph {
 					System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
 				}
 				hash = AnalysisUtil.reverseForLittleEndian(dataIn.readLong());
+				
+				if (blockHash.contains(tag)) {
+					System.out.println("contains tag: " + Long.toHexString(tag));
+				} else if (!blockHash.contains(hash)) {
+					System.out.println("not contain hash: " + Long.toHexString(hash));
+				}
+//				if (hash >>> 40 == 0x7f || hash >>> 24 == 0x71 || hash >>> 16 == 0x40) {
+//					System.out.println(Long.toHexString(hash));
+//				}
+					
 				count++;
 //				System.out.println(Long.toHexString(tag));
 //				System.out.println(Long.toHexString(hash));
@@ -476,6 +502,10 @@ public class ExecutionGraph {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		if (!isValidGraph) {
+			System.out.println("Not a valid graph: " + progName);
+		}
+		
 		if (tagDataIn != null) {
 			try {
 				tagDataIn.close();
@@ -555,6 +585,9 @@ public class ExecutionGraph {
 		if (hashesNotInLookup.size() != 0) {
 			isValidGraph = false;
 			System.out.println(hashesNotInLookup.size() + " tag doesn't exist in lookup file -> " + fileName);
+//			for (long l : hashesNotInLookup) {
+//				System.out.println(Long.toHexString(l));
+//			}
 		}
 		
 		if (dataIn != null) {
@@ -604,16 +637,18 @@ public class ExecutionGraph {
 	
 	public static void main(String[] argvs) {
 		//ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir("./grouping-analysis");
-		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDirAnotherVersion(argvs[0]);
+		//ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDirAnotherVersion(argvs[0]);
+		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
 		for (int i = 0; i < graphs.size(); i++) {
 			ExecutionGraph graph = graphs.get(i);
 			if (!graph.isValidGraph()) {
 				System.out.print("This is a wrong graph!");
 				break;
 			}
-			long l = graphs.get(i).outputFirstMain();
-			System.out.print(graph.getProgName() + ":");
-			System.out.println(Long.toHexString(l));
+//			long l = graphs.get(i).outputFirstMain();
+//			System.out.print(graph.getProgName() + ":");
+//			System.out.println(Long.toHexString(l));
+			graph.dumpGraph("graph-files/" + graph.getProgName() + i + ".dot");
 		}
 		
 	}
