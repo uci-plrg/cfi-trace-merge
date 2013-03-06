@@ -23,10 +23,7 @@ public class ClusteringAnalysisGraph {
 	}
 	
 	public ClusteringAnalysisGraph(String tagFileName, String lookupFileName, String blockFileName) {
-		if (blockFileName == null)
-			this.graph = new ExecutionGraph(tagFileName, lookupFileName);
-		else
-			this.graph = new ExecutionGraph(tagFileName, lookupFileName, blockFileName);
+		this.graph = new ExecutionGraph(tagFileName, lookupFileName);
 	}
 	
 	public ClusteringAnalysisGraph(String runDir) {

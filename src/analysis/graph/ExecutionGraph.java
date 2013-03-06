@@ -18,10 +18,19 @@ import utils.AnalysisUtil;
 public class ExecutionGraph {
 	static public class Node {
 		public long tag, hash;
+		// Identify the same hash code with different tags
+		public int hashOrdinal;
 
 		public Node(long tag, long hash) {
 			this.tag = tag;
 			this.hash = hash;
+			this.hashOrdinal = 0;
+		}
+		
+		public Node(long tag, long hash, int hashOrdinal) {
+			this.tag = tag;
+			this.hash = hash;
+			this.hashOrdinal = hashOrdinal;
 		}
 
 		public Node(long tag) {
@@ -43,7 +52,7 @@ public class ExecutionGraph {
 		}
 
 		public int hashCode() {
-			return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode();
+			return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode() ^ hashOrdinal;
 		}
 	}
 
@@ -72,15 +81,6 @@ public class ExecutionGraph {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 	}
 	
-	public ExecutionGraph(String tagFileName, String lookupTagFileName, String lookupHashFileName) {
-		progName = AnalysisUtil.getProgName(tagFileName);
-		
-		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
-		init(tagFileName, lookupTagFileName, lookupHashFileName);
-		//outputFirstMain();
-	}
-	
-	
 	public ExecutionGraph(String tagFileName, String lookupFileName) {
 		progName = AnalysisUtil.getProgName(tagFileName);
 		
@@ -106,7 +106,7 @@ public class ExecutionGraph {
 				blockFile = f.getAbsolutePath();
 			}
 		}
-		ExecutionGraph graph = new ExecutionGraph(tagFile, lookupFile, blockFile);
+		ExecutionGraph graph = new ExecutionGraph(tagFile, lookupFile);
 		graph.setProgName(progName);
 		return graph;
 	}
@@ -159,12 +159,11 @@ public class ExecutionGraph {
 			for (int i = 0; i < tagFiles.size(); i++) {
 				ExecutionGraph graph;
 				graph = new ExecutionGraph();
-				System.out.println(blockFiles.get(i));
-				System.out.println(tagFiles.get(i));
-				System.out.println(lookupFiles.get(i));
-				System.out.println();
+//				System.out.println(tagFiles.get(i));
+//				System.out.println(lookupFiles.get(i));
+//				System.out.println();
 				
-				graph.setBlockHash(blockFiles.get(i));
+				//graph.setBlockHash(blockFiles.get(i));
 				graph.setProgName(progName);
 				graph.init(tagFiles.get(i), lookupFiles.get(i));
 				
@@ -181,70 +180,16 @@ public class ExecutionGraph {
 		return graphs;
 	}
 	
-	public static ArrayList<ExecutionGraph> buildGraphsFromRunDirAnotherVersion(String runDir) {
-		File dir = new File(runDir);
-		String[] fileNames = dir.list();
-		Arrays.sort(fileNames);
-		
-		// dealing with the file sorting and classifying
-		HashMap<String, ArrayList<String>> progName2TagFiles = new HashMap<String, ArrayList<String>>(),
-			progName2LookupTagFiles = new HashMap<String, ArrayList<String>>(),
-			progName2LookupHashFiles = new HashMap<String, ArrayList<String>>();
-		
-		for (int i = 0; i < fileNames.length; i++) {
-			String progName = AnalysisUtil.getProgName(fileNames[i]);
-			if (progName == null)
-				continue;
-			if (!progName2TagFiles.containsKey(progName)) {
-				progName2TagFiles.put(progName, new ArrayList<String>());
-				progName2LookupTagFiles.put(progName, new ArrayList<String>());
-				progName2LookupHashFiles.put(progName, new ArrayList<String>());
-			}
-			if (fileNames[i].indexOf("bb-graph.") != -1) {
-				progName2TagFiles.get(progName).add(runDir + "/" + fileNames[i]);
-			} else if (fileNames[i].indexOf("bb-graph-lookup-tag.") != -1) {
-				progName2LookupTagFiles.get(progName).add(runDir + "/" + fileNames[i]);
-			} else if (fileNames[i].indexOf("bb-graph-lookup-hash.") != -1) {
-				progName2LookupHashFiles.get(progName).add(runDir + "/" + fileNames[i]);
-			}
-		}
-		
-		// generating the graphs
-		
-		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
-		ArrayList<String> invalidFiles = new ArrayList<String>(); 
-		for (String progName : progName2TagFiles.keySet()) {
-//			if (!progName.equals("tex"))
-//				continue;
-			ArrayList<String> tagFiles = progName2TagFiles.get(progName),
-				lookupTagFiles = progName2LookupTagFiles.get(progName),
-				lookupHashFiles = progName2LookupHashFiles.get(progName);
-//			System.out.println(tagFiles.size());
-			for (int i = 0; i < tagFiles.size(); i++) {
-				ExecutionGraph graph = new ExecutionGraph(tagFiles.get(i), lookupTagFiles.get(i), lookupHashFiles.get(i));
-				if (!graph.isValidGraph)
-					invalidFiles.add(tagFiles.get(i));
-				graphs.add(graph);
-			}
-		}
-		
-		for (int i = 0; i < invalidFiles.size(); i++)
-			System.out.println(invalidFiles.get(i));
-		return graphs;
-	}
-	
 	
 	/**
 	 * this method is for programs that will fork and exec other programs
 	 * @param otherGraph
 	 * @return
 	 */
-	private void mergeGraphFromSameRun(ExecutionGraph otherGraph) {
-		for (Node n : otherGraph.adjacentList.keySet()) {
-			if (adjacentList.containsKey(n)) {
-				
-			}
-		}
+	ExecutionGraph mergeTwoGraphs(ExecutionGraph otherGraph) {
+		ExecutionGraph newGraph = new ExecutionGraph();
+		newGraph.adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
+		return null;
 	}
 	
 	/**
@@ -314,10 +259,12 @@ public class ExecutionGraph {
 		try {
 			pw = new PrintWriter(fileName);
 			pw.println("digraph runGraph {");
+			long firstMainBlock = outputFirstMain();
+			pw.println("# First main block: " + Long.toHexString(firstMainBlock));
 			for (int i = 0; i < nodes.size(); i++) {
 				//pw.println("node_" + Long.toHexString(nodes.get(i).hash));
-				pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "[label=\""
-						+ Long.toHexString(nodes.get(i).tag) + "\"]");
+				pw.println("node_" + Long.toHexString(nodes.get(i).tag) + "[label=\""
+						+ Long.toHexString(nodes.get(i).hash) + "\"]");
 				
 				HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
 				for (Node node : edges.keySet()) {
@@ -325,13 +272,17 @@ public class ExecutionGraph {
 					int ordinal = flag % 256;
 					String branchType;
 					if (flag / 256 == 1) {
-						branchType = "direct";
+						branchType = "d";
 					} else {
-						branchType = "indirect";
+						branchType = "i";
 					}
-					pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "->"
-							+ "node_" + Long.toHexString(node.hash) + "[label=\""
-							+ branchType + "_" + ordinal + "_" + Long.toHexString(node.tag) + "\"]");
+//					pw.println("node_" + Long.toHexString(nodes.get(i).hash) + "->"
+//							+ "node_" + Long.toHexString(node.hash) + "[label=\""
+//							+ branchType + "_" + ordinal + "_" + Long.toHexString(node.tag) + "\"]");
+					pw.println("node_" + Long.toHexString(nodes.get(i).tag) + "->"
+							+ "node_" + Long.toHexString(node.tag) + "[label=\""
+							+ branchType + "_" + ordinal + "\"]");
+
 				}
 			}
 			
@@ -342,15 +293,6 @@ public class ExecutionGraph {
 		}
 		if (pw != null)
 			pw.close();
-	}
-
-	private void init(String tagFileName, String lookupTagFileName, String lookupHashFileName) {
-//		try {
-			readGraphLookup(lookupTagFileName, lookupHashFileName);
-			readGraph(tagFileName);
-//		} catch (NullPointerException e) {
-//			isValidGraph = false;
-//		}
 	}
 	
 	private void init(String tagFileName, String lookupFileName) {
@@ -370,7 +312,7 @@ public class ExecutionGraph {
 		hashLookupTable = new HashMap<Long, Node>();
 		FileInputStream fileIn = null;
 		DataInputStream dataIn = null;
-		int count = 0;
+		
 		try {
 			fileIn = new FileInputStream(fileName);
 			dataIn = new DataInputStream(fileIn);
@@ -379,27 +321,23 @@ public class ExecutionGraph {
 				// the tag and hash here is already a big-endian value
 				long tagOriginal = AnalysisUtil
 						.reverseForLittleEndian(dataIn.readLong());
-				count++;
+				
 				tag = getTagEffectiveValue(tagOriginal);
-				//System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
+				
 				if (tagOriginal != tag) {
 					System.out.println("Tag more than 6 bytes");
 					System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
 				}
 				hash = AnalysisUtil.reverseForLittleEndian(dataIn.readLong());
 				
-				if (blockHash.contains(tag)) {
-					System.out.println("contains tag: " + Long.toHexString(tag));
-				} else if (!blockHash.contains(hash)) {
-					System.out.println("not contain hash: " + Long.toHexString(hash));
-				}
+//				if (blockHash.contains(tag)) {
+//					System.out.println("contains tag: " + Long.toHexString(tag));
+//				} else if (!blockHash.contains(hash)) {
+//					System.out.println("not contain hash: " + Long.toHexString(hash));
+//				}
 //				if (hash >>> 40 == 0x7f || hash >>> 24 == 0x71 || hash >>> 16 == 0x40) {
 //					System.out.println(Long.toHexString(hash));
 //				}
-					
-				count++;
-//				System.out.println(Long.toHexString(tag));
-//				System.out.println(Long.toHexString(hash));
 				// FIXME
 				// not sure if tags duplicate in lookup file
 				// first assume that they don't
@@ -407,19 +345,9 @@ public class ExecutionGraph {
 				if (hashLookupTable.containsKey(tag)) {
 					if (hashLookupTable.get(tag).hash != hash) {
 						isValidGraph = false;
-						//System.out.println("Something's wrong ----> invalid graph??");
 						System.out.println(Long.toHexString(tag) + " -> " + Long.toHexString(hashLookupTable.get(tag).hash)
-								+ ":" + Long.toHexString(hash));
-						//return;						
+								+ ":" + Long.toHexString(hash));			
 					}
-//					System.out.println("Something's wrong ----> invalid graph??");
-//					return;
-					
-//					System.out.println("Something's wrong??");
-//					if (hashLookupTable.get(tag).hash != hash) {
-//						System.out.println("Something's really wrong??");
-//						return;
-//					}
 				}
 				Node node = new Node(tag, hash);
 				hashLookupTable.put(tag, node);
@@ -428,87 +356,12 @@ public class ExecutionGraph {
 			e.printStackTrace();
 		} catch (EOFException e) {
 			
-//			System.out.println("Finish reading the file: " + fileName + " " + count);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		if (dataIn != null) {
 			try {
 				dataIn.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	
-	public void readGraphLookup(String tagFileName, String hashFileName) throws NullPointerException {
-		hashLookupTable = new HashMap<Long, Node>();
-		FileInputStream tagFileIn = null, hashFileIn = null;
-		DataInputStream tagDataIn = null, hashDataIn = null;  
-		int count = 0;
-		try {
-			tagFileIn = new FileInputStream(tagFileName);
-			hashFileIn = new FileInputStream(hashFileName);
-			tagDataIn = new DataInputStream(tagFileIn);
-			hashDataIn = new DataInputStream(hashFileIn);
-			long tag = 0, hash = 0;
-			while (true) {
-				// the tag and hash here is already a big-endian value
-				long tagOriginal = AnalysisUtil
-						.reverseForLittleEndian(tagDataIn.readLong());
-				count++;
-				tag = getTagEffectiveValue(tagOriginal);
-				//System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
-				if (tagOriginal != tag) {
-					System.out.println("Tag more than 6 bytes");
-					System.out.println(Long.toHexString(tagOriginal) + " : " + Long.toHexString(tag));
-				}
-				hash = AnalysisUtil.reverseForLittleEndian(hashDataIn.readLong());
-				count++;
-				
-				
-//				System.out.println(Long.toHexString(tag));
-//				System.out.println(Long.toHexString(hash));
-				// FIXME
-				// not sure if tags duplicate in lookup file
-				// first assume that they don't
-				// it seems that they don't duplicate in the first few runs
-				if (hashLookupTable.containsKey(tag)) {
-					if (hashLookupTable.get(tag).hash != hash) {
-						isValidGraph = false;
-						//System.out.println("Something's wrong ----> invalid graph??");
-						System.out.println(Long.toHexString(tag) + " -> " + Long.toHexString(hashLookupTable.get(tag).hash)
-								+ ":" + Long.toHexString(hash));
-						//return;						
-					}
-//					System.out.println("Something's wrong ----> invalid graph??");
-//					return;
-					
-//					System.out.println("Something's wrong??");
-//					if (hashLookupTable.get(tag).hash != hash) {
-//						System.out.println("Something's really wrong??");
-//						return;
-//					}
-				}
-				Node node = new Node(tag, hash);
-				hashLookupTable.put(tag, node);
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (EOFException e) {
-			
-//			System.out.println("Finish reading the lookup file: " + " " + count);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (!isValidGraph) {
-			System.out.println("Not a valid graph: " + progName);
-		}
-		
-		if (tagDataIn != null) {
-			try {
-				tagDataIn.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -535,13 +388,13 @@ public class ExecutionGraph {
 			nodes = new ArrayList<Node>(capacity);
 			while (true) {
 				long tag1 = AnalysisUtil.reverseForLittleEndian(dataIn.readLong());
-				int ordinal = getEdgeOrdinal(tag1);
+				int flag = getEdgeFlag(tag1);
 				tag1 = getTagEffectiveValue(tag1);
 				long tag2Original = AnalysisUtil
 						.reverseForLittleEndian(dataIn.readLong());
 				long tag2 = getTagEffectiveValue(tag2Original);
 				if (tag2 != tag2Original) {
-//					System.out.println("Something wrong about reading the graph");
+					System.out.println("Something wrong about the tag");
 //					System.out.println(Long.toHexString(tag2Original) + " : " + Long.toHexString(tag2));
 				}
 					
@@ -573,7 +426,7 @@ public class ExecutionGraph {
 				HashMap<Node, Integer> edges;
 				edges = adjacentList.get(node1);
 				if (!edges.containsKey(node2))
-					edges.put(node2, ordinal);
+					edges.put(node2, flag);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -602,14 +455,9 @@ public class ExecutionGraph {
 		
 	}
 
-	// get the second highest byte of the tag,
-	// which represents the ordinal of the edge
-	// !!! At this point, just return the highest two bytes
-	public static int getEdgeOrdinal(long tag) {
-		Long res = tag >>> 48;
-		return res.intValue();
-//		int flag = new Long(tag >>> 48).intValue();
-//		return flag % 256;
+	// eturn the highest two bytes
+	public static int getEdgeFlag(long tag) {
+		return new Long(tag >>> 48).intValue();
 	}
 	
 	public static boolean isDirectBranch(long tag) {
