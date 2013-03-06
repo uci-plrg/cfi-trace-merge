@@ -87,30 +87,8 @@ public class ExecutionGraph {
 
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		init(tagFileName, lookupFileName);
-		// outputFirstMain();
 	}
 
-	// public static ExecutionGraph buildGraphFromRunDir(String runDir) {
-	// File dir = new File(runDir);
-	// String tagFile = null,
-	// lookupFile = null,
-	// blockFile = null;
-	// String progName = null;
-	// for (File f : dir.listFiles()) {
-	// if (f.getName().indexOf("bb-graph.") != -1) {
-	// tagFile = f.getAbsolutePath();
-	// if (progName == null)
-	// progName = AnalysisUtil.getProgName(tagFile);
-	// } else if (f.getName().indexOf("bb-graph-hash.") != -1) {
-	// lookupFile = f.getAbsolutePath();
-	// } else if (f.getName().indexOf("block-hash.") != -1) {
-	// blockFile = f.getAbsolutePath();
-	// }
-	// }
-	// ExecutionGraph graph = new ExecutionGraph(tagFile, lookupFile);
-	// graph.setProgName(progName);
-	// return graph;
-	// }
 
 	public String getProgName() {
 		return progName;
@@ -216,17 +194,35 @@ public class ExecutionGraph {
 				e.printStackTrace();
 			}
 		}
+		
+		file = new File(fileName + ".node");
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
-		PrintWriter pw = null;
+		PrintWriter pwDotFile = null,
+				pwNodeFile = null;
+		
 		try {
-			pw = new PrintWriter(fileName);
-			pw.println("digraph runGraph {");
+			pwDotFile = new PrintWriter(fileName);
+			pwNodeFile = new PrintWriter(fileName + ".node");
+			
+			for (int i = 0; i < nodes.size(); i++) {
+				pwNodeFile.println(Long.toHexString(nodes.get(i).hash));
+			}
+			
+			
+			pwDotFile.println("digraph runGraph {");
 			long firstMainBlock = outputFirstMain();
-			pw.println("# First main block: "
+			pwDotFile.println("# First main block: "
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < nodes.size(); i++) {
 				// pw.println("node_" + Long.toHexString(nodes.get(i).hash));
-				pw.println("node_" + Long.toHexString(nodes.get(i).tag)
+				pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
 						+ "[label=\"" + Long.toHexString(nodes.get(i).hash)
 						+ "\"]");
 
@@ -245,20 +241,25 @@ public class ExecutionGraph {
 					// + "node_" + Long.toHexString(node.hash) + "[label=\""
 					// + branchType + "_" + ordinal + "_" +
 					// Long.toHexString(node.tag) + "\"]");
-					pw.println("node_" + Long.toHexString(nodes.get(i).tag)
+					pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
 							+ "->" + "node_" + Long.toHexString(node.tag)
 							+ "[label=\"" + branchType + "_" + ordinal + "\"]");
 
 				}
 			}
 
-			pw.print("}");
-			pw.flush();
+			pwDotFile.print("}");
+			pwDotFile.flush();
+			
+			pwNodeFile.flush();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		if (pw != null)
-			pw.close();
+		if (pwDotFile != null)
+			pwDotFile.close();
+		if (pwNodeFile != null)
+			pwNodeFile.close();
+		
 	}
 
 	private void init(String tagFileName, String lookupFileName) {
