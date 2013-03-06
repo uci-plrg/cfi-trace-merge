@@ -23,11 +23,25 @@ public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
 
 	// In format of "tar.bb-graph-hash.2013-03-06.06-44-36.4947-4947.dat"
-	public int getPidFromFileName(String fileName) {
-		int secondLastDotPos = fileName.lastIndexOf('.', fileName.lastIndexOf('.')),
+	public static int getPidFromFileName(String fileName) {
+		int secondLastDotPos = 0,
 				lastDashPos = fileName.lastIndexOf('-');
+//		int count = 0;
+//		for (; count < 4 && secondLastDotPos != -1; count++) {
+//			secondLastDotPos = fileName.indexOf('.', secondLastDotPos + 1);
+//		}
+		secondLastDotPos = fileName.length();
+		secondLastDotPos = fileName.lastIndexOf('.', secondLastDotPos);
+		secondLastDotPos = fileName.lastIndexOf('.', secondLastDotPos - 1);
 		String pidStr = fileName.substring(secondLastDotPos + 1, lastDashPos);
-		return Integer.parseInt(pidStr);
+		int pid;
+		try {
+			pid = Integer.parseInt(pidStr);
+		} catch (NumberFormatException e) {
+			pid = 0;
+			e.printStackTrace();
+		}
+		return pid;
 	}
 	
 	private static void findHashFiles(File dir, ArrayList<String> lists) {
