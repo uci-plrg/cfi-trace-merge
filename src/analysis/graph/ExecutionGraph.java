@@ -20,6 +20,10 @@ public class ExecutionGraph {
 		public long tag, hash;
 		// Identify the same hash code with different tags
 		public int hashOrdinal;
+		
+		public Node(Node anotherNode) {
+			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
+		}
 
 		public Node(long tag, long hash) {
 			this.tag = tag;
@@ -89,6 +93,28 @@ public class ExecutionGraph {
 		init(tagFileName, lookupFileName);
 		// outputFirstMain();
 	}
+	
+	public ExecutionGraph(ExecutionGraph anotherGraph) {
+		// Copy the nodes
+		nodes = new ArrayList<Node>(nodes.size());
+		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
+			nodes.set(i, new Node(anotherGraph.nodes.get(i)));
+		}
+		// Copy the lookup table
+		hashLookupTable = new HashMap<Long, Node>();
+		for (long l : anotherGraph.hashLookupTable.keySet()) {
+			//hashLookupTable.put(l, value)
+		}
+		
+		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
+		
+		
+		
+
+		//private HashSet<Long> blockHash;
+		runDirName = anotherGraph.runDirName;
+		progName = anotherGraph.progName;
+	}
 
 	// public static ExecutionGraph buildGraphFromRunDir(String runDir) {
 	// File dir = new File(runDir);
@@ -147,7 +173,6 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * this method is for programs that will fork and exec other programs
 	 * 
 	 * @param otherGraph
 	 * @return
