@@ -621,6 +621,14 @@ public class ExecutionGraph {
 		// System.out.println(Long.toHexString(res));
 		return res;
 	}
+	
+	public static ArrayList<ExecutionGraph> buildGraphsFromRunDir(String dir) {
+		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
+		
+		
+		
+		return graphs;
+	}
 
 	public static void main(String[] argvs) {
 		// ArrayList<ExecutionGraph> graphs =

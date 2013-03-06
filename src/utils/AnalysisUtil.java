@@ -22,6 +22,14 @@ import java.util.HashSet;
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
 
+	// In format of "tar.bb-graph-hash.2013-03-06.06-44-36.4947-4947.dat"
+	public int getPidFromFileName(String fileName) {
+		int secondLastDotPos = fileName.lastIndexOf('.', fileName.lastIndexOf('.')),
+				lastDashPos = fileName.lastIndexOf('-');
+		String pidStr = fileName.substring(secondLastDotPos + 1, lastDashPos);
+		return Integer.parseInt(pidStr);
+	}
+	
 	private static void findHashFiles(File dir, ArrayList<String> lists) {
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory()) {
