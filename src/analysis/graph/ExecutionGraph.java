@@ -21,6 +21,10 @@ public class ExecutionGraph {
 		// Identify the same hash code with different tags
 		public int hashOrdinal;
 
+		public Node(Node anotherNode) {
+			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
+		}
+		
 		public Node(long tag, long hash) {
 			this.tag = tag;
 			this.hash = hash;
@@ -68,6 +72,10 @@ public class ExecutionGraph {
 	private ArrayList<Node> nodes;
 
 	private HashMap<Long, Node> hashLookupTable;
+	
+	// Map from hash to ArrayList<Node>,
+	// which also helps to find out the hash collisions
+	private HashMap<Long, ArrayList<Node>> hash2Nodes;
 
 	private HashSet<Long> blockHash;
 
@@ -78,8 +86,49 @@ public class ExecutionGraph {
 	// if false, it means that the file doesn't exist or is in wrong format
 	private boolean isValidGraph = true;
 
+	public ExecutionGraph(ExecutionGraph anotherGraph) {
+		this.runDirName = anotherGraph.runDirName;
+		this.progName = anotherGraph.progName;
+		// Copy the nodes, lookup table and hash2Nodes mapping
+		// all at once
+		nodes = new ArrayList<Node>(anotherGraph.nodes.size());
+		hashLookupTable = new HashMap<Long, Node>();
+		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
+		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
+			Node anotherNode = anotherGraph.nodes.get(i),
+					thisNode = new Node(anotherNode);
+			nodes.add(thisNode);
+			// Copy the lookup table
+			hashLookupTable.put(thisNode.tag, thisNode);
+			// Copy the hash2Nodes
+			if (hash2Nodes.get(thisNode.hash) == null) {
+				hash2Nodes.put(thisNode.hash, new ArrayList());
+			}
+			if (!hash2Nodes.get(thisNode.hash).contains(thisNode)) {
+				hash2Nodes.get(thisNode.hash).add(thisNode);
+			}
+		}
+		
+		// Copy the adjacentList
+		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
+		for (Node fromNode : anotherGraph.adjacentList.keySet()) {
+			Node thisFromNode = hashLookupTable.get(fromNode.tag);
+			HashMap<Node, Integer> map = new HashMap<Node, Integer>(); 
+			
+			for (Node toNode : anotherGraph.adjacentList.get(fromNode).keySet()) {
+				Node thisToNode = hashLookupTable.get(toNode.tag);
+				int edgeFlag = anotherGraph.adjacentList.get(fromNode).get(toNode);
+				map.put(thisToNode, edgeFlag);
+			}
+			adjacentList.put(thisFromNode, map);
+		}
+		
+		//System.out.println(Long.toHexString(outputFirstMain());
+	}
+	
 	public ExecutionGraph() {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
+		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 	}
 
 	public ExecutionGraph(String tagFileName, String lookupFileName) {
@@ -320,6 +369,14 @@ public class ExecutionGraph {
 					}
 					Node node = new Node(tag, hash);
 					hashLookupTable.put(tag, node);
+					
+					// Add it the the hash2Nodes mapping
+					if (hash2Nodes.get(hash) == null) {
+						hash2Nodes.put(hash, new ArrayList<Node>());
+					}
+					if (!hash2Nodes.get(hash).contains(node)) {
+						hash2Nodes.get(hash).add(node);
+					}
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -659,6 +716,7 @@ public class ExecutionGraph {
 				System.out.println("Pid " + pid + " is not a valid graph!");
 			}
 			graph.dumpGraph("graph-files/" + possibleProgName + "." + pid + ".dot");
+			graphs.add(graph);
 		}
 
 		return graphs;
@@ -676,8 +734,10 @@ public class ExecutionGraph {
 			if (!graph.isValidGraph()) {
 				System.out.print("This is a wrong graph!");
 			}
-			graph.dumpGraph("graph-files/tmp.dot");
+//			graph.dumpGraph("graph-files/tmp.dot");
 		}
+		ExecutionGraph graph1 = new ExecutionGraph(graphs.get(0));
+		graph1.dumpGraph("graph-files/tmp.dot");
 
 	}
 }
