@@ -19,15 +19,15 @@ public class ClusteringAnalysisGraph {
 	String[] runPaths;
 
 	public ClusteringAnalysisGraph(String tagFileName, String lookupFileName) {
-		this.graph = new ExecutionGraph(tagFileName, lookupFileName);
+		
 	}
 	
 	public ClusteringAnalysisGraph(String tagFileName, String lookupFileName, String blockFileName) {
-		this.graph = new ExecutionGraph(tagFileName, lookupFileName);
+		
 	}
 	
 	public ClusteringAnalysisGraph(String runDir) {
-		this.graph = ExecutionGraph.buildGraphFromRunDir(runDir);
+		
 	}
 	
 	private ExecutionGraph buildGraphFromRunDir(String path) {
@@ -69,7 +69,8 @@ public class ClusteringAnalysisGraph {
 		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(dirName);
 		HashMap<Long, String> firstMainHashes = new HashMap<Long, String>(); 
 		for (String runDir : runDirs) {
-			ExecutionGraph g = ExecutionGraph.buildGraphFromRunDir(runDir);
+			//ExecutionGraph g = ExecutionGraph.buildGraphFromRunDir(runDir);
+			ExecutionGraph g = null;
 			if (!g.isValidGraph()) {
 				System.out.println(runDir + " : invalid graph!");
 				continue;
