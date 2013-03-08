@@ -33,7 +33,12 @@ public class AnalysisUtil {
 		secondLastDotPos = fileName.length();
 		secondLastDotPos = fileName.lastIndexOf('.', secondLastDotPos);
 		secondLastDotPos = fileName.lastIndexOf('.', secondLastDotPos - 1);
-		String pidStr = fileName.substring(secondLastDotPos + 1, lastDashPos);
+		String pidStr = null;
+		try {
+			pidStr = fileName.substring(secondLastDotPos + 1, lastDashPos);
+		} catch (StringIndexOutOfBoundsException e) {
+			return 0;
+		}
 		int pid;
 		try {
 			pid = Integer.parseInt(pidStr);
