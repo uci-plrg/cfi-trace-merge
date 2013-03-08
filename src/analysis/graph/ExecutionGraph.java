@@ -195,9 +195,24 @@ public class ExecutionGraph {
 	private final long specialHash = new BigInteger("4f1f7a5c30ae8622", 16)
 			.longValue();
 
-	
+	/**
+	 * The merge algorithm here is trivial and probably we need to modify it sooner
+	 * and later!!!
+	 * @param graph1
+	 * @param graph2
+	 * @return
+	 */
 	public static ExecutionGraph mergeGraph(ExecutionGraph graph1, ExecutionGraph graph2) {
+		// Do a clean merge ---- clone graph1 and merge there!
 		ExecutionGraph result = new ExecutionGraph(graph1);
+		
+		// Merge based on the similarity of the first node ---- sanity check!
+		if (result.nodes.get(0).hash != graph2.nodes.get(0).hash) {
+			System.out.println("First node not the same, so wired and I can't merge...");
+			return null;
+		}
+		
+		// Need a queue to do a BFS
 		
 		return null;
 	}
