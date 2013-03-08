@@ -17,32 +17,38 @@ import utils.AnalysisUtil;
 
 public class ExecutionGraph {
 	static public class Node {
-		public long tag, hash;
+		private long tag, hash;
 		// Identify the same hash code with different tags
 		public int hashOrdinal;
 		
-		public Node(Node anotherNode) {
-			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
-		}
+		private ArrayList<Edge> edges;
+		private int isVisited;
+		// For temporal usage
+		private int isTmpVisited;
+		// Index in the ArrayList<Node>, in order to search the
+		// node in constant time
+		private int index;
 
 		public Node(Node anotherNode) {
 			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
+			// FIXME
+			// Not a deep copy yet, because we have edges...
 		}
 		
 		public Node(long tag, long hash) {
-			this.tag = tag;
-			this.hash = hash;
-			this.hashOrdinal = 0;
+			this(tag, hash, 0);
 		}
 
 		public Node(long tag, long hash, int hashOrdinal) {
 			this.tag = tag;
 			this.hash = hash;
 			this.hashOrdinal = hashOrdinal;
+			edges = new ArrayList<Edge>();
 		}
 
 		public Node(long tag) {
 			this.tag = tag;
+			edges = new ArrayList<Edge>();
 		}
 
 		/**
@@ -62,6 +68,19 @@ public class ExecutionGraph {
 		public int hashCode() {
 			return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode()
 					^ hashOrdinal;
+		}
+	}
+	
+	public static class Edge {
+		Node node;
+		boolean isDirect;
+		int ordinal;
+		
+		public Edge(Node node, int flag) {
+			this.node = node;
+			this.ordinal = flag % 256;
+			String branchType;
+			isDirect = flag / 256 == 1;
 		}
 	}
 
@@ -150,28 +169,6 @@ public class ExecutionGraph {
 			System.out.println("Pid " + pid + " is not a valid graph!");
 		}
 	}
-	
-	public ExecutionGraph(ExecutionGraph anotherGraph) {
-		// Copy the nodes
-		nodes = new ArrayList<Node>(nodes.size());
-		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
-			nodes.set(i, new Node(anotherGraph.nodes.get(i)));
-		}
-		// Copy the lookup table
-		hashLookupTable = new HashMap<Long, Node>();
-		for (long l : anotherGraph.hashLookupTable.keySet()) {
-			//hashLookupTable.put(l, value)
-		}
-		
-		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
-		
-		
-		
-
-		//private HashSet<Long> blockHash;
-		runDirName = anotherGraph.runDirName;
-		progName = anotherGraph.progName;
-	}
 
 
 	public String getProgName() {
@@ -238,9 +235,36 @@ public class ExecutionGraph {
 			return null;
 		}
 		
+		if ()
 		// Need a queue to do a BFS
 		
 		return null;
+	}
+	
+	// ** test git commit **
+	// Search the nearby context to check increase the confidence of the matching decision
+	private static int searchNearbyContext(ExecutionGraph graph1, Node node1, ExecutionGraph graph2, Node node2) {
+		ArrayList<Edge> edges1 = node1.edges,
+				edges2 = node2.edges;
+		if (edges1.get(0).isDirect && edges2.get(0).isDirect) {
+			for (int i = 0; i < edges1.size(); i++) {
+				for (int j = 0; j < edges2.size(); j++) {
+					if (edges1.get(i).ordinal == edges2.get(j).ordinal) {
+						if (edges1.get(i).node.hash != edges2.get(j).node.hash)
+							return 0;
+					}
+				}
+			}
+		} else if (!edges1.get(0).isDirect && !edges2.get(0).isDirect) {
+			// Too many indirect jumps... simply think that they are
+			// in very similar context
+			if (edges1.size() > 4 && edges2.size() > 4)
+				return 0;
+			else
+		} else {	// Similar context requires the branch type be the same!! ** Assumption **
+			return 0;
+		}
+		return 1;
 	}
 	
 	public void dumpHashCollision() {
@@ -317,26 +341,39 @@ public class ExecutionGraph {
 						+ "[label=\"" + Long.toHexString(nodes.get(i).hash)
 						+ "\"]");
 
-				HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
-				for (Node node : edges.keySet()) {
-					int flag = edges.get(node);
-					int ordinal = flag % 256;
+				ArrayList<Edge> edges = nodes.get(i).edges;
+				for (Edge e : edges) {
 					String branchType;
-					if (flag / 256 == 1) {
+					if (e.isDirect) {
 						branchType = "d";
 					} else {
 						branchType = "i";
 					}
-					// pw.println("node_" + Long.toHexString(nodes.get(i).hash)
-					// + "->"
-					// + "node_" + Long.toHexString(node.hash) + "[label=\""
-					// + branchType + "_" + ordinal + "_" +
-					// Long.toHexString(node.tag) + "\"]");
+					
 					pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
-							+ "->" + "node_" + Long.toHexString(node.tag)
-							+ "[label=\"" + branchType + "_" + ordinal + "\"]");
-
+							+ "->" + "node_" + Long.toHexString(e.node.tag)
+							+ "[label=\"" + branchType + "_" + e.ordinal + "\"]");
 				}
+//				HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
+//				for (Node node : edges.keySet()) {
+//					int flag = edges.get(node);
+//					int ordinal = flag % 256;
+//					String branchType;
+//					if (flag / 256 == 1) {
+//						branchType = "d";
+//					} else {
+//						branchType = "i";
+//					}
+//					// pw.println("node_" + Long.toHexString(nodes.get(i).hash)
+//					// + "->"
+//					// + "node_" + Long.toHexString(node.hash) + "[label=\""
+//					// + branchType + "_" + ordinal + "_" +
+//					// Long.toHexString(node.tag) + "\"]");
+//					pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
+//							+ "->" + "node_" + Long.toHexString(node.tag)
+//							+ "[label=\"" + branchType + "_" + ordinal + "\"]");
+//
+//				}
 			}
 
 			pwDotFile.print("}");
@@ -484,16 +521,23 @@ public class ExecutionGraph {
 					if (!adjacentList.containsKey(node1)) {
 						adjacentList.put(node1, new HashMap<Node, Integer>());
 						nodes.add(node1);
+						// Important!! Don't forget to update the index
+						node1.index = nodes.size() - 1;
 					}
 					if (!adjacentList.containsKey(node2)) {
 						adjacentList.put(node2, new HashMap<Node, Integer>());
 						nodes.add(node2);
+						// Important!! Don't forget to update the index
+						node2.index = nodes.size() - 1;
 					}
 
 					HashMap<Node, Integer> edges;
 					edges = adjacentList.get(node1);
-					if (!edges.containsKey(node2))
+					// Also update the ArrayList<Edge> of node
+					if (!edges.containsKey(node2)) {
 						edges.put(node2, flag);
+						node1.edges.add(new Edge(node2, flag));
+					}
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
