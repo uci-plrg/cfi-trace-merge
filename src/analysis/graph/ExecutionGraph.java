@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import utils.AnalysisUtil;
 
@@ -20,7 +22,7 @@ public class ExecutionGraph {
 		private long tag, hash;
 		// Identify the same hash code with different tags
 		public int hashOrdinal;
-		
+
 		private ArrayList<Edge> edges;
 		private int isVisited;
 		// For temporal usage
@@ -29,12 +31,17 @@ public class ExecutionGraph {
 		// node in constant time
 		private int index;
 
+		// This records which graph the node belongs to
+		// 0 represents from both
+		// 1 represents from graph1
+		// 2 represents from graph2
+		int fromWhichGraph = 0;
+
 		public Node(Node anotherNode) {
 			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
-			// FIXME
-			// Not a deep copy yet, because we have edges...
+			// FIXME: Not a deep copy yet, because we have edges...
 		}
-		
+
 		public Node(long tag, long hash) {
 			this(tag, hash, 0);
 		}
@@ -44,11 +51,13 @@ public class ExecutionGraph {
 			this.hash = hash;
 			this.hashOrdinal = hashOrdinal;
 			edges = new ArrayList<Edge>();
+			isVisited = 0;
 		}
 
 		public Node(long tag) {
 			this.tag = tag;
 			edges = new ArrayList<Edge>();
+			isVisited = 0;
 		}
 
 		/**
@@ -70,16 +79,21 @@ public class ExecutionGraph {
 					^ hashOrdinal;
 		}
 	}
-	
+
 	public static class Edge {
 		Node node;
 		boolean isDirect;
 		int ordinal;
-		
+
+		public Edge(Node node, boolean isDirect, int ordinal) {
+			this.node = node;
+			this.isDirect = isDirect;
+			this.ordinal = ordinal;
+		}
+
 		public Edge(Node node, int flag) {
 			this.node = node;
 			this.ordinal = flag % 256;
-			String branchType;
 			isDirect = flag / 256 == 1;
 		}
 	}
@@ -90,14 +104,16 @@ public class ExecutionGraph {
 	private String runDirName;
 
 	private String progName;
-	
+
 	private int pid;
+
+	private static boolean hasConflict = false;
 
 	// nodes in an array in the read order from file
 	private ArrayList<Node> nodes;
 
 	private HashMap<Long, Node> hashLookupTable;
-	
+
 	// Map from hash to ArrayList<Node>,
 	// which also helps to find out the hash collisions
 	private HashMap<Long, ArrayList<Node>> hash2Nodes;
@@ -120,8 +136,8 @@ public class ExecutionGraph {
 		hashLookupTable = new HashMap<Long, Node>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
-			Node anotherNode = anotherGraph.nodes.get(i),
-					thisNode = new Node(anotherNode);
+			Node anotherNode = anotherGraph.nodes.get(i), thisNode = new Node(
+					anotherNode);
 			nodes.add(thisNode);
 			// Copy the lookup table
 			hashLookupTable.put(thisNode.tag, thisNode);
@@ -133,34 +149,36 @@ public class ExecutionGraph {
 				hash2Nodes.get(thisNode.hash).add(thisNode);
 			}
 		}
-		
+
 		// Copy the adjacentList
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		for (Node fromNode : anotherGraph.adjacentList.keySet()) {
 			Node thisFromNode = hashLookupTable.get(fromNode.tag);
-			HashMap<Node, Integer> map = new HashMap<Node, Integer>(); 
-			
+			HashMap<Node, Integer> map = new HashMap<Node, Integer>();
+
 			for (Node toNode : anotherGraph.adjacentList.get(fromNode).keySet()) {
 				Node thisToNode = hashLookupTable.get(toNode.tag);
-				int edgeFlag = anotherGraph.adjacentList.get(fromNode).get(toNode);
+				int edgeFlag = anotherGraph.adjacentList.get(fromNode).get(
+						toNode);
 				map.put(thisToNode, edgeFlag);
 			}
 			adjacentList.put(thisFromNode, map);
 		}
-		
+
 		if (isSameGraph(this, anotherGraph))
 			System.out.println("Graph copying error!");
 	}
-	
+
 	public ExecutionGraph() {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 	}
 
-	public ExecutionGraph(ArrayList<String> tagFiles, ArrayList<String> lookupFiles) {
+	public ExecutionGraph(ArrayList<String> tagFiles,
+			ArrayList<String> lookupFiles) {
 		adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
-		
+
 		this.progName = AnalysisUtil.getProgName(tagFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(tagFiles.get(0));
 		readGraphLookup(lookupFiles);
@@ -170,7 +188,6 @@ public class ExecutionGraph {
 		}
 	}
 
-
 	public String getProgName() {
 		return progName;
 	}
@@ -178,15 +195,17 @@ public class ExecutionGraph {
 	private void setProgName(String progName) {
 		this.progName = progName;
 	}
-	
+
 	/**
-	 * Use tag as an identifier, just a simple function to check the
-	 * correctness of copying a graph 
+	 * Use tag as an identifier, just a simple function to check the correctness
+	 * of copying a graph
+	 * 
 	 * @param graph1
 	 * @param graph2
 	 * @return
 	 */
-	private static boolean isSameGraph(ExecutionGraph graph1, ExecutionGraph graph2) {
+	private static boolean isSameGraph(ExecutionGraph graph1,
+			ExecutionGraph graph2) {
 		if (graph1.nodes.size() != graph2.nodes.size())
 			return false;
 		if (!graph1.nodes.equals(graph2.nodes))
@@ -197,10 +216,10 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * try to merge two graphs  !!! Seems that every two graphs
-	 * can be merged, so maybe there should be a way to evaluate how much the
-	 * two graphs conflict One case is unmergeable: two direct branch nodes with
-	 * same hash value but have different branch targets (Seems wired!!)
+	 * try to merge two graphs !!! Seems that every two graphs can be merged, so
+	 * maybe there should be a way to evaluate how much the two graphs conflict
+	 * One case is unmergeable: two direct branch nodes with same hash value but
+	 * have different branch targets (Seems wired!!)
 	 * 
 	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seems
 	 * to enter their main function after a very similar dynamic-loading
@@ -215,65 +234,274 @@ public class ExecutionGraph {
 	 * 
 	 * @param otherGraph
 	 */
-	private final long specialHash = new BigInteger("4f1f7a5c30ae8622", 16)
-			.longValue();
+	private static final long specialHash = new BigInteger("4f1f7a5c30ae8622",
+			16).longValue();
+	private static final long beginHash = 0x5eee92;
+
+	private static Node getCorrespondingNode(ExecutionGraph graph1,
+			ExecutionGraph graph2, Node node2,
+			HashMap<Long, Node> newNodesFromGraph2) {
+		// Get all the nodes that have the same hash from graph1
+		ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
+		// New hash code in graph2
+		if (nodes == null || nodes.size() == 0)
+			return null;
+		for (int i = 0; i < nodes.size(); i++) {
+			Node node1 = nodes.get(i);
+			int res = getContextSimilarity(graph1, node1, graph2, node2, 3);
+			if (res == 1) {
+				return node1;
+				// FIXME
+				// We just consider the first node that we think have similar
+				// context as the same node
+			} else if (res == -1) {
+				hasConflict = true;
+			}
+		}
+
+		// This should be a newly added node from graph2
+		// Use a trick here, trace the added nodes from graph2
+		// by its tag from graph2
+		return newNodesFromGraph2.get(node2.tag);
+	}
 
 	/**
-	 * The merge algorithm here is trivial and probably we need to modify it sooner
-	 * and later!!!
+	 * The merge algorithm here is trivial and probably we need to modify it
+	 * sooner and later!!!
+	 * 
 	 * @param graph1
 	 * @param graph2
 	 * @return
 	 */
-	public static ExecutionGraph mergeGraph(ExecutionGraph graph1, ExecutionGraph graph2) {
-		// Do a clean merge ---- clone graph1 and merge there!
-		ExecutionGraph result = new ExecutionGraph(graph1);
-		
+	public static ExecutionGraph mergeGraph(ExecutionGraph graph1,
+			ExecutionGraph graph2) {
+
 		// Merge based on the similarity of the first node ---- sanity check!
-		if (result.nodes.get(0).hash != graph2.nodes.get(0).hash) {
-			System.out.println("First node not the same, so wired and I can't merge...");
+		// FIXME: For some executions, the first node does not necessary locate
+		// in the first position!!!
+		if (graph1.nodes.get(0).hash != graph2.nodes.get(0).hash) {
+			System.out
+					.println("First node not the same, so wired and I can't merge...");
 			return null;
 		}
-		
-		if ()
-		// Need a queue to do a BFS
-		
+		// Checkout if first main block equals to each other
+		ArrayList<Node> mainBlocks1 = graph1.hash2Nodes
+				.get(ExecutionGraph.specialHash), mainBlocks2 = graph2.hash2Nodes
+				.get(ExecutionGraph.specialHash);
+		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
+			if (mainBlocks1.get(0).hash != mainBlocks2.get(0).hash) {
+				System.out.println("First block not the same, not mergeable!");
+				return null;
+			}
+		} else {
+			System.out
+					.println("Important message: more than one block to hash has the same hash!!!");
+		}
+
+		// Before merge, reset fromWhichGraph filed to be 1
+		for (int i = 0; i < graph1.nodes.size(); i++) {
+			graph1.nodes.get(i).fromWhichGraph = 1;
+		}
+		// Newly added nodes from graph2
+		HashMap<Long, Node> newNodesFromGraph2 = new HashMap<Long, Node>();
+
+		// Need a queue to do a BFS on one of the graph
+		Queue<Node> bfsQueue = new LinkedList<Node>();
+		bfsQueue.add(graph2.nodes.get(0));
+
+		while (bfsQueue.size() > 0 && !hasConflict) {
+			Node curNode = bfsQueue.remove();
+			ArrayList<Edge> edges = curNode.edges;
+			curNode.isVisited = 1;
+
+			// Get the counterpart from graph1
+			// In most cases, node1 should not be null
+			if (curNode.hash == new BigInteger("3343f09ada0", 16).longValue()) {
+				System.out.println("Stop!");
+			}
+			Node node1 = getCorrespondingNode(graph1, graph2, curNode,
+					newNodesFromGraph2);
+			if (node1 == null) {
+				node1 = new Node(curNode);
+				// Don't forget to update the 'nodes' list, 'hash2Nodes'
+				// table and the info in the node itself
+				newNodesFromGraph2.put(curNode.tag, node1);
+				graph1.nodes.add(node1);
+				node1.index = graph1.nodes.size() - 1;
+				node1.fromWhichGraph = 2;
+				if (graph1.hash2Nodes.get(node1.hash) == null) {
+					graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
+				}
+				graph1.hash2Nodes.get(node1.hash).add(node1);
+			}
+			// If the node is not from 2, then it must owned by both graphs
+			if (node1.fromWhichGraph != 2)
+				node1.fromWhichGraph = 0;
+			
+			for (int i = 0; i < edges.size(); i++) {
+				if (edges.get(i).node.isVisited == 0) {
+					Node nextNode = edges.get(i).node, nextNode1 = getCorrespondingNode(
+							graph1, graph2, nextNode, newNodesFromGraph2);
+//					if (nextNode.hash == new BigInteger("3343f09ada0", 16).longValue()) {
+//						System.out.println("Stop!");
+//					}
+					bfsQueue.add(nextNode);
+					if (node1.fromWhichGraph == 2) {
+						if (nextNode1 == null) {
+							nextNode1 = new Node(nextNode);
+							// Don't forget to update the 'nodes' list,
+							// 'hash2Nodes'
+							// table and the info in the node itself
+							newNodesFromGraph2.put(nextNode.tag, nextNode);
+							graph1.nodes.add(nextNode1);
+							nextNode1.index = graph1.nodes.size() - 1;
+							nextNode1.fromWhichGraph = 2;
+							if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
+								graph1.hash2Nodes.put(nextNode1.hash,
+										new ArrayList<Node>());
+							}
+							graph1.hash2Nodes.get(nextNode1.hash)
+									.add(nextNode1);
+						}
+						// One more thing: update the edges field!!
+						Edge e = new Edge(nextNode1, edges.get(i).isDirect,
+								edges.get(i).ordinal);
+						node1.edges.add(e);
+					} else { // node1 is a node already in graph1
+						if (nextNode1 == null) {
+							nextNode1 = new Node(nextNode);
+							// Don't forget to update the 'nodes' list,
+							// 'hash2Nodes'
+							// table and the info in the node itself
+							newNodesFromGraph2.put(nextNode.tag, nextNode);
+							graph1.nodes.add(nextNode1);
+							nextNode1.index = graph1.nodes.size() - 1;
+							nextNode1.fromWhichGraph = 2;
+							if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
+								graph1.hash2Nodes.put(nextNode1.hash,
+										new ArrayList<Node>());
+							}
+							graph1.hash2Nodes.get(nextNode1.hash)
+									.add(nextNode1);
+							
+							// One more thing: update the edges field!!
+							// Don't forget!!!
+							Edge e = new Edge(nextNode1, edges.get(i).isDirect,
+									edges.get(i).ordinal);
+							node1.edges.add(e);
+						} else {
+							nextNode1.isVisited = 1;
+							nextNode1.fromWhichGraph = 0;
+						}
+					}
+				}
+			}
+		}
+		if (!hasConflict) {
+			System.out.println("Awesome! The two graphs merge!!");
+			graph1.dumpGraph("graph-files/merge.dot");
+			System.out.println(newNodesFromGraph2.size());
+			for (long newHash : newNodesFromGraph2.keySet()) {
+				System.out.println(Long.toHexString(newHash));
+			}
+		}
+
 		return null;
 	}
-	
-	// ** test git commit **
-	// Search the nearby context to check increase the confidence of the matching decision
-	private static int searchNearbyContext(ExecutionGraph graph1, Node node1, ExecutionGraph graph2, Node node2) {
-		ArrayList<Edge> edges1 = node1.edges,
-				edges2 = node2.edges;
+
+	// Search the nearby context to check the similarity of the
+	// node1 and node2
+	// Depth is how deep the query should try, by default depth == 3
+	// Return val: 0 means not the same context, 1 means similar context,
+	// -1 means potential conflict (not the same program!!!)
+	// TODO: Only when we are sure that the two nodes to be compared is
+	// the exact same node can we say for sure that returning -1 really
+	// means conflict happens
+	private static int getContextSimilarity(ExecutionGraph graph1, Node node1,
+			ExecutionGraph graph2, Node node2, int depth) {
+		if (depth <= 0)
+			return 1;
+		ArrayList<Edge> edges1 = node1.edges, edges2 = node2.edges;
+		// One node does not have any outgoing edges!!
+		// Might FIXME. Not enough information, what should I do?
+		// Just think that they are still similar...
+		if (edges1.size() == 0 || edges2.size() == 0) {
+			if (node1.fromWhichGraph == 2)
+				return 0;
+			else
+				return 1;
+		}
+			
 		if (edges1.get(0).isDirect && edges2.get(0).isDirect) {
 			for (int i = 0; i < edges1.size(); i++) {
 				for (int j = 0; j < edges2.size(); j++) {
 					if (edges1.get(i).ordinal == edges2.get(j).ordinal) {
-						if (edges1.get(i).node.hash != edges2.get(j).node.hash)
+						if (edges1.get(i).node.hash != edges2.get(j).node.hash) {
 							return 0;
+						} else {
+							int match = getContextSimilarity(graph1,
+									edges1.get(i).node, graph2,
+									edges2.get(j).node, depth - 1);
+							if (match == 0)
+								return 0;
+						}
 					}
 				}
 			}
 		} else if (!edges1.get(0).isDirect && !edges2.get(0).isDirect) {
 			// Too many indirect jumps... simply think that they are
 			// in very similar context
-			if (edges1.size() > 4 && edges2.size() > 4)
+			if (edges1.size() == 1 && edges2.size() > 3 && edges1.size() > 3
+					&& edges2.size() == 1)
 				return 0;
-			else
-		} else {	// Similar context requires the branch type be the same!! ** Assumption **
-			return 0;
+			for (int i = 0; i < edges1.size(); i++) {
+				for (int j = 0; j < edges2.size(); j++) {
+					if (edges1.get(i).ordinal != edges2.get(j).ordinal) {
+						// should be both 0
+						return 0;
+					}
+					if (edges1.get(i).node.hash == edges2.get(j).node.hash) {
+						return getContextSimilarity(graph1, node1, graph2,
+								node2, depth - 1);
+					} else {
+
+					}
+
+				}
+			}
+		} else { // Similar context requires the branch type be the same!!
+					// ** Assumption **
+			return -1;
 		}
 		return 1;
 	}
-	
+
 	public void dumpHashCollision() {
 		System.out.println(progName + "." + pid + " -> hash collision:");
 		for (long hash : hash2Nodes.keySet()) {
 			ArrayList<Node> nodes = hash2Nodes.get(hash);
-			if (nodes.size() > 3) {
-				System.out.println(Long.toHexString(nodes.get(0).hash) + " happens "
-						+ nodes.size() + " times.");
+			if (nodes.size() > 1) {
+				boolean isAllDifferent = true;
+				if (nodes.get(0).hash == 0xff) {
+					System.out.println("Stop!");
+					// for (int i = 0; i < nodes.size(); i++) {
+					//
+					// }
+				}
+				int count = 0;
+				for (int i = 0; i < nodes.size(); i++) {
+					for (int j = i + 1; j < nodes.size(); j++) {
+						// if (1 == getContextSimilarity(this, nodes.get(i),
+						// this, nodes.get(j), 5)) {
+						// isAllDifferent = false;
+						// count++;
+						// }
+					}
+				}
+				if (!isAllDifferent) {
+					System.out.println(Long.toHexString(nodes.get(0).hash)
+							+ " happens " + nodes.size() + " times.");
+				}
 			}
 		}
 		System.out.println();
@@ -309,7 +537,7 @@ public class ExecutionGraph {
 				e.printStackTrace();
 			}
 		}
-		
+
 		file = new File(fileName + ".node");
 		if (!file.exists()) {
 			try {
@@ -319,27 +547,24 @@ public class ExecutionGraph {
 			}
 		}
 
-		PrintWriter pwDotFile = null,
-				pwNodeFile = null;
-		
+		PrintWriter pwDotFile = null, pwNodeFile = null;
+
 		try {
 			pwDotFile = new PrintWriter(fileName);
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			
+
 			for (int i = 0; i < nodes.size(); i++) {
 				pwNodeFile.println(Long.toHexString(nodes.get(i).hash));
 			}
-			
-			
+
 			pwDotFile.println("digraph runGraph {");
 			long firstMainBlock = outputFirstMain();
 			pwDotFile.println("# First main block: "
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < nodes.size(); i++) {
 				// pw.println("node_" + Long.toHexString(nodes.get(i).hash));
-				pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
-						+ "[label=\"" + Long.toHexString(nodes.get(i).hash)
-						+ "\"]");
+				pwDotFile.println(i + "[label=\""
+						+ Long.toHexString(nodes.get(i).hash) + "\"]");
 
 				ArrayList<Edge> edges = nodes.get(i).edges;
 				for (Edge e : edges) {
@@ -349,36 +574,37 @@ public class ExecutionGraph {
 					} else {
 						branchType = "i";
 					}
-					
-					pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
-							+ "->" + "node_" + Long.toHexString(e.node.tag)
-							+ "[label=\"" + branchType + "_" + e.ordinal + "\"]");
+
+					pwDotFile.println(i + "->" + e.node.index + "[label=\""
+							+ branchType + "_" + e.ordinal + "\"]");
 				}
-//				HashMap<Node, Integer> edges = adjacentList.get(nodes.get(i));
-//				for (Node node : edges.keySet()) {
-//					int flag = edges.get(node);
-//					int ordinal = flag % 256;
-//					String branchType;
-//					if (flag / 256 == 1) {
-//						branchType = "d";
-//					} else {
-//						branchType = "i";
-//					}
-//					// pw.println("node_" + Long.toHexString(nodes.get(i).hash)
-//					// + "->"
-//					// + "node_" + Long.toHexString(node.hash) + "[label=\""
-//					// + branchType + "_" + ordinal + "_" +
-//					// Long.toHexString(node.tag) + "\"]");
-//					pwDotFile.println("node_" + Long.toHexString(nodes.get(i).tag)
-//							+ "->" + "node_" + Long.toHexString(node.tag)
-//							+ "[label=\"" + branchType + "_" + ordinal + "\"]");
-//
-//				}
+				// HashMap<Node, Integer> edges =
+				// adjacentList.get(nodes.get(i));
+				// for (Node node : edges.keySet()) {
+				// int flag = edges.get(node);
+				// int ordinal = flag % 256;
+				// String branchType;
+				// if (flag / 256 == 1) {
+				// branchType = "d";
+				// } else {
+				// branchType = "i";
+				// }
+				// // pw.println("node_" + Long.toHexString(nodes.get(i).hash)
+				// // + "->"
+				// // + "node_" + Long.toHexString(node.hash) + "[label=\""
+				// // + branchType + "_" + ordinal + "_" +
+				// // Long.toHexString(node.tag) + "\"]");
+				// pwDotFile.println("node_" +
+				// Long.toHexString(nodes.get(i).tag)
+				// + "->" + "node_" + Long.toHexString(node.tag)
+				// + "[label=\"" + branchType + "_" + ordinal + "\"]");
+				//
+				// }
 			}
 
 			pwDotFile.print("}");
 			pwDotFile.flush();
-			
+
 			pwNodeFile.flush();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -387,9 +613,8 @@ public class ExecutionGraph {
 			pwDotFile.close();
 		if (pwNodeFile != null)
 			pwNodeFile.close();
-		
-	}
 
+	}
 
 	public boolean isValidGraph() {
 		return this.isValidGraph;
@@ -402,8 +627,8 @@ public class ExecutionGraph {
 
 		for (int i = 0; i < lookupFiles.size(); i++) {
 			String lookupFile = lookupFiles.get(i);
-//			if (lookupFile.indexOf("ld") == -1)
-//				continue;
+			// if (lookupFile.indexOf("ld") == -1)
+			// continue;
 			try {
 				fileIn = new FileInputStream(lookupFile);
 				dataIn = new DataInputStream(fileIn);
@@ -422,10 +647,7 @@ public class ExecutionGraph {
 
 					hash = AnalysisUtil.reverseForLittleEndian(dataIn
 							.readLong());
-					// FIXME
-					// not sure if tags duplicate in lookup file
-					// first assume that they don't
-					// it seems that they don't duplicate in the first few runs
+					// Tags don't duplicate in lookup file
 					if (hashLookupTable.containsKey(tag)) {
 						if (hashLookupTable.get(tag).hash != hash) {
 							isValidGraph = false;
@@ -440,7 +662,7 @@ public class ExecutionGraph {
 					}
 					Node node = new Node(tag, hash);
 					hashLookupTable.put(tag, node);
-					
+
 					// Add it the the hash2Nodes mapping
 					if (hash2Nodes.get(hash) == null) {
 						hash2Nodes.put(hash, new ArrayList<Node>());
@@ -468,12 +690,12 @@ public class ExecutionGraph {
 
 	public void readGraph(ArrayList<String> tagFiles)
 			throws NullPointerException {
-		
+
 		nodes = new ArrayList<Node>();
 		for (int i = 0; i < tagFiles.size(); i++) {
 			String tagFile = tagFiles.get(i);
-//			if (tagFile.indexOf("ld") == -1)
-//				continue;
+			// if (tagFile.indexOf("ld") == -1)
+			// continue;
 			File file = new File(tagFile);
 			// V <= E / 2 + 1
 			FileInputStream fileIn = null;
@@ -569,7 +791,6 @@ public class ExecutionGraph {
 
 	}
 
-
 	// Return the highest two bytes
 	public static int getEdgeFlag(long tag) {
 		return new Long(tag >>> 48).intValue();
@@ -614,12 +835,12 @@ public class ExecutionGraph {
 
 		// Build the graphs
 		for (int pid : pid2LookupFiles.keySet()) {
-			
-			
+
 			ArrayList<String> lookupFiles = pid2LookupFiles.get(pid), tagFiles = pid2TagFiles
 					.get(pid);
-			
-			String possibleProgName = AnalysisUtil.getProgName(lookupFiles.get(0));
+
+			String possibleProgName = AnalysisUtil.getProgName(lookupFiles
+					.get(0));
 			ExecutionGraph graph = new ExecutionGraph();
 			graph.progName = possibleProgName;
 			graph.pid = pid;
@@ -628,7 +849,8 @@ public class ExecutionGraph {
 			if (!graph.isValidGraph) {
 				System.out.println("Pid " + pid + " is not a valid graph!");
 			}
-			//graph.dumpGraph("graph-files/" + possibleProgName + "." + pid + ".dot");
+			// graph.dumpGraph("graph-files/" + possibleProgName + "." + pid +
+			// ".dot");
 			graphs.add(graph);
 		}
 
@@ -643,11 +865,10 @@ public class ExecutionGraph {
 			if (!graph.isValidGraph()) {
 				System.out.print("This is a wrong graph!");
 			}
-			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid + ".dot");
-			//graph.dumpHashCollision();
+			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+					+ ".dot");
 		}
-//		ExecutionGraph graph1 = new ExecutionGraph(graphs.get(0));
-//		graph1.dumpGraph("graph-files/tmp.dot");
+		mergeGraph(graphs.get(0), graphs.get(1));
 
 	}
 }
