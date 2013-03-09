@@ -243,7 +243,7 @@ public class ExecutionGraph {
 			HashMap<Long, Node> newNodesFromGraph2) {
 		// Get all the nodes that have the same hash from graph1
 		ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
-		// New hash code in graph2
+		// New hash code from graph2
 		if (nodes == null || nodes.size() == 0)
 			return null;
 		for (int i = 0; i < nodes.size(); i++) {
@@ -316,9 +316,9 @@ public class ExecutionGraph {
 
 			// Get the counterpart from graph1
 			// In most cases, node1 should not be null
-			if (curNode.hash == new BigInteger("3343f09ada0", 16).longValue()) {
-				System.out.println("Stop!");
-			}
+//			if (curNode.hash == new BigInteger("3343f09ada0", 16).longValue()) {
+//				System.out.println("Stop!");
+//			}
 			Node node1 = getCorrespondingNode(graph1, graph2, curNode,
 					newNodesFromGraph2);
 			if (node1 == null) {
@@ -400,9 +400,9 @@ public class ExecutionGraph {
 		if (!hasConflict) {
 			System.out.println("Awesome! The two graphs merge!!");
 			graph1.dumpGraph("graph-files/merge.dot");
-			System.out.println(newNodesFromGraph2.size());
-			for (long newHash : newNodesFromGraph2.keySet()) {
-				System.out.println(Long.toHexString(newHash));
+//			System.out.println(newNodesFromGraph2.size());
+			for (long tag : newNodesFromGraph2.keySet()) {
+				System.out.println(Long.toHexString(newNodesFromGraph2.get(tag).hash));
 			}
 		}
 
