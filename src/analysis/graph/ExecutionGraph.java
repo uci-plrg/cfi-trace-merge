@@ -96,6 +96,24 @@ public class ExecutionGraph {
 			this.ordinal = flag % 256;
 			isDirect = flag / 256 == 1;
 		}
+		
+		public boolean equals(Object o) {
+			if (o == null)
+				return false;
+			if (o.getClass() != Edge.class)
+				return false;
+			Edge e = (Edge) o;
+			if (e.node.index == node.index
+					&& e.isDirect == isDirect
+					&& e.ordinal == ordinal)
+				return true;
+			return false;
+				
+		}
+		
+		public int hashCode() {
+			return node.index;
+		}
 	}
 
 	// the edges of the graph comes with an ordinal
@@ -243,9 +261,11 @@ public class ExecutionGraph {
 			HashMap<Long, Node> newNodesFromGraph2) {
 		// Get all the nodes that have the same hash from graph1
 		ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
+		
 		// New hash code from graph2
 		if (nodes == null || nodes.size() == 0)
 			return null;
+		
 		for (int i = 0; i < nodes.size(); i++) {
 			Node node1 = nodes.get(i);
 			int res = getContextSimilarity(graph1, node1, graph2, node2, 3);
@@ -278,13 +298,12 @@ public class ExecutionGraph {
 
 		// Try to traverse the smaller graph (in terms of number
 		// of nodes)
-		ExecutionGraph tmpGraph;
 		if (graph1.nodes.size() < graph2.nodes.size()) {
-			tmpGraph = graph2;
+			ExecutionGraph tmpGraph = graph2;
 			graph2 = graph1;
 			graph1 = tmpGraph;
 		}
-		
+
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
 		// in the first position!!!
@@ -315,7 +334,7 @@ public class ExecutionGraph {
 		for (int i = 0; i < graph2.nodes.size(); i++) {
 			graph2.nodes.get(i).fromWhichGraph = 2;
 		}
-		
+
 		// Record newly-added nodes from graph2
 		HashMap<Long, Node> newNodesFromGraph2 = new HashMap<Long, Node>();
 
@@ -325,15 +344,12 @@ public class ExecutionGraph {
 
 		while (bfsQueue.size() > 0 && !hasConflict) {
 			Node curNode = bfsQueue.remove();
-			ArrayList<Edge> edges = curNode.edges;
+			// Mark as visited, don't forget!!
 			curNode.isVisited = 1;
+			
+			ArrayList<Edge> edges = curNode.edges;
 
 			// Get the counterpart from graph1
-			// In most cases, node1 should not be null
-			// if (curNode.hash == new BigInteger("3343f09ada0",
-			// 16).longValue()) {
-			// System.out.println("Stop!");
-			// }
 			Node node1 = getCorrespondingNode(graph1, graph2, curNode,
 					newNodesFromGraph2);
 			if (node1 == null) {
@@ -357,54 +373,47 @@ public class ExecutionGraph {
 				if (edges.get(i).node.isVisited == 0) {
 					Node nextNode = edges.get(i).node, nextNode1 = getCorrespondingNode(
 							graph1, graph2, nextNode, newNodesFromGraph2);
+					// First enqueue the unvisited neighbor
 					bfsQueue.add(nextNode);
-					
-					if (node1.fromWhichGraph == 2) {
-						if (nextNode1 == null) {
-							nextNode1 = new Node(nextNode);
-							// Don't forget to update the 'nodes' list,
-							// 'hash2Nodes'
-							// table and the info in the node itself
-							newNodesFromGraph2.put(nextNode.tag, nextNode);
-							graph1.nodes.add(nextNode1);
-							nextNode1.index = graph1.nodes.size() - 1;
-							nextNode1.fromWhichGraph = 2;
-							if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
-								graph1.hash2Nodes.put(nextNode1.hash,
-										new ArrayList<Node>());
-							}
-							graph1.hash2Nodes.get(nextNode1.hash)
-									.add(nextNode1);
+
+					// Then visit the edges
+					if (nextNode1 == null) {
+						// The next node is new
+
+						nextNode1 = new Node(nextNode);
+						// Don't forget to update the 'nodes' list,
+						// 'hash2Nodes'
+						// table and the info in the node itself
+						newNodesFromGraph2.put(nextNode.tag, nextNode1);
+						graph1.nodes.add(nextNode1);
+						nextNode1.index = graph1.nodes.size() - 1;
+						nextNode1.fromWhichGraph = 2;
+						if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
+							graph1.hash2Nodes.put(nextNode1.hash,
+									new ArrayList<Node>());
 						}
+						graph1.hash2Nodes.get(nextNode1.hash).add(nextNode1);
 						// One more thing: update the edges field!!
 						Edge e = new Edge(nextNode1, edges.get(i).isDirect,
 								edges.get(i).ordinal);
-						node1.edges.add(e);
-					} else { // node1 is a node already in graph1
-						if (nextNode1 == null) {
-							nextNode1 = new Node(nextNode);
-							// Don't forget to update the 'nodes' list,
-							// 'hash2Nodes'
-							// table and the info in the node itself
-							newNodesFromGraph2.put(nextNode.tag, nextNode);
-							graph1.nodes.add(nextNode1);
-							nextNode1.index = graph1.nodes.size() - 1;
-							nextNode1.fromWhichGraph = 2;
+						if (!node1.edges.contains(e))
+							node1.edges.add(e);
+					} else {
+						// The next node is old, already in graph1 
+
+						// node1 itself is from graph2, so it should update
+						// the edges
+						if (node1.fromWhichGraph == 2) {
 							if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
 								graph1.hash2Nodes.put(nextNode1.hash,
 										new ArrayList<Node>());
 							}
-							graph1.hash2Nodes.get(nextNode1.hash)
-									.add(nextNode1);
-
+							graph1.hash2Nodes.get(nextNode1.hash).add(nextNode1);
 							// One more thing: update the edges field!!
-							// Don't forget!!!
 							Edge e = new Edge(nextNode1, edges.get(i).isDirect,
 									edges.get(i).ordinal);
-							node1.edges.add(e);
-						} else {
-							nextNode1.isVisited = 1;
-							nextNode1.fromWhichGraph = 0;
+							if (!node1.edges.contains(e))
+								node1.edges.add(e);
 						}
 					}
 				}
