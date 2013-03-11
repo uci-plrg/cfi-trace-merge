@@ -37,6 +37,10 @@ public class ExecutionGraph {
 		// 2 represents from graph2
 		int fromWhichGraph = 0;
 
+		public String toString() {
+			return Long.toHexString(hash);
+		}
+
 		public Node(Node anotherNode) {
 			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
 			// FIXME: Not a deep copy yet, because we have edges...
@@ -96,21 +100,20 @@ public class ExecutionGraph {
 			this.ordinal = flag % 256;
 			isDirect = flag / 256 == 1;
 		}
-		
+
 		public boolean equals(Object o) {
 			if (o == null)
 				return false;
 			if (o.getClass() != Edge.class)
 				return false;
 			Edge e = (Edge) o;
-			if (e.node.index == node.index
-					&& e.isDirect == isDirect
+			if (e.node.index == node.index && e.isDirect == isDirect
 					&& e.ordinal == ordinal)
 				return true;
 			return false;
-				
+
 		}
-		
+
 		public int hashCode() {
 			return node.index;
 		}
@@ -261,11 +264,11 @@ public class ExecutionGraph {
 			HashMap<Long, Node> newNodesFromGraph2) {
 		// Get all the nodes that have the same hash from graph1
 		ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
-		
+
 		// New hash code from graph2
 		if (nodes == null || nodes.size() == 0)
 			return null;
-		
+
 		for (int i = 0; i < nodes.size(); i++) {
 			Node node1 = nodes.get(i);
 			int res = getContextSimilarity(graph1, node1, graph2, node2, 3);
@@ -319,8 +322,8 @@ public class ExecutionGraph {
 		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
 			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
 					.get(0).node.hash) {
-				System.out.println("First block not the same, not mergeable!");
-				return null;
+				// System.out.println("First block not the same, not mergeable!");
+				// return null;
 			}
 		} else {
 			System.out
@@ -344,9 +347,16 @@ public class ExecutionGraph {
 
 		while (bfsQueue.size() > 0 && !hasConflict) {
 			Node curNode = bfsQueue.remove();
+			if (curNode.isVisited == 1)
+				continue;
 			// Mark as visited, don't forget!!
 			curNode.isVisited = 1;
-			
+
+			if (curNode.hash == new BigInteger("4f1f7a5c30ae8622", 16)
+					.longValue()) {
+				System.out.println();
+			}
+
 			ArrayList<Edge> edges = curNode.edges;
 
 			// Get the counterpart from graph1
@@ -398,8 +408,12 @@ public class ExecutionGraph {
 								edges.get(i).ordinal);
 						if (!node1.edges.contains(e))
 							node1.edges.add(e);
+						if (curNode.hash == new BigInteger("4f1f7a5c30ae8622",
+								16).longValue()) {
+							System.out.println();
+						}
 					} else {
-						// The next node is old, already in graph1 
+						// The next node is old, already in graph1
 
 						// node1 itself is from graph2, so it should update
 						// the edges
@@ -408,7 +422,8 @@ public class ExecutionGraph {
 								graph1.hash2Nodes.put(nextNode1.hash,
 										new ArrayList<Node>());
 							}
-							graph1.hash2Nodes.get(nextNode1.hash).add(nextNode1);
+							graph1.hash2Nodes.get(nextNode1.hash)
+									.add(nextNode1);
 							// One more thing: update the edges field!!
 							Edge e = new Edge(nextNode1, edges.get(i).isDirect,
 									edges.get(i).ordinal);
@@ -419,15 +434,31 @@ public class ExecutionGraph {
 				}
 			}
 		}
-		if (!hasConflict) {
-			System.out.println("Awesome! The two graphs merge!!");
-			graph1.dumpGraph("graph-files/merge.dot");
-			// System.out.println(newNodesFromGraph2.size());
-			for (long tag : newNodesFromGraph2.keySet()) {
-				System.out
-						.println(Long.toHexString(newNodesFromGraph2.get(tag).hash));
-			}
+		if (hasConflict) {
+			System.out.println("Sorry! Can't merge the two graphs!!");
 		}
+		System.out.println("Awesome! The two graphs merge!!");
+		graph1.dumpGraph("graph-files/merge.dot");
+
+		System.out.println("Added " + newNodesFromGraph2.size()
+				+ " nodes from G2 to G1.");
+
+		// Traverse the edges of the merged graph to output
+		// the match-up and conflict scores
+		int numBoth = 0, numG1 = 0, numG2 = 0;
+		for (int i = 0; i < graph1.nodes.size(); i++) {
+			if (graph1.nodes.get(i).fromWhichGraph == 0)
+				numBoth++;
+			else if (graph1.nodes.get(i).fromWhichGraph == 1)
+				numG1++;
+			else
+				numG2++;
+		}
+		System.out.println(numBoth + " of perfect matched nodes.");
+		System.out.println(numG1 + " of nodes from only G1 ("
+				+ graph1.getProgName() + ").");
+		System.out.println(numG2 + " of nodes from only G2 ("
+				+ graph2.getProgName() + ").");
 
 		return null;
 	}
