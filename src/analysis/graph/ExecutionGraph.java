@@ -276,6 +276,15 @@ public class ExecutionGraph {
 	public static ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
 
+		// Try to traverse the smaller graph (in terms of number
+		// of nodes)
+		ExecutionGraph tmpGraph;
+		if (graph1.nodes.size() < graph2.nodes.size()) {
+			tmpGraph = graph2;
+			graph2 = graph1;
+			graph1 = tmpGraph;
+		}
+		
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
 		// in the first position!!!
@@ -289,7 +298,8 @@ public class ExecutionGraph {
 				.get(ExecutionGraph.specialHash), mainBlocks2 = graph2.hash2Nodes
 				.get(ExecutionGraph.specialHash);
 		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
-			if (mainBlocks1.get(0).hash != mainBlocks2.get(0).hash) {
+			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
+					.get(0).node.hash) {
 				System.out.println("First block not the same, not mergeable!");
 				return null;
 			}
@@ -298,11 +308,15 @@ public class ExecutionGraph {
 					.println("Important message: more than one block to hash has the same hash!!!");
 		}
 
-		// Before merge, reset fromWhichGraph filed to be 1
+		// Before merge, reset fromWhichGraph filed of both graphs
 		for (int i = 0; i < graph1.nodes.size(); i++) {
 			graph1.nodes.get(i).fromWhichGraph = 1;
 		}
-		// Newly added nodes from graph2
+		for (int i = 0; i < graph2.nodes.size(); i++) {
+			graph2.nodes.get(i).fromWhichGraph = 2;
+		}
+		
+		// Record newly-added nodes from graph2
 		HashMap<Long, Node> newNodesFromGraph2 = new HashMap<Long, Node>();
 
 		// Need a queue to do a BFS on one of the graph
@@ -316,9 +330,10 @@ public class ExecutionGraph {
 
 			// Get the counterpart from graph1
 			// In most cases, node1 should not be null
-//			if (curNode.hash == new BigInteger("3343f09ada0", 16).longValue()) {
-//				System.out.println("Stop!");
-//			}
+			// if (curNode.hash == new BigInteger("3343f09ada0",
+			// 16).longValue()) {
+			// System.out.println("Stop!");
+			// }
 			Node node1 = getCorrespondingNode(graph1, graph2, curNode,
 					newNodesFromGraph2);
 			if (node1 == null) {
@@ -337,15 +352,13 @@ public class ExecutionGraph {
 			// If the node is not from 2, then it must owned by both graphs
 			if (node1.fromWhichGraph != 2)
 				node1.fromWhichGraph = 0;
-			
+
 			for (int i = 0; i < edges.size(); i++) {
 				if (edges.get(i).node.isVisited == 0) {
 					Node nextNode = edges.get(i).node, nextNode1 = getCorrespondingNode(
 							graph1, graph2, nextNode, newNodesFromGraph2);
-//					if (nextNode.hash == new BigInteger("3343f09ada0", 16).longValue()) {
-//						System.out.println("Stop!");
-//					}
 					bfsQueue.add(nextNode);
+					
 					if (node1.fromWhichGraph == 2) {
 						if (nextNode1 == null) {
 							nextNode1 = new Node(nextNode);
@@ -383,7 +396,7 @@ public class ExecutionGraph {
 							}
 							graph1.hash2Nodes.get(nextNode1.hash)
 									.add(nextNode1);
-							
+
 							// One more thing: update the edges field!!
 							// Don't forget!!!
 							Edge e = new Edge(nextNode1, edges.get(i).isDirect,
@@ -400,9 +413,10 @@ public class ExecutionGraph {
 		if (!hasConflict) {
 			System.out.println("Awesome! The two graphs merge!!");
 			graph1.dumpGraph("graph-files/merge.dot");
-//			System.out.println(newNodesFromGraph2.size());
+			// System.out.println(newNodesFromGraph2.size());
 			for (long tag : newNodesFromGraph2.keySet()) {
-				System.out.println(Long.toHexString(newNodesFromGraph2.get(tag).hash));
+				System.out
+						.println(Long.toHexString(newNodesFromGraph2.get(tag).hash));
 			}
 		}
 
@@ -431,7 +445,7 @@ public class ExecutionGraph {
 			else
 				return 1;
 		}
-			
+
 		if (edges1.get(0).isDirect && edges2.get(0).isDirect) {
 			for (int i = 0; i < edges1.size(); i++) {
 				for (int j = 0; j < edges2.size(); j++) {
