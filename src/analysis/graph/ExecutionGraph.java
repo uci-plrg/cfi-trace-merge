@@ -408,10 +408,6 @@ public class ExecutionGraph {
 								edges.get(i).ordinal);
 						if (!node1.edges.contains(e))
 							node1.edges.add(e);
-						if (curNode.hash == new BigInteger("4f1f7a5c30ae8622",
-								16).longValue()) {
-							System.out.println();
-						}
 					} else {
 						// The next node is old, already in graph1
 
@@ -459,6 +455,49 @@ public class ExecutionGraph {
 				+ graph1.getProgName() + ").");
 		System.out.println(numG2 + " of nodes from only G2 ("
 				+ graph2.getProgName() + ").");
+		
+		// Then output the edge score
+		int count00 = 0,
+				count01 = 0,
+				count02 = 0,
+				count10 = 0,
+				count20 = 0,
+				count11 = 0,
+				count22 = 0,
+				countAll = 0;
+		for (int i = 0; i < graph1.nodes.size(); i++) {
+			Node node = graph1.nodes.get(i);
+			for (int j = 0; j < node.edges.size(); j++) {
+				int fromOwner = node.fromWhichGraph,
+						toOwner = node.edges.get(j).node.fromWhichGraph;
+				countAll++;
+				if (fromOwner == 0 && toOwner == 0) {
+					count00++;
+				} else if (fromOwner == 0 && toOwner == 1) {
+					count01++;
+				} else if (fromOwner == 0 && toOwner == 2) {
+					count02++;
+				} else if (fromOwner == 1 && toOwner == 0) {
+					count10++;
+				} else if (fromOwner == 2 && toOwner == 0) {
+					count20++;
+				} else if (fromOwner == 1 && toOwner == 1) {
+					count11++;
+				} else if (fromOwner == 2 && toOwner == 2) {
+					count22++;
+				}
+			}
+		}
+		System.out.println("countAll: " + countAll);
+		System.out.println("count00: " + count00);
+		System.out.println("count01: " + count01);
+		System.out.println("count02: " + count02);
+		System.out.println("count10: " + count10);
+		System.out.println("count20: " + count20);
+		System.out.println("count11: " + count11);
+		System.out.println("count22: " + count22);
+		if (countAll != count00 + count01 + count02 + count10 + count20 + count11 + count22)
+			System.out.println("Not equals!");	
 
 		return null;
 	}
