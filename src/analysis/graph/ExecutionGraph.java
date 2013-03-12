@@ -949,18 +949,30 @@ public class ExecutionGraph {
 
 		return graphs;
 	}
+	
+	public static ArrayList<ExecutionGraph> getGraphs(String dir) {
+		File file = new File(dir);
+		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
+		
+		for (File runDir : file.listFiles()) {
+			graphs.addAll(buildGraphsFromRunDir(runDir.getAbsolutePath()));
+		}
+		return graphs;
+	}
 
 	public static void main(String[] argvs) {
-		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
-
-		for (int i = 0; i < graphs.size(); i++) {
-			ExecutionGraph graph = graphs.get(i);
-			if (!graph.isValidGraph()) {
-				System.out.print("This is a wrong graph!");
-			}
-			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-					+ ".dot");
-		}
+//		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
+//
+//		for (int i = 0; i < graphs.size(); i++) {
+//			ExecutionGraph graph = graphs.get(i);
+//			if (!graph.isValidGraph()) {
+//				System.out.print("This is a wrong graph!");
+//			}
+//			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+//					+ ".dot");
+//		}
+		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+		
 		ExecutionGraph bigGraph = graphs.get(0);
 		for (int i = 1; i < graphs.size(); i++) {
 			mergeGraph(bigGraph, graphs.get(i));
