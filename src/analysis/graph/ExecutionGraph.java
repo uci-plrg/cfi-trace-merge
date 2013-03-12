@@ -322,8 +322,8 @@ public class ExecutionGraph {
 		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
 			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
 					.get(0).node.hash) {
-				// System.out.println("First block not the same, not mergeable!");
-				// return null;
+				 System.out.println("First block not the same, not mergeable!");
+				 return null;
 			}
 		} else {
 			System.out
@@ -931,7 +931,8 @@ public class ExecutionGraph {
 
 			ArrayList<String> lookupFiles = pid2LookupFiles.get(pid), tagFiles = pid2TagFiles
 					.get(pid);
-
+			if (lookupFiles.size() == 0)
+				continue;
 			String possibleProgName = AnalysisUtil.getProgName(lookupFiles
 					.get(0));
 			ExecutionGraph graph = new ExecutionGraph();
