@@ -301,11 +301,11 @@ public class ExecutionGraph {
 
 		// Try to traverse the smaller graph (in terms of number
 		// of nodes)
-		if (graph1.nodes.size() < graph2.nodes.size()) {
-			ExecutionGraph tmpGraph = graph2;
-			graph2 = graph1;
-			graph1 = tmpGraph;
-		}
+//		if (graph1.nodes.size() < graph2.nodes.size()) {
+//			ExecutionGraph tmpGraph = graph2;
+//			graph2 = graph1;
+//			graph1 = tmpGraph;
+//		}
 
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
@@ -322,8 +322,8 @@ public class ExecutionGraph {
 		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
 			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
 					.get(0).node.hash) {
-				// System.out.println("First block not the same, not mergeable!");
-				// return null;
+				 System.out.println("First block not the same, not mergeable!");
+				 return null;
 			}
 		} else {
 			System.out
@@ -961,7 +961,10 @@ public class ExecutionGraph {
 			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
 					+ ".dot");
 		}
-		mergeGraph(graphs.get(0), graphs.get(1));
+		ExecutionGraph bigGraph = graphs.get(0);
+		for (int i = 1; i < graphs.size(); i++) {
+			mergeGraph(bigGraph, graphs.get(i));
+		}
 
 	}
 }
