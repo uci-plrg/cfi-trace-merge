@@ -20,8 +20,6 @@ import utils.AnalysisUtil;
 public class ExecutionGraph {
 	static public class Node {
 		private long tag, hash;
-		// Identify the same hash code with different tags
-		public int hashOrdinal;
 
 		private ArrayList<Edge> edges;
 		private int isVisited;
@@ -42,18 +40,13 @@ public class ExecutionGraph {
 		}
 
 		public Node(Node anotherNode) {
-			this(anotherNode.tag, anotherNode.hash, anotherNode.hashOrdinal);
+			this(anotherNode.tag, anotherNode.hash);
 			// FIXME: Not a deep copy yet, because we have edges...
 		}
 
 		public Node(long tag, long hash) {
-			this(tag, hash, 0);
-		}
-
-		public Node(long tag, long hash, int hashOrdinal) {
 			this.tag = tag;
 			this.hash = hash;
-			this.hashOrdinal = hashOrdinal;
 			edges = new ArrayList<Edge>();
 			isVisited = 0;
 		}
@@ -68,6 +61,8 @@ public class ExecutionGraph {
 		 * In a single execution, tag is the only identifier for the node
 		 */
 		public boolean equals(Object o) {
+			if (o == null)
+				return false;
 			if (o.getClass() != Node.class) {
 				return false;
 			}
@@ -79,8 +74,7 @@ public class ExecutionGraph {
 		}
 
 		public int hashCode() {
-			return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode()
-					^ hashOrdinal;
+			return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode();
 		}
 	}
 
@@ -574,27 +568,15 @@ public class ExecutionGraph {
 		for (long hash : hash2Nodes.keySet()) {
 			ArrayList<Node> nodes = hash2Nodes.get(hash);
 			if (nodes.size() > 1) {
-				boolean isAllDifferent = true;
+				
 				if (nodes.get(0).hash == 0xff) {
-					System.out.println("Stop!");
+					//System.out.println("Stop!");
 					// for (int i = 0; i < nodes.size(); i++) {
 					//
 					// }
 				}
-				int count = 0;
-				for (int i = 0; i < nodes.size(); i++) {
-					for (int j = i + 1; j < nodes.size(); j++) {
-						// if (1 == getContextSimilarity(this, nodes.get(i),
-						// this, nodes.get(j), 5)) {
-						// isAllDifferent = false;
-						// count++;
-						// }
-					}
-				}
-				if (!isAllDifferent) {
-					System.out.println(Long.toHexString(nodes.get(0).hash)
-							+ " happens " + nodes.size() + " times.");
-				}
+				System.out.println("Hash collision for " + Long.toHexString(nodes.get(0).hash) + ": " + nodes.size());
+				
 			}
 		}
 		System.out.println();
@@ -945,6 +927,7 @@ public class ExecutionGraph {
 			}
 			// graph.dumpGraph("graph-files/" + possibleProgName + "." + pid +
 			// ".dot");
+			graph.dumpHashCollision();
 			graphs.add(graph);
 		}
 
@@ -962,22 +945,22 @@ public class ExecutionGraph {
 	}
 
 	public static void main(String[] argvs) {
-//		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
-//
-//		for (int i = 0; i < graphs.size(); i++) {
-//			ExecutionGraph graph = graphs.get(i);
-//			if (!graph.isValidGraph()) {
-//				System.out.print("This is a wrong graph!");
-//			}
-//			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-//					+ ".dot");
-//		}
-		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		
-		ExecutionGraph bigGraph = graphs.get(0);
-		for (int i = 1; i < graphs.size(); i++) {
-			mergeGraph(bigGraph, graphs.get(i));
+		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
+
+		for (int i = 0; i < graphs.size(); i++) {
+			ExecutionGraph graph = graphs.get(i);
+			if (!graph.isValidGraph()) {
+				System.out.print("This is a wrong graph!");
+			}
+			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+					+ ".dot");
 		}
+//		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+//		
+//		ExecutionGraph bigGraph = graphs.get(0);
+//		for (int i = 1; i < graphs.size(); i++) {
+//			mergeGraph(bigGraph, graphs.get(i));
+//		}
 
 	}
 }
