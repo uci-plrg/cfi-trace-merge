@@ -255,7 +255,7 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-		if (node2.toString().equals("1109c42")) {
+		if (node2.toString().equals("604274011c")) {
 			System.out.println();
 		}
 		int mergingIndex = node2.mergingIndex;
@@ -321,14 +321,6 @@ public class ExecutionGraph {
 	 */
 	public static ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
-
-		// Try to traverse the smaller graph (in terms of number
-		// of nodes)
-		// if (graph1.nodes.size() < graph2.nodes.size()) {
-		// ExecutionGraph tmpGraph = graph2;
-		// graph2 = graph1;
-		// graph1 = tmpGraph;
-		// }
 
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
@@ -406,23 +398,28 @@ public class ExecutionGraph {
 						}
 					}
 					curNode.mergingIndex = node1.mergingIndex;
+					if (curNode.toString().equals("604274011c")) {
+						System.out.println();
+					}
 				} else {
 					parentNode1 = getCorrespondingNode(graph1, graph2, parentNode);
 					
 					assert (parentNode1 != null);
 					
 					// Find out which ordinal this edge is and it's type
-					int ordinal = -1;
+					
 					boolean isDirect = false;
-					for (ordinal = 0; ordinal < parentNode.edges.size(); ordinal++) {
-						if (parentNode.edges.get(ordinal).node.hash == curNode.hash) {
-							isDirect = parentNode.edges.get(ordinal).isDirect;
+					int ordinal = -1;
+					int i = 0;
+					for (i = 0; i < parentNode.edges.size(); i++) {
+						if (parentNode.edges.get(i).node.hash == curNode.hash) {
+							isDirect = parentNode.edges.get(i).isDirect;
+							ordinal = parentNode.edges.get(i).ordinal;
 							break;
 						}
 					}
 					assert (ordinal != -1);
 					
-					int i;
 					for (i = 0; i < parentNode1.edges.size(); i++) {
 						Edge e = parentNode1.edges.get(i); 
 						if (e.ordinal == ordinal) {
@@ -440,6 +437,9 @@ public class ExecutionGraph {
 									node1 = e.node;
 									node1.mergingIndex = node1.index;
 									curNode.mergingIndex = node1.mergingIndex;
+									if (curNode.toString().equals("604274011c")) {
+										System.out.println();
+									}
 									if (node1.fromWhichGraph == 1)
 										node1.fromWhichGraph = 0;
 									break;
@@ -452,6 +452,9 @@ public class ExecutionGraph {
 									curNode.mergingIndex = node1.mergingIndex;
 									if (node1.fromWhichGraph == 1)
 										node1.fromWhichGraph = 0;
+									if (curNode.toString().equals("604274011c")) {
+										System.out.println();
+									}
 									break;
 								}
 							}
@@ -475,6 +478,9 @@ public class ExecutionGraph {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
 						curNode.mergingIndex = node1.index;
+						if (curNode.toString().equals("604274011c")) {
+							System.out.println();
+						}
 						// And update the edges of node1
 						Edge e = new Edge(node1, isDirect, ordinal);
 						if (!parentNode1.edges.contains(e)) {
