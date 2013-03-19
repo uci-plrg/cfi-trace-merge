@@ -23,8 +23,6 @@ public class ExecutionGraph {
 
 		private ArrayList<Edge> edges;
 		private int isVisited;
-		// For temporal usage
-		private int isTmpVisited;
 		// Index in the ArrayList<Node>, in order to search the
 		// node in constant time
 		private int index;
@@ -34,6 +32,7 @@ public class ExecutionGraph {
 		// 1 represents from graph1
 		// 2 represents from graph2
 		int fromWhichGraph = 0;
+		int mergingIndex = -1;
 
 		public String toString() {
 			return Long.toHexString(hash);
@@ -254,32 +253,62 @@ public class ExecutionGraph {
 	private static final long beginHash = 0x5eee92;
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
-			ExecutionGraph graph2, Node node2,
-			HashMap<Long, Node> newNodesFromGraph2) {
-		// Get all the nodes that have the same hash from graph1
-		ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
+			ExecutionGraph graph2, Node node2) {
+		if (node2.toString().equals("1a060b")) {
+			System.out.println();
+		}
+		int mergingIndex = node2.mergingIndex;
+		if (mergingIndex == -1) {
+			// This node does not belongs to G1 and
+			// is not yet added to G1
+			ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
+			if (nodes == null)
+				return null;
+			
+			ArrayList<Node> candidates = new ArrayList<Node>();
+			for (int i = 0; i < nodes.size(); i++) {
+				if (getContextSimilarity(graph1, nodes.get(i), graph2, node2, 5) == 1) {
+					candidates.add(nodes.get(i));
+				}
+			}
+			if (candidates.size() > 1) {
+				// This is dumb, only return the first candidate
+				// But I just want to see how often this happens
+				return candidates.get(0);
+			} else if (candidates.size() == 1) {
+				return candidates.get(0);
+			} else {
+				return null;
+			}
+		} else {
+			// Previously visited node, either shared by both graphs
+			// or from G2 and already added to G1
+			return graph1.nodes.get(mergingIndex);
+		}
 
-		// New hash code from graph2
-		if (nodes == null || nodes.size() == 0)
-			return null;
+	}
 
-		for (int i = 0; i < nodes.size(); i++) {
-			Node node1 = nodes.get(i);
-			int res = getContextSimilarity(graph1, node1, graph2, node2, 3);
-			if (res == 1) {
-				return node1;
-				// FIXME
-				// We just consider the first node that we think have similar
-				// context as the same node
-			} else if (res == -1) {
-				hasConflict = true;
+	private static boolean checkConflicts(ExecutionGraph graph1, Node node1,
+			ExecutionGraph graph2, Node node2) {
+		ArrayList<Edge> edges1 = node1.edges, edges2 = node2.edges;
+		for (int i = 0; i < edges1.size(); i++) {
+			for (int j = 0; j < edges2.size(); j++) {
+				Edge e1 = edges1.get(i), e2 = edges2.get(j);
+				if (e1.ordinal == e2.ordinal) {
+					if ((e1.isDirect && !e2.isDirect)
+							|| (!e1.isDirect && e2.isDirect))
+						return true;
+					if (e1.isDirect && e2.isDirect) {
+						if (e1.node.hash != e2.node.hash)
+							return true;
+					} else {
+						// Lack of information, can't do anything!
+					}
+				}
 			}
 		}
 
-		// This should be a newly added node from graph2
-		// Use a trick here, trace the added nodes from graph2
-		// by its tag from graph2
-		return newNodesFromGraph2.get(node2.tag);
+		return false;
 	}
 
 	/**
@@ -295,11 +324,11 @@ public class ExecutionGraph {
 
 		// Try to traverse the smaller graph (in terms of number
 		// of nodes)
-//		if (graph1.nodes.size() < graph2.nodes.size()) {
-//			ExecutionGraph tmpGraph = graph2;
-//			graph2 = graph1;
-//			graph1 = tmpGraph;
-//		}
+		// if (graph1.nodes.size() < graph2.nodes.size()) {
+		// ExecutionGraph tmpGraph = graph2;
+		// graph2 = graph1;
+		// graph1 = tmpGraph;
+		// }
 
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
@@ -316,8 +345,8 @@ public class ExecutionGraph {
 		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
 			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
 					.get(0).node.hash) {
-				 System.out.println("First block not the same, not mergeable!");
-				 return null;
+				System.out.println("First block not the same, not mergeable!");
+				return null;
 			}
 		} else {
 			System.out
@@ -327,35 +356,58 @@ public class ExecutionGraph {
 		// Before merge, reset fromWhichGraph filed of both graphs
 		for (int i = 0; i < graph1.nodes.size(); i++) {
 			graph1.nodes.get(i).fromWhichGraph = 1;
+			graph1.nodes.get(i).mergingIndex = -1;
 		}
 		for (int i = 0; i < graph2.nodes.size(); i++) {
 			graph2.nodes.get(i).fromWhichGraph = 2;
+			graph2.nodes.get(i).mergingIndex = -1;
 		}
 
 		// Record newly-added nodes from graph2
 		HashMap<Long, Node> newNodesFromGraph2 = new HashMap<Long, Node>();
 
 		// Need a queue to do a BFS on one of the graph
+		// In this context, we traverse G2 and merge it
+		// to G1
 		Queue<Node> bfsQueue = new LinkedList<Node>();
+		graph1.nodes.get(0).mergingIndex = 0;
+		graph2.nodes.get(0).mergingIndex = 0;
 		bfsQueue.add(graph2.nodes.get(0));
 
 		while (bfsQueue.size() > 0 && !hasConflict) {
 			Node curNode = bfsQueue.remove();
-			if (curNode.isVisited == 1)
+			if (curNode.isVisited == 1) {
+				// Should first check all out-going edges
+				// to make sure there's no conflicts, then
+				// continue
+				Node n = getCorrespondingNode(graph1, graph2, curNode);
+				if (n == null) {
+					System.out.println("This is wired, should not be null!");
+					hasConflict = true;
+					break;
+				}
+				if (checkConflicts(graph1, n, graph2, curNode)) {
+					System.out.println("It has conflicts!");
+					hasConflict = true;
+					break;
+				}
 				continue;
-			// Mark as visited, don't forget!!
-			curNode.isVisited = 1;
 
-			if (curNode.hash == new BigInteger("4f1f7a5c30ae8622", 16)
-					.longValue()) {
-				System.out.println();
 			}
 
-			ArrayList<Edge> edges = curNode.edges;
+			// Mark as visited
+			curNode.isVisited = 1;
 
+//			if (curNode.hash == new BigInteger("4f1f7a5c30ae8622", 16)
+//					.longValue()) {
+//				System.out.println();
+//			}
+
+			ArrayList<Edge> edges = curNode.edges;
 			// Get the counterpart from graph1
-			Node node1 = getCorrespondingNode(graph1, graph2, curNode,
-					newNodesFromGraph2);
+			Node node1 = getCorrespondingNode(graph1, graph2, curNode);
+
+			// This actually should never happen
 			if (node1 == null) {
 				node1 = new Node(curNode);
 				// Don't forget to update the 'nodes' list, 'hash2Nodes'
@@ -368,7 +420,12 @@ public class ExecutionGraph {
 					graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
 				}
 				graph1.hash2Nodes.get(node1.hash).add(node1);
+
+				// Update merging index
+				node1.mergingIndex = node1.index;
+				curNode.mergingIndex = node1.index;
 			}
+			
 			// If the node is not from 2, then it must owned by both graphs
 			if (node1.fromWhichGraph != 2)
 				node1.fromWhichGraph = 0;
@@ -376,7 +433,8 @@ public class ExecutionGraph {
 			for (int i = 0; i < edges.size(); i++) {
 				if (edges.get(i).node.isVisited == 0) {
 					Node nextNode = edges.get(i).node, nextNode1 = getCorrespondingNode(
-							graph1, graph2, nextNode, newNodesFromGraph2);
+							graph1, graph2, nextNode);
+
 					// First enqueue the unvisited neighbor
 					bfsQueue.add(nextNode);
 
@@ -402,6 +460,8 @@ public class ExecutionGraph {
 								edges.get(i).ordinal);
 						if (!node1.edges.contains(e))
 							node1.edges.add(e);
+						nextNode1.mergingIndex = nextNode1.index;
+						nextNode.mergingIndex = nextNode1.index;
 					} else {
 						// The next node is old, already in graph1
 
@@ -424,10 +484,12 @@ public class ExecutionGraph {
 				}
 			}
 		}
+
 		if (hasConflict) {
 			System.out.println("Sorry! Can't merge the two graphs!!");
+			return null;
 		}
-		System.out.println("Awesome! The two graphs merge!!");
+		System.out.println("The two graphs merge!!");
 		graph1.dumpGraph("graph-files/merge.dot");
 
 		System.out.println("Added " + newNodesFromGraph2.size()
@@ -449,21 +511,14 @@ public class ExecutionGraph {
 				+ graph1.getProgName() + ").");
 		System.out.println(numG2 + " of nodes from only G2 ("
 				+ graph2.getProgName() + ").");
-		
+
 		// Then output the edge score
-		int count00 = 0,
-				count01 = 0,
-				count02 = 0,
-				count10 = 0,
-				count20 = 0,
-				count11 = 0,
-				count22 = 0,
-				countAll = 0;
+		int count00 = 0, count01 = 0, count02 = 0, count10 = 0, count20 = 0, count11 = 0, count22 = 0, countAll = 0;
 		for (int i = 0; i < graph1.nodes.size(); i++) {
 			Node node = graph1.nodes.get(i);
 			for (int j = 0; j < node.edges.size(); j++) {
-				int fromOwner = node.fromWhichGraph,
-						toOwner = node.edges.get(j).node.fromWhichGraph;
+				int fromOwner = node.fromWhichGraph, toOwner = node.edges
+						.get(j).node.fromWhichGraph;
 				countAll++;
 				if (fromOwner == 0 && toOwner == 0) {
 					count00++;
@@ -490,76 +545,51 @@ public class ExecutionGraph {
 		System.out.println("count20: " + count20);
 		System.out.println("count11: " + count11);
 		System.out.println("count22: " + count22);
-		if (countAll != count00 + count01 + count02 + count10 + count20 + count11 + count22)
-			System.out.println("Not equals!");	
+		if (countAll != count00 + count01 + count02 + count10 + count20
+				+ count11 + count22)
+			System.out.println("Not equals!");
 
 		return null;
 	}
 
 	// Search the nearby context to check the similarity of the
 	// node1 and node2
-	// Depth is how deep the query should try, by default depth == 3
-	// Return val: 0 means not the same context, 1 means similar context,
-	// -1 means potential conflict (not the same program!!!)
-	// TODO: Only when we are sure that the two nodes to be compared is
-	// the exact same node can we say for sure that returning -1 really
-	// means conflict happens
+	// Depth is how deep the query should try, by default depth == 5
+	// Return value: 0 means not the same context, 1 means similar context
 	private static int getContextSimilarity(ExecutionGraph graph1, Node node1,
 			ExecutionGraph graph2, Node node2, int depth) {
 		if (depth <= 0)
 			return 1;
+
 		ArrayList<Edge> edges1 = node1.edges, edges2 = node2.edges;
 		// One node does not have any outgoing edges!!
-		// Might FIXME. Not enough information, what should I do?
 		// Just think that they are still similar...
 		if (edges1.size() == 0 || edges2.size() == 0) {
-			if (node1.fromWhichGraph == 2)
-				return 0;
-			else
-				return 1;
+			return 1;
 		}
 
-		if (edges1.get(0).isDirect && edges2.get(0).isDirect) {
-			for (int i = 0; i < edges1.size(); i++) {
-				for (int j = 0; j < edges2.size(); j++) {
-					if (edges1.get(i).ordinal == edges2.get(j).ordinal) {
-						if (edges1.get(i).node.hash != edges2.get(j).node.hash) {
+		for (int i = 0; i < edges1.size(); i++) {
+			for (int j = 0; j < edges2.size(); j++) {
+				Edge e1 = edges1.get(i), e2 = edges2.get(j);
+				if (e1.ordinal == e2.ordinal) {
+					if ((e1.isDirect && !e2.isDirect)
+							|| (!e1.isDirect && e2.isDirect))
+						return 0;
+					if (e1.isDirect && e2.isDirect) {
+						if (e1.node.hash != e2.node.hash) {
 							return 0;
 						} else {
-							int match = getContextSimilarity(graph1,
-									edges1.get(i).node, graph2,
-									edges2.get(j).node, depth - 1);
-							if (match == 0)
-								return 0;
+							return getContextSimilarity(graph1, e1.node,
+									graph2, e2.node, depth - 1);
 						}
-					}
-				}
-			}
-		} else if (!edges1.get(0).isDirect && !edges2.get(0).isDirect) {
-			// Too many indirect jumps... simply think that they are
-			// in very similar context
-			if (edges1.size() == 1 && edges2.size() > 3 && edges1.size() > 3
-					&& edges2.size() == 1)
-				return 0;
-			for (int i = 0; i < edges1.size(); i++) {
-				for (int j = 0; j < edges2.size(); j++) {
-					if (edges1.get(i).ordinal != edges2.get(j).ordinal) {
-						// should be both 0
-						return 0;
-					}
-					if (edges1.get(i).node.hash == edges2.get(j).node.hash) {
-						return getContextSimilarity(graph1, node1, graph2,
-								node2, depth - 1);
 					} else {
-
+						// Lack of information, can't do anything!
+						return 1;
 					}
-
 				}
 			}
-		} else { // Similar context requires the branch type be the same!!
-					// ** Assumption **
-			return -1;
 		}
+
 		return 1;
 	}
 
@@ -568,15 +598,17 @@ public class ExecutionGraph {
 		for (long hash : hash2Nodes.keySet()) {
 			ArrayList<Node> nodes = hash2Nodes.get(hash);
 			if (nodes.size() > 1) {
-				
+
 				if (nodes.get(0).hash == 0xff) {
-					//System.out.println("Stop!");
+					// System.out.println("Stop!");
 					// for (int i = 0; i < nodes.size(); i++) {
 					//
 					// }
 				}
-				System.out.println("Hash collision for " + Long.toHexString(nodes.get(0).hash) + ": " + nodes.size());
-				
+				System.out.println("Hash collision for "
+						+ Long.toHexString(nodes.get(0).hash) + ": "
+						+ nodes.size());
+
 			}
 		}
 		System.out.println();
@@ -927,17 +959,17 @@ public class ExecutionGraph {
 			}
 			// graph.dumpGraph("graph-files/" + possibleProgName + "." + pid +
 			// ".dot");
-			graph.dumpHashCollision();
+			//graph.dumpHashCollision();
 			graphs.add(graph);
 		}
 
 		return graphs;
 	}
-	
+
 	public static ArrayList<ExecutionGraph> getGraphs(String dir) {
 		File file = new File(dir);
 		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
-		
+
 		for (File runDir : file.listFiles()) {
 			graphs.addAll(buildGraphsFromRunDir(runDir.getAbsolutePath()));
 		}
@@ -955,12 +987,17 @@ public class ExecutionGraph {
 			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
 					+ ".dot");
 		}
-//		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-//		
-//		ExecutionGraph bigGraph = graphs.get(0);
-//		for (int i = 1; i < graphs.size(); i++) {
-//			mergeGraph(bigGraph, graphs.get(i));
-//		}
+		ExecutionGraph bigGraph = graphs.get(0);
+		for (int i = 1; i < graphs.size(); i++) {
+			mergeGraph(bigGraph, graphs.get(i));
+		}
+
+		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+		//
+		// ExecutionGraph bigGraph = graphs.get(0);
+		// for (int i = 1; i < graphs.size(); i++) {
+		// mergeGraph(bigGraph, graphs.get(i));
+		// }
 
 	}
 }
