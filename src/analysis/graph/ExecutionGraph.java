@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import sun.org.mozilla.javascript.Node;
 import utils.AnalysisUtil;
 
 public class ExecutionGraph {
@@ -254,7 +255,7 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-		if (node2.toString().equals("1a060b")) {
+		if (node2.toString().equals("1109c42")) {
 			System.out.println();
 		}
 		int mergingIndex = node2.mergingIndex;
@@ -264,7 +265,7 @@ public class ExecutionGraph {
 			ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
 			if (nodes == null)
 				return null;
-			
+
 			ArrayList<Node> candidates = new ArrayList<Node>();
 			for (int i = 0; i < nodes.size(); i++) {
 				if (getContextSimilarity(graph1, nodes.get(i), graph2, node2, 5) == 1) {
@@ -285,7 +286,6 @@ public class ExecutionGraph {
 			// or from G2 and already added to G1
 			return graph1.nodes.get(mergingIndex);
 		}
-
 	}
 
 	private static boolean checkConflicts(ExecutionGraph graph1, Node node1,
@@ -353,10 +353,10 @@ public class ExecutionGraph {
 					.println("Important message: more than one block to hash has the same hash!!!");
 		}
 
-		// Before merge, reset fromWhichGraph filed of both graphs
+		// Before merging, reset fromWhichGraph filed of both graphs
 		for (int i = 0; i < graph1.nodes.size(); i++) {
 			graph1.nodes.get(i).fromWhichGraph = 1;
-			graph1.nodes.get(i).mergingIndex = -1;
+			graph1.nodes.get(i).mergingIndex = graph1.nodes.get(i).index;
 		}
 		for (int i = 0; i < graph2.nodes.size(); i++) {
 			graph2.nodes.get(i).fromWhichGraph = 2;
@@ -366,122 +366,134 @@ public class ExecutionGraph {
 		// Record newly-added nodes from graph2
 		HashMap<Long, Node> newNodesFromGraph2 = new HashMap<Long, Node>();
 
-		// Need a queue to do a BFS on one of the graph
-		// In this context, we traverse G2 and merge it
-		// to G1
-		Queue<Node> bfsQueue = new LinkedList<Node>();
+		
 		graph1.nodes.get(0).mergingIndex = 0;
 		graph2.nodes.get(0).mergingIndex = 0;
-		bfsQueue.add(graph2.nodes.get(0));
-
-		while (bfsQueue.size() > 0 && !hasConflict) {
-			Node curNode = bfsQueue.remove();
-			if (curNode.isVisited == 1) {
-				// Should first check all out-going edges
-				// to make sure there's no conflicts, then
-				// continue
-				Node n = getCorrespondingNode(graph1, graph2, curNode);
-				if (n == null) {
-					System.out.println("This is wired, should not be null!");
-					hasConflict = true;
-					break;
-				}
-				if (checkConflicts(graph1, n, graph2, curNode)) {
-					System.out.println("It has conflicts!");
-					hasConflict = true;
-					break;
-				}
+		for (int k = 0; k < graph2.nodes.size(); k++) {
+			if (graph2.nodes.get(k).isVisited == 1)
 				continue;
-
-			}
-
-			// Mark as visited
-			curNode.isVisited = 1;
-
-//			if (curNode.hash == new BigInteger("4f1f7a5c30ae8622", 16)
-//					.longValue()) {
-//				System.out.println();
-//			}
-
-			ArrayList<Edge> edges = curNode.edges;
-			// Get the counterpart from graph1
-			Node node1 = getCorrespondingNode(graph1, graph2, curNode);
-
-			// This actually should never happen
-			if (node1 == null) {
-				node1 = new Node(curNode);
-				// Don't forget to update the 'nodes' list, 'hash2Nodes'
-				// table and the info in the node itself
-				newNodesFromGraph2.put(curNode.tag, node1);
-				graph1.nodes.add(node1);
-				node1.index = graph1.nodes.size() - 1;
-				node1.fromWhichGraph = 2;
-				if (graph1.hash2Nodes.get(node1.hash) == null) {
-					graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
-				}
-				graph1.hash2Nodes.get(node1.hash).add(node1);
-
-				// Update merging index
-				node1.mergingIndex = node1.index;
-				curNode.mergingIndex = node1.index;
-			}
 			
-			// If the node is not from 2, then it must owned by both graphs
-			if (node1.fromWhichGraph != 2)
-				node1.fromWhichGraph = 0;
+			// Need a queue to do a BFS on one of the graph
+			// In this context, we traverse G2 and merge it
+			// to G1
+			Queue<Node> bfsQueue = new LinkedList<Node>();
+			bfsQueue.add(null);
+			bfsQueue.add(graph2.nodes.get(k));
 
-			for (int i = 0; i < edges.size(); i++) {
-				if (edges.get(i).node.isVisited == 0) {
-					Node nextNode = edges.get(i).node, nextNode1 = getCorrespondingNode(
-							graph1, graph2, nextNode);
-
-					// First enqueue the unvisited neighbor
-					bfsQueue.add(nextNode);
-
-					// Then visit the edges
-					if (nextNode1 == null) {
-						// The next node is new
-
-						nextNode1 = new Node(nextNode);
-						// Don't forget to update the 'nodes' list,
-						// 'hash2Nodes'
-						// table and the info in the node itself
-						newNodesFromGraph2.put(nextNode.tag, nextNode1);
-						graph1.nodes.add(nextNode1);
-						nextNode1.index = graph1.nodes.size() - 1;
-						nextNode1.fromWhichGraph = 2;
-						if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
-							graph1.hash2Nodes.put(nextNode1.hash,
-									new ArrayList<Node>());
+			while (bfsQueue.size() > 0 && !hasConflict) {
+				Node parentNode = bfsQueue.remove(), curNode = bfsQueue
+						.remove(), node1 = null, parentNode1 = null;
+				// If curNode is visited, then all its out-going edges should
+				// have been checked or added
+				if (curNode.isVisited == 1)
+					continue;
+				
+				if (parentNode == null) {
+					node1 = getCorrespondingNode(graph1, graph2, curNode);
+					if (node1 == null) {
+						// Should create the new node for G1
+						node1 = new Node(curNode);
+						newNodesFromGraph2.put(curNode.tag, node1);
+						graph1.nodes.add(node1);
+						node1.index = graph1.nodes.size() - 1;
+						node1.mergingIndex = node1.index;
+						node1.fromWhichGraph = 2;
+						if (graph1.hash2Nodes.get(node1.hash) == null) {
+							graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
 						}
-						graph1.hash2Nodes.get(nextNode1.hash).add(nextNode1);
-						// One more thing: update the edges field!!
-						Edge e = new Edge(nextNode1, edges.get(i).isDirect,
-								edges.get(i).ordinal);
-						if (!node1.edges.contains(e))
-							node1.edges.add(e);
-						nextNode1.mergingIndex = nextNode1.index;
-						nextNode.mergingIndex = nextNode1.index;
-					} else {
-						// The next node is old, already in graph1
-
-						// node1 itself is from graph2, so it should update
-						// the edges
-						if (node1.fromWhichGraph == 2) {
-							if (graph1.hash2Nodes.get(nextNode1.hash) == null) {
-								graph1.hash2Nodes.put(nextNode1.hash,
-										new ArrayList<Node>());
+						if (!graph1.hash2Nodes.get(node1.hash).contains(node1)) {
+							graph1.hash2Nodes.get(node1.hash).add(node1);
+						}
+					}
+					curNode.mergingIndex = node1.mergingIndex;
+				} else {
+					parentNode1 = getCorrespondingNode(graph1, graph2, parentNode);
+					
+					assert (parentNode1 != null);
+					
+					// Find out which ordinal this edge is and it's type
+					int ordinal = -1;
+					boolean isDirect = false;
+					for (ordinal = 0; ordinal < parentNode.edges.size(); ordinal++) {
+						if (parentNode.edges.get(ordinal).node.hash == curNode.hash) {
+							isDirect = parentNode.edges.get(ordinal).isDirect;
+							break;
+						}
+					}
+					assert (ordinal != -1);
+					
+					int i;
+					for (i = 0; i < parentNode1.edges.size(); i++) {
+						Edge e = parentNode1.edges.get(i); 
+						if (e.ordinal == ordinal) {
+							if (e.isDirect != isDirect) {
+								System.out.println("The two edges have different branch type!");
+								hasConflict = true;
+								break;
+							} else if (isDirect) {
+								if (e.node.hash != curNode.hash) {
+									System.out.println("The two direct branches have different branch target!");
+									hasConflict = true;
+									break;
+								} else {
+									// These are the corresponding nodes of each other
+									node1 = e.node;
+									node1.mergingIndex = node1.index;
+									curNode.mergingIndex = node1.mergingIndex;
+									if (node1.fromWhichGraph == 1)
+										node1.fromWhichGraph = 0;
+									break;
+								}
+							} else {
+								if (e.node.hash == curNode.hash) {
+									// These are also the corresponding nodes of each other
+									node1 = e.node;
+									node1.mergingIndex = node1.index;
+									curNode.mergingIndex = node1.mergingIndex;
+									if (node1.fromWhichGraph == 1)
+										node1.fromWhichGraph = 0;
+									break;
+								}
 							}
-							graph1.hash2Nodes.get(nextNode1.hash)
-									.add(nextNode1);
-							// One more thing: update the edges field!!
-							Edge e = new Edge(nextNode1, edges.get(i).isDirect,
-									edges.get(i).ordinal);
-							if (!node1.edges.contains(e))
-								node1.edges.add(e);
+							
+						}
+					}
+					
+					// curNode does not occur in G1
+					if (i == parentNode1.edges.size()) {
+						// Should create the new node for G1
+						node1 = new Node(curNode);
+						newNodesFromGraph2.put(curNode.tag, node1);
+						graph1.nodes.add(node1);
+						node1.index = graph1.nodes.size() - 1;
+						node1.mergingIndex = node1.index;
+						node1.fromWhichGraph = 2;
+						if (graph1.hash2Nodes.get(node1.hash) == null) {
+							graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
+						}
+						if (!graph1.hash2Nodes.get(node1.hash).contains(node1)) {
+							graph1.hash2Nodes.get(node1.hash).add(node1);
+						}
+						curNode.mergingIndex = node1.index;
+						// And update the edges of node1
+						Edge e = new Edge(node1, isDirect, ordinal);
+						if (!parentNode1.edges.contains(e)) {
+							parentNode1.edges.add(e);
 						}
 					}
 				}
+				
+				// Mark as visited
+				curNode.isVisited = 1;
+				
+				for (Edge e : curNode.edges) {
+					Node nextNode = e.node;
+					if (nextNode.isVisited == 0) {
+						bfsQueue.add(curNode);
+						bfsQueue.add(nextNode);
+					}
+				}
+				
 			}
 		}
 
@@ -568,6 +580,7 @@ public class ExecutionGraph {
 			return 1;
 		}
 
+		int res = -1;
 		for (int i = 0; i < edges1.size(); i++) {
 			for (int j = 0; j < edges2.size(); j++) {
 				Edge e1 = edges1.get(i), e2 = edges2.get(j);
@@ -579,12 +592,22 @@ public class ExecutionGraph {
 						if (e1.node.hash != e2.node.hash) {
 							return 0;
 						} else {
-							return getContextSimilarity(graph1, e1.node,
-									graph2, e2.node, depth - 1);
+							res = getContextSimilarity(graph1, e1.node, graph2,
+									e2.node, depth - 1);
+							if (res == 0)
+								return 0;
 						}
 					} else {
 						// Lack of information, can't do anything!
-						return 1;
+						// May still try to trace down
+						if (e1.node.hash == e2.node.hash) {
+							res = getContextSimilarity(graph1, e1.node, graph2,
+									e2.node, depth - 1);
+							if (res == 0)
+								return 0;
+						} else {
+							return 1;
+						}
 					}
 				}
 			}
@@ -959,7 +982,7 @@ public class ExecutionGraph {
 			}
 			// graph.dumpGraph("graph-files/" + possibleProgName + "." + pid +
 			// ".dot");
-			//graph.dumpHashCollision();
+			// graph.dumpHashCollision();
 			graphs.add(graph);
 		}
 
@@ -998,6 +1021,5 @@ public class ExecutionGraph {
 		// for (int i = 1; i < graphs.size(); i++) {
 		// mergeGraph(bigGraph, graphs.get(i));
 		// }
-
 	}
 }
