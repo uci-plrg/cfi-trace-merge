@@ -685,22 +685,24 @@ public class ExecutionGraph {
 							return -1;
 						} else {
 							res = getContextSimilarity(graph1, e1.node, graph2,
-									e2.node, depth - 1) + 1;
+									e2.node, depth - 1);
 							if (res == -1) {
 								return -1;
 							} else {
-								score += res;
+								score += res + 1;
 							}
 						}
 					} else {
 						// Lack of information, can't do anything!
 						// May still try to trace down
 						if (e1.node.hash == e2.node.hash) {
-							// res = getContextSimilarity(graph1, e1.node,
-							// graph2,
-							// e2.node, depth - 1);
-							// if (res == 0)
-							// return 0;
+							res = getContextSimilarity(graph1, e1.node, graph2,
+									e2.node, depth - 1);
+							if (res == -1)
+								return 1;
+							else {
+								score += res + 1;
+							}
 
 						} else {
 							// For indirect branches
