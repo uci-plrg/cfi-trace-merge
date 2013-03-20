@@ -1,0 +1,4 @@
+## ---- This document contains problems & questions about graph merging ---- ##
+
+1. One tricky case is how to identify an indirect branch, especially in the case that an indirect branch is followed by another indirect branch.
+

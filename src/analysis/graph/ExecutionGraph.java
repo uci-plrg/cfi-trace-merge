@@ -255,7 +255,7 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-		if (node2.toString().equals("604274011c")) {
+		if (node2.toString().equals("18d051")) {
 			System.out.println();
 		}
 		int mergingIndex = node2.mergingIndex;
@@ -358,13 +358,12 @@ public class ExecutionGraph {
 		// Record newly-added nodes from graph2
 		HashMap<Long, Node> newNodesFromGraph2 = new HashMap<Long, Node>();
 
-		
 		graph1.nodes.get(0).mergingIndex = 0;
 		graph2.nodes.get(0).mergingIndex = 0;
 		for (int k = 0; k < graph2.nodes.size(); k++) {
 			if (graph2.nodes.get(k).isVisited == 1)
 				continue;
-			
+
 			// Need a queue to do a BFS on one of the graph
 			// In this context, we traverse G2 and merge it
 			// to G1
@@ -379,35 +378,43 @@ public class ExecutionGraph {
 				// have been checked or added
 				if (curNode.isVisited == 1)
 					continue;
-				
+
 				if (parentNode == null) {
 					node1 = getCorrespondingNode(graph1, graph2, curNode);
 					if (node1 == null) {
 						// Should create the new node for G1
 						node1 = new Node(curNode);
+						if (curNode.toString().equals(
+								"18d051")) {
+							System.out.println();
+						}
 						newNodesFromGraph2.put(curNode.tag, node1);
 						graph1.nodes.add(node1);
 						node1.index = graph1.nodes.size() - 1;
 						node1.mergingIndex = node1.index;
 						node1.fromWhichGraph = 2;
 						if (graph1.hash2Nodes.get(node1.hash) == null) {
-							graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
+							graph1.hash2Nodes.put(node1.hash,
+									new ArrayList<Node>());
 						}
 						if (!graph1.hash2Nodes.get(node1.hash).contains(node1)) {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
 					}
 					curNode.mergingIndex = node1.mergingIndex;
-					if (curNode.toString().equals("604274011c")) {
+				} else {
+					if (parentNode.toString().equals(
+							"18d051")) {
 						System.out.println();
 					}
-				} else {
-					parentNode1 = getCorrespondingNode(graph1, graph2, parentNode);
 					
+					parentNode1 = getCorrespondingNode(graph1, graph2,
+							parentNode);
+
 					assert (parentNode1 != null);
-					
+
 					// Find out which ordinal this edge is and it's type
-					
+
 					boolean isDirect = false;
 					int ordinal = -1;
 					int i = 0;
@@ -419,25 +426,32 @@ public class ExecutionGraph {
 						}
 					}
 					assert (ordinal != -1);
-					
+
+					if (curNode.toString().equals(
+							"18d051")) {
+						System.out.println();
+					}
 					for (i = 0; i < parentNode1.edges.size(); i++) {
-						Edge e = parentNode1.edges.get(i); 
+						Edge e = parentNode1.edges.get(i);
 						if (e.ordinal == ordinal) {
 							if (e.isDirect != isDirect) {
-								System.out.println("The two edges have different branch type!");
+								System.out
+										.println("The two edges have different branch type!");
 								hasConflict = true;
 								break;
 							} else if (isDirect) {
 								if (e.node.hash != curNode.hash) {
-									System.out.println("The two direct branches have different branch target!");
+									System.out
+											.println("The two direct branches have different branch target!");
 									hasConflict = true;
 									break;
 								} else {
-									// These are the corresponding nodes of each other
+									// These are the corresponding nodes of each
+									// other
 									node1 = e.node;
 									node1.mergingIndex = node1.index;
 									curNode.mergingIndex = node1.mergingIndex;
-									if (curNode.toString().equals("604274011c")) {
+									if (curNode.toString().equals("18d051")) {
 										System.out.println();
 									}
 									if (node1.fromWhichGraph == 1)
@@ -446,24 +460,34 @@ public class ExecutionGraph {
 								}
 							} else {
 								if (e.node.hash == curNode.hash) {
-									// These are also the corresponding nodes of each other
-									node1 = e.node;
-									node1.mergingIndex = node1.index;
-									curNode.mergingIndex = node1.mergingIndex;
-									if (node1.fromWhichGraph == 1)
-										node1.fromWhichGraph = 0;
-									if (curNode.toString().equals("604274011c")) {
+									// These might be the corresponding nodes of
+									// each other
+									if (curNode.toString().equals(
+											"18d051")) {
 										System.out.println();
 									}
-									break;
+									if (getContextSimilarity(graph1, e.node,
+											graph2, curNode, 10) == 1) {
+										node1 = e.node;
+										node1.mergingIndex = node1.index;
+										curNode.mergingIndex = node1.mergingIndex;
+										if (node1.fromWhichGraph == 1)
+											node1.fromWhichGraph = 0;
+										
+										break;
+									}
 								}
 							}
-							
+
 						}
 					}
-					
+
 					// curNode does not occur in G1
 					if (i == parentNode1.edges.size()) {
+						if (curNode.toString().equals("18d051")) {
+							System.out.println();
+						}
+						
 						// Should create the new node for G1
 						node1 = new Node(curNode);
 						newNodesFromGraph2.put(curNode.tag, node1);
@@ -472,15 +496,14 @@ public class ExecutionGraph {
 						node1.mergingIndex = node1.index;
 						node1.fromWhichGraph = 2;
 						if (graph1.hash2Nodes.get(node1.hash) == null) {
-							graph1.hash2Nodes.put(node1.hash, new ArrayList<Node>());
+							graph1.hash2Nodes.put(node1.hash,
+									new ArrayList<Node>());
 						}
 						if (!graph1.hash2Nodes.get(node1.hash).contains(node1)) {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
 						curNode.mergingIndex = node1.index;
-						if (curNode.toString().equals("604274011c")) {
-							System.out.println();
-						}
+						
 						// And update the edges of node1
 						Edge e = new Edge(node1, isDirect, ordinal);
 						if (!parentNode1.edges.contains(e)) {
@@ -488,10 +511,10 @@ public class ExecutionGraph {
 						}
 					}
 				}
-				
+
 				// Mark as visited
 				curNode.isVisited = 1;
-				
+
 				for (Edge e : curNode.edges) {
 					Node nextNode = e.node;
 					if (nextNode.isVisited == 0) {
@@ -499,7 +522,7 @@ public class ExecutionGraph {
 						bfsQueue.add(nextNode);
 					}
 				}
-				
+
 			}
 		}
 
@@ -607,12 +630,16 @@ public class ExecutionGraph {
 						// Lack of information, can't do anything!
 						// May still try to trace down
 						if (e1.node.hash == e2.node.hash) {
-							res = getContextSimilarity(graph1, e1.node, graph2,
-									e2.node, depth - 1);
-							if (res == 0)
-								return 0;
+//							res = getContextSimilarity(graph1, e1.node, graph2,
+//									e2.node, depth - 1);
+//							if (res == 0)
+//								return 0;
+							
 						} else {
-							return 1;
+							// For indirect branches
+							// This is a tricky case
+							
+//							return 1;
 						}
 					}
 				}
