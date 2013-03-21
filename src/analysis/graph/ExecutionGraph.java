@@ -129,6 +129,12 @@ public class ExecutionGraph {
 			this.edgeIndex = edgeIndex;
 		}
 	}
+	
+	private HashSet<Long> pairHashes;
+	private HashSet<Long> blockHashes;
+	
+	private String pairHashFile;
+	private String blockHashFile;
 
 	// the edges of the graph comes with an ordinal
 	private HashMap<Node, HashMap<Node, Integer>> adjacentList;
@@ -382,6 +388,7 @@ public class ExecutionGraph {
 			System.out
 					.println("Important message: more than one block to hash has the same hash!!!");
 		}
+		
 
 		// Before merging, reset fromWhichGraph filed of both graphs
 		for (int i = 0; i < graph1.nodes.size(); i++) {
@@ -668,6 +675,11 @@ public class ExecutionGraph {
 			System.out.println("count12: " + count12);
 			System.out.println("count21: " + count21);
 		}
+		
+		HashSet<Long> interPairHashes = AnalysisUtil.intersection(graph1.pairHashes, graph2.pairHashes),
+				interBlockHashes = AnalysisUtil.intersection(graph1.blockHashes, graph2.blockHashes);
+		System.out.println("Intersection of pair hashes: " + interPairHashes.size());
+		System.out.println("Intersection of block hashes: " + interBlockHashes.size());
 
 		return null;
 	}
@@ -1071,6 +1083,8 @@ public class ExecutionGraph {
 		File dirFile = new File(dir);
 		String[] fileNames = dirFile.list();
 		HashMap<Integer, ArrayList<String>> pid2LookupFiles = new HashMap<Integer, ArrayList<String>>(), pid2TagFiles = new HashMap<Integer, ArrayList<String>>();
+		HashMap<Integer, String> pid2PairHashFile = new HashMap<Integer, String>(),
+				pid2BlockHashFile = new  HashMap<Integer, String>();
 
 		for (int i = 0; i < fileNames.length; i++) {
 			int pid = AnalysisUtil.getPidFromFileName(fileNames[i]);
@@ -1084,6 +1098,10 @@ public class ExecutionGraph {
 				pid2LookupFiles.get(pid).add(dir + "/" + fileNames[i]);
 			} else if (fileNames[i].indexOf("bb-graph.") != -1) {
 				pid2TagFiles.get(pid).add(dir + "/" + fileNames[i]);
+			} else if (fileNames[i].indexOf("pair-hash") != -1) {
+				pid2PairHashFile.put(pid, dir + "/" + fileNames[i]);
+			} else if (fileNames[i].indexOf("block-hash") != -1) {
+				pid2BlockHashFile.put(pid, dir + "/" + fileNames[i]);
 			}
 		}
 
@@ -1097,6 +1115,10 @@ public class ExecutionGraph {
 			String possibleProgName = AnalysisUtil.getProgName(lookupFiles
 					.get(0));
 			ExecutionGraph graph = new ExecutionGraph();
+			graph.pairHashFile = pid2PairHashFile.get(pid);
+			graph.blockHashFile = pid2BlockHashFile.get(pid);
+			graph.pairHashes = AnalysisUtil.getSetFromPath(graph.pairHashFile);
+			graph.blockHashes = AnalysisUtil.getSetFromPath(graph.blockHashFile);
 			graph.progName = possibleProgName;
 			graph.pid = pid;
 			graph.readGraphLookup(lookupFiles);
@@ -1134,8 +1156,8 @@ public class ExecutionGraph {
 			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
 					+ ".dot");
 		}
-		ExecutionGraph bigGraph = graphs.get(1);
-		mergeGraph(bigGraph, graphs.get(3));
+		ExecutionGraph bigGraph = graphs.get(0);
+		mergeGraph(bigGraph, graphs.get(1));
 
 		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
 		//
