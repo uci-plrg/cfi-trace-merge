@@ -68,10 +68,10 @@ public class ExecutionGraph {
 				return false;
 			}
 			Node node = (Node) o;
-			if (node.tag != tag)
-				return false;
-			else
+			if (node.tag == tag && node.fromWhichGraph == fromWhichGraph)
 				return true;
+			else
+				return false;
 		}
 
 		public int hashCode() {
@@ -278,7 +278,7 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-		if (node2.index == 10078) {
+		if (node2.index == 6147) {
 			System.out.println();
 		}
 		int mergingIndex = node2.mergingIndex;
@@ -291,9 +291,12 @@ public class ExecutionGraph {
 
 			ArrayList<Node> candidates = new ArrayList<Node>();
 			for (int i = 0; i < nodes.size(); i++) {
+				if (nodes.get(i).fromWhichGraph == 2 && nodes.get(i).tag == node2.tag) {
+					return nodes.get(i);
+				}
 				int score = 0;
 				if ((score = getContextSimilarity(graph1, nodes.get(i), graph2,
-						node2, 5)) != -1) {
+						node2, 10, false)) != -1) {
 					nodes.get(i).score = score;
 					candidates.add(nodes.get(i));
 				}
@@ -443,16 +446,16 @@ public class ExecutionGraph {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
 					}
-					if (curNode.index == 10078 || curNode.index == 1608) {
-						 System.out.println();
+					if (curNode.index == 6147 || curNode.index == 1608) {
+						System.out.println();
 					}
 					curNode.mergingIndex = node1.mergingIndex;
 				} else {
 					if (parentNode.hash == ExecutionGraph.specialHash) {
 						System.out.println();
 					}
-					if (parentNode.index == 10078) {
-						 System.out.println();
+					if (curNode.index == 6147) {
+						System.out.println();
 					}
 					parentNode1 = getCorrespondingNode(graph1, graph2,
 							parentNode);
@@ -468,9 +471,7 @@ public class ExecutionGraph {
 
 					ArrayList<Node> candidateNodes = new ArrayList<Node>();
 					int i;
-					if (parentNode1.toString().equals("c5b6031904884")) {
-						// System.out.println();
-					}
+					
 					for (i = 0; i < parentNode1.edges.size(); i++) {
 						Edge e = parentNode1.edges.get(i);
 						if (e.ordinal == ordinal) {
@@ -488,16 +489,16 @@ public class ExecutionGraph {
 								} else {
 									// These are the corresponding nodes of each
 									// other
-									if (curNode.index == 10078) {
-										 System.out.println();
+									if (curNode.index == 6147) {
+										System.out.println();
 									}
 									candidateNodes.add(e.node);
 
 									break;
 								}
 							} else {
-								if (curNode.index == 10078) {
-									 System.out.println();
+								if (curNode.index == 6147) {
+									System.out.println();
 								}
 								if (e.node.hash == curNode.hash) {
 									// These might be the corresponding nodes of
@@ -505,7 +506,7 @@ public class ExecutionGraph {
 
 									int score = 0;
 									if ((score = getContextSimilarity(graph1,
-											e.node, graph2, curNode, 5)) > 0) {
+											e.node, graph2, curNode, 5, false)) > 0) {
 										e.node.score = score;
 										candidateNodes.add(e.node);
 									}
@@ -518,8 +519,8 @@ public class ExecutionGraph {
 					if (candidateNodes.size() == 1) {
 						node1 = candidateNodes.get(0);
 						node1.mergingIndex = node1.index;
-						if (curNode.index == 10078 || curNode.index == 1608) {
-							 System.out.println();
+						if (curNode.index == 6147 || curNode.index == 1608) {
+							System.out.println();
 						}
 						curNode.mergingIndex = node1.mergingIndex;
 						if (node1.fromWhichGraph == 1)
@@ -537,8 +538,8 @@ public class ExecutionGraph {
 
 						node1 = candidateNodes.get(pos);
 						node1.mergingIndex = node1.index;
-						if (curNode.index == 10078 || curNode.index == 1608) {
-							 System.out.println();
+						if (curNode.index == 6147 || curNode.index == 1608) {
+							System.out.println();
 						}
 						curNode.mergingIndex = node1.mergingIndex;
 						if (node1.fromWhichGraph == 1)
@@ -550,8 +551,8 @@ public class ExecutionGraph {
 						node1 = getCorrespondingNode(graph1, graph2, curNode);
 						// Should create the new node for G1
 						if (node1 != null) {
-							if (curNode.index == 10078 || curNode.index == 1608) {
-								 System.out.println();
+							if (curNode.index == 6147 || curNode.index == 1608) {
+								System.out.println();
 							}
 							curNode.mergingIndex = node1.index;
 							node1.fromWhichGraph = 0;
@@ -570,8 +571,8 @@ public class ExecutionGraph {
 									node1)) {
 								graph1.hash2Nodes.get(node1.hash).add(node1);
 							}
-							if (curNode.index == 1563 || curNode.index == 1608) {
-								 System.out.println();
+							if (curNode.index == 6147 || curNode.index == 1608) {
+								System.out.println();
 							}
 							curNode.mergingIndex = node1.index;
 						}
@@ -692,11 +693,11 @@ public class ExecutionGraph {
 	// Return value: the score of the similarity, -1 means definitely
 	// not the same, 0 means might be
 	private static int getContextSimilarity(ExecutionGraph graph1, Node node1,
-			ExecutionGraph graph2, Node node2, int depth) {
+			ExecutionGraph graph2, Node node2, int depth, boolean strictIndirect) {
 		if (depth <= 0)
 			return 1;
 		if (node2.fromWhichGraph == 2 && node1.fromWhichGraph == 2) {
-			if (node1.index == node2.index)
+			if (node1.mergingIndex == node2.mergingIndex)
 				return 9999;
 			else
 				return -1;
@@ -722,7 +723,7 @@ public class ExecutionGraph {
 							return -1;
 						} else {
 							res = getContextSimilarity(graph1, e1.node, graph2,
-									e2.node, depth - 1);
+									e2.node, depth - 1, strictIndirect);
 							if (res == -1) {
 								return -1;
 							} else {
@@ -734,9 +735,13 @@ public class ExecutionGraph {
 						// May still try to trace down
 						if (e1.node.hash == e2.node.hash) {
 							res = getContextSimilarity(graph1, e1.node, graph2,
-									e2.node, depth - 1);
-							if (res == -1)
-								return 1;
+									e2.node, depth - 1, strictIndirect);
+							if (res == -1) {
+								if (strictIndirect)
+									return -1;
+								else
+									res = 0;
+							}
 							else {
 								score += res + 1;
 							}
@@ -752,7 +757,7 @@ public class ExecutionGraph {
 			}
 		}
 
-		return score;
+		return -1;
 	}
 
 	public void dumpHashCollision() {
@@ -1171,6 +1176,6 @@ public class ExecutionGraph {
 					+ ".dot");
 		}
 		ExecutionGraph bigGraph = graphs.get(0);
-		mergeGraph(bigGraph, graphs.get(1));
+		mergeGraph(bigGraph, graphs.get(2));
 	}
 }
