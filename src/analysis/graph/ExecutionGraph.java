@@ -129,10 +129,10 @@ public class ExecutionGraph {
 			this.edgeIndex = edgeIndex;
 		}
 	}
-	
+
 	private HashSet<Long> pairHashes;
 	private HashSet<Long> blockHashes;
-	
+
 	private String pairHashFile;
 	private String blockHashFile;
 
@@ -278,8 +278,8 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-		if (node2.index == 1563 || node2.index == 1608) {
-//			System.out.println();
+		if (node2.index == 10078) {
+			System.out.println();
 		}
 		int mergingIndex = node2.mergingIndex;
 		if (mergingIndex == -1) {
@@ -382,13 +382,12 @@ public class ExecutionGraph {
 			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
 					.get(0).node.hash) {
 				System.out.println("First block not the same, not mergeable!");
-//				return null;
+				// return null;
 			}
 		} else {
 			System.out
 					.println("Important message: more than one block to hash has the same hash!!!");
 		}
-		
 
 		// Before merging, reset fromWhichGraph filed of both graphs
 		for (int i = 0; i < graph1.nodes.size(); i++) {
@@ -424,13 +423,13 @@ public class ExecutionGraph {
 				// have been checked or added
 				if (curNode.isVisited == 1)
 					continue;
-				
+
 				if (parentNode == null) {
 					node1 = getCorrespondingNode(graph1, graph2, curNode);
 					if (node1 == null) {
 						// Should create the new node for G1
 						node1 = new Node(curNode);
-						
+
 						newNodesFromGraph2.put(curNode.tag, node1);
 						graph1.nodes.add(node1);
 						node1.index = graph1.nodes.size() - 1;
@@ -444,16 +443,16 @@ public class ExecutionGraph {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
 					}
-					if (curNode.index == 1563 || curNode.index == 1608) {
-//						System.out.println();
+					if (curNode.index == 10078 || curNode.index == 1608) {
+						 System.out.println();
 					}
 					curNode.mergingIndex = node1.mergingIndex;
 				} else {
 					if (parentNode.hash == ExecutionGraph.specialHash) {
 						System.out.println();
 					}
-					if (parentNode.mergingIndex == 467) {
-//						System.out.println();
+					if (parentNode.index == 10078) {
+						 System.out.println();
 					}
 					parentNode1 = getCorrespondingNode(graph1, graph2,
 							parentNode);
@@ -470,7 +469,7 @@ public class ExecutionGraph {
 					ArrayList<Node> candidateNodes = new ArrayList<Node>();
 					int i;
 					if (parentNode1.toString().equals("c5b6031904884")) {
-//						System.out.println();
+						// System.out.println();
 					}
 					for (i = 0; i < parentNode1.edges.size(); i++) {
 						Edge e = parentNode1.edges.get(i);
@@ -489,22 +488,24 @@ public class ExecutionGraph {
 								} else {
 									// These are the corresponding nodes of each
 									// other
-									
+									if (curNode.index == 10078) {
+										 System.out.println();
+									}
 									candidateNodes.add(e.node);
 
 									break;
 								}
 							} else {
-								if (curNode.index == 1608) {
-//									System.out.println();
+								if (curNode.index == 10078) {
+									 System.out.println();
 								}
 								if (e.node.hash == curNode.hash) {
 									// These might be the corresponding nodes of
 									// each other
-									
+
 									int score = 0;
 									if ((score = getContextSimilarity(graph1,
-											e.node, graph2, curNode, 5)) != -1) {
+											e.node, graph2, curNode, 5)) > 0) {
 										e.node.score = score;
 										candidateNodes.add(e.node);
 									}
@@ -517,8 +518,8 @@ public class ExecutionGraph {
 					if (candidateNodes.size() == 1) {
 						node1 = candidateNodes.get(0);
 						node1.mergingIndex = node1.index;
-						if (curNode.index == 1563 || curNode.index == 1608) {
-//							System.out.println();
+						if (curNode.index == 10078 || curNode.index == 1608) {
+							 System.out.println();
 						}
 						curNode.mergingIndex = node1.mergingIndex;
 						if (node1.fromWhichGraph == 1)
@@ -536,22 +537,21 @@ public class ExecutionGraph {
 
 						node1 = candidateNodes.get(pos);
 						node1.mergingIndex = node1.index;
-						if (curNode.index == 1563 || curNode.index == 1608) {
-//							System.out.println();
+						if (curNode.index == 10078 || curNode.index == 1608) {
+							 System.out.println();
 						}
 						curNode.mergingIndex = node1.mergingIndex;
 						if (node1.fromWhichGraph == 1)
 							node1.fromWhichGraph = 0;
 					} else {
 						// curNode does not occur in G1
-						
 
 						// First check if there is already a node existing in G1
 						node1 = getCorrespondingNode(graph1, graph2, curNode);
 						// Should create the new node for G1
 						if (node1 != null) {
-							if (curNode.index == 1563 || curNode.index == 1608) {
-//								System.out.println();
+							if (curNode.index == 10078 || curNode.index == 1608) {
+								 System.out.println();
 							}
 							curNode.mergingIndex = node1.index;
 							node1.fromWhichGraph = 0;
@@ -571,7 +571,7 @@ public class ExecutionGraph {
 								graph1.hash2Nodes.get(node1.hash).add(node1);
 							}
 							if (curNode.index == 1563 || curNode.index == 1608) {
-//								System.out.println();
+								 System.out.println();
 							}
 							curNode.mergingIndex = node1.index;
 						}
@@ -629,7 +629,7 @@ public class ExecutionGraph {
 				+ graph2.getProgName() + ").");
 
 		// Then output the edge score
-		int count00 = 0, count01 = 0, count02 = 0, count10 = 0, count20 =0, count11 = 0, count22 = 0, countAll = 0;
+		int count00 = 0, count01 = 0, count02 = 0, count10 = 0, count20 = 0, count11 = 0, count22 = 0, countAll = 0;
 		int count12 = 0, count21 = 0;
 		for (int i = 0; i < graph1.nodes.size(); i++) {
 			Node node = graph1.nodes.get(i);
@@ -653,8 +653,7 @@ public class ExecutionGraph {
 					count22++;
 				} else if (fromOwner == 1 && toOwner == 2) {
 					count12++;
-					Node n1 = node,
-							n2 = node.edges.get(j).node;
+					Node n1 = node, n2 = node.edges.get(j).node;
 					n2 = n2;
 				} else if (fromOwner == 2 && toOwner == 1) {
 					count21++;
@@ -675,11 +674,14 @@ public class ExecutionGraph {
 			System.out.println("count12: " + count12);
 			System.out.println("count21: " + count21);
 		}
-		
-		HashSet<Long> interPairHashes = AnalysisUtil.intersection(graph1.pairHashes, graph2.pairHashes),
-				interBlockHashes = AnalysisUtil.intersection(graph1.blockHashes, graph2.blockHashes);
-		System.out.println("Intersection of pair hashes: " + interPairHashes.size());
-		System.out.println("Intersection of block hashes: " + interBlockHashes.size());
+
+		HashSet<Long> interPairHashes = AnalysisUtil.intersection(
+				graph1.pairHashes, graph2.pairHashes), interBlockHashes = AnalysisUtil
+				.intersection(graph1.blockHashes, graph2.blockHashes);
+		System.out.println("Intersection of pair hashes: "
+				+ interPairHashes.size());
+		System.out.println("Intersection of block hashes: "
+				+ interBlockHashes.size());
 
 		return null;
 	}
@@ -702,9 +704,9 @@ public class ExecutionGraph {
 		int score = 0;
 		ArrayList<Edge> edges1 = node1.edges, edges2 = node2.edges;
 		// One node does not have any outgoing edges!!
-		// Just think that they are still similar...
+		// Just think that they might be similar...
 		if (edges1.size() == 0 || edges2.size() == 0) {
-			return 1;
+			return 0;
 		}
 
 		int res = -1;
@@ -1083,8 +1085,7 @@ public class ExecutionGraph {
 		File dirFile = new File(dir);
 		String[] fileNames = dirFile.list();
 		HashMap<Integer, ArrayList<String>> pid2LookupFiles = new HashMap<Integer, ArrayList<String>>(), pid2TagFiles = new HashMap<Integer, ArrayList<String>>();
-		HashMap<Integer, String> pid2PairHashFile = new HashMap<Integer, String>(),
-				pid2BlockHashFile = new  HashMap<Integer, String>();
+		HashMap<Integer, String> pid2PairHashFile = new HashMap<Integer, String>(), pid2BlockHashFile = new HashMap<Integer, String>();
 
 		for (int i = 0; i < fileNames.length; i++) {
 			int pid = AnalysisUtil.getPidFromFileName(fileNames[i]);
@@ -1118,7 +1119,8 @@ public class ExecutionGraph {
 			graph.pairHashFile = pid2PairHashFile.get(pid);
 			graph.blockHashFile = pid2BlockHashFile.get(pid);
 			graph.pairHashes = AnalysisUtil.getSetFromPath(graph.pairHashFile);
-			graph.blockHashes = AnalysisUtil.getSetFromPath(graph.blockHashFile);
+			graph.blockHashes = AnalysisUtil
+					.getSetFromPath(graph.blockHashFile);
 			graph.progName = possibleProgName;
 			graph.pid = pid;
 			graph.readGraphLookup(lookupFiles);
@@ -1146,8 +1148,20 @@ public class ExecutionGraph {
 	}
 
 	public static void main(String[] argvs) {
-		ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
+		// ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
+		//
+		// for (int i = 0; i < graphs.size(); i++) {
+		// ExecutionGraph graph = graphs.get(i);
+		// if (!graph.isValidGraph()) {
+		// System.out.print("This is a wrong graph!");
+		// }
+		// graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+		// + ".dot");
+		// }
+		// ExecutionGraph bigGraph = graphs.get(0);
+		// mergeGraph(bigGraph, graphs.get(1));
 
+		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
 		for (int i = 0; i < graphs.size(); i++) {
 			ExecutionGraph graph = graphs.get(i);
 			if (!graph.isValidGraph()) {
@@ -1158,12 +1172,5 @@ public class ExecutionGraph {
 		}
 		ExecutionGraph bigGraph = graphs.get(0);
 		mergeGraph(bigGraph, graphs.get(1));
-
-		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		//
-		// ExecutionGraph bigGraph = graphs.get(0);
-		// for (int i = 1; i < graphs.size(); i++) {
-		// mergeGraph(bigGraph, graphs.get(i));
-		// }
 	}
 }
