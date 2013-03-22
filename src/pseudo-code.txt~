@@ -1,57 +1,34 @@
 merge(G1, G2) {
-	// global tag for the nodes in both graph
-	// during the process of this merging
-	initialize label field of nodes of both graphs to be -1
-	label = 0;
-	node1 = G1.firstNode;
-	node2 = G2.firstNode;
-	node1.label = node2.label = label++;
-	enqueue node2 to Q;
-	// Do a Bredth First Search on G2
-	while (Q.size() > 0) {
-		n2 = Q.dequeue();
-		n2.isVisited = 1;
-		enqueue all unvisited outgoing nodes of n2 to Q;
+	// the first node of the graph is the same
+	FOR every node N in G2 DO
+		IF N is not visited then
+			enqueue (null, N) to Q;
 
-		n1 = find a node in G1 that has n2.label;
-		if (n1 != null) {
-			iterate the outgoing edges of n2 {
-				if n1.edge(i) mergeable with n2.edge(i) {
-					if their outgoing nodes not labled {
-						assign them with same label;
-						label++;
-					}
-				} else if n2.edge(i) is a divergent edge {
-					find out all candidates with the same hash in G1
-					iterate the candidates to check_node_similarity(candidate, n2.edge(i).node, G1, G2, SOME_DEPTH)
-					if no candidate in G1 has the same context {
-						add n2.edge(i).node to G1;
-						mark both nodes with same label;
-					} else if one candidate in G1 has same context {
-						add n2.edge in G1;
-						mark both nodes with same label;
-					} else {	// find many mergeable points
-						FIXME??
-					}
-				} else {
-					report conflicts	// Should we go on?
-				}
-			}
-		} else {	// Should add this nodes in G1
-			add the new node in G1
-			mark both nodes with same label;
-		}
-	
-	}
-	
+			// Do a Bredth First Search on G2
+			WHILE (Q.size() > 0) DO
+				n2_parent = Q.dequeue();
+				n2 = Q.dequeue();
+				
+				// This means the node has no incoming edges
+				IF n2_parent == null then
+					
+				FI
+			DONE
+		FI	
+	DONE
+}
 
 
-
+// Should return node1 if there is a corresponding node in G1,
+// or null if there is none
+get_corresponding_node(G1, G2, node2) {
 
 }
 
 
-check_node_similarity(node1, node2, G1, G2, depth) {
+// Traverse down depth level to calculate the similarity score
+// of both nodes
+get_context_similarity(G1, G2, node1, node2, depth) {
 	for all node
 
 }

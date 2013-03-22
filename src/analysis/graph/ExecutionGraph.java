@@ -22,7 +22,7 @@ public class ExecutionGraph {
 	static public class Node {
 		private long tag, hash;
 
-		private ArrayList<Edge> edges;
+		private ArrayList<Edge> edges = new ArrayList<Edge>();
 		private int isVisited;
 		// Index in the ArrayList<Node>, in order to search the
 		// node in constant time
@@ -48,13 +48,11 @@ public class ExecutionGraph {
 		public Node(long tag, long hash) {
 			this.tag = tag;
 			this.hash = hash;
-			edges = new ArrayList<Edge>();
 			isVisited = 0;
 		}
 
 		public Node(long tag) {
 			this.tag = tag;
-			edges = new ArrayList<Edge>();
 			isVisited = 0;
 		}
 
@@ -68,10 +66,10 @@ public class ExecutionGraph {
 				return false;
 			}
 			Node node = (Node) o;
-			if (node.tag != tag)
-				return false;
-			else
+			if (node.tag == tag && node.fromWhichGraph == fromWhichGraph)
 				return true;
+			else
+				return false;
 		}
 
 		public int hashCode() {
@@ -132,6 +130,8 @@ public class ExecutionGraph {
 
 	private HashSet<Long> pairHashes;
 	private HashSet<Long> blockHashes;
+	private ArrayList<Long> pairHashInstances;
+	private ArrayList<Long> blockHashInstances;
 
 	private String pairHashFile;
 	private String blockHashFile;
@@ -278,9 +278,7 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-		if (node2.index == 10078) {
-			System.out.println();
-		}
+
 		int mergingIndex = node2.mergingIndex;
 		if (mergingIndex == -1) {
 			// This node does not belongs to G1 and
@@ -420,21 +418,38 @@ public class ExecutionGraph {
 				pairEdge = bfsQueue.remove();
 				Node parentNode = pairEdge.parent, curNode = pairEdge.child, node1 = null, parentNode1 = null;
 				// If curNode is visited, then all its out-going edges should
-				// have been checked or added
-				if (curNode.isVisited == 1)
+				// have been checked or added, but we need to update its
+				// incoming
+				// edges
+				if (curNode.index == 6945) {
+					System.out.println();
+				}
+				if (curNode.isVisited == 1) {
+					node1 = getCorrespondingNode(graph1, graph2, curNode);
+					parentNode1 = getCorrespondingNode(graph1, graph2,
+							parentNode);
+					Edge e = new Edge(node1, pairEdge.isDirect,
+							pairEdge.ordinal);
+					if (!parentNode1.edges.contains(e)) {
+						parentNode1.edges.add(e);
+					}
 					continue;
+				}
 
 				if (parentNode == null) {
 					node1 = getCorrespondingNode(graph1, graph2, curNode);
 					if (node1 == null) {
 						// Should create the new node for G1
 						node1 = new Node(curNode);
-
-						newNodesFromGraph2.put(curNode.tag, node1);
+						node1.fromWhichGraph = 2;
 						graph1.nodes.add(node1);
 						node1.index = graph1.nodes.size() - 1;
+						// Mark node1 and curNode as equivalent nodes
 						node1.mergingIndex = node1.index;
-						node1.fromWhichGraph = 2;
+						curNode.mergingIndex = node1.mergingIndex;
+
+						newNodesFromGraph2.put(curNode.tag, node1);
+
 						if (graph1.hash2Nodes.get(node1.hash) == null) {
 							graph1.hash2Nodes.put(node1.hash,
 									new ArrayList<Node>());
@@ -443,35 +458,27 @@ public class ExecutionGraph {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
 					}
-					if (curNode.index == 10078 || curNode.index == 1608) {
-						 System.out.println();
-					}
-					curNode.mergingIndex = node1.mergingIndex;
 				} else {
-					if (parentNode.hash == ExecutionGraph.specialHash) {
-						System.out.println();
-					}
-					if (parentNode.index == 10078) {
-						 System.out.println();
-					}
+					// ParentNode is always already merged
+					assert (parentNode.mergingIndex != -1);
+
 					parentNode1 = getCorrespondingNode(graph1, graph2,
 							parentNode);
-
 					assert (parentNode1 != null);
+					assert (parentNode1.mergingIndex == parentNode.mergingIndex);
 
 					// Find out which ordinal this edge is and it's type
-
 					boolean isDirect = pairEdge.isDirect;
 					int ordinal = pairEdge.ordinal;
 
 					assert (ordinal != -1);
 
+					// Try to merge the curNode and node1
 					ArrayList<Node> candidateNodes = new ArrayList<Node>();
-					int i;
-					if (parentNode1.toString().equals("c5b6031904884")) {
-						// System.out.println();
-					}
-					for (i = 0; i < parentNode1.edges.size(); i++) {
+
+					ArrayList<Edge> edges = parentNode1.edges;
+					assert (edges != null);
+					for (int i = 0; i < edges.size(); i++) {
 						Edge e = parentNode1.edges.get(i);
 						if (e.ordinal == ordinal) {
 							if (e.isDirect != isDirect) {
@@ -488,16 +495,13 @@ public class ExecutionGraph {
 								} else {
 									// These are the corresponding nodes of each
 									// other
-									if (curNode.index == 10078) {
-										 System.out.println();
-									}
-									candidateNodes.add(e.node);
 
+									candidateNodes.add(e.node);
 									break;
 								}
 							} else {
 								if (curNode.index == 10078) {
-									 System.out.println();
+									System.out.println();
 								}
 								if (e.node.hash == curNode.hash) {
 									// These might be the corresponding nodes of
@@ -517,14 +521,13 @@ public class ExecutionGraph {
 
 					if (candidateNodes.size() == 1) {
 						node1 = candidateNodes.get(0);
-						node1.mergingIndex = node1.index;
-						if (curNode.index == 10078 || curNode.index == 1608) {
-							 System.out.println();
-						}
-						curNode.mergingIndex = node1.mergingIndex;
-						if (node1.fromWhichGraph == 1)
+						if (node1.fromWhichGraph == 1) {
 							node1.fromWhichGraph = 0;
-
+							node1.mergingIndex = node1.index;
+							curNode.mergingIndex = node1.index;
+						} else {
+							curNode.mergingIndex = node1.mergingIndex;
+						}
 					} else if (candidateNodes.size() > 1) {
 						// FIXME:Tricky case
 						int pos = 0, score = 0;
@@ -536,32 +539,36 @@ public class ExecutionGraph {
 						}
 
 						node1 = candidateNodes.get(pos);
-						node1.mergingIndex = node1.index;
-						if (curNode.index == 10078 || curNode.index == 1608) {
-							 System.out.println();
-						}
-						curNode.mergingIndex = node1.mergingIndex;
-						if (node1.fromWhichGraph == 1)
+						if (node1.fromWhichGraph == 1) {
 							node1.fromWhichGraph = 0;
+							node1.mergingIndex = node1.index;
+							curNode.mergingIndex = node1.index;
+						} else {
+							curNode.mergingIndex = node1.mergingIndex;
+						}
 					} else {
-						// curNode does not occur in G1
-
 						// First check if there is already a node existing in G1
 						node1 = getCorrespondingNode(graph1, graph2, curNode);
-						// Should create the new node for G1
 						if (node1 != null) {
-							if (curNode.index == 10078 || curNode.index == 1608) {
-								 System.out.println();
+							if (node1.fromWhichGraph == 1) {
+								node1.fromWhichGraph = 0;
+								node1.mergingIndex = node1.index;
+								curNode.mergingIndex = node1.index;
+							} else {
+								curNode.mergingIndex = node1.mergingIndex;
 							}
-							curNode.mergingIndex = node1.index;
-							node1.fromWhichGraph = 0;
 						} else {
+							// CurNode does not occur in G1
+							// Should create the new node for G1
 							node1 = new Node(curNode);
-							newNodesFromGraph2.put(curNode.tag, node1);
+							node1.fromWhichGraph = 2;
 							graph1.nodes.add(node1);
 							node1.index = graph1.nodes.size() - 1;
 							node1.mergingIndex = node1.index;
-							node1.fromWhichGraph = 2;
+							curNode.mergingIndex = node1.index;
+
+							newNodesFromGraph2.put(curNode.tag, node1);
+
 							if (graph1.hash2Nodes.get(node1.hash) == null) {
 								graph1.hash2Nodes.put(node1.hash,
 										new ArrayList<Node>());
@@ -570,10 +577,6 @@ public class ExecutionGraph {
 									node1)) {
 								graph1.hash2Nodes.get(node1.hash).add(node1);
 							}
-							if (curNode.index == 1563 || curNode.index == 1608) {
-								 System.out.println();
-							}
-							curNode.mergingIndex = node1.index;
 						}
 
 						// And update the edges of node1
@@ -674,6 +677,22 @@ public class ExecutionGraph {
 			System.out.println("count12: " + count12);
 			System.out.println("count21: " + count21);
 		}
+
+		System.out.println("Pair hash instances of G1: "
+				+ graph1.pairHashInstances.size());
+		System.out.println("Pair hash set of G1: " + graph1.pairHashes.size());
+		System.out.println("Block hash instances of G1: "
+				+ graph1.blockHashInstances.size());
+		System.out
+				.println("Block hash set of G1: " + graph1.blockHashes.size());
+
+		System.out.println("Pair hash instances of G2: "
+				+ graph2.pairHashInstances.size());
+		System.out.println("Pair hash set of G2: " + graph2.pairHashes.size());
+		System.out.println("Block hash instances of G2: "
+				+ graph2.blockHashInstances.size());
+		System.out
+				.println("Block hash set of G2: " + graph2.blockHashes.size());
 
 		HashSet<Long> interPairHashes = AnalysisUtil.intersection(
 				graph1.pairHashes, graph2.pairHashes), interBlockHashes = AnalysisUtil
@@ -890,6 +909,7 @@ public class ExecutionGraph {
 
 	private void readGraphLookup(ArrayList<String> lookupFiles) {
 		hashLookupTable = new HashMap<Long, Node>();
+		nodes = new ArrayList<Node>();
 		FileInputStream fileIn = null;
 		DataInputStream dataIn = null;
 
@@ -931,6 +951,10 @@ public class ExecutionGraph {
 					Node node = new Node(tag, hash);
 					hashLookupTable.put(tag, node);
 
+					nodes.add(node);
+					// Important!! Don't forget to update the index
+					node.index = nodes.size() - 1;
+
 					// Add it the the hash2Nodes mapping
 					if (hash2Nodes.get(hash) == null) {
 						hash2Nodes.put(hash, new ArrayList<Node>());
@@ -959,7 +983,6 @@ public class ExecutionGraph {
 	public void readGraph(ArrayList<String> tagFiles)
 			throws NullPointerException {
 
-		nodes = new ArrayList<Node>();
 		for (int i = 0; i < tagFiles.size(); i++) {
 			String tagFile = tagFiles.get(i);
 			// if (tagFile.indexOf("ld") == -1)
@@ -990,6 +1013,12 @@ public class ExecutionGraph {
 
 					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
 							.get(tag2);
+					// if (adjacentList.get(node1) != null &&
+					// adjacentList.get(node2) != null) {
+					// System.out.println(Long.toHexString(node1.tag));
+					// System.out.println(Long.toHexString(node2.tag));
+					// }
+
 					// double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						// System.out.println(Long.toHexString(tag1) +
@@ -1008,25 +1037,17 @@ public class ExecutionGraph {
 					// stored yet
 					// add node to an array, which is in their seen order in the
 					// file
-					if (!adjacentList.containsKey(node1)) {
+					if (adjacentList.get(node1) == null) {
 						adjacentList.put(node1, new HashMap<Node, Integer>());
-						nodes.add(node1);
-						// Important!! Don't forget to update the index
-						node1.index = nodes.size() - 1;
-					}
-					if (!adjacentList.containsKey(node2)) {
-						adjacentList.put(node2, new HashMap<Node, Integer>());
-						nodes.add(node2);
-						// Important!! Don't forget to update the index
-						node2.index = nodes.size() - 1;
 					}
 
-					HashMap<Node, Integer> edges;
-					edges = adjacentList.get(node1);
+					HashMap<Node, Integer> edges = adjacentList.get(node1);
 					// Also update the ArrayList<Edge> of node
 					if (!edges.containsKey(node2)) {
 						edges.put(node2, flag);
 						node1.edges.add(new Edge(node2, flag));
+					} else {
+						System.out.println();
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -1121,13 +1142,40 @@ public class ExecutionGraph {
 			graph.pairHashes = AnalysisUtil.getSetFromPath(graph.pairHashFile);
 			graph.blockHashes = AnalysisUtil
 					.getSetFromPath(graph.blockHashFile);
+			graph.pairHashInstances = AnalysisUtil
+					.getAllHashInstanceFromPath(graph.pairHashFile);
+			graph.blockHashInstances = AnalysisUtil
+					.getAllHashInstanceFromPath(graph.blockHashFile);
+
 			graph.progName = possibleProgName;
 			graph.pid = pid;
 			graph.readGraphLookup(lookupFiles);
 			graph.readGraph(tagFiles);
+			// System.out.println(graph.hashLookupTable.size());
+			// System.out.println(graph.blockHashInstances.size());
+			// System.out.println(graph.adjacentList.size());
+			// System.out.println(graph.nodes.size());
+
+			int sizeEdges = 0;
+			for (int i = 0; i < graph.nodes.size(); i++) {
+				sizeEdges += graph.nodes.get(i).edges.size();
+				HashSet<Long> uniqueNodes = new HashSet<Long>();
+				for (Edge e : graph.nodes.get(i).edges) {
+					if (uniqueNodes.contains(e.node.tag)) {
+						System.out.println("Duplicate edges!");
+					} else {
+						uniqueNodes.add(e.node.tag);
+					}
+				}
+
+			}
+			// System.out.println(sizeEdges);
+			// System.out.println(graph.pairHashInstances.size());
+
 			if (!graph.isValidGraph) {
 				System.out.println("Pid " + pid + " is not a valid graph!");
 			}
+
 			// graph.dumpGraph("graph-files/" + possibleProgName + "." + pid +
 			// ".dot");
 			// graph.dumpHashCollision();
@@ -1147,6 +1195,29 @@ public class ExecutionGraph {
 		return graphs;
 	}
 
+	public static void pairComparison(String dir) {
+		File file = new File(dir);
+		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
+
+		File[] runDirs = file.listFiles();
+
+		for (int i = 0; i < runDirs.length; i++) {
+			for (int j = i + 1; j < runDirs.length; j++) {
+				if (runDirs[i].getName().indexOf("run") == -1
+						|| runDirs[j].getName().indexOf("run") == -1) {
+					continue;
+				}
+				ExecutionGraph graph1 = buildGraphsFromRunDir(
+						runDirs[i].getAbsolutePath()).get(0), graph2 = buildGraphsFromRunDir(
+						runDirs[j].getAbsolutePath()).get(0);
+				System.out.println("Comparison between " + graph1.progName
+						+ graph1.pid + " & " + graph2.progName + graph2.pid);
+				mergeGraph(graph1, graph2);
+			}
+
+		}
+	}
+
 	public static void main(String[] argvs) {
 		// ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
 		//
@@ -1161,16 +1232,17 @@ public class ExecutionGraph {
 		// ExecutionGraph bigGraph = graphs.get(0);
 		// mergeGraph(bigGraph, graphs.get(1));
 
-		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		for (int i = 0; i < graphs.size(); i++) {
-			ExecutionGraph graph = graphs.get(i);
-			if (!graph.isValidGraph()) {
-				System.out.print("This is a wrong graph!");
-			}
-			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-					+ ".dot");
-		}
-		ExecutionGraph bigGraph = graphs.get(0);
-		mergeGraph(bigGraph, graphs.get(1));
+		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+		// for (int i = 0; i < graphs.size(); i++) {
+		// ExecutionGraph graph = graphs.get(i);
+		// if (!graph.isValidGraph()) {
+		// System.out.print("This is a wrong graph!");
+		// }
+		// graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+		// + ".dot");
+		// }
+		// ExecutionGraph bigGraph = graphs.get(0);
+		// mergeGraph(bigGraph, graphs.get(1));
+		pairComparison(argvs[0]);
 	}
 }

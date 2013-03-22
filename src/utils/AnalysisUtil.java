@@ -190,6 +190,17 @@ public class AnalysisUtil {
 		return dirName.substring(0, endIndex);
 	}
 	
+	public static ArrayList<Long> getAllHashInstanceFromPath(String path) {
+		File f = new File(path);
+		if (!f.exists())
+			return null;
+		if (f.isDirectory()) {
+			return null;
+		} else {
+			return initAllHashInstanceFromFile(path);
+		}
+	}
+	
 	public static HashSet<Long> getSetFromPath(String path) {
 		File f = new File(path);
 		if (!f.exists())
@@ -220,6 +231,37 @@ public class AnalysisUtil {
 
 	public static HashSet<Long> initSetFromFile(File hashFile) {
 		return initSetFromFile(hashFile.getAbsolutePath());
+	}
+	
+	
+	public static ArrayList<Long> initAllHashInstanceFromFile(String fileName) {
+		DataInputStream in = null;
+		try {
+			in = new DataInputStream(new FileInputStream(fileName));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		ArrayList<Long> allInstances = new ArrayList<Long>();
+
+		try {
+			// int bytesLeft = in.available() / 8;
+			Long hashCode;
+			while (true) {
+				hashCode = in.readLong();
+				allInstances.add(reverseForLittleEndian(hashCode));
+			}
+		} catch (EOFException e) {
+			// end of line
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return allInstances;
 	}
 	
 	public static HashSet<Long> initSetFromFile(String fileName) {
