@@ -278,9 +278,10 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
-
-		if (node2.hash == new BigInteger("1157ceaa0", 16).longValue()) {
-			System.out.println();
+		if (node2.hash == 0x18d02c3cl && node2.mergingIndex == -1) {
+			if (node2.index == 22714) {
+//				System.out.println();
+			}
 		}
 		int mergingIndex = node2.mergingIndex;
 		if (mergingIndex == -1) {
@@ -294,7 +295,7 @@ public class ExecutionGraph {
 			for (int i = 0; i < nodes.size(); i++) {
 				int score = 0;
 				if ((score = getContextSimilarity(graph1, nodes.get(i), graph2,
-						node2, 5)) != -1) {
+						node2, searchDepth)) != -1) {
 					nodes.get(i).score = score;
 					candidates.add(nodes.get(i));
 				}
@@ -374,8 +375,8 @@ public class ExecutionGraph {
 //			graph2 = tmp;
 //		}
 		
-		System.out.println(graph1.blockHashFile);
-		System.out.println(graph2.blockHashFile);
+//		System.out.println(graph1.blockHashFile);
+//		System.out.println(graph2.blockHashFile);
 		
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
@@ -400,6 +401,10 @@ public class ExecutionGraph {
 					.println("Important message: more than one block to hash has the same hash!!!");
 		}
 
+		// Counter for matched nodes and edges
+		int matchedNodesCounter = 0,
+				matchedEdgesCounter = 0;
+		
 		// Before merging, reset fromWhichGraph filed of both graphs
 		for (int i = 0; i < graph1.nodes.size(); i++) {
 			graph1.nodes.get(i).fromWhichGraph = 1;
@@ -433,12 +438,6 @@ public class ExecutionGraph {
 				// If curNode is visited, then all its out-going edges should
 				// have been checked or added, but we need to update its
 				// incoming edges
-				if (parentNode != null && parentNode.index == 6944) {
-					System.out.println();
-				}
-				if (curNode.index == 3049) {
-					System.out.println();
-				}
 				if (curNode.isVisited == 1) {
 					node1 = getCorrespondingNode(graph1, graph2, curNode);
 					parentNode1 = getCorrespondingNode(graph1, graph2,
@@ -480,6 +479,7 @@ public class ExecutionGraph {
 						curNode.mergingIndex = node1.index;
 					}
 				} else {
+					
 					// ParentNode is always already merged
 					assert (parentNode.mergingIndex != -1);
 
@@ -487,6 +487,7 @@ public class ExecutionGraph {
 							parentNode);
 					assert (parentNode1 != null);
 					assert (parentNode1.mergingIndex == parentNode.mergingIndex);
+					
 
 					// Find out which ordinal this edge is and it's type
 					boolean isDirect = pairEdge.isDirect;
@@ -511,26 +512,34 @@ public class ExecutionGraph {
 								if (e.node.hash != curNode.hash) {
 									System.out
 											.println("The two direct branches have different branch target!");
+									
 									hasConflict = true;
 									break;
 								} else {
 									// These are the corresponding nodes of each
 									// other
 
+									if (curNode.hash == 0x20209c26c363a5fl && curNode.index == 18274) {
+//										System.out.println();
+									}
 									candidateNodes.add(e.node);
 									break;
 								}
 							} else {
-								if (curNode.index == 10078) {
-									System.out.println();
+								if (curNode.hash == 0x20209c26c363a5fl && curNode.index == 18274) {
+//									System.out.println();
 								}
 								if (e.node.hash == curNode.hash) {
 									// These might be the corresponding nodes of
 									// each other
 
 									int score = 0;
+									if (e.node.index == 5003) {
+//										System.out.println();
+									}
 									if ((score = getContextSimilarity(graph1,
-											e.node, graph2, curNode, 5)) > 0) {
+											e.node, graph2, curNode, searchDepth)) > 0) {
+										
 										e.node.score = score;
 										candidateNodes.add(e.node);
 									}
@@ -568,17 +577,13 @@ public class ExecutionGraph {
 							curNode.mergingIndex = node1.mergingIndex;
 						}
 					} else {
+						
 						// First check if there is already a node existing in G1
 						if (curNode.index == 9746) {
-							System.out.println();
+//							System.out.println();
 						}
 						node1 = getCorrespondingNode(graph1, graph2, curNode);
 						
-						if (node1 != null) {
-							System.out.println(curNode.index);
-							System.out.println(node1.index);
-							System.out.println();
-						}
 						
 						if (node1 != null) {
 							if (node1.fromWhichGraph == 1) {
@@ -609,6 +614,14 @@ public class ExecutionGraph {
 								graph1.hash2Nodes.get(node1.hash).add(node1);
 							}
 						}
+						
+						if (curNode.hash == ExecutionGraph.specialHash) {
+							if (curNode.edges.get(0).node.hash != node1.edges.get(0).node.hash) {
+								System.out.println("Different main blocks!");
+								hasConflict = true;
+								break;
+							}
+						}
 
 						// And update the edges of node1
 						Edge e = new Edge(node1, isDirect, ordinal);
@@ -618,7 +631,7 @@ public class ExecutionGraph {
 					}
 
 				}
-
+				
 				// Mark as visited
 				curNode.isVisited = 1;
 
@@ -741,10 +754,15 @@ public class ExecutionGraph {
 	// Depth is how deep the query should try, by default depth == 5
 	// Return value: the score of the similarity, -1 means definitely
 	// not the same, 0 means might be
+	private final static int searchDepth = 10;
 	private static int getContextSimilarity(ExecutionGraph graph1, Node node1,
 			ExecutionGraph graph2, Node node2, int depth) {
+		if (node2.hash == ExecutionGraph.specialHash
+				&& node1.hash == ExecutionGraph.specialHash)
+			return 9999;
+		
 		if (node2.index == 11) {
-			System.out.println();
+//			System.out.println();
 		}
 		if (depth <= 0)
 			return 1;
@@ -759,9 +777,13 @@ public class ExecutionGraph {
 		// One node does not have any outgoing edges!!
 		// Just think that they might be similar...
 		if (edges1.size() == 0 || edges2.size() == 0) {
-			return 1;
+			if (edges1.size() == 0 && edges2.size() == 0)
+				return 1;
+			else
+				return 0;
 		}
 
+		boolean hasDirectBranch = false;
 		int res = -1;
 		for (int i = 0; i < edges1.size(); i++) {
 			for (int j = 0; j < edges2.size(); j++) {
@@ -774,6 +796,7 @@ public class ExecutionGraph {
 						if (e1.node.hash != e2.node.hash) {
 							return -1;
 						} else {
+							hasDirectBranch = true;
 							res = getContextSimilarity(graph1, e1.node, graph2,
 									e2.node, depth - 1);
 							if (res == -1) {
@@ -806,6 +829,8 @@ public class ExecutionGraph {
 			}
 		}
 
+		if (!hasDirectBranch && score == 0)
+			return -1;
 		return score;
 	}
 
@@ -1082,7 +1107,7 @@ public class ExecutionGraph {
 						edges.put(node2, flag);
 						node1.edges.add(new Edge(node2, flag));
 					} else {
-						System.out.println();
+//						System.out.println();
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -1245,8 +1270,15 @@ public class ExecutionGraph {
 				ExecutionGraph graph1 = buildGraphsFromRunDir(
 						runDirs[i].getAbsolutePath()).get(0), graph2 = buildGraphsFromRunDir(
 						runDirs[j].getAbsolutePath()).get(0);
+				graph1.dumpGraph("graph-files/" + graph1.progName + graph1.pid + ".dot");
+				graph2.dumpGraph("graph-files/" + graph2.progName + graph2.pid + ".dot");
+				
 				System.out.println("Comparison between " + graph1.progName
 						+ graph1.pid + " & " + graph2.progName + graph2.pid);
+				if (graph1.nodes.size() < graph2.nodes.size())
+					mergeGraph(graph2, graph1);
+				else
+					mergeGraph(graph1, graph2);
 			}
 
 		}
@@ -1266,18 +1298,18 @@ public class ExecutionGraph {
 		// ExecutionGraph bigGraph = graphs.get(0);
 		// mergeGraph(bigGraph, graphs.get(1));
 
-		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		for (int i = 0; i < graphs.size(); i++) {
-			ExecutionGraph graph = graphs.get(i);
-			if (!graph.isValidGraph()) {
-				System.out.print("This is a wrong graph!");
-			}
-			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-					+ ".dot");
-		}
-		ExecutionGraph bigGraph = graphs.get(0);
-		mergeGraph(graphs.get(0), graphs.get(1));
+//		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+//		for (int i = 0; i < graphs.size(); i++) {
+//			ExecutionGraph graph = graphs.get(i);
+//			if (!graph.isValidGraph()) {
+//				System.out.print("This is a wrong graph!");
+//			}
+//			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+//					+ ".dot");
+//		}
+//		ExecutionGraph bigGraph = graphs.get(0);
+//		mergeGraph(graphs.get(0), graphs.get(1));
 		
-//		pairComparison(argvs[0]);
+		pairComparison(argvs[0]);
 	}
 }
