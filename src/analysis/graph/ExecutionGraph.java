@@ -421,7 +421,11 @@ public class ExecutionGraph {
 				// have been checked or added, but we need to update its
 				// incoming
 				// edges
-				if (curNode.index == 6945) {
+
+				if (parentNode != null && parentNode.index == 6944) {
+					System.out.println();
+				}
+				if (curNode.index == 12) {
 					System.out.println();
 				}
 				if (curNode.isVisited == 1) {
@@ -457,6 +461,9 @@ public class ExecutionGraph {
 						if (!graph1.hash2Nodes.get(node1.hash).contains(node1)) {
 							graph1.hash2Nodes.get(node1.hash).add(node1);
 						}
+					} else {
+						node1.fromWhichGraph = 0;
+						curNode.mergingIndex = node1.index;
 					}
 				} else {
 					// ParentNode is always already merged
@@ -712,6 +719,9 @@ public class ExecutionGraph {
 	// not the same, 0 means might be
 	private static int getContextSimilarity(ExecutionGraph graph1, Node node1,
 			ExecutionGraph graph2, Node node2, int depth) {
+		if (node2.index == 11) {
+			System.out.println();
+		}
 		if (depth <= 0)
 			return 1;
 		if (node2.fromWhichGraph == 2 && node1.fromWhichGraph == 2) {
@@ -725,7 +735,7 @@ public class ExecutionGraph {
 		// One node does not have any outgoing edges!!
 		// Just think that they might be similar...
 		if (edges1.size() == 0 || edges2.size() == 0) {
-			return 0;
+			return 1;
 		}
 
 		int res = -1;
@@ -1212,7 +1222,10 @@ public class ExecutionGraph {
 						runDirs[j].getAbsolutePath()).get(0);
 				System.out.println("Comparison between " + graph1.progName
 						+ graph1.pid + " & " + graph2.progName + graph2.pid);
-				mergeGraph(graph1, graph2);
+				if (graph1.nodes.size() > graph2.nodes.size())
+					mergeGraph(graph1, graph2);
+				else
+					mergeGraph(graph2, graph1);
 			}
 
 		}
@@ -1242,7 +1255,7 @@ public class ExecutionGraph {
 		// + ".dot");
 		// }
 		// ExecutionGraph bigGraph = graphs.get(0);
-		// mergeGraph(bigGraph, graphs.get(1));
+		// mergeGraph(graphs.get(1), graphs.get(0));
 		pairComparison(argvs[0]);
 	}
 }
