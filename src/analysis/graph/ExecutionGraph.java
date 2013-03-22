@@ -37,7 +37,7 @@ public class ExecutionGraph {
 		int score = 0;
 
 		public String toString() {
-			return Long.toHexString(hash);
+			return Long.toHexString(hash) + ":" + score + ":" + index;
 		}
 
 		public Node(Node anotherNode) {
@@ -279,6 +279,9 @@ public class ExecutionGraph {
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2) {
 
+		if (node2.hash == new BigInteger("1157ceaa0", 16).longValue()) {
+			System.out.println();
+		}
 		int mergingIndex = node2.mergingIndex;
 		if (mergingIndex == -1) {
 			// This node does not belongs to G1 and
@@ -307,16 +310,18 @@ public class ExecutionGraph {
 				}
 				// If the highest score is 0, we can't believe
 				// that they are the same node
-				if (candidates.get(pos).score > 0) {
-					return candidates.get(pos);
+				Node mostSimilarNode = candidates.get(pos);
+				if (mostSimilarNode.score > 0) {
+					return mostSimilarNode;
 				} else {
 					return null;
 				}
 			} else if (candidates.size() == 1) {
 				// If the highest score is 0, we can't believe
 				// that they are the same node
-				if (candidates.get(0).score > 0) {
-					return candidates.get(0);
+				Node mostSimilarNode = candidates.get(0);
+				if (mostSimilarNode.score > 0) {
+					return mostSimilarNode;
 				} else {
 					return null;
 				}
@@ -363,7 +368,15 @@ public class ExecutionGraph {
 	 */
 	public static ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
-
+//		if (graph1.nodes.size() < graph2.nodes.size()) {
+//			ExecutionGraph tmp = graph1;
+//			graph1 = graph2;
+//			graph2 = tmp;
+//		}
+		
+		System.out.println(graph1.blockHashFile);
+		System.out.println(graph2.blockHashFile);
+		
 		// Merge based on the similarity of the first node ---- sanity check!
 		// FIXME: For some executions, the first node does not necessary locate
 		// in the first position!!!
@@ -419,19 +432,20 @@ public class ExecutionGraph {
 				Node parentNode = pairEdge.parent, curNode = pairEdge.child, node1 = null, parentNode1 = null;
 				// If curNode is visited, then all its out-going edges should
 				// have been checked or added, but we need to update its
-				// incoming
-				// edges
-
+				// incoming edges
 				if (parentNode != null && parentNode.index == 6944) {
 					System.out.println();
 				}
-				if (curNode.index == 12) {
+				if (curNode.index == 3049) {
 					System.out.println();
 				}
 				if (curNode.isVisited == 1) {
 					node1 = getCorrespondingNode(graph1, graph2, curNode);
 					parentNode1 = getCorrespondingNode(graph1, graph2,
 							parentNode);
+					assert (node1.mergingIndex == curNode.mergingIndex);
+					assert (parentNode1.mergingIndex == parentNode.mergingIndex);
+					
 					Edge e = new Edge(node1, pairEdge.isDirect,
 							pairEdge.ordinal);
 					if (!parentNode1.edges.contains(e)) {
@@ -555,7 +569,17 @@ public class ExecutionGraph {
 						}
 					} else {
 						// First check if there is already a node existing in G1
+						if (curNode.index == 9746) {
+							System.out.println();
+						}
 						node1 = getCorrespondingNode(graph1, graph2, curNode);
+						
+						if (node1 != null) {
+							System.out.println(curNode.index);
+							System.out.println(node1.index);
+							System.out.println();
+						}
+						
 						if (node1 != null) {
 							if (node1.fromWhichGraph == 1) {
 								node1.fromWhichGraph = 0;
@@ -764,8 +788,9 @@ public class ExecutionGraph {
 						if (e1.node.hash == e2.node.hash) {
 							res = getContextSimilarity(graph1, e1.node, graph2,
 									e2.node, depth - 1);
-							if (res == -1)
-								return 1;
+							if (res == -1) {
+								score -= 1;
+							}
 							else {
 								score += res + 1;
 							}
@@ -1222,10 +1247,6 @@ public class ExecutionGraph {
 						runDirs[j].getAbsolutePath()).get(0);
 				System.out.println("Comparison between " + graph1.progName
 						+ graph1.pid + " & " + graph2.progName + graph2.pid);
-				if (graph1.nodes.size() > graph2.nodes.size())
-					mergeGraph(graph1, graph2);
-				else
-					mergeGraph(graph2, graph1);
 			}
 
 		}
@@ -1245,17 +1266,18 @@ public class ExecutionGraph {
 		// ExecutionGraph bigGraph = graphs.get(0);
 		// mergeGraph(bigGraph, graphs.get(1));
 
-		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		// for (int i = 0; i < graphs.size(); i++) {
-		// ExecutionGraph graph = graphs.get(i);
-		// if (!graph.isValidGraph()) {
-		// System.out.print("This is a wrong graph!");
-		// }
-		// graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-		// + ".dot");
-		// }
-		// ExecutionGraph bigGraph = graphs.get(0);
-		// mergeGraph(graphs.get(1), graphs.get(0));
-		pairComparison(argvs[0]);
+		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+		for (int i = 0; i < graphs.size(); i++) {
+			ExecutionGraph graph = graphs.get(i);
+			if (!graph.isValidGraph()) {
+				System.out.print("This is a wrong graph!");
+			}
+			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+					+ ".dot");
+		}
+		ExecutionGraph bigGraph = graphs.get(0);
+		mergeGraph(graphs.get(0), graphs.get(1));
+		
+//		pairComparison(argvs[0]);
 	}
 }
