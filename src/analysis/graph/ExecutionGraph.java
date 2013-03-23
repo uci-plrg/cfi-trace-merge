@@ -361,7 +361,7 @@ public class ExecutionGraph {
 
 	private ExecutionGraph buildMergedGraph(ExecutionGraph g1,
 			ExecutionGraph g2, HashMap<Integer, Integer> mergedNodes) {
-		
+
 		return null;
 	}
 
@@ -436,9 +436,9 @@ public class ExecutionGraph {
 				} else {
 					Edge curNodeEdge = new Edge(curNode, pairEdge.isDirect,
 							pairEdge.ordinal);
-					for (int l = 0; l < parentNode1.edges.size(); l++) {
-						node1 = getCorrespondingChildNode(parentNode1,
-								curNodeEdge);
+					node1 = getCorrespondingChildNode(parentNode1, curNodeEdge);
+					if (node1 != null) {
+						mergedNodes.put(node1.index, curNode.index);
 					}
 				}
 
