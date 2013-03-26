@@ -270,7 +270,7 @@ public class ExecutionGraph {
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2,
 			HashMap<Integer, Integer> mergedNodes21, HashMap<Integer, Integer> mergedNodes12) {
-		if (node2.index == 875) {
+		if (node2.index == 8519) {
 			System.out.println();
 		}
 		
@@ -281,16 +281,18 @@ public class ExecutionGraph {
 
 		// This node does not belongs to G1 and
 		// is not yet added to G1
-		ArrayList<Node> nodes = graph1.hash2Nodes.get(node2.hash);
-		if (nodes == null)
+		ArrayList<Node> nodes1 = graph1.hash2Nodes.get(node2.hash);
+		if (nodes1 == null)
 			return null;
-
+		
 		ArrayList<Node> candidates = new ArrayList<Node>();
-		for (int i = 0; i < nodes.size(); i++) {
+		for (int i = 0; i < nodes1.size(); i++) {
 			int score = 0;
-			if ((score = getContextSimilarity(nodes.get(i), node2, searchDepth)) != -1) {
-				nodes.get(i).score = score;
-				candidates.add(nodes.get(i));
+			if ((score = getContextSimilarity(nodes1.get(i), node2, searchDepth)) != -1) {
+				if (!mergedNodes12.containsKey(nodes1.get(i).index)) {
+					nodes1.get(i).score = score;
+					candidates.add(nodes1.get(i));
+				}
 			}
 		}
 		if (candidates.size() > 1) {
@@ -328,7 +330,7 @@ public class ExecutionGraph {
 	}
 
 	private static Node getCorrespondingChildNode(Node parentNode1,
-			Edge curNodeEdge) {
+			Edge curNodeEdge, HashMap<Integer, Integer> mergedNodes12) {
 		Node node1 = null, curNode = curNodeEdge.node;
 		ArrayList<Node> candidates = new ArrayList<Node>();
 		for (int i = 0; i < parentNode1.edges.size(); i++) {
@@ -349,9 +351,13 @@ public class ExecutionGraph {
 					}
 				} else {
 					if (e.node.hash == curNode.hash) {
-						if (getContextSimilarity(e.node, curNode,
-								ExecutionGraph.searchDepth) > 0) {
-							candidates.add(e.node);
+						int score = -1;
+						if ((score = getContextSimilarity(e.node, curNode,
+								ExecutionGraph.searchDepth)) > 0) {
+							if (!mergedNodes12.containsKey(e.node.index)) {
+								e.node.score = score;
+								candidates.add(e.node);
+							}
 						}
 					}
 				}
@@ -387,7 +393,6 @@ public class ExecutionGraph {
 	 */
 	public static ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
-
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.nodes.get(0).hash != graph2.nodes.get(0).hash) {
 			System.out
@@ -422,6 +427,7 @@ public class ExecutionGraph {
 //		mergedNodes21.put(0, 0);
 		
 		hasConflict = false;
+		
 		for (int i = 0; i < graph2.nodes.size() && !hasConflict; i++) {
 			Node n = graph2.nodes.get(i);
 			if (n.isVisited)
@@ -451,7 +457,7 @@ public class ExecutionGraph {
 				// This is not the first node of a graph/subgraph
 				Edge curNodeEdge = new Edge(curNode, pairEdge.isDirect,
 						pairEdge.ordinal);
-				if (curNode.index == 2040) {
+				if (curNode.index == 818) {
 					System.out.println();
 				}
 				if (parentNode != null) {
@@ -462,7 +468,7 @@ public class ExecutionGraph {
 								mergedNodes21, mergedNodes12);
 					} else {
 						node1 = getCorrespondingChildNode(parentNode1,
-								curNodeEdge);
+								curNodeEdge, mergedNodes12);
 					}
 				} else {
 					node1 = getCorrespondingNode(graph1, graph2, curNode,
@@ -554,11 +560,22 @@ public class ExecutionGraph {
 		boolean hasDirectBranch = false;
 		int res = -1;
 		int directMatches = 0, indirectMatches = 0;
+		int directEdgeSize1 = 0, directEdgeSize2 = 0,
+				indirectEdgeSize1 = 0, indirectEdgeSize2 = 0;
 		for (int i = 0; i < edges1.size(); i++) {
-			edges1.get(i).marked = false;
+			if (edges1.get(i).isDirect)
+				directEdgeSize1++;
+			else
+				indirectEdgeSize1++;
 		}
-		for (int i = 0; i < edges1.size(); i++) {
-			edges2.get(i).marked = false;
+		for (int i = 0; i < edges2.size(); i++) {
+			if (edges2.get(i).isDirect)
+				directEdgeSize2++;
+			else
+				indirectEdgeSize2++;
+		}
+		if (indirectEdgeSize1 != indirectEdgeSize2 || directEdgeSize1 != directEdgeSize2) {
+			return -1;
 		}
 		
 		for (int i = 0; i < edges1.size(); i++) {
@@ -587,18 +604,10 @@ public class ExecutionGraph {
 						if (e1.node.hash == e2.node.hash) {
 							res = getContextSimilarity(e1.node, e2.node,
 									depth - 1);
-							if (res == -1) {
-								// score -= 1;
-								return -1;
-							} else {
+							if (res != -1) {
 								score += res + 1;
+								indirectMatches++;
 							}
-							indirectMatches++;
-						} else {
-							// For indirect branches
-							// This is a tricky case
-
-							// return 1;
 						}
 					}
 				}
@@ -607,6 +616,9 @@ public class ExecutionGraph {
 
 		if (!hasDirectBranch && score == 0)
 			return -1;
+		if (indirectMatches != indirectEdgeSize1 || directMatches != directEdgeSize1) {
+			return -1;
+		}
 		return score;
 	}
 
