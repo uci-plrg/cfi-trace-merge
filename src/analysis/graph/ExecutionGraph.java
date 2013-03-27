@@ -27,6 +27,8 @@ public class ExecutionGraph {
 		private boolean isVisited;
 		// Index in the ArrayList<Node>
 		private int index;
+		// Divide the node into 3 groups
+		private int fromWhichGraph = -1;
 
 		int score = 0;
 
@@ -36,6 +38,8 @@ public class ExecutionGraph {
 
 		public Node(Node anotherNode) {
 			this(anotherNode.tag, anotherNode.hash);
+			this.index = anotherNode.index;
+			this.score = anotherNode.score;
 			// FIXME: Not a deep copy yet, because we have edges...
 		}
 
@@ -270,7 +274,8 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2,
-			HashMap<Integer, Integer> mergedNodes21, HashMap<Integer, Integer> mergedNodes12) {
+			HashMap<Integer, Integer> mergedNodes21,
+			HashMap<Integer, Integer> mergedNodes12) {
 		// First check if this is a node already merged
 		if (mergedNodes21.get(node2.index) != null) {
 			return graph1.nodes.get(mergedNodes21.get(node2.index));
@@ -281,7 +286,7 @@ public class ExecutionGraph {
 		ArrayList<Node> nodes1 = graph1.hash2Nodes.get(node2.hash);
 		if (nodes1 == null)
 			return null;
-		
+
 		ArrayList<Node> candidates = new ArrayList<Node>();
 		for (int i = 0; i < nodes1.size(); i++) {
 			int score = 0;
@@ -378,8 +383,107 @@ public class ExecutionGraph {
 	private static ExecutionGraph buildMergedGraph(ExecutionGraph g1,
 			ExecutionGraph g2, HashMap<Integer, Integer> mergedNodes12,
 			HashMap<Integer, Integer> mergedNodes21) {
+		ExecutionGraph mergedGraph = new ExecutionGraph();
+		mergedGraph.nodes = new ArrayList<Node>(g1.nodes.size()
+				+ g2.nodes.size() - mergedNodes12.size());
+		mergedGraph.progName = g1.progName;
+		// Copy nodes from G1
+		for (int i = 0; i < g1.nodes.size(); i++) {
+			Node n = new Node(g1.nodes.get(i));
+			mergedGraph.nodes.add(n);
+			if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
+				mergedGraph.hash2Nodes.put(n.hash, )
+			}
+			if (mergedNodes12.containsKey(n.index)) {
+				n.fromWhichGraph = 0;
+			} else {
+				n.fromWhichGraph = 1;
+			}
+		}
+		// Copy edges from G1
+		for (int i = 0; i < g1.nodes.size(); i++) {
+			Node n1 = g1.nodes.get(i), n = mergedGraph.nodes.get(i);
+			n.edges = new ArrayList<Edge>();
+			for (int j = 0; j < n1.edges.size(); j++) {
+				Edge e1 = n1.edges.get(j);
+				n.edges.add(new Edge(mergedGraph.nodes.get(e1.node.index),
+						e1.isDirect, e1.ordinal));
+			}
+		}
 
-		return null;
+		// Copy nodes from G2
+		HashMap<Integer, Integer> nodesFromG2 = new HashMap<Integer, Integer>();
+		for (int i = 0; i < g2.nodes.size(); i++) {
+			Node n2 = g2.nodes.get(i);
+			if (!mergedNodes21.containsKey(n2)) {
+				Node n = new Node(n2);
+				n.index = mergedGraph.nodes.size();
+				mergedGraph.nodes.add(n);
+				nodesFromG2.put(n2.index, n.index);
+			}
+		}
+
+		if (!addEdgeFromG2(mergedGraph, g2, mergedNodes21, nodesFromG2)) {
+			System.out.println("There are conflicts when merging edges!");
+			return null;
+		}
+		return mergedGraph;
+	}
+
+	
+	private static boolean addEdgeFromG2(ExecutionGraph mergedGraph, ExecutionGraph g2,
+			HashMap<Integer, Integer> mergedNodes21,
+			HashMap<Integer, Integer> nodesFromG2) {
+
+		// Merge edges from G2
+		for (int i = 0; i < g2.nodes.size(); i++) {
+			Node n2_1 = g2.nodes.get(i);
+			for (int j = 0; j < n2_1.edges.size(); j++) {
+				Edge e = n2_1.edges.get(j);
+				Node n2_2 = e.node;
+				if (mergedNodes21.containsKey(n2_1.index)
+						&& mergedNodes21.containsKey(n2_2.index)) {
+					// Both are shared nodes, need to check if there are
+					// conflicts again!
+					Node n_1 = mergedGraph.nodes.get(mergedNodes21.get(n2_1.index)), n_2 = mergedGraph.nodes
+							.get(mergedNodes21.get(n2_2.index));
+					Edge sharedEdge = null;
+					for (int k = 0; k < n_1.edges.size(); k++) {
+						if (n_1.edges.get(k).node.index == n_2.index) {
+							sharedEdge = n_1.edges.get(k);
+						}
+					}
+					if (sharedEdge == null) {
+						n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+					} else {
+						if (sharedEdge.isDirect != e.isDirect || sharedEdge.ordinal != e.ordinal) {
+							System.out.println("There are still some conflicts!");
+							return false;
+						}
+					}
+				} else if (mergedNodes21.containsKey(n2_1.index)
+						&& !mergedNodes21.containsKey(n2_2.index)) {
+					// First node is a shared node
+					Node n_1 = mergedGraph.nodes.get(mergedNodes21.get(n2_1.index)), n_2 = mergedGraph.nodes
+							.get(nodesFromG2.get(n2_2.index));
+					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+				} else if (!mergedNodes21.containsKey(n2_1.index)
+						&& mergedNodes21.containsKey(n2_2.index)) {
+					// Second node is a shared node
+					Node n_1 = mergedGraph.nodes
+							.get(nodesFromG2.get(n2_1.index)), n_2 = mergedGraph.nodes.get(mergedNodes21.get(n2_2.index));
+					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+
+				} else {
+					// Both are new nodes from G2
+					Node n_1 = mergedGraph.nodes
+							.get(nodesFromG2.get(n2_1.index)), n_2 = mergedGraph.nodes
+									.get(nodesFromG2.get(n2_2.index));
+					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -420,11 +524,11 @@ public class ExecutionGraph {
 		// nodes from both graphs
 		HashMap<Integer, Integer> mergedNodes12 = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> mergedNodes21 = new HashMap<Integer, Integer>();
-//		mergedNodes12.put(0, 0);
-//		mergedNodes21.put(0, 0);
-		
+		// mergedNodes12.put(0, 0);
+		// mergedNodes21.put(0, 0);
+
 		hasConflict = false;
-		
+
 		for (int i = 0; i < graph2.nodes.size() && !hasConflict; i++) {
 			Node n = graph2.nodes.get(i);
 			if (n.isVisited)
@@ -434,7 +538,7 @@ public class ExecutionGraph {
 			Queue<PairEdge> bfsQueue = new LinkedList<PairEdge>();
 			PairEdge pairEdge = new PairEdge(null, n, false, -1);
 			bfsQueue.add(pairEdge);
-			
+
 			while (bfsQueue.size() > 0 && !hasConflict) {
 				pairEdge = bfsQueue.remove();
 				Node parentNode = pairEdge.parent, curNode = pairEdge.child, node1 = null, parentNode1 = null;
@@ -474,21 +578,26 @@ public class ExecutionGraph {
 						mergedNodes12.put(node1.index, curNode.index);
 						mergedNodes21.put(curNode.index, node1.index);
 					} else {
+						// System.out.print(node1.index + "->");
+						// System.out.println(mergedNodes12.get(node1.index));
+						// System.out.println("Node1 has already been merged");
+						// hasConflict = true;
 						int oldIndex2 = mergedNodes12.get(node1.index);
 						mergedNodes12.put(node1.index, curNode.index);
 						mergedNodes21.put(curNode.index, node1.index);
 						mergedNodes21.remove(oldIndex2);
 						graph2.nodes.get(oldIndex2).isVisited = false;
-						bfsQueue.add(new PairEdge(null, graph2.nodes.get(oldIndex2), false, -1));
+						bfsQueue.add(new PairEdge(null, graph2.nodes
+								.get(oldIndex2), false, -1));
 					}
-					
+
 				}
 
 				if (curNode.hash == ExecutionGraph.specialHash) {
 					if (curNode.edges.get(0).node.hash != node1.edges.get(0).node.hash) {
-						System.out.println("Different main blocks!");
-//						 hasConflict = true;
-//						 break;
+						// System.out.println("Different main blocks!");
+						// hasConflict = true;
+						// break;
 					}
 				}
 
@@ -497,48 +606,31 @@ public class ExecutionGraph {
 
 		if (hasConflict) {
 			System.out.println("Can't merge the two graphs!!");
-			System.out.println(graph1.nodes.size());
-			System.out.println(graph2.nodes.size());
-			if (mergedNodes12.size() != mergedNodes21.size()) {
-				System.out.println("Merging error");
-			}
-			System.out.println("Merged nodes: " + mergedNodes12.size());
-			System.out.println("Merged nodes / G1 nodes: " + (float) mergedNodes12.size() / graph1.nodes.size());
-			System.out.println("Merged nodes / G2 nodes: " + (float) mergedNodes12.size() / graph2.nodes.size());
-			System.out.println();
+			outputMergedGraphInfo(graph1, graph2, mergedNodes12, mergedNodes21);
 			return null;
 		} else {
 			System.out.println("The two graphs merge!!");
-			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2, mergedNodes12,
-					mergedNodes21);
-			System.out.println(graph1.nodes.size());
-			System.out.println(graph2.nodes.size());
-			if (mergedNodes12.size() != mergedNodes21.size()) {
-				System.out.println("Merging error");
-			}
-			System.out.println("Merged nodes: " + mergedNodes12.size());
-			System.out.println("Merged nodes / G1 nodes: " + (float) mergedNodes12.size() / graph1.nodes.size());
-			System.out.println("Merged nodes / G2 nodes: " + (float) mergedNodes12.size() / graph2.nodes.size());
-			
-//			mergedGraph.dumpGraph("graph-files/merge.dot");
+			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2,
+					mergedNodes12, mergedNodes21);
+			outputMergedGraphInfo(graph1, graph2, mergedNodes12, mergedNodes21);
 			return mergedGraph;
 		}
 	}
 
-	private void outputMergeGraphInfo() {
-		// HashSet<Long> interPairHashes = AnalysisUtil.intersection(
-		// graph1.pairHashes, graph2.pairHashes), interBlockHashes =
-		// AnalysisUtil
-		// .intersection(graph1.blockHashes, graph2.blockHashes);
-		// HashSet<Long> totalPairHashes = new HashSet(graph1.pairHashes);
-		// totalPairHashes.addAll(graph2.pairHashes);
-		// HashSet<Long> totalBlockHashes = new HashSet(graph1.blockHashes);
-		// totalBlockHashes.addAll(graph2.blockHashes);
-
-		// System.out.println("Intersection of pair hashes: "
-		// + interPairHashes.size());
-		// System.out.println("Intersection of block hashes: "
-		// + interBlockHashes.size());
+	private static void outputMergedGraphInfo(ExecutionGraph graph1,
+			ExecutionGraph graph2, HashMap<Integer, Integer> mergedNodes12,
+			HashMap<Integer, Integer> mergedNodes21) {
+		System.out.println(graph1.nodes.size());
+		System.out.println(graph2.nodes.size());
+		if (mergedNodes12.size() != mergedNodes21.size()) {
+			System.out.println("Merging error");
+		}
+		System.out.println("Merged nodes: " + mergedNodes12.size());
+		System.out.println("Merged nodes / G1 nodes: "
+				+ (float) mergedNodes12.size() / graph1.nodes.size());
+		System.out.println("Merged nodes / G2 nodes: "
+				+ (float) mergedNodes12.size() / graph2.nodes.size());
+		System.out.println();
 	}
 
 	// Search the nearby context to check the similarity of the
@@ -569,8 +661,7 @@ public class ExecutionGraph {
 		boolean hasDirectBranch = false;
 		int res = -1;
 		int directMatches = 0, indirectMatches = 0;
-		int directEdgeSize1 = 0, directEdgeSize2 = 0,
-				indirectEdgeSize1 = 0, indirectEdgeSize2 = 0;
+		int directEdgeSize1 = 0, directEdgeSize2 = 0, indirectEdgeSize1 = 0, indirectEdgeSize2 = 0;
 		for (int i = 0; i < edges1.size(); i++) {
 			if (edges1.get(i).isDirect)
 				directEdgeSize1++;
@@ -583,10 +674,11 @@ public class ExecutionGraph {
 			else
 				indirectEdgeSize2++;
 		}
-//		if (indirectEdgeSize1 != indirectEdgeSize2 || directEdgeSize1 != directEdgeSize2) {
-//			return -1;
-//		}
-		
+		// if (indirectEdgeSize1 != indirectEdgeSize2 || directEdgeSize1 !=
+		// directEdgeSize2) {
+		// return -1;
+		// }
+
 		for (int i = 0; i < edges1.size(); i++) {
 			for (int j = 0; j < edges2.size(); j++) {
 				Edge e1 = edges1.get(i), e2 = edges2.get(j);
@@ -750,8 +842,6 @@ public class ExecutionGraph {
 
 		for (int i = 0; i < lookupFiles.size(); i++) {
 			String lookupFile = lookupFiles.get(i);
-			// if (lookupFile.indexOf("ld") == -1)
-			// continue;
 			try {
 				fileIn = new FileInputStream(lookupFile);
 				dataIn = new DataInputStream(fileIn);
@@ -820,8 +910,6 @@ public class ExecutionGraph {
 
 		for (int i = 0; i < tagFiles.size(); i++) {
 			String tagFile = tagFiles.get(i);
-			// if (tagFile.indexOf("ld") == -1)
-			// continue;
 			File file = new File(tagFile);
 			// V <= E / 2 + 1
 			FileInputStream fileIn = null;
@@ -1036,41 +1124,41 @@ public class ExecutionGraph {
 		ExecutionGraph[] graphs = new ExecutionGraph[runDirs.length];
 
 		int countFailed = 0, countMerged = 0;
+		ExecutionGraph bigGraph = buildGraphsFromRunDir(
+				runDirs[0].getAbsolutePath()).get(0);
 		for (int i = 0; i < runDirs.length; i++) {
 			for (int j = i + 1; j < runDirs.length; j++) {
 				if (runDirs[i].getName().indexOf("run") == -1
 						|| runDirs[j].getName().indexOf("run") == -1) {
 					continue;
 				}
-				
-						
-				
+
 				if (graphs[i] == null) {
 					graphs[i] = buildGraphsFromRunDir(
 							runDirs[i].getAbsolutePath()).get(0);
-					graphs[i].dumpGraph("graph-files/" + graphs[i].progName + graphs[i].pid
-							+ ".dot");
+					graphs[i].dumpGraph("graph-files/" + graphs[i].progName
+							+ graphs[i].pid + ".dot");
+					bigGraph = mergeGraph(bigGraph, graphs[i]);
 				}
 				if (graphs[j] == null) {
 					graphs[j] = buildGraphsFromRunDir(
 							runDirs[j].getAbsolutePath()).get(0);
-					graphs[j].dumpGraph("graph-files/" + graphs[j].progName + graphs[j].pid
-							+ ".dot");
+					graphs[j].dumpGraph("graph-files/" + graphs[j].progName
+							+ graphs[j].pid + ".dot");
+					bigGraph = mergeGraph(bigGraph, graphs[j]);
 				}
-				if (graphs[i].progName.equals(graphs[j].progName))
-					continue;
+				// if (graphs[i].progName.equals(graphs[j].progName))
+				// continue;
 				ExecutionGraph mergedGraph;
 				if (graphs[i].nodes.size() < graphs[j].nodes.size()) {
-					System.out
-							.println("Comparison between " + graphs[j].progName
-									+ graphs[j].pid + " & " + graphs[i].progName
-									+ graphs[i].pid);
+					System.out.println("Comparison between "
+							+ graphs[j].progName + graphs[j].pid + " & "
+							+ graphs[i].progName + graphs[i].pid);
 					mergedGraph = mergeGraph(graphs[j], graphs[i]);
 				} else {
-					System.out
-							.println("Comparison between " + graphs[i].progName
-									+ graphs[i].pid + " & " + graphs[j].progName
-									+ graphs[j].pid);
+					System.out.println("Comparison between "
+							+ graphs[i].progName + graphs[i].pid + " & "
+							+ graphs[j].progName + graphs[j].pid);
 					mergedGraph = mergeGraph(graphs[i], graphs[j]);
 				}
 
