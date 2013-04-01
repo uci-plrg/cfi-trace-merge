@@ -391,14 +391,14 @@ public class ExecutionGraph {
 		for (int i = 0; i < g1.nodes.size(); i++) {
 			Node n = new Node(g1.nodes.get(i));
 			mergedGraph.nodes.add(n);
-//			if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
-//				mergedGraph.hash2Nodes.put(n.hash, )
-//			}
-//			if (mergedNodes12.containsKey(n.index)) {
-//				n.fromWhichGraph = 0;
-//			} else {
-//				n.fromWhichGraph = 1;
-//			}
+			// if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
+			// mergedGraph.hash2Nodes.put(n.hash, )
+			// }
+			// if (mergedNodes12.containsKey(n.index)) {
+			// n.fromWhichGraph = 0;
+			// } else {
+			// n.fromWhichGraph = 1;
+			// }
 		}
 		// Copy edges from G1
 		for (int i = 0; i < g1.nodes.size(); i++) {
@@ -430,9 +430,8 @@ public class ExecutionGraph {
 		return mergedGraph;
 	}
 
-	
-	private static boolean addEdgeFromG2(ExecutionGraph mergedGraph, ExecutionGraph g2,
-			HashMap<Integer, Integer> mergedNodes21,
+	private static boolean addEdgeFromG2(ExecutionGraph mergedGraph,
+			ExecutionGraph g2, HashMap<Integer, Integer> mergedNodes21,
 			HashMap<Integer, Integer> nodesFromG2) {
 
 		// Merge edges from G2
@@ -445,7 +444,8 @@ public class ExecutionGraph {
 						&& mergedNodes21.containsKey(n2_2.index)) {
 					// Both are shared nodes, need to check if there are
 					// conflicts again!
-					Node n_1 = mergedGraph.nodes.get(mergedNodes21.get(n2_1.index)), n_2 = mergedGraph.nodes
+					Node n_1 = mergedGraph.nodes.get(mergedNodes21
+							.get(n2_1.index)), n_2 = mergedGraph.nodes
 							.get(mergedNodes21.get(n2_2.index));
 					Edge sharedEdge = null;
 					for (int k = 0; k < n_1.edges.size(); k++) {
@@ -456,29 +456,33 @@ public class ExecutionGraph {
 					if (sharedEdge == null) {
 						n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
 					} else {
-						if (sharedEdge.isDirect != e.isDirect || sharedEdge.ordinal != e.ordinal) {
-							System.out.println("There are still some conflicts!");
+						if (sharedEdge.isDirect != e.isDirect
+								|| sharedEdge.ordinal != e.ordinal) {
+							System.out
+									.println("There are still some conflicts!");
 							return false;
 						}
 					}
 				} else if (mergedNodes21.containsKey(n2_1.index)
 						&& !mergedNodes21.containsKey(n2_2.index)) {
 					// First node is a shared node
-					Node n_1 = mergedGraph.nodes.get(mergedNodes21.get(n2_1.index)), n_2 = mergedGraph.nodes
+					Node n_1 = mergedGraph.nodes.get(mergedNodes21
+							.get(n2_1.index)), n_2 = mergedGraph.nodes
 							.get(nodesFromG2.get(n2_2.index));
 					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
 				} else if (!mergedNodes21.containsKey(n2_1.index)
 						&& mergedNodes21.containsKey(n2_2.index)) {
 					// Second node is a shared node
-					Node n_1 = mergedGraph.nodes
-							.get(nodesFromG2.get(n2_1.index)), n_2 = mergedGraph.nodes.get(mergedNodes21.get(n2_2.index));
+					Node n_1 = mergedGraph.nodes.get(nodesFromG2
+							.get(n2_1.index)), n_2 = mergedGraph.nodes
+							.get(mergedNodes21.get(n2_2.index));
 					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
 
 				} else {
 					// Both are new nodes from G2
-					Node n_1 = mergedGraph.nodes
-							.get(nodesFromG2.get(n2_1.index)), n_2 = mergedGraph.nodes
-									.get(nodesFromG2.get(n2_2.index));
+					Node n_1 = mergedGraph.nodes.get(nodesFromG2
+							.get(n2_1.index)), n_2 = mergedGraph.nodes
+							.get(nodesFromG2.get(n2_2.index));
 					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
 				}
 			}
@@ -578,10 +582,6 @@ public class ExecutionGraph {
 						mergedNodes12.put(node1.index, curNode.index);
 						mergedNodes21.put(curNode.index, node1.index);
 					} else {
-						// System.out.print(node1.index + "->");
-						// System.out.println(mergedNodes12.get(node1.index));
-						// System.out.println("Node1 has already been merged");
-						// hasConflict = true;
 						int oldIndex2 = mergedNodes12.get(node1.index);
 						mergedNodes12.put(node1.index, curNode.index);
 						mergedNodes21.put(curNode.index, node1.index);
@@ -1124,8 +1124,8 @@ public class ExecutionGraph {
 		ExecutionGraph[] graphs = new ExecutionGraph[runDirs.length];
 
 		int countFailed = 0, countMerged = 0;
-		ExecutionGraph bigGraph = buildGraphsFromRunDir(
-				runDirs[0].getAbsolutePath()).get(0);
+//		ExecutionGraph bigGraph = buildGraphsFromRunDir(
+//				runDirs[0].getAbsolutePath()).get(0);
 		for (int i = 0; i < runDirs.length; i++) {
 			for (int j = i + 1; j < runDirs.length; j++) {
 				if (runDirs[i].getName().indexOf("run") == -1
@@ -1138,17 +1138,17 @@ public class ExecutionGraph {
 							runDirs[i].getAbsolutePath()).get(0);
 					graphs[i].dumpGraph("graph-files/" + graphs[i].progName
 							+ graphs[i].pid + ".dot");
-					bigGraph = mergeGraph(bigGraph, graphs[i]);
+//					bigGraph = mergeGraph(bigGraph, graphs[i]);
 				}
 				if (graphs[j] == null) {
 					graphs[j] = buildGraphsFromRunDir(
 							runDirs[j].getAbsolutePath()).get(0);
 					graphs[j].dumpGraph("graph-files/" + graphs[j].progName
 							+ graphs[j].pid + ".dot");
-					bigGraph = mergeGraph(bigGraph, graphs[j]);
+//					bigGraph = mergeGraph(bigGraph, graphs[j]);
 				}
-				// if (graphs[i].progName.equals(graphs[j].progName))
-				// continue;
+				if (graphs[i].progName.equals(graphs[j].progName))
+					continue;
 				ExecutionGraph mergedGraph;
 				if (graphs[i].nodes.size() < graphs[j].nodes.size()) {
 					System.out.println("Comparison between "
