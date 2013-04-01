@@ -391,14 +391,14 @@ public class ExecutionGraph {
 		for (int i = 0; i < g1.nodes.size(); i++) {
 			Node n = new Node(g1.nodes.get(i));
 			mergedGraph.nodes.add(n);
-			if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
-				mergedGraph.hash2Nodes.put(n.hash, )
-			}
-			if (mergedNodes12.containsKey(n.index)) {
-				n.fromWhichGraph = 0;
-			} else {
-				n.fromWhichGraph = 1;
-			}
+//			if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
+//				mergedGraph.hash2Nodes.put(n.hash, )
+//			}
+//			if (mergedNodes12.containsKey(n.index)) {
+//				n.fromWhichGraph = 0;
+//			} else {
+//				n.fromWhichGraph = 1;
+//			}
 		}
 		// Copy edges from G1
 		for (int i = 0; i < g1.nodes.size(); i++) {
