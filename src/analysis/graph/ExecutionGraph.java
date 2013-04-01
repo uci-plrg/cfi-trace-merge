@@ -422,7 +422,7 @@ public class ExecutionGraph {
 		HashMap<Integer, Integer> nodesFromG2 = new HashMap<Integer, Integer>();
 		for (int i = 0; i < g2.nodes.size(); i++) {
 			Node n2 = g2.nodes.get(i);
-			if (!mergedNodes21.containsKey(n2)) {
+			if (!mergedNodes21.containsKey(n2.index)) {
 				Node n = new Node(n2);
 				n.index = mergedGraph.nodes.size();
 				mergedGraph.nodes.add(n);
@@ -437,6 +437,12 @@ public class ExecutionGraph {
 				}
 			}
 		}
+
+		// Merge pair hashes and block hashes
+		mergedGraph.blockHashes = new HashSet<Long>(g1.blockHashes);
+		mergedGraph.blockHashes.addAll(g2.blockHashes);
+		mergedGraph.pairHashes = new HashSet<Long>(g1.pairHashes);
+		mergedGraph.pairHashes.addAll(g2.pairHashes);
 
 		if (!addEdgeFromG2(mergedGraph, g2, mergedNodes21, nodesFromG2)) {
 			System.out.println("There are conflicts when merging edges!");
@@ -577,6 +583,9 @@ public class ExecutionGraph {
 				// This is not the first node of a graph/subgraph
 				Edge curNodeEdge = new Edge(curNode, pairEdge.isDirect,
 						pairEdge.ordinal);
+				if (curNode.hash == 0x840807dd94b4e8c2l) {
+					System.out.println();
+				}
 				if (parentNode != null) {
 					parentNode1 = getCorrespondingNode(graph1, graph2,
 							parentNode, mergedNodes21, mergedNodes12);
@@ -597,10 +606,6 @@ public class ExecutionGraph {
 						mergedNodes12.put(node1.index, curNode.index);
 						mergedNodes21.put(curNode.index, node1.index);
 					} else {
-						// System.out.print(node1.index + "->");
-						// System.out.println(mergedNodes12.get(node1.index));
-						// System.out.println("Node1 has already been merged");
-						// hasConflict = true;
 						int oldIndex2 = mergedNodes12.get(node1.index);
 						mergedNodes12.put(node1.index, curNode.index);
 						mergedNodes21.put(curNode.index, node1.index);
@@ -614,9 +619,9 @@ public class ExecutionGraph {
 
 				if (curNode.hash == ExecutionGraph.specialHash) {
 					if (curNode.edges.get(0).node.hash != node1.edges.get(0).node.hash) {
-						System.out.println("Different main blocks!");
-						hasConflict = true;
-						break;
+						// System.out.println("Different main blocks!");
+						// hasConflict = true;
+						// break;
 					}
 				}
 
@@ -649,7 +654,8 @@ public class ExecutionGraph {
 				+ (float) mergedNodes12.size() / graph1.nodes.size());
 		System.out.println("Merged nodes / G2 nodes: "
 				+ (float) mergedNodes12.size() / graph2.nodes.size());
-		System.out.println();
+		System.out.println("Added "
+				+ (graph2.nodes.size() - mergedNodes12.size()) + " new nodes.");
 	}
 
 	// Search the nearby context to check the similarity of the
@@ -760,6 +766,34 @@ public class ExecutionGraph {
 
 			}
 		}
+	}
+
+	public static void dumpNodesRelationship(String fileName,
+			HashMap<Integer, Integer> mergedNodes12) {
+		File file = new File(fileName);
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		PrintWriter pwRelationFile = null;
+
+		try {
+			pwRelationFile = new PrintWriter(fileName + ".relation");
+			for (int index1 : mergedNodes12.keySet()) {
+				int index2 = mergedNodes12.get(index1);
+				pwRelationFile.println(index1 + "->" + index2);
+			}
+
+			pwRelationFile.flush();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (pwRelationFile != null)
+			pwRelationFile.close();
 	}
 
 	public long outputFirstMain() {
@@ -1167,8 +1201,8 @@ public class ExecutionGraph {
 							+ graphs[j].pid + ".dot");
 					// bigGraph = mergeGraph(bigGraph, graphs[j]);
 				}
-				if (graphs[i].progName.equals(graphs[j].progName))
-					continue;
+				// if (graphs[i].progName.equals(graphs[j].progName))
+				// continue;
 				ExecutionGraph mergedGraph;
 				if (graphs[i].nodes.size() < graphs[j].nodes.size()) {
 					System.out.println("Comparison between "
@@ -1181,7 +1215,6 @@ public class ExecutionGraph {
 							+ graphs[j].progName + graphs[j].pid);
 					mergedGraph = mergeGraph(graphs[i], graphs[j]);
 				}
-
 				if (mergedGraph != null) {
 					countMerged++;
 				} else {
@@ -1194,31 +1227,34 @@ public class ExecutionGraph {
 	}
 
 	public static void main(String[] argvs) {
-		// ArrayList<ExecutionGraph> graphs = buildGraphsFromRunDir(argvs[0]);
-		//
-		// for (int i = 0; i < graphs.size(); i++) {
-		// ExecutionGraph graph = graphs.get(i);
-		// if (!graph.isValidGraph()) {
-		// System.out.print("This is a wrong graph!");
-		// }
-		// graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-		// + ".dot");
-		// }
-		// ExecutionGraph bigGraph = graphs.get(0);
-		// mergeGraph(bigGraph, graphs.get(1));
+		ExecutionGraph bigGraph = null;
+		File file = new File(argvs[0]);
+		int i = 0;
+		int blockHashSize = 0, pairHashSize = 0;
+		for (File runDir : file.listFiles()) {
+			ExecutionGraph graph = buildGraphsFromRunDir(
+					runDir.getAbsolutePath()).get(0);
+			graph.dumpGraph("graph-files/" + graph.progName + graph.pid + ".dot");
+			if (i == 0) {
+				bigGraph = graph;
+				blockHashSize = graph.blockHashes.size();
+				pairHashSize = graph.pairHashes.size();
+			}
+			System.out.println("Merging index #" + i);
+			i++;
+			bigGraph = mergeGraph(bigGraph, graph);
+			bigGraph.dumpGraph("graph-files/" + graph.progName + "_bigGraph.dot");
+			System.out.println("Added "
+					+ (bigGraph.blockHashes.size() - blockHashSize)
+					+ " block hash.");
+			blockHashSize = bigGraph.blockHashes.size();
+			System.out.println("Added "
+					+ (bigGraph.pairHashes.size() - pairHashSize)
+					+ " pair hash.");
+			pairHashSize = bigGraph.pairHashes.size();
+			System.out.println();
+		}
 
-		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		// for (int i = 0; i < graphs.size(); i++) {
-		// ExecutionGraph graph = graphs.get(i);
-		// if (!graph.isValidGraph()) {
-		// System.out.print("This is a wrong graph!");
-		// }
-		// graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-		// + ".dot");
-		// }
-		// ExecutionGraph bigGraph = graphs.get(0);
-		// mergeGraph(graphs.get(0), graphs.get(1));
-
-		pairComparison(argvs[0]);
+		// pairComparison(argvs[0]);
 	}
 }
