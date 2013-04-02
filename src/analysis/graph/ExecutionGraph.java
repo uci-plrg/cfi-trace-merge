@@ -123,10 +123,10 @@ public class ExecutionGraph {
 			this.ordinal = ordinal;
 		}
 	}
-	
+
 	public static class PairNode {
 		public Node n1, n2;
-		
+
 		public PairNode(Node n1, Node n2) {
 			this.n1 = n1;
 			this.n2 = n2;
@@ -283,8 +283,8 @@ public class ExecutionGraph {
 
 	private static Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2,
-			HashMap<Integer, Integer> mergedNodes21,
-			HashMap<Integer, Integer> mergedNodes12) {
+			HashMap<Integer, Integer> mergedNodes12,
+			HashMap<Integer, Integer> mergedNodes21) {
 		// First check if this is a node already merged
 		if (mergedNodes21.get(node2.index) != null) {
 			return graph1.nodes.get(mergedNodes21.get(node2.index));
@@ -562,69 +562,56 @@ public class ExecutionGraph {
 				continue;
 
 			// BFS on G2
-			Queue<PairEdge> bfsQueue = new LinkedList<PairEdge>();
-			PairEdge pairEdge = new PairEdge(null, n, false, -1);
-			bfsQueue.add(pairEdge);
+			Queue<PairNode> matchedQueue = new LinkedList<PairNode>(), unmatchedQueue = new LinkedList<PairNode>();
+			PairNode pairNode = new PairNode(graph1.nodes.get(0),
+					graph2.nodes.get(0));
+			matchedQueue.add(pairNode);
 
-			while (bfsQueue.size() > 0 && !hasConflict) {
-				pairEdge = bfsQueue.remove();
-				Node parentNode = pairEdge.parent, curNode = pairEdge.child, node1 = null, parentNode1 = null;
-				if (curNode.isVisited) {
-					continue;
-				}
+			while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
+				if (matchedQueue.size() > 0) {
+					pairNode = matchedQueue.remove();
+					Node n1 = pairNode.n1, n2 = pairNode.n2;
+					if (n2.isVisited)
+						continue;
 
-				// Mark as visited and put outgoing nodes into the queue
-				curNode.isVisited = true;
-				for (Edge e : curNode.edges) {
-					if (!e.node.isVisited) {
-						bfsQueue.add(new PairEdge(curNode, e.node, e.isDirect,
-								e.ordinal));
+					// Update matched relationship
+					mergedNodes12.put(n1.index, n2.index);
+					mergedNodes21.put(n2.index, n1.index);
+
+					for (int k = 0; k < n2.edges.size(); k++) {
+						Edge e = n2.edges.get(k);
+						if (e.node.isVisited)
+							continue;
+						Node childNode1 = getCorrespondingChildNode(n1, e,
+								mergedNodes12);
+						if (childNode1 != null) {
+							matchedQueue.add(new PairNode(childNode1, e.node));
+						} else {
+							unmatchedQueue.add(new PairNode(null, e.node));
+						}
 					}
-				}
-
-				Edge curNodeEdge = new Edge(curNode, pairEdge.isDirect,
-						pairEdge.ordinal);
-				// This is not the first node of a graph/subgraph
-				if (parentNode != null) {
-					parentNode1 = getCorrespondingNode(graph1, graph2,
-							parentNode, mergedNodes21, mergedNodes12);
-					if (parentNode1 == null) {
-						node1 = getCorrespondingNode(graph1, graph2, curNode,
-								mergedNodes21, mergedNodes12);
-					} else {
-						node1 = getCorrespondingChildNode(parentNode1,
-								curNodeEdge, mergedNodes12);
-					}
+					n2.isVisited = true;
 				} else {
-					node1 = getCorrespondingNode(graph1, graph2, curNode,
-							mergedNodes21, mergedNodes12);
-				}
-				if (node1 != null) {
-					// node1 and curNode are mergeable
-					if (!mergedNodes12.containsKey(node1.index)) {
-						mergedNodes12.put(node1.index, curNode.index);
-						mergedNodes21.put(curNode.index, node1.index);
+					// try to match unmatched nodes
+					Node curNode = unmatchedQueue.remove().n2;
+					if (curNode.isVisited)
+						continue;
+
+					Node node1 = getCorrespondingNode(graph1, graph2, curNode,
+							mergedNodes12, mergedNodes21);
+					if (node1 != null) {
+						matchedQueue.add(new PairNode(node1, curNode));
 					} else {
-						// Re-match node
-						int oldIndex2 = mergedNodes12.get(node1.index);
-						mergedNodes12.put(node1.index, curNode.index);
-						mergedNodes21.put(curNode.index, node1.index);
-						mergedNodes21.remove(oldIndex2);
-						graph2.nodes.get(oldIndex2).isVisited = false;
-						bfsQueue.add(new PairEdge(null, graph2.nodes
-								.get(oldIndex2), false, -1));
+						// Simply push unvisited neighbors to unmatchedQueue
+						for (int k = 0; k < curNode.edges.size(); k++) {
+							Edge e = curNode.edges.get(k);
+							if (e.node.isVisited)
+								continue;
+							unmatchedQueue.add(new PairNode(null, e.node));
+						}
 					}
-
+					curNode.isVisited = true;
 				}
-
-				if (curNode.hash == ExecutionGraph.specialHash) {
-					if (curNode.edges.get(0).node.hash != node1.edges.get(0).node.hash) {
-						// System.out.println("Different main blocks!");
-						hasConflict = true;
-						break;
-					}
-				}
-
 			}
 		}
 
@@ -1164,8 +1151,8 @@ public class ExecutionGraph {
 		ExecutionGraph[] graphs = new ExecutionGraph[runDirs.length];
 
 		int countFailed = 0, countMerged = 0;
-		ExecutionGraph bigGraph = buildGraphsFromRunDir(
-				runDirs[0].getAbsolutePath()).get(0);
+		// ExecutionGraph bigGraph = buildGraphsFromRunDir(
+		// runDirs[0].getAbsolutePath()).get(0);
 		for (int i = 0; i < runDirs.length; i++) {
 			for (int j = i + 1; j < runDirs.length; j++) {
 				if (runDirs[i].getName().indexOf("run") == -1
@@ -1178,14 +1165,14 @@ public class ExecutionGraph {
 							runDirs[i].getAbsolutePath()).get(0);
 					graphs[i].dumpGraph("graph-files/" + graphs[i].progName
 							+ graphs[i].pid + ".dot");
-					bigGraph = mergeGraph(bigGraph, graphs[i]);
+					// bigGraph = mergeGraph(bigGraph, graphs[i]);
 				}
 				if (graphs[j] == null) {
 					graphs[j] = buildGraphsFromRunDir(
 							runDirs[j].getAbsolutePath()).get(0);
 					graphs[j].dumpGraph("graph-files/" + graphs[j].progName
 							+ graphs[j].pid + ".dot");
-					bigGraph = mergeGraph(bigGraph, graphs[j]);
+					// bigGraph = mergeGraph(bigGraph, graphs[j]);
 				}
 				// if (graphs[i].progName.equals(graphs[j].progName))
 				// continue;
@@ -1226,18 +1213,18 @@ public class ExecutionGraph {
 		// ExecutionGraph bigGraph = graphs.get(0);
 		// mergeGraph(bigGraph, graphs.get(1));
 
-		// ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
-		// for (int i = 0; i < graphs.size(); i++) {
-		// ExecutionGraph graph = graphs.get(i);
-		// if (!graph.isValidGraph()) {
-		// System.out.print("This is a wrong graph!");
-		// }
-		// graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-		// + ".dot");
-		// }
-		// ExecutionGraph bigGraph = graphs.get(0);
-		// mergeGraph(graphs.get(0), graphs.get(1));
+		ArrayList<ExecutionGraph> graphs = getGraphs(argvs[0]);
+		for (int i = 0; i < graphs.size(); i++) {
+			ExecutionGraph graph = graphs.get(i);
+			if (!graph.isValidGraph()) {
+				System.out.print("This is a wrong graph!");
+			}
+			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+					+ ".dot");
+		}
+		ExecutionGraph bigGraph = graphs.get(0);
+		mergeGraph(graphs.get(0), graphs.get(1));
 
-		pairComparison(argvs[0]);
+		// pairComparison(argvs[0]);
 	}
 }
