@@ -123,6 +123,15 @@ public class ExecutionGraph {
 			this.ordinal = ordinal;
 		}
 	}
+	
+	public static class PairNode {
+		public Node n1, n2;
+		
+		public PairNode(Node n1, Node n2) {
+			this.n1 = n1;
+			this.n2 = n2;
+		}
+	}
 
 	private HashSet<Long> pairHashes;
 	private HashSet<Long> blockHashes;
