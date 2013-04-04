@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -127,6 +128,10 @@ public class ExecutionGraph {
 		public PairNode(Node n1, Node n2) {
 			this.n1 = n1;
 			this.n2 = n2;
+		}
+		
+		public String toString() {
+			return n1.index + "<->" + n2.index;
 		}
 	}
 	
@@ -323,7 +328,7 @@ public class ExecutionGraph {
 	 * 
 	 * @param otherGraph
 	 */
-	private static final long specialHash = new BigInteger("4f1f7a5c30ae8622",
+	private static final long specialHash = new BigInteger("4f1f7a5c72ae8202",
 			16).longValue();
 	private static final long beginHash = 0x5eee92;
 
@@ -596,7 +601,7 @@ public class ExecutionGraph {
 				continue;
 			
 			// BFS on G2
-			Queue<PairNode> matchedQueue = new LinkedList<PairNode>(), unmatchedQueue = new LinkedList<PairNode>();
+			Queue<PairNode> matchedQueue = new ArrayDeque<PairNode>(), unmatchedQueue = new LinkedList<PairNode>();
 
 			// For dangling point, if matched put it in matchedQueue, else just
 			// marked as visited
@@ -615,8 +620,6 @@ public class ExecutionGraph {
 					Node n1 = pairNode.n1, n2 = pairNode.n2;
 					if (n2.isVisited)
 						continue;
-
-					
 					
 					// Update matched relationship
 					if (!matchedNodes.addPair(n1.index, n2.index)) {
@@ -627,6 +630,9 @@ public class ExecutionGraph {
 						Edge e = n2.edges.get(k);
 						if (e.node.isVisited)
 							continue;
+						if (e.node.index == 3466) {
+							System.out.println(0);
+						}
 						Node childNode1 = getCorrespondingChildNode(n1, e, matchedNodes);
 						if (childNode1 != null) {
 							// Re-match
@@ -638,9 +644,6 @@ public class ExecutionGraph {
 //										.get(oldIndex2)));
 //							}
 							matchedQueue.add(new PairNode(childNode1, e.node));
-							if (e.node.index == 6787) {
-								System.out.println();
-							}
 						} else {
 							unmatchedQueue.add(new PairNode(null, e.node));
 						}
@@ -736,24 +739,6 @@ public class ExecutionGraph {
 
 		boolean hasDirectBranch = false;
 		int res = -1;
-		int directMatches = 0, indirectMatches = 0;
-		int directEdgeSize1 = 0, directEdgeSize2 = 0, indirectEdgeSize1 = 0, indirectEdgeSize2 = 0;
-		for (int i = 0; i < edges1.size(); i++) {
-			if (edges1.get(i).isDirect)
-				directEdgeSize1++;
-			else
-				indirectEdgeSize1++;
-		}
-		for (int i = 0; i < edges2.size(); i++) {
-			if (edges2.get(i).isDirect)
-				directEdgeSize2++;
-			else
-				indirectEdgeSize2++;
-		}
-		// if (indirectEdgeSize1 != indirectEdgeSize2 || directEdgeSize1 !=
-		// directEdgeSize2) {
-		// return -1;
-		// }
 
 		for (int i = 0; i < edges1.size(); i++) {
 			for (int j = 0; j < edges2.size(); j++) {
@@ -773,7 +758,6 @@ public class ExecutionGraph {
 								return -1;
 							} else {
 								score += res + 1;
-								directMatches++;
 							}
 						}
 					} else {
@@ -783,7 +767,6 @@ public class ExecutionGraph {
 									depth - 1);
 							if (res != -1) {
 								score += res + 1;
-								indirectMatches++;
 							}
 						}
 					}
@@ -793,9 +776,6 @@ public class ExecutionGraph {
 
 		if (!hasDirectBranch && score == 0)
 			return -1;
-		if (indirectMatches != indirectEdgeSize1) {
-			return -1;
-		}
 		return score;
 	}
 
@@ -928,9 +908,12 @@ public class ExecutionGraph {
 					tag = getTagEffectiveValue(tagOriginal);
 
 					if (tagOriginal != tag) {
-						System.out.println("Tag more than 6 bytes");
-						System.out.println(Long.toHexString(tagOriginal)
-								+ " : " + Long.toHexString(tag));
+						// Ignore this entry
+						dataIn.readLong();
+						continue;
+//						System.out.println("Tag more than 6 bytes");
+//						System.out.println(Long.toHexString(tagOriginal)
+//								+ " : " + Long.toHexString(tag));
 					}
 
 					hash = AnalysisUtil.reverseForLittleEndian(dataIn
@@ -1278,6 +1261,7 @@ public class ExecutionGraph {
 					+ ".dot");
 		}
 		ExecutionGraph bigGraph = graphs.get(0);
+		System.out.println(graphs.get(0).pid + " & " + graphs.get(1).pid);
 		mergeGraph(graphs.get(0), graphs.get(1));
 
 		// pairComparison(argvs[0]);
