@@ -143,6 +143,18 @@ public class ExecutionGraph {
 			matchedNodes21 = new HashMap<Integer, Integer>();
 		}
 		
+		public boolean hasPair(int index1, int index2) {
+			if (!matchedNodes12.containsKey(index1)) {
+				return false;
+			}
+			if (matchedNodes12.get(index1) == index2) {
+				return true;
+			} else {
+				return false;
+			}
+				
+		}
+		
 		public boolean addPair(int index1, int index2) {
 			if (matchedNodes12.containsKey(index1) || matchedNodes21.containsKey(index2))
 				return false;
@@ -328,7 +340,7 @@ public class ExecutionGraph {
 	 * 
 	 * @param otherGraph
 	 */
-	private static final long specialHash = new BigInteger("4f1f7a5c72ae8202",
+	private static final long specialHash = new BigInteger("4f1f7a5c30ae8622",
 			16).longValue();
 	private static final long beginHash = 0x5eee92;
 
@@ -574,16 +586,16 @@ public class ExecutionGraph {
 		ArrayList<Node> mainBlocks1 = graph1.hash2Nodes
 				.get(ExecutionGraph.specialHash), mainBlocks2 = graph2.hash2Nodes
 				.get(ExecutionGraph.specialHash);
-		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
-			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
-					.get(0).node.hash) {
-				// System.out.println("First block not the same, not mergeable!");
-				// return null;
-			}
-		} else {
-			System.out
-					.println("Important message: more than one block to hash has the same hash!!!");
-		}
+//		if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
+//			if (mainBlocks1.get(0).edges.get(0).node.hash != mainBlocks2.get(0).edges
+//					.get(0).node.hash) {
+//				// System.out.println("First block not the same, not mergeable!");
+//				// return null;
+//			}
+//		} else {
+//			System.out
+//					.println("Important message: more than one block to hash has the same hash!!!");
+//		}
 
 		// Reset isVisited field
 		for (int i = 0; i < graph2.nodes.size(); i++) {
@@ -611,8 +623,9 @@ public class ExecutionGraph {
 				continue;
 			}
 			PairNode pairNode = new PairNode(n_1, n_2);
-
+			
 			matchedQueue.add(pairNode);
+			matchedNodes.addPair(n_1.index, n_2.index);
 
 			while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
 				if (matchedQueue.size() > 0) {
@@ -621,20 +634,16 @@ public class ExecutionGraph {
 					if (n2.isVisited)
 						continue;
 					
-					// Update matched relationship
-					if (!matchedNodes.addPair(n1.index, n2.index)) {
-						System.out.println("Node " + n1.index + " of G1 is already matched!");
-					}
-					
 					for (int k = 0; k < n2.edges.size(); k++) {
 						Edge e = n2.edges.get(k);
 						if (e.node.isVisited)
 							continue;
-						if (e.node.index == 3466) {
-							System.out.println(0);
-						}
+						
 						Node childNode1 = getCorrespondingChildNode(n1, e, matchedNodes);
 						if (childNode1 != null) {
+							if (graph1.pid == 17645 && graph2.pid == 17670 && e.node.index == -1) {
+								System.out.println();
+							}
 							// Re-match
 //							if (matchedNodes.containsKeyByFirstIndex(childNode1.index)) {
 //								int oldIndex2 = matchedNodes.getByFirstIndex(childNode1.index);
@@ -644,6 +653,16 @@ public class ExecutionGraph {
 //										.get(oldIndex2)));
 //							}
 							matchedQueue.add(new PairNode(childNode1, e.node));
+							// Update matched relationship
+							if (!matchedNodes.hasPair(childNode1.index, e.node.index)) {
+								if (childNode1.index == 4641) {
+									System.out.println();
+								}
+								if (!matchedNodes.addPair(childNode1.index, e.node.index)) {
+									System.out.println("Node " + childNode1.index + " of G1 is already matched!");
+									return null;
+								}
+							}
 						} else {
 							unmatchedQueue.add(new PairNode(null, e.node));
 						}
@@ -1244,26 +1263,26 @@ public class ExecutionGraph {
 		// ExecutionGraph bigGraph = graphs.get(0);
 		// mergeGraph(bigGraph, graphs.get(1));
 
-		File file = new File(argvs[0]);
-		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
-		int count = 0;
-		for (File runDir : file.listFiles()) {
-			if (count++ == 2)
-				break;
-			graphs.addAll(buildGraphsFromRunDir(runDir.getAbsolutePath()));
-		}
-		for (int i = 0; i < graphs.size(); i++) {
-			ExecutionGraph graph = graphs.get(i);
-			if (!graph.isValidGraph()) {
-				System.out.print("This is a wrong graph!");
-			}
-			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
-					+ ".dot");
-		}
-		ExecutionGraph bigGraph = graphs.get(0);
-		System.out.println(graphs.get(0).pid + " & " + graphs.get(1).pid);
-		mergeGraph(graphs.get(0), graphs.get(1));
+//		File file = new File(argvs[0]);
+//		ArrayList<ExecutionGraph> graphs = new ArrayList<ExecutionGraph>();
+//		int count = 0;
+//		for (File runDir : file.listFiles()) {
+//			if (count++ == 2)
+//				break;
+//			graphs.addAll(buildGraphsFromRunDir(runDir.getAbsolutePath()));
+//		}
+//		for (int i = 0; i < graphs.size(); i++) {
+//			ExecutionGraph graph = graphs.get(i);
+//			if (!graph.isValidGraph()) {
+//				System.out.print("This is a wrong graph!");
+//			}
+//			graph.dumpGraph("graph-files/" + graph.progName + "." + graph.pid
+//					+ ".dot");
+//		}
+//		ExecutionGraph bigGraph = graphs.get(0);
+//		System.out.println(graphs.get(0).pid + " & " + graphs.get(1).pid);
+//		mergeGraph(graphs.get(0), graphs.get(1));
 
-		// pairComparison(argvs[0]);
+		 pairComparison(argvs[0]);
 	}
 }
