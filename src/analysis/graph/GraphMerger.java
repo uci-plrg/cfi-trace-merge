@@ -27,6 +27,10 @@ public class GraphMerger implements Runnable {
 	 * the real main blocks. In the environment of this machine, the hash value
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
+	public GraphMerger() {
+		
+	}
+	
 	private ExecutionGraph graph1, graph2;
 	private ExecutionGraph mergedGraph;
 	
@@ -40,6 +44,12 @@ public class GraphMerger implements Runnable {
 	
 	public ExecutionGraph getMergedGraph() {
 		return mergedGraph;
+	}
+	
+	public void startMerging(ExecutionGraph g1, ExecutionGraph g2) {
+		this.graph1 = g1;
+		this.graph2 = g2;
+		this.run();
 	}
 	
 	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622",

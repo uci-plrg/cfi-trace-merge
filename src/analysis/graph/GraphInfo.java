@@ -28,8 +28,6 @@ public class GraphInfo {
 		totalPairHashes.addAll(graph2.getPairHashes());
 		HashSet<Long> totalBlockHashes = new HashSet(graph1.getBlockHashes());
 		totalBlockHashes.addAll(graph2.getBlockHashes());
-		// System.out.println("Intersection ratio of pair hashes: "
-		// + (float) interPairHashes.size() / totalPairHashes.size());
 		System.out.println("Intersection ratio of block hashes: "
 				+ (float) interBlockHashes.size() / totalBlockHashes.size());
 		int totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
@@ -125,7 +123,6 @@ public class GraphInfo {
 			pwDotFile.println("# First main block: "
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				// pw.println("node_" + Long.toHexString(nodes.get(i).hash));
 				pwDotFile.println(i + "[label=\""
 						+ Long.toHexString(graph.getNodes().get(i).getHash()) + "\"]");
 

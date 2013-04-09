@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import analysis.graph.representation.ExecutionGraph;
+
 import utils.AnalysisUtil;
 
 import gnu.getopt.Getopt;
-import analysis.graph.ExecutionGraph;
 
 
 public class ClusteringAnalysisGraph {
@@ -29,18 +30,6 @@ public class ClusteringAnalysisGraph {
 	public ClusteringAnalysisGraph(String runDir) {
 		
 	}
-	
-	private ExecutionGraph buildGraphFromRunDir(String path) {
-		ExecutionGraph g;
-		File runDir = new File(path);
-//		for (File f : runDir.listFiles()) {
-//			if (f.getName().indexOf("") != -1) {
-//				
-//			} else if
-//		}
-		return null;
-	}
-	
 	// string lines in 'fileName' should be in the format of
 	// <progName>:<hash-of-first-main-block>
 	public static void analyzeFirstMainBlock(String fileName) {
@@ -75,7 +64,7 @@ public class ClusteringAnalysisGraph {
 				System.out.println(runDir + " : invalid graph!");
 				continue;
 			}
-			long firstMainHash = g.outputFirstMain();
+			long firstMainHash = GraphInfo.outputFirstMain(g);
 			//String progName = AnalysisUtil.getProgNameFromPath(runDir);
 			if (!firstMainHashes.containsKey(firstMainHash)) {
 				firstMainHashes.put(firstMainHash, runDir);
@@ -93,7 +82,7 @@ public class ClusteringAnalysisGraph {
 	}
 	
 	public void dumpGraph(String fileName) {
-		graph.dumpGraph(fileName);
+		GraphInfo.dumpGraph(graph, fileName);
 	}
 
 	public static void main(String[] argvs) {
