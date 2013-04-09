@@ -214,68 +214,43 @@ public class GraphMerger {
 	private ExecutionGraph buildMergedGraph(ExecutionGraph g1,
 			ExecutionGraph g2, MatchedNodes matchedNodes) {
 		ExecutionGraph mergedGraph = new ExecutionGraph();
-		mergedGraph.nodes = new ArrayList<Node>(g1.nodes.size()
-				+ g2.nodes.size() - matchedNodes.size());
-		mergedGraph.progName = g1.progName;
+		mergedGraph.setProgName(g1.getProgName());
 		// Copy nodes from G1
-		for (int i = 0; i < g1.nodes.size(); i++) {
-			Node n = new Node(g1.nodes.get(i));
-			mergedGraph.nodes.add(n);
+		for (int i = 0; i < g1.getNodes().size(); i++) {
+			Node n = mergedGraph.addNode(g1.getNodes().get(i).getHash());
 
-			if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
-				mergedGraph.hash2Nodes.put(n.hash, new ArrayList<Node>());
-			}
-			mergedGraph.hash2Nodes.get(n.hash).add(n);
-
-			if (matchedNodes.containsKeyByFirstIndex(n.index)) {
-
-				n.fromWhichGraph = 0;
+			if (matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
+				n.setFromWhichGraph(0);
 			} else {
-				n.fromWhichGraph = 1;
-			}
-		}
-		// Copy hash2Nodes hash table
-		for (Long hash : g1.hash2Nodes.keySet()) {
-			ArrayList<Node> nodes = new ArrayList<Node>(), nodes1 = g1.hash2Nodes
-					.get(hash);
-			mergedGraph.hash2Nodes.put(hash, nodes);
-			for (int i = 0; i < nodes1.size(); i++) {
-				nodes.add(mergedGraph.nodes.get(nodes1.get(i).index));
+				n.setFromWhichGraph(1);
 			}
 		}
 
 		// Copy edges from G1
-		for (int i = 0; i < g1.nodes.size(); i++) {
-			Node n1 = g1.nodes.get(i), n = mergedGraph.nodes.get(i);
-			n.edges = new ArrayList<Edge>();
-			for (int j = 0; j < n1.edges.size(); j++) {
-				Edge e1 = n1.edges.get(j);
-				n.edges.add(new Edge(mergedGraph.nodes.get(e1.node.index),
-						e1.isDirect, e1.ordinal));
+		for (int i = 0; i < g1.getNodes().size(); i++) {
+			Node n1 = g1.getNodes().get(i), n = mergedGraph.getNodes().get(i);
+			for (int j = 0; j < n1.getEdges().size(); j++) {
+				Edge e1 = n1.getEdges().get(j);
+				n.addEdge(new Edge(mergedGraph.getNodes().get(e1.getNode().getIndex()),
+						e1.getIsDirect(), e1.getOrdinal()));
 			}
 		}
 
 		// Copy nodes from G2
 		HashMap<Integer, Integer> nodesFromG2 = new HashMap<Integer, Integer>();
-		for (int i = 0; i < g2.nodes.size(); i++) {
-			Node n2 = g2.nodes.get(i);
-			if (!matchedNodes.containsKeyBySecondIndex(n2.index)) {
-				Node n = new Node(n2);
-				n.index = mergedGraph.nodes.size();
-				mergedGraph.nodes.add(n);
-				nodesFromG2.put(n2.index, n.index);
-				if (!mergedGraph.hash2Nodes.containsKey(n.hash)) {
-					mergedGraph.hash2Nodes.put(n.hash, new ArrayList<Node>());
-				}
-				mergedGraph.hash2Nodes.get(n.hash).add(n);
+		for (int i = 0; i < g2.getNodes().size(); i++) {
+			Node n2 = g2.getNodes().get(i);
+			if (!matchedNodes.containsKeyBySecondIndex(n2.getIndex())) {
+				Node n = mergedGraph.addNode(n2.getHash());
+				nodesFromG2.put(n2.getIndex(), n.getIndex());
 			}
 		}
 
 		// Update block hashes and pair hashes
-		mergedGraph.blockHashes = new HashSet<Long>(g1.blockHashes);
-		mergedGraph.blockHashes.addAll(g2.blockHashes);
-		mergedGraph.pairHashes = new HashSet<Long>(g1.pairHashes);
-		mergedGraph.pairHashes.addAll(g2.pairHashes);
+		mergedGraph.addBlockHash(g1);
+		mergedGraph.addBlockHash(g2);
+		mergedGraph.addPairHash(g1);
+		mergedGraph.addPairHash(g2);
 
 		if (!addEdgeFromG2(mergedGraph, g2, matchedNodes, nodesFromG2)) {
 			System.out.println("There are conflicts when merging edges!");
@@ -289,56 +264,56 @@ public class GraphMerger {
 			HashMap<Integer, Integer> nodesFromG2) {
 
 		// Merge edges from G2
-		for (int i = 0; i < g2.nodes.size(); i++) {
-			Node n2_1 = g2.nodes.get(i);
-			for (int j = 0; j < n2_1.edges.size(); j++) {
-				Edge e = n2_1.edges.get(j);
-				Node n2_2 = e.node;
-				if (matchedNodes.containsKeyBySecondIndex(n2_1.index)
-						&& matchedNodes.containsKeyBySecondIndex(n2_2.index)) {
+		for (int i = 0; i < g2.getNodes().size(); i++) {
+			Node n2_1 = g2.getNodes().get(i);
+			for (int j = 0; j < n2_1.getEdges().size(); j++) {
+				Edge e = n2_1.getEdges().get(j);
+				Node n2_2 = e.getNode();
+				if (matchedNodes.containsKeyBySecondIndex(n2_1.getIndex())
+						&& matchedNodes.containsKeyBySecondIndex(n2_2.getIndex())) {
 					// Both are shared nodes, need to check if there are
 					// conflicts again!
-					Node n_1 = mergedGraph.nodes.get(matchedNodes
-							.getBySecondIndex(n2_1.index)), n_2 = mergedGraph.nodes
-							.get(matchedNodes.getBySecondIndex(n2_2.index));
+					Node n_1 = mergedGraph.getNodes().get(matchedNodes
+							.getBySecondIndex(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
+							.get(matchedNodes.getBySecondIndex(n2_2.getIndex()));
 					Edge sharedEdge = null;
-					for (int k = 0; k < n_1.edges.size(); k++) {
-						if (n_1.edges.get(k).node.index == n_2.index) {
-							sharedEdge = n_1.edges.get(k);
+					for (int k = 0; k < n_1.getEdges().size(); k++) {
+						if (n_1.getEdges().get(k).getNode().getIndex() == n_2.getIndex()) {
+							sharedEdge = n_1.getEdges().get(k);
 						}
 					}
 					if (sharedEdge == null) {
-						n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+						n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
 					} else {
-						if (sharedEdge.isDirect != e.isDirect
-								|| sharedEdge.ordinal != e.ordinal) {
+						if (sharedEdge.getIsDirect() != e.getIsDirect()
+								|| sharedEdge.getOrdinal() != e.getOrdinal()) {
 							System.out
 									.println("There are still some conflicts!");
 							return false;
 						}
 					}
-				} else if (matchedNodes.containsKeyBySecondIndex(n2_1.index)
-						&& !matchedNodes.containsKeyBySecondIndex(n2_2.index)) {
+				} else if (matchedNodes.containsKeyBySecondIndex(n2_1.getIndex())
+						&& !matchedNodes.containsKeyBySecondIndex(n2_2.getIndex())) {
 					// First node is a shared node
 
-					Node n_1 = mergedGraph.nodes.get(matchedNodes
-							.getBySecondIndex(n2_1.index)), n_2 = mergedGraph.nodes
-							.get(nodesFromG2.get(n2_2.index));
-					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
-				} else if (!matchedNodes.containsKeyBySecondIndex(n2_1.index)
-						&& matchedNodes.containsKeyBySecondIndex(n2_2.index)) {
+					Node n_1 = mergedGraph.getNodes().get(matchedNodes
+							.getBySecondIndex(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
+							.get(nodesFromG2.get(n2_2.getIndex()));
+					n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
+				} else if (!matchedNodes.containsKeyBySecondIndex(n2_1.getIndex())
+						&& matchedNodes.containsKeyBySecondIndex(n2_2.getIndex())) {
 					// Second node is a shared node
-					Node n_1 = mergedGraph.nodes.get(nodesFromG2
-							.get(n2_1.index)), n_2 = mergedGraph.nodes
-							.get(matchedNodes.getBySecondIndex(n2_2.index));
-					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+					Node n_1 = mergedGraph.getNodes().get(nodesFromG2
+							.get(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
+							.get(matchedNodes.getBySecondIndex(n2_2.getIndex()));
+					n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
 
 				} else {
 					// Both are new nodes from G2
-					Node n_1 = mergedGraph.nodes.get(nodesFromG2
-							.get(n2_1.index)), n_2 = mergedGraph.nodes
-							.get(nodesFromG2.get(n2_2.index));
-					n_1.edges.add(new Edge(n_2, e.isDirect, e.ordinal));
+					Node n_1 = mergedGraph.getNodes().get(nodesFromG2
+							.get(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
+							.get(nodesFromG2.get(n2_2.getIndex()));
+					n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
 				}
 			}
 		}
@@ -351,18 +326,18 @@ public class GraphMerger {
 	 * @param graph2
 	 * @return
 	 */
-	public static ExecutionGraph mergeGraph(ExecutionGraph graph1,
+	public ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
 		// Merge based on the similarity of the first node ---- sanity check!
-		if (graph1.nodes.get(0).hash != graph2.nodes.get(0).hash) {
+		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0).getHash()) {
 			System.out
 					.println("First node not the same, so wired and I can't merge...");
 			return null;
 		}
 		// Checkout if the first main block equals to each other
-		ArrayList<Node> mainBlocks1 = graph1.hash2Nodes
-				.get(ExecutionGraph.specialHash), mainBlocks2 = graph2.hash2Nodes
-				.get(ExecutionGraph.specialHash);
+		ArrayList<Node> mainBlocks1 = graph1.getHash2Nodes()
+				.get(GraphMerger.specialHash), mainBlocks2 = graph2.getHash2Nodes()
+				.get(GraphMerger.specialHash);
 
 		// if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
 		// if (mainBlocks1.get(0).edges.get(0).node.hash !=
@@ -377,8 +352,8 @@ public class GraphMerger {
 		// }
 
 		// Reset isVisited field
-		for (int i = 0; i < graph2.nodes.size(); i++) {
-			graph2.nodes.get(i).isVisited = false;
+		for (int i = 0; i < graph2.getNodes().size(); i++) {
+			graph2.getNodes().get(i).resetVisited();
 		}
 
 		// Record matched nodes
@@ -386,9 +361,9 @@ public class GraphMerger {
 
 		hasConflict = false;
 
-		for (int i = 0; i < graph2.nodes.size() && !hasConflict; i++) {
-			Node n_2 = graph2.nodes.get(i);
-			if (n_2.isVisited)
+		for (int i = 0; i < graph2.getNodes().size() && !hasConflict; i++) {
+			Node n_2 = graph2.getNodes().get(i);
+			if (n_2.isVisited())
 				continue;
 
 			// BFS on G2
@@ -398,33 +373,29 @@ public class GraphMerger {
 			// marked as visited
 			Node n_1 = getCorrespondingNode(graph1, graph2, n_2, matchedNodes);
 			if (n_1 == null) {
-				n_2.isVisited = true;
+				n_2.setVisited();
 				continue;
 			}
 			PairNode pairNode = new PairNode(n_1, n_2);
 
 			matchedQueue.add(pairNode);
-			matchedNodes.addPair(n_1.index, n_2.index);
+			matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
 
 			while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
 				if (matchedQueue.size() > 0) {
 					pairNode = matchedQueue.remove();
-					Node n1 = pairNode.n1, n2 = pairNode.n2;
-					if (n2.isVisited)
+					Node n1 = pairNode.getNode1(), n2 = pairNode.getNode2();
+					if (n2.isVisited())
 						continue;
 
-					for (int k = 0; k < n2.edges.size(); k++) {
-						Edge e = n2.edges.get(k);
-						if (e.node.isVisited)
+					for (int k = 0; k < n2.getEdges().size(); k++) {
+						Edge e = n2.getEdges().get(k);
+						if (e.getNode().isVisited())
 							continue;
 
 						Node childNode1 = getCorrespondingChildNode(n1, e,
 								matchedNodes);
 						if (childNode1 != null) {
-							if (graph1.pid == 17645 && graph2.pid == 17670
-									&& e.node.index == -1) {
-								System.out.println();
-							}
 							// Re-match
 							// if
 							// (matchedNodes.containsKeyByFirstIndex(childNode1.index))
@@ -437,30 +408,27 @@ public class GraphMerger {
 							// graph2.nodes
 							// .get(oldIndex2)));
 							// }
-							matchedQueue.add(new PairNode(childNode1, e.node));
+							matchedQueue.add(new PairNode(childNode1, e.getNode()));
 							// Update matched relationship
-							if (!matchedNodes.hasPair(childNode1.index,
-									e.node.index)) {
-								if (childNode1.index == 4641) {
-									System.out.println();
-								}
-								if (!matchedNodes.addPair(childNode1.index,
-										e.node.index)) {
+							if (!matchedNodes.hasPair(childNode1.getIndex(),
+									e.getNode().getIndex())) {
+								if (!matchedNodes.addPair(childNode1.getIndex(),
+										e.getNode().getIndex())) {
 									System.out.println("Node "
-											+ childNode1.index
+											+ childNode1.getIndex()
 											+ " of G1 is already matched!");
 									return null;
 								}
 							}
 						} else {
-							unmatchedQueue.add(new PairNode(null, e.node));
+							unmatchedQueue.add(new PairNode(null, e.getNode()));
 						}
 					}
-					n2.isVisited = true;
+					n2.setVisited();
 				} else {
 					// try to match unmatched nodes
-					Node curNode = unmatchedQueue.remove().n2;
-					if (curNode.isVisited)
+					Node curNode = unmatchedQueue.remove().getNode2();
+					if (curNode.isVisited())
 						continue;
 
 					Node node1 = getCorrespondingNode(graph1, graph2, curNode,
@@ -469,27 +437,25 @@ public class GraphMerger {
 						matchedQueue.add(new PairNode(node1, curNode));
 					} else {
 						// Simply push unvisited neighbors to unmatchedQueue
-						for (int k = 0; k < curNode.edges.size(); k++) {
-							Edge e = curNode.edges.get(k);
-							if (e.node.isVisited)
+						for (int k = 0; k < curNode.getEdges().size(); k++) {
+							Edge e = curNode.getEdges().get(k);
+							if (e.getNode().isVisited())
 								continue;
-							unmatchedQueue.add(new PairNode(null, e.node));
+							unmatchedQueue.add(new PairNode(null, e.getNode()));
 						}
 					}
-					curNode.isVisited = true;
+					curNode.setVisited();
 				}
 			}
 		}
 
 		if (hasConflict) {
 			System.out.println("Can't merge the two graphs!!");
-			outputMergedGraphInfo(graph1, graph2, matchedNodes);
 			return null;
 		} else {
 			System.out.println("The two graphs merge!!");
 			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2,
 					matchedNodes);
-			outputMergedGraphInfo(graph1, graph2, matchedNodes);
 			return mergedGraph;
 		}
 	}

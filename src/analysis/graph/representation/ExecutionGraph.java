@@ -53,19 +53,43 @@ public class ExecutionGraph {
 		
 	}
 
-	// Add a node with hashcode hash
-	public void addNode(long hash) {
-		Node 
+	// Add a node with hashcode hash and return the newly
+	// created node
+	public Node addNode(long hash) {
+		Node n = new Node(hash, nodes.size());
+		nodes.add(n);
+		if (!hash2Nodes.containsKey(hash)) {
+			hash2Nodes.put(hash, new ArrayList<Node>());
+		}
+		hash2Nodes.get(hash).add(n);
+		return n;
+	}
+	
+	public void addEdge(Node from, Edge e) {
+		from.addEdge(e);
+	}
+	
+	public void addBlockHash(ExecutionGraph anotherGraph) {
+		blockHashes.addAll(anotherGraph.blockHashes);
+	}
+	
+	public void addPairHash(ExecutionGraph anotherGraph) {
+		pairHashes.addAll(anotherGraph.pairHashes);
+	}
+	
+	public ExecutionGraph() {
+		nodes = new ArrayList<Node>();
+		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 	}
 	
 	public ExecutionGraph(ArrayList<String> tagFiles,
 			ArrayList<String> lookupFiles) {
+		nodes = new ArrayList<Node>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 		this.progName = AnalysisUtil.getProgName(tagFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(tagFiles.get(0));
 
 		// The edges of the graph comes with an ordinal
-		HashMap<Node, HashMap<Node, Integer>> adjacentList;
 		HashMap<Long, Node> hashLookupTable = readGraphLookup(lookupFiles);
 		readGraph(tagFiles, hashLookupTable);
 		if (!isValidGraph) {
@@ -77,7 +101,7 @@ public class ExecutionGraph {
 		return progName;
 	}
 
-	private void setProgName(String progName) {
+	public void setProgName(String progName) {
 		this.progName = progName;
 	}
 
@@ -87,7 +111,7 @@ public class ExecutionGraph {
 
 	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles) {
 		HashMap<Long, Node> hashLookupTable = new HashMap<Long, Node>();
-		nodes = new ArrayList<Node>();
+		
 		FileInputStream fileIn = null;
 		DataInputStream dataIn = null;
 

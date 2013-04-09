@@ -42,6 +42,10 @@ public class Node {
 		isVisited = true;
 	}
 	
+	public boolean isVisited() {
+		return isVisited;
+	}
+	
 	public int getIndex() {
 		return index;
 	}
@@ -56,6 +60,10 @@ public class Node {
 	
 	public int getFromWhichGraph() {
 		return fromWhichGraph;
+	}
+	
+	public void setFromWhichGraph(int fromWhichGraph) {
+		this.fromWhichGraph = fromWhichGraph;
 	}
 
 	public String toString() {

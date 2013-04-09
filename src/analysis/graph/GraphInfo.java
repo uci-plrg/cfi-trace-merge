@@ -16,8 +16,7 @@ import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
 
 public class GraphInfo {
-
-	
+	private 
 	
 	public void dumpGraph(String fileName) {
 		File file = new File(fileName);
