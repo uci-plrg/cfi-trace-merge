@@ -77,6 +77,14 @@ public class ExecutionGraph {
 		pairHashes.addAll(anotherGraph.pairHashes);
 	}
 	
+	public HashSet<Long> getBlockHashes() {
+		return blockHashes;
+	}
+	
+	public HashSet<Long> getPairHashes() {
+		return pairHashes;
+	}
+	
 	public ExecutionGraph() {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
@@ -95,6 +103,10 @@ public class ExecutionGraph {
 		if (!isValidGraph) {
 			System.out.println("Pid " + pid + " is not a valid graph!");
 		}
+	}
+	
+	public int getPid() {
+		return pid;
 	}
 
 	public String getProgName() {

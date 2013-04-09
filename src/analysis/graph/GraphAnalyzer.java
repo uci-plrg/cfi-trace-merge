@@ -1,19 +1,21 @@
 package analysis.graph;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import utils.AnalysisUtil;
 
 import analysis.graph.representation.ExecutionGraph;
 
 public class GraphAnalyzer {
-
+	
 	public static void pairComparison(String dir) {
 		File file = new File(dir);
 		File[] runDirs = file.listFiles();
 		ExecutionGraph[] graphs = new ExecutionGraph[runDirs.length];
-
 		int countFailed = 0, countMerged = 0;
-		// ExecutionGraph bigGraph = buildGraphsFromRunDir(
-		// runDirs[0].getAbsolutePath()).get(0);
 
 		for (int i = 0; i < runDirs.length; i++) {
 			for (int j = i + 1; j < runDirs.length; j++) {
@@ -23,27 +25,27 @@ public class GraphAnalyzer {
 				}
 
 				if (graphs[i] == null) {
-					graphs[i] = buildGraphsFromRunDir(
+					graphs[i] = ExecutionGraph.buildGraphsFromRunDir(
 							runDirs[i].getAbsolutePath()).get(0);
-					graphs[i].dumpGraph("graph-files/" + graphs[i].progName
-							+ graphs[i].pid + ".dot");
+					GraphInfo.dumpGraph(graphs[i], "graph-files/" + graphs[i].getProgName()
+							+ graphs[i].getPid() + ".dot");
 					// bigGraph = mergeGraph(bigGraph, graphs[i]);
 
 				}
 				if (graphs[j] == null) {
-					graphs[j] = buildGraphsFromRunDir(
+					graphs[j] = ExecutionGraph.buildGraphsFromRunDir(
 							runDirs[j].getAbsolutePath()).get(0);
-					graphs[j].dumpGraph("graph-files/" + graphs[j].progName
-							+ graphs[j].pid + ".dot");
+					GraphInfo.dumpGraph(graphs[j], "graph-files/" + graphs[j].progName
+							+ graphs[j].getPid() + ".dot");
 					// bigGraph = mergeGraph(bigGraph, graphs[j]);
 				}
 				// if (graphs[i].progName.equals(graphs[j].progName))
 				// continue;
 				ExecutionGraph mergedGraph;
-				if (graphs[i].nodes.size() < graphs[j].nodes.size()) {
+				if (graphs[i].getNodes().size() < graphs[j].getNodes().size()) {
 					System.out.println("Comparison between "
-							+ graphs[j].progName + graphs[j].pid + " & "
-							+ graphs[i].progName + graphs[i].pid);
+							+ graphs[j].getProgName() + graphs[j].getPid() + " & "
+							+ graphs[i].getProgName() + graphs[i].getPid());
 					mergedGraph = mergeGraph(graphs[j], graphs[i]);
 				} else {
 					System.out.println("Comparison between "

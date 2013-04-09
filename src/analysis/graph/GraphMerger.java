@@ -14,7 +14,7 @@ import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
 import analysis.graph.representation.PairNode;
 
-public class GraphMerger {
+public class GraphMerger implements Runnable {
 	/**
 	 * try to merge two graphs !!! Seems that every two graphs can be merged, so
 	 * maybe there should be a way to evaluate how much the two graphs conflict
@@ -26,15 +26,23 @@ public class GraphMerger {
 	 * process, at the end of which there is a indirect branch which jumps to
 	 * the real main blocks. In the environment of this machine, the hash value
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
-	 * 
-	 * FIXME Something's wrong here, the block that finally jumps to main is
-	 * 0x4f1f7a5c30ae8622, and the previously found node is actually from the
-	 * constructor of the program (__libc_csu_init). Things might get wrong
-	 * here!!!
-	 * 
-	 * @param otherGraph
 	 */
-	private static final long specialHash = new BigInteger("4f1f7a5c30ae8622",
+	private ExecutionGraph graph1, graph2;
+	private ExecutionGraph mergedGraph;
+	
+	public void setGraph1(ExecutionGraph graph1) {
+		this.graph1 = graph1;
+	}
+	
+	public void setGraph2(ExecutionGraph graph2) {
+		this.graph2 = graph2;
+	}
+	
+	public ExecutionGraph getMergedGraph() {
+		return mergedGraph;
+	}
+	
+	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622",
 			16).longValue();
 	private static final long beginHash = 0x5eee92;
 
@@ -47,7 +55,7 @@ public class GraphMerger {
 
 	private boolean hasConflict = false;
 
-	private static int getContextSimilarity(Node node1, Node node2, int depth) {
+	private int getContextSimilarity(Node node1, Node node2, int depth) {
 		if (depth <= 0)
 			return 0;
 
@@ -105,7 +113,7 @@ public class GraphMerger {
 		return score;
 	}
 
-	private static Node getCorrespondingNode(ExecutionGraph graph1,
+	private Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2, MatchedNodes matchedNodes) {
 		// First check if this is a node already merged
 		if (matchedNodes.getBySecondIndex(node2.getIndex()) != null) {
@@ -259,7 +267,7 @@ public class GraphMerger {
 		return mergedGraph;
 	}
 
-	private static boolean addEdgeFromG2(ExecutionGraph mergedGraph,
+	private boolean addEdgeFromG2(ExecutionGraph mergedGraph,
 			ExecutionGraph g2, MatchedNodes matchedNodes,
 			HashMap<Integer, Integer> nodesFromG2) {
 
@@ -326,7 +334,7 @@ public class GraphMerger {
 	 * @param graph2
 	 * @return
 	 */
-	public ExecutionGraph mergeGraph(ExecutionGraph graph1,
+	private ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0).getHash()) {
@@ -458,5 +466,11 @@ public class GraphMerger {
 					matchedNodes);
 			return mergedGraph;
 		}
+	}
+
+	public void run() {
+		if (graph1 == null || graph2 == null)
+			return;
+		mergedGraph = mergeGraph(graph1, graph2);
 	}
 }
