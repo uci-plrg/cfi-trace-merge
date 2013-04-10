@@ -2,6 +2,11 @@ package analysis.graph.representation;
 
 import java.util.ArrayList;
 
+/**
+ * This is 
+ * @author peizhaoo
+ *
+ */
 public class Node {
 	private long tag, hash;
 

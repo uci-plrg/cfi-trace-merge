@@ -1,3 +1,0 @@
-dc-1.eecs.uci.edu
-dc-2.eecs.uci.edu
-dc-3.eecs.uci.edu

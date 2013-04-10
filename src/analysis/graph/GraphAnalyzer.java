@@ -11,11 +11,10 @@ import analysis.graph.representation.ExecutionGraph;
 
 public class GraphAnalyzer {
 	
-	private int numThreads = 8
-	
+	private static int numThreads = 8;
 
 	public static void main(String[] argvs) {
-		Getopt g = new Getopt("ClusteringAnalysis", argvs, "xonf:d:t:m:");
+		Getopt g = new Getopt("GraphAnalyzer", argvs, "xonf:d:t:m:");
 		int c;
 		// By default we will have numThreads number of threads
 		boolean append = true,
