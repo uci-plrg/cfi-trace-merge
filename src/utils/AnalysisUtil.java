@@ -167,6 +167,26 @@ public class AnalysisUtil {
 		}
 		return l;
 	}
+	
+	public static String getBaseNameFromPath(String path, String separator) {
+		int lastIndex = path.lastIndexOf(separator);
+		if (lastIndex == -1) {
+			return null;
+		} else {
+			return path.substring(lastIndex + 1); 
+		}
+	}
+	
+	public static String getBaseName(String dirName, String separator) {
+		File f = new File(dirName);
+		dirName = f.getName();
+		if (dirName.startsWith(separator))
+			return null;
+		if (dirName.indexOf(separator) == -1)
+			return null;
+		int endIndex = dirName.indexOf(separator);
+		return dirName.substring(0, endIndex);
+	}
 
 	public static String getProgName(String dirName) {
 		File f = new File(dirName);

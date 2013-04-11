@@ -13,10 +13,10 @@ public class Configuration {
 	public final String DEFAULT_ORIGINAL_SCRIPT_PATH = DEFAULT_RUNDR_HOME + "/launch-under-cs";
 	public final String DEFAULT_GENERATED_SCRIPTS_PATH = DEFAULT_RUNDR_HOME + "/splitted-scripts";
 	
-	private String configFile;
+	private String configFile = DEFAULT_CONFIG_FILE;
 	private HashMap<String, Integer> server2ProcessorNum;
-	private String originalScriptsPath;
-	private String generatedScriptsPath;
+	private String originalScriptsPath = DEFAULT_ORIGINAL_SCRIPT_PATH;
+	private String generatedScriptsPath = DEFAULT_GENERATED_SCRIPTS_PATH;
 	
 	private static Configuration config = null;
 	
