@@ -14,6 +14,10 @@ public class DRLauncherUtils {
 	 * @param scriptName
 	 */
 	public static void splitScript(String scriptName) {
-		BufferedReader br = new BufferedReader(new FileReader(scriptName));
+		
+	}
+	
+	public static void main(String[] argvs) {
+		System.out.println(Configuration.getConfig().getGeneratedScriptsPath());
 	}
 }
