@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -41,7 +42,7 @@ public class DRLauncherUtils {
 			totalProcessorNum += serverInfo.get(serverName);
 			server2StrBuilder.put(serverName, new StringBuilder());
 		}
-
+		
 		List<String> lines = new LinkedList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(scriptName));
@@ -84,9 +85,10 @@ public class DRLauncherUtils {
 				int processorNum = serverInfo.get(serverName);
 				if (serverIdx != serverInfo.size()) {
 					
-					int subScriptsSize = (int) ((float) processorNum / totalProcessorNum);
+					int subScriptsSize = (int) ((float) processorNum / totalProcessorNum * executionSize);
 					for (int i = 0; i < subScriptsSize; i++) {
-						strBuilder.append(iter.next());
+						curLine = iter.next();
+						strBuilder.append(curLine + "\n");
 						while (!(curLine = iter.next()).startsWith("# meta run")) {
 							if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
 								strBuilder.append(curLine + " &\n");
@@ -104,7 +106,7 @@ public class DRLauncherUtils {
 					cnt = 0;
 					while (iter.hasNext()) {
 						curLine = iter.next();
-						if (!curLine.startsWith("# meta run")) {
+						if (curLine.startsWith("# meta run")) {
 							cnt++;
 							if (cnt % processorNum == 0) {
 								strBuilder.append("wait\n");
@@ -121,7 +123,7 @@ public class DRLauncherUtils {
 
 			// Write pieces of files back to disks
 			for (String serverName : serverInfo.keySet()) {
-				writeSubScript(generatedScriptsPath + "/machine-" + serverName + "/"
+				writeSubScript(generatedScriptsPath + "/" + serverName + "/"
 						+ AnalysisUtil.getBaseNameFromPath(scriptName, "/"), server2StrBuilder.get(serverName));
 			}
 
@@ -131,12 +133,26 @@ public class DRLauncherUtils {
 			e.printStackTrace();
 		}
 	}
+	
+	public static File[] getAllScripts() {
+		String originalScriptsPath = Configuration.getConfig().getOriginalScriptsPath();
+		File dir = new File(originalScriptsPath);
+		File[] scripts = dir.listFiles();
+		return scripts;
+	}
+	
+	public static void splitScripts() {
+		File[] scripts = getAllScripts();
+		for (int i = 0; i < scripts.length; i++) {
+			splitScript(scripts[i].getAbsolutePath());
+		}
+	}
 
 	private static void writeSubScript(String fileName, StringBuilder strBuilder) {
 		try {
 			File file = new File(fileName);
 			if (!file.exists()) {
-				if (!file.mkdirs()) {
+				if (!file.getParentFile().mkdirs()) {
 					System.out.println("Can't create the necessary directories!");
 				}
 			}
@@ -144,6 +160,11 @@ public class DRLauncherUtils {
 			pw.print(strBuilder.toString());
 			pw.flush();
 			pw.close();
+			try {
+				Runtime.getRuntime().exec("chmod u+x " + file.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -151,8 +172,6 @@ public class DRLauncherUtils {
 	}
 
 	public static void main(String[] argvs) {
-		String originalScriptPath = Configuration.getConfig()
-				.getOriginalScriptsPath();
-		splitScript(originalScriptPath + "/dd-under-cs");
+		splitScripts();
 	}
 }
