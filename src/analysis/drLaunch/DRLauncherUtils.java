@@ -123,8 +123,10 @@ public class DRLauncherUtils {
 
 			// Write pieces of files back to disks
 			for (String serverName : serverInfo.keySet()) {
-				writeSubScript(generatedScriptsPath + "/" + serverName + "/"
-						+ AnalysisUtil.getBaseNameFromPath(scriptName, "/"), server2StrBuilder.get(serverName));
+				String subscriptName = generatedScriptsPath + "/" + serverName + "/"
+						+ AnalysisUtil.getBaseNameFromPath(scriptName, "/");
+				System.out.println("Writing " + subscriptName + " ...");
+				writeSubScript(subscriptName, server2StrBuilder.get(serverName));
 			}
 
 		} catch (FileNotFoundException e) {
@@ -169,9 +171,5 @@ public class DRLauncherUtils {
 			e.printStackTrace();
 		}
 
-	}
-
-	public static void main(String[] argvs) {
-		splitScripts();
 	}
 }

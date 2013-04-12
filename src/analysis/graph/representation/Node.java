@@ -16,6 +16,8 @@ public class Node {
 	private int index;
 	// Divide the node into 3 groups
 	private int fromWhichGraph = -1;
+	// Meta data of the node
+	private MetaNodeType metaNodeType;
 
 	int score = 0;
 	
@@ -29,6 +31,10 @@ public class Node {
 	
 	public ArrayList<Edge> getEdges() {
 		return edges;
+	}
+	
+	public MetaNodeType getMetaNodeType() {
+		return this.metaNodeType;
 	}
 	
 	public long getTag() {
@@ -77,30 +83,34 @@ public class Node {
 
 	// Not a deep copy, we don't care about edges...
 	public Node(Node anotherNode) {
-		this(anotherNode.tag, anotherNode.hash, anotherNode.index);
+		this(anotherNode.tag, anotherNode.hash, anotherNode.index, MetaNodeType.NORMAl);
 		this.score = anotherNode.score;
 		this.fromWhichGraph = anotherNode.fromWhichGraph;
+		this.metaNodeType = anotherNode.metaNodeType;
 	}
 	
 	// Copy 'everything' except fromWhichGraph
 	public Node(Node anotherNode, int fromWhichGraph) {
-		this(anotherNode.tag, anotherNode.hash, anotherNode.index);
+		this(anotherNode.tag, anotherNode.hash, anotherNode.index, MetaNodeType.NORMAl);
 		this.score = anotherNode.score;
 		this.fromWhichGraph = fromWhichGraph;
+		this.metaNodeType = anotherNode.metaNodeType;
 	}
 	
-	public Node(long hash, int index) {
+	public Node(long hash, int index, MetaNodeType metaNodeType) {
 		this.tag = -1;
 		this.hash = hash;
 		this.index = index;
 		this.fromWhichGraph = -1;
+		this.metaNodeType = metaNodeType;
 	}
 
-	public Node(long tag, long hash, int index) {
+	public Node(long tag, long hash, int index, MetaNodeType metaNodeType) {
 		this.tag = tag;
 		this.hash = hash;
 		this.index = index;
 		this.isVisited = false;
+		this.metaNodeType = metaNodeType;
 	}
 
 	public Node(long tag) {

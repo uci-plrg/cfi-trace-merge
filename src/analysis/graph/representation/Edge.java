@@ -2,31 +2,31 @@ package analysis.graph.representation;
 
 public class Edge {
 	private Node node;
-	private boolean isDirect;
+	private EdgeType edgeType;
 	private int ordinal;
 	
 	public Node getNode() {
 		return node;
 	}
 	
-	public boolean getIsDirect() {
-		return isDirect;
+	public EdgeType getEdgeType() {
+		return edgeType;
 	}
 	
 	public int getOrdinal() {
 		return ordinal;
 	}
 
-	public Edge(Node node, boolean isDirect, int ordinal) {
+	public Edge(Node node, EdgeType edgeType, int ordinal) {
 		this.node = node;
-		this.isDirect = isDirect;
+		this.edgeType = edgeType;
 		this.ordinal = ordinal;
 	}
 
 	public Edge(Node node, int flag) {
 		this.node = node;
 		this.ordinal = flag % 256;
-		isDirect = flag / 256 == 1;
+		edgeType = EdgeType.values()[flag / 256];
 	}
 
 	public boolean equals(Object o) {
@@ -35,7 +35,7 @@ public class Edge {
 		if (o.getClass() != Edge.class)
 			return false;
 		Edge e = (Edge) o;
-		if (e.node.getIndex() == node.getIndex() && e.isDirect == isDirect
+		if (e.node.getIndex() == node.getIndex() && e.edgeType == edgeType
 				&& e.ordinal == ordinal)
 			return true;
 		return false;

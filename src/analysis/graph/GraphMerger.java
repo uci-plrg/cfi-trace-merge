@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import analysis.graph.representation.Edge;
+import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
@@ -27,8 +28,20 @@ public class GraphMerger implements Runnable {
 	 * the real main blocks. In the environment of this machine, the hash value
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
+	
+	public static void main(String[] argvs) {
+		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
+		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(1));
+		graphMerger.startMerging();
+	}
+	
 	public GraphMerger() {
 		
+	}
+	
+	public GraphMerger(ExecutionGraph g1, ExecutionGraph g2) {
+		this.graph1 = g1;
+		this.graph2 = g2;
 	}
 	
 	private ExecutionGraph graph1, graph2;
@@ -44,6 +57,10 @@ public class GraphMerger implements Runnable {
 	
 	public ExecutionGraph getMergedGraph() {
 		return mergedGraph;
+	}
+	
+	public void startMerging() {
+		this.run();
 	}
 	
 	public void startMerging(ExecutionGraph g1, ExecutionGraph g2) {
@@ -87,10 +104,9 @@ public class GraphMerger implements Runnable {
 			for (int j = 0; j < edges2.size(); j++) {
 				Edge e1 = edges1.get(i), e2 = edges2.get(j);
 				if (e1.getOrdinal() == e2.getOrdinal()) {
-					if ((e1.getIsDirect() && !e2.getIsDirect())
-							|| (!e1.getIsDirect() && e2.getIsDirect()))
+					if (e1.getEdgeType() != e2.getEdgeType())
 						return -1;
-					if (e1.getIsDirect() && e2.getIsDirect()) {
+					if (e1.getEdgeType() == EdgeType.Direct || e1.getEdgeType() == EdgeType.Call_Continuation) {
 						hasDirectBranch = true;
 						if (e1.getNode().getHash() != e2.getNode().getHash()) {
 							return -1;
@@ -187,11 +203,11 @@ public class GraphMerger implements Runnable {
 		for (int i = 0; i < parentNode1.getEdges().size(); i++) {
 			Edge e = parentNode1.getEdges().get(i);
 			if (e.getOrdinal() == curNodeEdge.getOrdinal()) {
-				if (e.getIsDirect() != curNodeEdge.getIsDirect()) {
+				if (e.getEdgeType() != curNodeEdge.getEdgeType()) {
 					System.out.println("Different branch type happened!");
 					hasConflict = true;
 					break;
-				} else if (e.getIsDirect()) {
+				} else if (e.getEdgeType() == EdgeType.Direct || e.getEdgeType() == EdgeType.Call_Continuation) {
 					if (e.getNode().getHash() != curNode.getHash()) {
 						System.out
 								.println("Direct branch has different targets!");
@@ -235,7 +251,8 @@ public class GraphMerger implements Runnable {
 		mergedGraph.setProgName(g1.getProgName());
 		// Copy nodes from G1
 		for (int i = 0; i < g1.getNodes().size(); i++) {
-			Node n = mergedGraph.addNode(g1.getNodes().get(i).getHash());
+			Node n1 = g1.getNodes().get(i);
+			Node n = mergedGraph.addNode(n1.getHash(), n1.getMetaNodeType());
 
 			if (matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
 				n.setFromWhichGraph(0);
@@ -250,7 +267,7 @@ public class GraphMerger implements Runnable {
 			for (int j = 0; j < n1.getEdges().size(); j++) {
 				Edge e1 = n1.getEdges().get(j);
 				n.addEdge(new Edge(mergedGraph.getNodes().get(e1.getNode().getIndex()),
-						e1.getIsDirect(), e1.getOrdinal()));
+						e1.getEdgeType(), e1.getOrdinal()));
 			}
 		}
 
@@ -259,7 +276,7 @@ public class GraphMerger implements Runnable {
 		for (int i = 0; i < g2.getNodes().size(); i++) {
 			Node n2 = g2.getNodes().get(i);
 			if (!matchedNodes.containsKeyBySecondIndex(n2.getIndex())) {
-				Node n = mergedGraph.addNode(n2.getHash());
+				Node n = mergedGraph.addNode(n2.getHash(), n2.getMetaNodeType());
 				nodesFromG2.put(n2.getIndex(), n.getIndex());
 			}
 		}
@@ -301,9 +318,9 @@ public class GraphMerger implements Runnable {
 						}
 					}
 					if (sharedEdge == null) {
-						n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
+						n_1.getEdges().add(new Edge(n_2, e.getEdgeType(), e.getOrdinal()));
 					} else {
-						if (sharedEdge.getIsDirect() != e.getIsDirect()
+						if (sharedEdge.getEdgeType() != e.getEdgeType()
 								|| sharedEdge.getOrdinal() != e.getOrdinal()) {
 							System.out
 									.println("There are still some conflicts!");
@@ -317,21 +334,21 @@ public class GraphMerger implements Runnable {
 					Node n_1 = mergedGraph.getNodes().get(matchedNodes
 							.getBySecondIndex(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
 							.get(nodesFromG2.get(n2_2.getIndex()));
-					n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
+					n_1.getEdges().add(new Edge(n_2, e.getEdgeType(), e.getOrdinal()));
 				} else if (!matchedNodes.containsKeyBySecondIndex(n2_1.getIndex())
 						&& matchedNodes.containsKeyBySecondIndex(n2_2.getIndex())) {
 					// Second node is a shared node
 					Node n_1 = mergedGraph.getNodes().get(nodesFromG2
 							.get(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
 							.get(matchedNodes.getBySecondIndex(n2_2.getIndex()));
-					n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
+					n_1.getEdges().add(new Edge(n_2, e.getEdgeType(), e.getOrdinal()));
 
 				} else {
 					// Both are new nodes from G2
 					Node n_1 = mergedGraph.getNodes().get(nodesFromG2
 							.get(n2_1.getIndex())), n_2 = mergedGraph.getNodes()
 							.get(nodesFromG2.get(n2_2.getIndex()));
-					n_1.getEdges().add(new Edge(n_2, e.getIsDirect(), e.getOrdinal()));
+					n_1.getEdges().add(new Edge(n_2, e.getEdgeType(), e.getOrdinal()));
 				}
 			}
 		}
@@ -414,18 +431,6 @@ public class GraphMerger implements Runnable {
 						Node childNode1 = getCorrespondingChildNode(n1, e,
 								matchedNodes);
 						if (childNode1 != null) {
-							// Re-match
-							// if
-							// (matchedNodes.containsKeyByFirstIndex(childNode1.index))
-							// {
-							// int oldIndex2 =
-							// matchedNodes.getByFirstIndex(childNode1.index);
-							// matchedNodes.removeByFirstIndex(childNode1.index);
-							// graph2.nodes.get(oldIndex2).isVisited = false;
-							// unmatchedQueue.add(new PairNode(null,
-							// graph2.nodes
-							// .get(oldIndex2)));
-							// }
 							matchedQueue.add(new PairNode(childNode1, e.getNode()));
 							// Update matched relationship
 							if (!matchedNodes.hasPair(childNode1.getIndex(),

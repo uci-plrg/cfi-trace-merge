@@ -41,8 +41,7 @@ public class GraphInfo {
 				+ (float) matchedNodes.size() / totalNodeSize);
 		System.out.println();
 	}
-	
-	
+
 	public static void dumpNodesRelationship(String fileName,
 			HashMap<Integer, Integer> mergedNodes12) {
 		File file = new File(fileName);
@@ -70,7 +69,7 @@ public class GraphInfo {
 		if (pwRelationFile != null)
 			pwRelationFile.close();
 	}
-	
+
 	public static long outputFirstMain(ExecutionGraph graph) {
 		Node n = null;
 		long firstMainHash = -1;
@@ -88,7 +87,7 @@ public class GraphInfo {
 		}
 		return firstMainHash;
 	}
-	
+
 	public static void dumpGraph(ExecutionGraph graph, String fileName) {
 		File file = new File(fileName);
 		if (!file.exists()) {
@@ -115,7 +114,8 @@ public class GraphInfo {
 			pwNodeFile = new PrintWriter(fileName + ".node");
 
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				pwNodeFile.println(Long.toHexString(graph.getNodes().get(i).getHash()));
+				pwNodeFile.println(Long.toHexString(graph.getNodes().get(i)
+						.getHash()));
 			}
 
 			pwDotFile.println("digraph runGraph {");
@@ -124,19 +124,33 @@ public class GraphInfo {
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {
 				pwDotFile.println(i + "[label=\""
-						+ Long.toHexString(graph.getNodes().get(i).getHash()) + "\"]");
+						+ Long.toHexString(graph.getNodes().get(i).getHash())
+						+ "\"]");
 
 				ArrayList<Edge> edges = graph.getNodes().get(i).getEdges();
 				for (Edge e : edges) {
 					String branchType;
-					if (e.getIsDirect()) {
-						branchType = "d";
-					} else {
+					switch (e.getEdgeType()) {
+					case Indirect:
 						branchType = "i";
+						break;
+					case Direct:
+						branchType = "d";
+						break;
+					case Call_Continuation:
+						branchType = "c";
+						break;
+					case Unexpected_Return:
+						branchType = "u";
+						break;
+					default:
+						branchType = "";
+						break;
 					}
 
-					pwDotFile.println(i + "->" + e.getNode().getIndex() + "[label=\""
-							+ branchType + "_" + e.getOrdinal() + "\"]");
+					pwDotFile.println(i + "->" + e.getNode().getIndex()
+							+ "[label=\"" + branchType + "_" + e.getOrdinal()
+							+ "\"]");
 				}
 			}
 
@@ -153,8 +167,8 @@ public class GraphInfo {
 			pwNodeFile.close();
 
 	}
-	
+
 	public static void dumpHashCollision(ExecutionGraph graph) {
-		
+
 	}
 }

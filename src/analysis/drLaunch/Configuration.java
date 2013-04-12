@@ -79,7 +79,7 @@ public class Configuration {
 			BufferedReader br = new BufferedReader(new FileReader(fileName));
 			String curLine;
 			while ((curLine = br.readLine()) != null) {
-				if (curLine.startsWith("#"))
+				if (curLine.startsWith("#") || curLine.startsWith("\n"))
 					continue;
 				String serverName = curLine.substring(0, curLine.indexOf('\t')),
 						processorNumStr = curLine.substring(curLine.indexOf('\t') + 1);

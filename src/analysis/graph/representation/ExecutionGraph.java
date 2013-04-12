@@ -55,8 +55,8 @@ public class ExecutionGraph {
 
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public Node addNode(long hash) {
-		Node n = new Node(hash, nodes.size());
+	public Node addNode(long hash, MetaNodeType metaNodeType) {
+		Node n = new Node(hash, nodes.size(), metaNodeType);
 		nodes.add(n);
 		if (!hash2Nodes.containsKey(hash)) {
 			hash2Nodes.put(hash, new ArrayList<Node>());
@@ -132,24 +132,21 @@ public class ExecutionGraph {
 			try {
 				fileIn = new FileInputStream(lookupFile);
 				dataIn = new DataInputStream(fileIn);
-				long tag = 0, hash = 0;
+				long tag = 0, tagOriginal = 0, hash = 0;
 				while (true) {
 					// the tag and hash here is already a big-endian value
-					long tagOriginal = AnalysisUtil
+					tagOriginal = AnalysisUtil
 							.reverseForLittleEndian(dataIn.readLong());
-					tag = getTagEffectiveValue(tagOriginal);
-
-					if (tagOriginal != tag) {
-						// Ignore this entry
-						dataIn.readLong();
-						continue;
-						// System.out.println("Tag more than 6 bytes");
-						// System.out.println(Long.toHexString(tagOriginal)
-						// + " : " + Long.toHexString(tag));
-					}
-
+					System.out.println(Long.toHexString(tagOriginal));
 					hash = AnalysisUtil.reverseForLittleEndian(dataIn
 							.readLong());
+					
+					tag = getTagEffectiveValue(tagOriginal);
+					int metaNodeVal = getNodeMetaVal(tagOriginal);
+					MetaNodeType metaNodeType = MetaNodeType.values()[metaNodeVal];
+					
+					
+					
 					// Tags don't duplicate in lookup file
 					if (hashLookupTable.containsKey(tag)) {
 						if (hashLookupTable.get(tag).getHash() != hash) {
@@ -162,7 +159,7 @@ public class ExecutionGraph {
 									+ lookupFile);
 						}
 					}
-					Node node = new Node(tag, hash, nodes.size());
+					Node node = new Node(tag, hash, nodes.size(), metaNodeType);
 					hashLookupTable.put(tag, node);
 					nodes.add(node);
 
@@ -196,14 +193,9 @@ public class ExecutionGraph {
 	public static int getEdgeFlag(long tag) {
 		return new Long(tag >>> 48).intValue();
 	}
-
-	public static boolean isDirectBranch(long tag) {
-		int flag = new Long(tag >>> 48).intValue();
-		if (flag / 256 == 1) {
-			return true;
-		} else {
-			return false;
-		}
+	
+	public static int getNodeMetaVal(long tag) {
+		return new Long(tag >>> 56).intValue();
 	}
 
 	// get the lower 6 byte of the tag, which is a long integer
