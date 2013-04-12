@@ -1,13 +1,9 @@
 #!/bin/bash
 
+PROG_PATTERN=build/runcs
+pkill $PROG_PATTHERN
+scripts=$(ls $1)
 
-
-
-for ARG in  $*; do
-	command $ARG &
-	NPROC=$(($NPROC+1))
-	if [ "$NPROC" -ge 4 ]; then
-		wait
-		NPROC=0
-	fi
+for script in ${scripts[@]} ;do
+	source $1/$script
 done
