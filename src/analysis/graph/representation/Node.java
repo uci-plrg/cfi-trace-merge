@@ -18,13 +18,22 @@ public class Node {
 	private int fromWhichGraph = -1;
 	// Meta data of the node
 	private MetaNodeType metaNodeType;
+	
+	// Incomming edges, just in case they might be needed
+	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
+	public void addIncomingEdge(Edge e) {
+		if (!incomingEdges.contains(e))
+			incomingEdges.add(e);
+	}
+	
+	public ArrayList<Edge> getIncomingEdges() {
+		return incomingEdges;
+	}
+	
 
 	int score = 0;
 	
 	public void addEdge(Edge e) {
-		if (edges == null) {
-			edges = new ArrayList<Edge>();
-		}
 		if (!edges.contains(e))
 			edges.add(e);
 	}

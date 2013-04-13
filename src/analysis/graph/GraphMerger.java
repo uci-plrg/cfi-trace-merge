@@ -486,6 +486,8 @@ public class GraphMerger implements Runnable {
 	public void run() {
 		if (graph1 == null || graph2 == null)
 			return;
+		GraphInfo.dumpGraph(graph1, "graph-files/" + graph1.getProgName() + graph1.getPid() + ".dot");
+		GraphInfo.dumpGraph(graph2, "graph-files/" + graph2.getProgName() + graph2.getPid() + ".dot");
 		mergedGraph = mergeGraph(graph1, graph2);
 	}
 }
