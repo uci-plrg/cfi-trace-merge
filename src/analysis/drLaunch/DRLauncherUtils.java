@@ -29,9 +29,9 @@ public class DRLauncherUtils {
 	 * @param scriptName
 	 */
 	public static void splitScript(String scriptName) {
-		HashMap<String, Integer> serverInfo = Configuration.getConfig()
+		HashMap<String, Integer> serverInfo = DRConfiguration.getConfig()
 				.getServerInfo();
-		String generatedScriptsPath = Configuration.getConfig()
+		String generatedScriptsPath = DRConfiguration.getConfig()
 				.getGeneratedScriptsPath();
 
 		int subscriptNum = serverInfo.size();
@@ -137,7 +137,7 @@ public class DRLauncherUtils {
 	}
 	
 	public static File[] getAllScripts() {
-		String originalScriptsPath = Configuration.getConfig().getOriginalScriptsPath();
+		String originalScriptsPath = DRConfiguration.getConfig().getOriginalScriptsPath();
 		File dir = new File(originalScriptsPath);
 		File[] scripts = dir.listFiles();
 		return scripts;

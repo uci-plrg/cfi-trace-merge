@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import analysis.graph.debug.MatchingInstance;
+import analysis.graph.debug.MatchingTrace;
+import analysis.graph.debug.MatchingType;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -28,7 +31,6 @@ public class GraphMerger implements Runnable {
 	 * the real main blocks. In the environment of this machine, the hash value
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
-
 	public static void main(String[] argvs) {
 		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
 		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(1));
@@ -76,20 +78,22 @@ public class GraphMerger implements Runnable {
 	// For debugging, record the sequence of node matching
 	private static ArrayList<Integer> debug_matchedQueueHistoryIndex1;
 	private static ArrayList<Integer> debug_matchedQueueHistoryIndex2;
-	
+
 	private static ArrayList<Integer> debug_heuristicChain;
+	private static MatchingTrace debug_matchingTrace;
 
 	private static void debug_init() {
 		debug_matchedQueueHistoryIndex1 = new ArrayList<Integer>();
 		debug_matchedQueueHistoryIndex2 = new ArrayList<Integer>();
-		
+
 		debug_heuristicChain = new ArrayList<Integer>();
+		debug_matchingTrace = new MatchingTrace();
 	}
-	
+
 	private static void debug_addHeuristicChain(int index) {
 		debug_heuristicChain.add(index);
 	}
-	
+
 	private static void debug_outputHeuristicChain() {
 		for (int i = 0; i < debug_heuristicChain.size(); i++) {
 			System.out.println(debug_heuristicChain.get(i));
@@ -120,9 +124,7 @@ public class GraphMerger implements Runnable {
 	private int getContextSimilarity(Node node1, Node node2, int depth) {
 		if (depth <= 0)
 			return 0;
-		if (node1.getIndex() == 4017 && node2.getIndex() == 4050) {
-			System.out.println();
-		}
+
 		int score = 0;
 		ArrayList<Edge> edges1 = node1.getEdges(), edges2 = node2.getEdges();
 		// One node does not have any outgoing edges!!
@@ -136,7 +138,7 @@ public class GraphMerger implements Runnable {
 
 		boolean hasDirectBranch = false;
 		int res = -1;
-		
+
 		// First treat call node
 		Edge e1, e2;
 		if ((e2 = node2.getContinuationEdge()) != null
@@ -144,7 +146,10 @@ public class GraphMerger implements Runnable {
 			if (e1.getNode().getHash() != e2.getNode().getHash()) {
 				return -1;
 			} else {
-				return score = getContextSimilarity(e1.getNode(), e2.getNode(), depth - 1);
+				score = getContextSimilarity(e1.getNode(), e2.getNode(),
+						depth - 1);
+				if (score == -1)
+					return -1;
 			}
 		}
 
@@ -263,10 +268,16 @@ public class GraphMerger implements Runnable {
 				} else if (e.getEdgeType() == EdgeType.Direct
 						|| e.getEdgeType() == EdgeType.Call_Continuation) {
 					if (e.getNode().getHash() != curNode.getHash()) {
-						System.out
-								.println("Direct branch has different targets!");
-						hasConflict = true;
-						break;
+						if (e.getEdgeType() == EdgeType.Direct) {
+							System.out
+									.println("Direct branch has different targets!");
+						} else {
+							System.out
+									.println("Call continuation has different targets!");
+						}
+						// hasConflict = true;
+						// break;
+						return null;
 					} else {
 						return e.getNode();
 					}
@@ -433,7 +444,10 @@ public class GraphMerger implements Runnable {
 	 */
 	private ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
-		this.debug_init();
+
+		if (AnalysisConfiguration.debug) {
+			this.debug_init();
+		}
 
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
@@ -484,10 +498,16 @@ public class GraphMerger implements Runnable {
 				n_2.setVisited();
 				continue;
 			}
-			PairNode pairNode = new PairNode(n_1, n_2);
+			PairNode pairNode = new PairNode(n_1, n_2, 0);
 
 			matchedQueue.add(pairNode);
 			matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
+
+			if (AnalysisConfiguration.debug) {
+				this.debug_matchingTrace
+						.addInstance(new MatchingInstance(0, n_1.getIndex(),
+								n_2.getIndex(), MatchingType.Heuristic, -1));
+			}
 
 			while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
 				if (matchedQueue.size() > 0) {
@@ -496,23 +516,49 @@ public class GraphMerger implements Runnable {
 					if (n2.isVisited())
 						continue;
 
+					if (n2.getIndex() == 10) {
+						System.out.println();
+					}
 					for (int k = 0; k < n2.getEdges().size(); k++) {
 						Edge e = n2.getEdges().get(k);
 						if (e.getNode().isVisited())
 							continue;
-
-						if (e.getNode().getIndex() == 4050) {
-							System.out.println();
-						}
+						
 						Node childNode1 = getCorrespondingChildNode(n1, e,
 								matchedNodes);
 						if (childNode1 != null) {
-							
 							matchedQueue.add(new PairNode(childNode1, e
-									.getNode()));
+									.getNode(), pairNode.level + 1));
 
-							this.debug_addMatchedQueueHistory(childNode1
-									.getIndex(), e.getNode().getIndex());
+							if (AnalysisConfiguration.debug) {
+								this.debug_addMatchedQueueHistory(childNode1
+										.getIndex(), e.getNode().getIndex());
+								MatchingType type;
+								switch (e.getEdgeType()) {
+								case Call_Continuation:
+									type = MatchingType.CallingContinuation;
+									break;
+								case Direct:
+									type = MatchingType.DirectBranch;
+									break;
+								case Indirect:
+									type = MatchingType.IndirectBranch;
+									break;
+								case Unexpected_Return:
+									type = MatchingType.UnexpectedReturn;
+									break;
+								default:
+									type = null;
+									break;
+								}
+								this.debug_matchingTrace
+										.addInstance(new MatchingInstance(
+												pairNode.level + 1, childNode1
+														.getIndex(), e
+														.getNode().getIndex(),
+												type, n2.getIndex()));
+							}
+
 							// Update matched relationship
 							if (!matchedNodes.hasPair(childNode1.getIndex(), e
 									.getNode().getIndex())) {
@@ -526,29 +572,42 @@ public class GraphMerger implements Runnable {
 								}
 							}
 						} else {
-							unmatchedQueue.add(new PairNode(null, e.getNode()));
+							unmatchedQueue.add(new PairNode(null, e.getNode(),
+									pairNode.level + 1));
 						}
 					}
 					n2.setVisited();
 				} else {
 					// try to match unmatched nodes
-					Node curNode = unmatchedQueue.remove().getNode2();
+					pairNode = unmatchedQueue.remove();
+					Node curNode = pairNode.getNode2();
 					if (curNode.isVisited())
 						continue;
 
 					Node node1 = getCorrespondingNode(graph1, graph2, curNode,
 							matchedNodes);
 					if (node1 != null) {
-						this.debug_addHeuristicChain(curNode.getIndex());
-						
-						matchedQueue.add(new PairNode(node1, curNode));
+
+						if (AnalysisConfiguration.debug) {
+							this.debug_addHeuristicChain(curNode.getIndex());
+
+							this.debug_matchingTrace
+									.addInstance(new MatchingInstance(
+											pairNode.level, node1.getIndex(),
+											curNode.getIndex(),
+											MatchingType.Heuristic, -1));
+						}
+
+						matchedQueue.add(new PairNode(node1, curNode,
+								pairNode.level));
 					} else {
 						// Simply push unvisited neighbors to unmatchedQueue
 						for (int k = 0; k < curNode.getEdges().size(); k++) {
 							Edge e = curNode.getEdges().get(k);
 							if (e.getNode().isVisited())
 								continue;
-							unmatchedQueue.add(new PairNode(null, e.getNode()));
+							unmatchedQueue.add(new PairNode(null, e.getNode(),
+									pairNode.level + 1));
 						}
 					}
 					curNode.setVisited();
