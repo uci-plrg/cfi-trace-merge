@@ -1,13 +1,19 @@
 package analysis.graph.representation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
-public class MatchedNodes {
+public class MatchedNodes implements Iterable<Integer> {
 	private HashMap<Integer, Integer> matchedNodes12, matchedNodes21;
 	
 	public MatchedNodes() {
 		matchedNodes12 = new HashMap<Integer, Integer>();
 		matchedNodes21 = new HashMap<Integer, Integer>();
+	}
+	
+	public Iterator<Integer> iterator() {
+		return matchedNodes12.keySet().iterator();
 	}
 	
 	public boolean hasPair(int index1, int index2) {
@@ -19,7 +25,6 @@ public class MatchedNodes {
 		} else {
 			return false;
 		}
-			
 	}
 	
 	public boolean addPair(int index1, int index2) {
@@ -27,6 +32,7 @@ public class MatchedNodes {
 			return false;
 		matchedNodes12.put(index1, index2);
 		matchedNodes21.put(index2, index1);
+		
 		return true;
 	}
 	

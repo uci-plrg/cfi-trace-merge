@@ -11,11 +11,20 @@ import java.util.HashSet;
 import utils.AnalysisUtil;
 
 import analysis.graph.representation.Edge;
+import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
 
 public class GraphInfo {
+
+	public static void dumpMatchedNodes(MatchedNodes matchedNodes) {
+		for (int index1 : matchedNodes) {
+			int index2 = matchedNodes.getByFirstIndex(index1);
+			System.out.println(index1 + "<-->" + index2);
+		}
+	}
+
 	public static void outputMergedGraphInfo(ExecutionGraph graph1,
 			ExecutionGraph graph2, MatchedNodes matchedNodes) {
 		System.out.println(graph1.getNodes().size());
@@ -77,6 +86,11 @@ public class GraphInfo {
 			if (graph.getNodes().get(i).getHash() == GraphMerger.specialHash) {
 				n = graph.getNodes().get(i);
 				if (n.getEdges().size() > 1) {
+					for (int j = 0; j < n.getEdges().size(); j++) {
+						if (n.getEdges().get(j).getEdgeType() == EdgeType.Indirect) {
+							return n.getEdges().get(j).getNode().getHash();
+						}
+					}
 					System.out.println("More than one target!");
 					return n.getEdges().size();
 				} else {

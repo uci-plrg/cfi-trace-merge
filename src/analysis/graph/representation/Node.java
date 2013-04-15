@@ -30,6 +30,27 @@ public class Node {
 		return incomingEdges;
 	}
 	
+	/**
+	 * 
+	 * @return null for non-call node, edge for the first block of the calling procedure 
+	 */
+	public Edge getContinuationEdge() {
+		int index = getContinuationEdgeIndex();
+		if (index == -1) {
+			return null;
+		} else {
+			return edges.get(index); 
+		}
+	}
+	
+	private int getContinuationEdgeIndex() {
+		for (int i = 0; i < edges.size(); i++) {
+			if (edges.get(i).getEdgeType() == EdgeType.Call_Continuation) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
 	int score = 0;
 	

@@ -50,7 +50,7 @@ public class ExecutionGraph {
 
 	// FIXME: Deep copy of a graph
 	public ExecutionGraph(ExecutionGraph anotherGraph) {
-		
+
 	}
 
 	// Add a node with hashcode hash and return the newly
@@ -70,6 +70,8 @@ public class ExecutionGraph {
 	}
 
 	public void addBlockHash(ExecutionGraph anotherGraph) {
+		if (anotherGraph == null || anotherGraph.blockHashes == null)
+			return;
 		blockHashes.addAll(anotherGraph.blockHashes);
 	}
 
@@ -88,6 +90,8 @@ public class ExecutionGraph {
 	public ExecutionGraph() {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
+		blockHashes = new HashSet<Long>();
+		pairHashes = new HashSet<Long>();
 	}
 
 	public ExecutionGraph(ArrayList<String> tagFiles,
@@ -100,7 +104,7 @@ public class ExecutionGraph {
 		// The edges of the graph comes with an ordinal
 		HashMap<Long, Node> hashLookupTable = readGraphLookup(lookupFiles);
 		readGraph(tagFiles, hashLookupTable);
-		
+
 		validate();
 		if (!isValidGraph) {
 			System.out.println("Pid " + pid + " is not a valid graph!");
@@ -275,9 +279,9 @@ public class ExecutionGraph {
 			}
 			if (hashesNotInLookup.size() != 0) {
 				// For now, the missing lookup entry is small, just skip it
-				// isValidGraph = false;
-				System.out.println(hashesNotInLookup.size()
-						+ " tag doesn't exist in lookup file -> " + tagFile);
+//				isValidGraph = false;
+//				System.out.println(hashesNotInLookup.size()
+//						+ " tag doesn't exist in lookup file -> " + tagFile);
 			}
 
 			if (dataIn != null) {
@@ -376,22 +380,22 @@ public class ExecutionGraph {
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
 			switch (n.getMetaNodeType()) {
-				case ENTRY:
-					if (n.getIncomingEdges().size() != 0) {
-						System.out.println("Entry point has incoming edges!");
-						isValidGraph = false;
-						break outerLoop;
-					}
-					break;
-				case EXIT:
-					if (n.getEdges().size() != 0) {
-						System.out.println("Exit point has outgoing edges!");
-						isValidGraph = false;
-						break outerLoop;
-					}
-					break;
-				default:
-					break;
+			case ENTRY:
+				if (n.getIncomingEdges().size() != 0) {
+					System.out.println("Entry point has incoming edges!");
+					isValidGraph = false;
+					break outerLoop;
+				}
+				break;
+			case EXIT:
+				if (n.getEdges().size() != 0) {
+					System.out.println("Exit point has outgoing edges!");
+					isValidGraph = false;
+					break outerLoop;
+				}
+				break;
+			default:
+				break;
 			}
 		}
 		return isValidGraph;
