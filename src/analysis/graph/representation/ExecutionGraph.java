@@ -267,7 +267,8 @@ public class ExecutionGraph {
 						node1.addEdge(new Edge(node2, flag));
 						node2.addIncomingEdge(new Edge(node1, flag));
 					} else {
-						System.out.println("Multiple edges!!");
+						if (flag != edges.get(node2))
+							System.out.println("Multiple edges!!");
 					}
 				}
 			} catch (FileNotFoundException e) {

@@ -64,7 +64,7 @@ public class ClusteringAnalysisGraph {
 				System.out.println(runDir + " : invalid graph!");
 				continue;
 			}
-			long firstMainHash = GraphInfo.outputFirstMain(g);
+			long firstMainHash = GraphMergingInfo.outputFirstMain(g);
 			//String progName = AnalysisUtil.getProgNameFromPath(runDir);
 			if (!firstMainHashes.containsKey(firstMainHash)) {
 				firstMainHashes.put(firstMainHash, runDir);
@@ -82,7 +82,7 @@ public class ClusteringAnalysisGraph {
 	}
 	
 	public void dumpGraph(String fileName) {
-		GraphInfo.dumpGraph(graph, fileName);
+		GraphMergingInfo.dumpGraph(graph, fileName);
 	}
 
 	public static void main(String[] argvs) {

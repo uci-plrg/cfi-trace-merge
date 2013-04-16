@@ -18,7 +18,7 @@ import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
 import analysis.graph.representation.PairNode;
 
-public class GraphMerger implements Runnable {
+public class GraphMerger extends Thread {
 	/**
 	 * try to merge two graphs !!! Seems that every two graphs can be merged, so
 	 * maybe there should be a way to evaluate how much the two graphs conflict
@@ -122,7 +122,7 @@ public class GraphMerger implements Runnable {
 	// Depth is how deep the query should try, by default depth == 5
 	// Return value: the score of the similarity, -1 means definitely
 	// not the same, 0 means might be
-	private final static int searchDepth = 10;
+	private final static int searchDepth = 20;
 
 	private boolean hasConflict = false;
 
@@ -617,14 +617,15 @@ public class GraphMerger implements Runnable {
 		}
 
 		if (hasConflict) {
-			System.out.println("Can't merge the two graphs!!");
+//			System.out.println("Can't merge the two graphs!!");
 			return null;
 		} else {
-			System.out.println("The two graphs merge!!");
+//			System.out.println("The two graphs merge!!");
 			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2,
 					matchedNodes);
-			GraphInfo.outputMergedGraphInfo(graph1, graph2, matchedNodes);
-			// GraphInfo.dumpMatchedNodes(matchedNodes);
+			
+			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
+			mergingInfo.outputMergedGraphInfo();
 			return mergedGraph;
 		}
 	}
@@ -632,9 +633,9 @@ public class GraphMerger implements Runnable {
 	public void run() {
 		if (graph1 == null || graph2 == null)
 			return;
-		GraphInfo.dumpGraph(graph1, "graph-files/" + graph1.getProgName()
+		GraphMergingInfo.dumpGraph(graph1, "graph-files/" + graph1.getProgName()
 				+ graph1.getPid() + ".dot");
-		GraphInfo.dumpGraph(graph2, "graph-files/" + graph2.getProgName()
+		GraphMergingInfo.dumpGraph(graph2, "graph-files/" + graph2.getProgName()
 				+ graph2.getPid() + ".dot");
 		mergedGraph = mergeGraph(graph1, graph2);
 	}

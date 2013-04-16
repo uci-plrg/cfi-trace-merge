@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Configuration {
-	public final String DEFAULT_SCRIPT_HOME = "/home/peizhaoo/cs-analysis-utils/cs-analysis-utils/scripts";
+	public final String DEFAULT_SCRIPT_HOME = "/home/peizhao/cs-analysis-utils/cs-analysis-utils/scripts";
 	public final String DEFAULT_RUNDR_HOME = DEFAULT_SCRIPT_HOME + "/run-dr";
 	public final String DEFAULT_CONFIG_FILE = DEFAULT_RUNDR_HOME + "/config";
 	public final String DEFAULT_ORIGINAL_SCRIPT_PATH = DEFAULT_RUNDR_HOME + "/launch-under-cs";
