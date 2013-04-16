@@ -27,9 +27,11 @@ public class GraphInfo {
 
 	public static void outputMergedGraphInfo(ExecutionGraph graph1,
 			ExecutionGraph graph2, MatchedNodes matchedNodes) {
-		System.out.println(graph1.getNodes().size());
-		System.out.println(graph2.getNodes().size());
-
+		System.out.println("Comparison between " + graph1.getProgName() + graph1.getPid() + " & " + 
+			graph2.getProgName() + graph2.getPid() + ":");
+		
+		System.out.println("Size of nodes in graph1: " + graph1.getNodes().size());
+		System.out.println("Size of nodes in graph2: " + graph2.getNodes().size());
 		HashSet<Long> interPairHashes = AnalysisUtil.intersection(
 				graph1.getPairHashes(), graph2.getPairHashes()), interBlockHashes = AnalysisUtil
 				.intersection(graph1.getBlockHashes(), graph2.getBlockHashes());

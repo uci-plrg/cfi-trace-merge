@@ -33,8 +33,13 @@ public class GraphMerger implements Runnable {
 	 */
 	public static void main(String[] argvs) {
 		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
-		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(1));
-		graphMerger.startMerging();
+		for (int i = 0; i < graphs.size(); i++) {
+			for (int j = i + 1; j < graphs.size(); j++) {
+				GraphMerger graphMerger = new GraphMerger(graphs.get(i), graphs.get(j));
+				graphMerger.startMerging();
+			}
+		}
+		
 	}
 
 	public GraphMerger() {
@@ -261,9 +266,6 @@ public class GraphMerger implements Runnable {
 			Edge e = parentNode1.getEdges().get(i);
 			if (e.getOrdinal() == curNodeEdge.getOrdinal()) {
 				if (e.getEdgeType() != curNodeEdge.getEdgeType()) {
-					// System.out.println("Different branch type happened!");
-					// hasConflict = true;
-					// break;
 					continue;
 				} else if (e.getEdgeType() == EdgeType.Direct
 						|| e.getEdgeType() == EdgeType.Call_Continuation) {
@@ -275,9 +277,8 @@ public class GraphMerger implements Runnable {
 							System.out
 									.println("Call continuation has different targets!");
 						}
-						// hasConflict = true;
-						// break;
-						return null;
+						hasConflict = true;
+						break;
 					} else {
 						return e.getNode();
 					}
@@ -504,9 +505,9 @@ public class GraphMerger implements Runnable {
 			matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
 
 			if (AnalysisConfiguration.debug) {
-				this.debug_matchingTrace
-						.addInstance(new MatchingInstance(0, n_1.getIndex(),
-								n_2.getIndex(), MatchingType.Heuristic, -1));
+				this.debug_matchingTrace.addInstance(new MatchingInstance(0,
+						n_1.getIndex(), n_2.getIndex(), MatchingType.Heuristic,
+						-1));
 			}
 
 			while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
@@ -523,7 +524,7 @@ public class GraphMerger implements Runnable {
 						Edge e = n2.getEdges().get(k);
 						if (e.getNode().isVisited())
 							continue;
-						
+
 						Node childNode1 = getCorrespondingChildNode(n1, e,
 								matchedNodes);
 						if (childNode1 != null) {
