@@ -5,6 +5,7 @@ dc-3.eecs.uci.edu	8
 #dw-4.eecs.uci.edu	4
 #dw-5.eecs.uci.edu	3
 dw-6.eecs.uci.edu	10
+128.195.121.35	6
 #dw-8.eecs.uci.edu	10
 #demsky.eecs.uci.edu	4
 #dc-1	8M*6*4
