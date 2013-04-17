@@ -74,9 +74,10 @@ public class Node {
 	public long getHash() {
 		return hash;
 	}
-	
+	private static int cnt = 0;
 	public void resetVisited() {
 		isVisited = false;
+//		System.out.println(cnt++);
 	}
 	
 	public void setVisited() {

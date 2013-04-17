@@ -33,13 +33,9 @@ public class GraphMerger extends Thread {
 	 */
 	public static void main(String[] argvs) {
 		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
-		for (int i = 0; i < graphs.size(); i++) {
-			for (int j = i + 1; j < graphs.size(); j++) {
-				GraphMerger graphMerger = new GraphMerger(graphs.get(i), graphs.get(j));
-				graphMerger.startMerging();
-			}
-		}
-		
+		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(2));
+		graphMerger.run();
+
 	}
 
 	public GraphMerger() {
@@ -122,7 +118,7 @@ public class GraphMerger extends Thread {
 	// Depth is how deep the query should try, by default depth == 5
 	// Return value: the score of the similarity, -1 means definitely
 	// not the same, 0 means might be
-	private final static int searchDepth = 20;
+	private final static int searchDepth = 10;
 
 	private boolean hasConflict = false;
 
@@ -483,148 +479,134 @@ public class GraphMerger extends Thread {
 		MatchedNodes matchedNodes = new MatchedNodes();
 
 		hasConflict = false;
+		Node n_1 = graph1.getNodes().get(0), n_2 = graph2.getNodes().get(0);
 
-		for (int i = 0; i < graph2.getNodes().size() && !hasConflict; i++) {
-			Node n_2 = graph2.getNodes().get(i);
-			if (n_2.isVisited())
-				continue;
+		// BFS on G2
+		Queue<PairNode> matchedQueue = new ArrayDeque<PairNode>(), unmatchedQueue = new LinkedList<PairNode>();
+		PairNode pairNode = new PairNode(n_1, n_2, 0);
 
-			// BFS on G2
-			Queue<PairNode> matchedQueue = new ArrayDeque<PairNode>(), unmatchedQueue = new LinkedList<PairNode>();
+		matchedQueue.add(pairNode);
+		matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
 
-			// For dangling point, if matched put it in matchedQueue, else just
-			// marked as visited
-			Node n_1 = getCorrespondingNode(graph1, graph2, n_2, matchedNodes);
-			if (n_1 == null) {
-				n_2.setVisited();
-				continue;
-			}
-			PairNode pairNode = new PairNode(n_1, n_2, 0);
-
-			matchedQueue.add(pairNode);
-			matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
-
-			if (AnalysisConfiguration.debug) {
-				this.debug_matchingTrace.addInstance(new MatchingInstance(0,
-						n_1.getIndex(), n_2.getIndex(), MatchingType.Heuristic,
-						-1));
-			}
-
-			while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
-				if (matchedQueue.size() > 0) {
-					pairNode = matchedQueue.remove();
-					Node n1 = pairNode.getNode1(), n2 = pairNode.getNode2();
-					if (n2.isVisited())
-						continue;
-
-					if (n2.getIndex() == 10) {
-						System.out.println();
-					}
-					for (int k = 0; k < n2.getEdges().size(); k++) {
-						Edge e = n2.getEdges().get(k);
-						if (e.getNode().isVisited())
-							continue;
-
-						Node childNode1 = getCorrespondingChildNode(n1, e,
-								matchedNodes);
-						if (childNode1 != null) {
-							matchedQueue.add(new PairNode(childNode1, e
-									.getNode(), pairNode.level + 1));
-
-							if (AnalysisConfiguration.debug) {
-								this.debug_addMatchedQueueHistory(childNode1
-										.getIndex(), e.getNode().getIndex());
-								MatchingType type;
-								switch (e.getEdgeType()) {
-								case Call_Continuation:
-									type = MatchingType.CallingContinuation;
-									break;
-								case Direct:
-									type = MatchingType.DirectBranch;
-									break;
-								case Indirect:
-									type = MatchingType.IndirectBranch;
-									break;
-								case Unexpected_Return:
-									type = MatchingType.UnexpectedReturn;
-									break;
-								default:
-									type = null;
-									break;
-								}
-								this.debug_matchingTrace
-										.addInstance(new MatchingInstance(
-												pairNode.level + 1, childNode1
-														.getIndex(), e
-														.getNode().getIndex(),
-												type, n2.getIndex()));
-							}
-
-							// Update matched relationship
-							if (!matchedNodes.hasPair(childNode1.getIndex(), e
-									.getNode().getIndex())) {
-								if (!matchedNodes.addPair(
-										childNode1.getIndex(), e.getNode()
-												.getIndex())) {
-									System.out.println("Node "
-											+ childNode1.getIndex()
-											+ " of G1 is already matched!");
-									return null;
-								}
-							}
-						} else {
-							unmatchedQueue.add(new PairNode(null, e.getNode(),
-									pairNode.level + 1));
-						}
-					}
-					n2.setVisited();
-				} else {
-					// try to match unmatched nodes
-					pairNode = unmatchedQueue.remove();
-					Node curNode = pairNode.getNode2();
-					if (curNode.isVisited())
-						continue;
-
-					Node node1 = getCorrespondingNode(graph1, graph2, curNode,
-							matchedNodes);
-					if (node1 != null) {
-
-						if (AnalysisConfiguration.debug) {
-							this.debug_addHeuristicChain(curNode.getIndex());
-
-							this.debug_matchingTrace
-									.addInstance(new MatchingInstance(
-											pairNode.level, node1.getIndex(),
-											curNode.getIndex(),
-											MatchingType.Heuristic, -1));
-						}
-
-						matchedQueue.add(new PairNode(node1, curNode,
-								pairNode.level));
-					} else {
-						// Simply push unvisited neighbors to unmatchedQueue
-						for (int k = 0; k < curNode.getEdges().size(); k++) {
-							Edge e = curNode.getEdges().get(k);
-							if (e.getNode().isVisited())
-								continue;
-							unmatchedQueue.add(new PairNode(null, e.getNode(),
-									pairNode.level + 1));
-						}
-					}
-					curNode.setVisited();
-				}
-			}
+		if (AnalysisConfiguration.debug) {
+			this.debug_matchingTrace.addInstance(new MatchingInstance(0, n_1
+					.getIndex(), n_2.getIndex(), MatchingType.Heuristic, -1));
 		}
 
+		while (matchedQueue.size() > 0 || unmatchedQueue.size() > 0) {
+			if (matchedQueue.size() > 0) {
+				pairNode = matchedQueue.remove();
+				
+				// Nodes in the matchedQueue is already matched 
+				Node n1 = pairNode.getNode1(), n2 = pairNode.getNode2();
+				if (n2.isVisited())
+					continue;
+
+				for (int k = 0; k < n2.getEdges().size(); k++) {
+					Edge e = n2.getEdges().get(k);
+					if (e.getNode().isVisited())
+						continue;
+
+					Node childNode1 = getCorrespondingChildNode(n1, e,
+							matchedNodes);
+					if (childNode1 != null) {
+						matchedQueue.add(new PairNode(childNode1, e.getNode(),
+								pairNode.level + 1));
+
+						if (AnalysisConfiguration.debug) {
+							this.debug_addMatchedQueueHistory(childNode1
+									.getIndex(), e.getNode().getIndex());
+							MatchingType type;
+							switch (e.getEdgeType()) {
+							case Call_Continuation:
+								type = MatchingType.CallingContinuation;
+								break;
+							case Direct:
+								type = MatchingType.DirectBranch;
+								break;
+							case Indirect:
+								type = MatchingType.IndirectBranch;
+								break;
+							case Unexpected_Return:
+								type = MatchingType.UnexpectedReturn;
+								break;
+							default:
+								type = null;
+								break;
+							}
+							this.debug_matchingTrace
+									.addInstance(new MatchingInstance(
+											pairNode.level + 1, childNode1
+													.getIndex(), e.getNode()
+													.getIndex(), type, n2
+													.getIndex()));
+						}
+
+						// Update matched relationship
+						if (!matchedNodes.hasPair(childNode1.getIndex(), e
+								.getNode().getIndex())) {
+							if (!matchedNodes.addPair(childNode1.getIndex(), e
+									.getNode().getIndex())) {
+								System.out.println("Node "
+										+ childNode1.getIndex()
+										+ " of G1 is already matched!");
+								return null;
+							}
+						}
+					} else {
+						unmatchedQueue.add(new PairNode(null, e.getNode(),
+								pairNode.level + 1));
+					}
+				}
+				n2.setVisited();
+			} else {
+				// try to match unmatched nodes
+				pairNode = unmatchedQueue.remove();
+				Node curNode = pairNode.getNode2();
+				if (curNode.isVisited())
+					continue;
+
+				Node node1 = getCorrespondingNode(graph1, graph2, curNode,
+						matchedNodes);
+				if (node1 != null) {
+
+					if (AnalysisConfiguration.debug) {
+						this.debug_addHeuristicChain(curNode.getIndex());
+
+						this.debug_matchingTrace
+								.addInstance(new MatchingInstance(
+										pairNode.level, node1.getIndex(),
+										curNode.getIndex(),
+										MatchingType.Heuristic, -1));
+					}
+
+					matchedQueue.add(new PairNode(node1, curNode,
+							pairNode.level));
+				} else {
+					// Simply push unvisited neighbors to unmatchedQueue
+					for (int k = 0; k < curNode.getEdges().size(); k++) {
+						Edge e = curNode.getEdges().get(k);
+						if (e.getNode().isVisited())
+							continue;
+						unmatchedQueue.add(new PairNode(null, e.getNode(),
+								pairNode.level + 1));
+					}
+				}
+				curNode.setVisited();
+			}
+		}
+		// }
+
 		if (hasConflict) {
-//			System.out.println("Can't merge the two graphs!!");
+			// System.out.println("Can't merge the two graphs!!");
 			return null;
 		} else {
-//			System.out.println("The two graphs merge!!");
+			// System.out.println("The two graphs merge!!");
 			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2,
 					matchedNodes);
-			
-			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
+
+			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2,
+					matchedNodes);
 			mergingInfo.outputMergedGraphInfo();
 			return mergedGraph;
 		}
@@ -633,10 +615,12 @@ public class GraphMerger extends Thread {
 	public void run() {
 		if (graph1 == null || graph2 == null)
 			return;
-		GraphMergingInfo.dumpGraph(graph1, "graph-files/" + graph1.getProgName()
-				+ graph1.getPid() + ".dot");
-		GraphMergingInfo.dumpGraph(graph2, "graph-files/" + graph2.getProgName()
-				+ graph2.getPid() + ".dot");
+		GraphMergingInfo.dumpGraph(graph1,
+				"graph-files/" + graph1.getProgName() + graph1.getPid()
+						+ ".dot");
+		GraphMergingInfo.dumpGraph(graph2,
+				"graph-files/" + graph2.getProgName() + graph2.getPid()
+						+ ".dot");
 		mergedGraph = mergeGraph(graph1, graph2);
 	}
 }

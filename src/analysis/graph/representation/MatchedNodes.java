@@ -12,6 +12,10 @@ public class MatchedNodes implements Iterable<Integer> {
 		matchedNodes21 = new HashMap<Integer, Integer>();
 	}
 	
+	public String toString() {
+		return matchedNodes12.toString();
+	}
+	
 	public Iterator<Integer> iterator() {
 		return matchedNodes12.keySet().iterator();
 	}
