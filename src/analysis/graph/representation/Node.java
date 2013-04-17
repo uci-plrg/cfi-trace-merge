@@ -74,14 +74,18 @@ public class Node {
 	public long getHash() {
 		return hash;
 	}
-	private static int cnt = 0;
+	
 	public void resetVisited() {
 		isVisited = false;
-//		System.out.println(cnt++);
 	}
-	
+	private static int cnt = 0;
 	public void setVisited() {
 		isVisited = true;
+		cnt++;
+//		System.out.println(index);
+//		if (cnt == 30146) {
+//			System.out.println();
+//		}
 	}
 	
 	public boolean isVisited() {
