@@ -12,6 +12,7 @@ import analysis.graph.debug.ContextSimilarityTrace;
 import analysis.graph.debug.MatchingInstance;
 import analysis.graph.debug.MatchingTrace;
 import analysis.graph.debug.MatchingType;
+import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -35,7 +36,7 @@ public class GraphMerger extends Thread {
 	 */
 	public static void main(String[] argvs) {
 		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
-		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(3));
+		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(1));
 		graphMerger.run();
 
 	}
@@ -78,43 +79,6 @@ public class GraphMerger extends Thread {
 			16).longValue();
 	private static final long beginHash = 0x5eee92;
 
-	// For debugging, record the sequence of node matching
-	private static ArrayList<Integer> debug_matchedQueueHistoryIndex1;
-	private static ArrayList<Integer> debug_matchedQueueHistoryIndex2;
-
-	private static ArrayList<Integer> debug_heuristicChain;
-	private static MatchingTrace debug_matchingTrace;
-
-	private static void debug_init() {
-		debug_matchedQueueHistoryIndex1 = new ArrayList<Integer>();
-		debug_matchedQueueHistoryIndex2 = new ArrayList<Integer>();
-
-		debug_heuristicChain = new ArrayList<Integer>();
-		debug_matchingTrace = new MatchingTrace();
-	}
-
-	private static void debug_addHeuristicChain(int index) {
-		debug_heuristicChain.add(index);
-	}
-
-	private static void debug_outputHeuristicChain() {
-		for (int i = 0; i < debug_heuristicChain.size(); i++) {
-			System.out.println(debug_heuristicChain.get(i));
-		}
-	}
-
-	private static void debug_addMatchedQueueHistory(int index1, int index2) {
-		debug_matchedQueueHistoryIndex1.add(index1);
-		debug_matchedQueueHistoryIndex2.add(index2);
-	}
-
-	private static void debug_outputMatchedQueueHistory() {
-		for (int i = 0; i < debug_matchedQueueHistoryIndex1.size(); i++) {
-			System.out.println(debug_matchedQueueHistoryIndex1.get(i) + "<->"
-					+ debug_matchedQueueHistoryIndex2.get(i));
-		}
-	}
-
 	// Search the nearby context to check the similarity of the
 	// node1 and node2
 	// Depth is how deep the query should try, by default depth == 5
@@ -124,23 +88,23 @@ public class GraphMerger extends Thread {
 
 	private boolean hasConflict = false;
 
-	private static ContextSimilarityTrace debug_contextSimilarityTrace = new ContextSimilarityTrace();
-
-	private int getContextSimilarity(Node node1, Node node2, int depth, MatchedNodes matchedNodes) {
+	private int getContextSimilarity(Node node1, Node node2, int depth,
+			MatchedNodes matchedNodes) {
 		if (depth <= 0)
 			return 0;
-		
+
 		// Should return immediately if the two nodes are already matched
 		if (matchedNodes.hasPair(node1.getIndex(), node2.getIndex())) {
 			return 1;
 		}
 
-		if (AnalysisConfiguration.debug) {
+		if (DebugUtils.debug) {
 			if (depth == searchDepth) {
 				MatchingInstance inst;
 				inst = new MatchingInstance(0, node1.getIndex(),
 						node2.getIndex(), MatchingType.Heuristic, -1);
-				this.debug_contextSimilarityTrace.addTraceAtDepth(0, inst);
+				DebugUtils.debug_contextSimilarityTrace
+						.addTraceAtDepth(0, inst);
 			}
 		}
 
@@ -166,14 +130,14 @@ public class GraphMerger extends Thread {
 				return -1;
 			} else {
 
-				if (AnalysisConfiguration.debug) {
+				if (DebugUtils.debug) {
 					MatchingInstance inst;
 					int parentIdx = searchDepth;
 
 					inst = new MatchingInstance(searchDepth - depth + 1, e1
 							.getNode().getIndex(), e2.getNode().getIndex(),
 							MatchingType.CallingContinuation, node2.getIndex());
-					this.debug_contextSimilarityTrace.addTraceAtDepth(
+					DebugUtils.debug_contextSimilarityTrace.addTraceAtDepth(
 							searchDepth - depth + 1, inst);
 				}
 
@@ -200,7 +164,7 @@ public class GraphMerger extends Thread {
 							return -1;
 						} else {
 
-							if (AnalysisConfiguration.debug) {
+							if (DebugUtils.debug) {
 								MatchingInstance inst;
 								int parentIdx = searchDepth;
 
@@ -209,7 +173,7 @@ public class GraphMerger extends Thread {
 										.getNode().getIndex(),
 										MatchingType.DirectBranch,
 										node2.getIndex());
-								this.debug_contextSimilarityTrace
+								DebugUtils.debug_contextSimilarityTrace
 										.addTraceAtDepth(searchDepth - depth
 												+ 1, inst);
 							}
@@ -226,7 +190,7 @@ public class GraphMerger extends Thread {
 						// Trace down
 						if (e1.getNode().getHash() == e2.getNode().getHash()) {
 
-							if (AnalysisConfiguration.debug) {
+							if (DebugUtils.debug) {
 								if (e1.getEdgeType() == EdgeType.Indirect) {
 									MatchingInstance inst;
 									int parentIdx = searchDepth;
@@ -237,7 +201,7 @@ public class GraphMerger extends Thread {
 											.getIndex(),
 											MatchingType.IndirectBranch,
 											node2.getIndex());
-									this.debug_contextSimilarityTrace
+									DebugUtils.debug_contextSimilarityTrace
 											.addTraceAtDepth(searchDepth
 													- depth + 1, inst);
 								} else {
@@ -250,7 +214,7 @@ public class GraphMerger extends Thread {
 											.getIndex(),
 											MatchingType.UnexpectedReturn,
 											node2.getIndex());
-									this.debug_contextSimilarityTrace
+									DebugUtils.debug_contextSimilarityTrace
 											.addTraceAtDepth(searchDepth
 													- depth + 1, inst);
 								}
@@ -290,7 +254,8 @@ public class GraphMerger extends Thread {
 		ArrayList<Node> candidates = new ArrayList<Node>();
 		for (int i = 0; i < nodes1.size(); i++) {
 			int score = 0;
-			if ((score = getContextSimilarity(nodes1.get(i), node2, searchDepth, matchedNodes)) != -1) {
+			if ((score = getContextSimilarity(nodes1.get(i), node2,
+					searchDepth, matchedNodes)) != -1) {
 				// If the node is already merged, skip it
 				if (!matchedNodes.containsKeyByFirstIndex(nodes1.get(i)
 						.getIndex())) {
@@ -357,12 +322,12 @@ public class GraphMerger extends Thread {
 							System.out
 									.println("Call continuation has different targets!");
 						}
-						
-						if (AnalysisConfiguration.debug) {
+
+						if (DebugUtils.debug) {
 							System.out.println("Direct edge conflict: "
 									+ parentNode1.getIndex());
 						}
-						
+
 						hasConflict = true;
 						break;
 					} else {
@@ -553,6 +518,29 @@ public class GraphMerger extends Thread {
 		return true;
 	}
 
+	private Node getMainBlock(ExecutionGraph graph) {
+		// Checkout if the first main block equals to each other
+		ArrayList<Node> preMainBlocks = graph1.getHash2Nodes().get(
+				GraphMerger.specialHash);
+
+		if (preMainBlocks.size() == 1) {
+			Node preMainNode = preMainBlocks.get(0);
+			for (int i = 0; i < preMainNode.getEdges().size(); i++) {
+				if (preMainNode.getEdges().get(i).getEdgeType() == EdgeType.Indirect) {
+					return preMainNode.getEdges().get(i).getNode();
+				}
+			}
+		} else if (preMainBlocks.size() == 0) {
+			System.out
+					.println("Important message: can't find the first main block!!!");
+		} else {
+			System.out
+					.println("Important message: more than one block to hash has the same hash!!!");
+		}
+
+		return null;
+	}
+
 	/**
 	 * 
 	 * @param graph1
@@ -562,10 +550,6 @@ public class GraphMerger extends Thread {
 	private ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
 
-		if (AnalysisConfiguration.debug) {
-			this.debug_init();
-		}
-
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
 				.getHash()) {
@@ -573,22 +557,6 @@ public class GraphMerger extends Thread {
 					.println("First node not the same, so wired and I can't merge...");
 			return null;
 		}
-		// Checkout if the first main block equals to each other
-		ArrayList<Node> mainBlocks1 = graph1.getHash2Nodes().get(
-				GraphMerger.specialHash), mainBlocks2 = graph2.getHash2Nodes()
-				.get(GraphMerger.specialHash);
-
-		// if (mainBlocks1.size() == 1 && mainBlocks2.size() == 1) {
-		// if (mainBlocks1.get(0).edges.get(0).node.hash !=
-		// mainBlocks2.get(0).edges
-		// .get(0).node.hash) {
-		// // System.out.println("First block not the same, not mergeable!");
-		// // return null;
-		// }
-		// } else {
-		// System.out
-		// .println("Important message: more than one block to hash has the same hash!!!");
-		// }
 
 		// Reset isVisited field
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
@@ -608,12 +576,24 @@ public class GraphMerger extends Thread {
 		matchedQueue.add(pairNode);
 		matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
 
+		Node mainNode1 = getMainBlock(graph1), mainNode2 = getMainBlock(graph2);
+		if (mainNode1 != null && mainNode2 != null) {
+			
+			if (!DebugUtils.debug) {
+				matchedNodes
+						.addPair(mainNode1.getIndex(), mainNode2.getIndex());
+				matchedQueue.add(new PairNode(mainNode1, mainNode2, 0));
+			}
+			
+		}
+
 		// This is a queue to record all the unvisited indirect node...
 		Queue<PairNodeEdge> indirectChildren = new LinkedList<PairNodeEdge>();
 
-		if (AnalysisConfiguration.debug) {
-			this.debug_matchingTrace.addInstance(new MatchingInstance(0, n_1
-					.getIndex(), n_2.getIndex(), MatchingType.Heuristic, -1));
+		if (DebugUtils.debug) {
+			DebugUtils.debug_matchingTrace
+					.addInstance(new MatchingInstance(0, n_1.getIndex(), n_2
+							.getIndex(), MatchingType.Heuristic, -1));
 		}
 
 		while ((matchedQueue.size() > 0 || indirectChildren.size() > 0 || unmatchedQueue
@@ -639,7 +619,7 @@ public class GraphMerger extends Thread {
 							|| e.getEdgeType() == EdgeType.Call_Continuation) {
 						childNode1 = getCorrespondingDirectChildNode(n1, e,
 								matchedNodes);
-						
+
 						if (childNode1 != null) {
 							matchedQueue.add(new PairNode(childNode1, e
 									.getNode(), pairNode.level + 1));
@@ -653,10 +633,21 @@ public class GraphMerger extends Thread {
 									System.out.println("Node "
 											+ childNode1.getIndex()
 											+ " of G1 is already matched!");
+									System.out
+											.println("Node pair need to be matched: "
+													+ childNode1.getIndex()
+													+ "<->"
+													+ e.getNode().getIndex());
+									System.out.println("Prematched nodes: "
+											+ childNode1.getIndex()
+											+ "<->"
+											+ matchedNodes
+													.getByFirstIndex(childNode1
+															.getIndex()));
 									return null;
 								}
 
-								if (AnalysisConfiguration.debug) {
+								if (DebugUtils.debug) {
 									// Print out indirect nodes that can be
 									// matched
 									// by direct edges. However, they might also
@@ -668,6 +659,7 @@ public class GraphMerger extends Thread {
 											+ n1.getIndex() + "<->"
 											+ n2.getIndex() + ")");
 								}
+								
 							}
 						} else {
 							unmatchedQueue.add(new PairNode(null, e.getNode(),
@@ -684,8 +676,8 @@ public class GraphMerger extends Thread {
 				}
 			} else if (indirectChildren.size() != 0) {
 				PairNodeEdge nodeEdgePair = indirectChildren.remove();
-				Node parentNode1 = nodeEdgePair.getParentNode1(),
-						parentNode2 = nodeEdgePair.getParentNode2();
+				Node parentNode1 = nodeEdgePair.getParentNode1(), parentNode2 = nodeEdgePair
+						.getParentNode2();
 				Edge e = nodeEdgePair.getCurNodeEdge();
 				Node childNode1 = getCorrespondingIndirectChildNode(graph1,
 						parentNode1, e, matchedNodes);
@@ -704,7 +696,15 @@ public class GraphMerger extends Thread {
 							return null;
 						}
 
-						if (AnalysisConfiguration.debug) {
+						if (DebugUtils.debug) {
+							DebugUtils.debug_matchingTrace
+									.addInstance(new MatchingInstance(
+											pairNode.level, childNode1.getIndex(),
+											e.getNode().getIndex(),
+											MatchingType.IndirectBranch, parentNode2.getIndex()));
+						}
+						
+						if (DebugUtils.debug) {
 							// Print out indirect nodes that must be decided by
 							// heuristic
 							System.out.println("Indirect: "
@@ -713,6 +713,7 @@ public class GraphMerger extends Thread {
 									+ parentNode1.getIndex() + "<->"
 									+ parentNode2.getIndex() + ")");
 						}
+						
 					}
 				} else {
 					unmatchedQueue.add(new PairNode(null, e.getNode(),
@@ -730,10 +731,8 @@ public class GraphMerger extends Thread {
 						matchedNodes);
 				if (node1 != null) {
 
-					if (AnalysisConfiguration.debug) {
-						this.debug_addHeuristicChain(curNode.getIndex());
-
-						this.debug_matchingTrace
+					if (DebugUtils.debug) {
+						DebugUtils.debug_matchingTrace
 								.addInstance(new MatchingInstance(
 										pairNode.level, node1.getIndex(),
 										curNode.getIndex(),

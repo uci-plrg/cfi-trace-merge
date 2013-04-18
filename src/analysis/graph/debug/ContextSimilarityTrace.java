@@ -2,16 +2,14 @@ package analysis.graph.debug;
 
 import java.util.ArrayList;
 
-import analysis.graph.GraphMerger;
-
 public class ContextSimilarityTrace {
 	private ArrayList<MatchingInstance> traces;
 	private int index;
 	private int traceSize;
 
-	public ContextSimilarityTrace() {
+	public ContextSimilarityTrace(int searchDepth) {
 		index = -1;
-		traceSize = GraphMerger.searchDepth + 1;
+		traceSize = searchDepth + 1;
 		traces = new ArrayList<MatchingInstance>(traceSize);
 		for (int i = 0; i < traceSize; i++) {
 			traces.add(null);

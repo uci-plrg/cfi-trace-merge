@@ -88,29 +88,6 @@ public class GraphMergingInfo {
 			pwRelationFile.close();
 	}
 
-	public static long outputFirstMain(ExecutionGraph graph) {
-		Node n = null;
-		long firstMainHash = -1;
-		for (int i = 0; i < graph.getNodes().size(); i++) {
-			if (graph.getNodes().get(i).getHash() == GraphMerger.specialHash) {
-				n = graph.getNodes().get(i);
-				if (n.getEdges().size() > 1) {
-					for (int j = 0; j < n.getEdges().size(); j++) {
-						if (n.getEdges().get(j).getEdgeType() == EdgeType.Indirect) {
-							return n.getEdges().get(j).getNode().getHash();
-						}
-					}
-					System.out.println("More than one target!");
-					return n.getEdges().size();
-				} else {
-					firstMainHash = n.getEdges().get(0).getNode().getHash();
-				}
-				break;
-			}
-		}
-		return firstMainHash;
-	}
-
 	public static void dumpGraph(ExecutionGraph graph, String fileName) {
 		File file = new File(fileName);
 		if (!file.exists()) {
@@ -142,7 +119,7 @@ public class GraphMergingInfo {
 			}
 
 			pwDotFile.println("digraph runGraph {");
-			long firstMainBlock = outputFirstMain(graph);
+			long firstMainBlock = GraphInfo.outputFirstMain(graph);
 			pwDotFile.println("# First main block: "
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {

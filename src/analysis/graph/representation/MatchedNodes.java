@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import analysis.graph.debug.DebugUtils;
+
 public class MatchedNodes implements Iterable<Integer> {
 	private HashMap<Integer, Integer> matchedNodes12, matchedNodes21;
 	
@@ -36,6 +38,12 @@ public class MatchedNodes implements Iterable<Integer> {
 			return false;
 		matchedNodes12.put(index1, index2);
 		matchedNodes21.put(index2, index1);
+		
+		if (DebugUtils.debug) {
+			if (index2 == 137) {
+				DebugUtils.stopHere();
+			}
+		}
 		
 		return true;
 	}
