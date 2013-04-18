@@ -1,0 +1,10 @@
+1.  Dynamic library can cause matching conflicts.
+    For a pair of matched nodes, they can have a call edge to the library function. However, under different environment, that library function
+can dynamically point to different version of implementation. This will cause the direct edge matching conflict.
+	REPLAY:
+	On dc-1.eecs.uci.edu, run
+	# dot -Teps -LC4 -o/scratch/crowd-safe-test-data/output/development/dot/angles.eps /scratch/crowd-safe-test-data/input/dot/angles.gv ;
+	On dc-2.eecs.uci.edu, run
+	# dot -Tjpg -q -Ksfdp -o/scratch/crowd-safe-test-data/output/development/dot/kennedyanc.jpg /scratch/crowd-safe-test-data/input/dot/kennedyanc.gv
+	In the graphviz library function 'char *agstrdup(char *s)' in refstr.c, it calls c library strlen. The actual strlen functions that are called
+are not the same. On dc-1, it was strcpy_sse2 while on dc-2 it was strcpy_sse3. The hash code of that call node is 0x0518c4f75a8c54af.
