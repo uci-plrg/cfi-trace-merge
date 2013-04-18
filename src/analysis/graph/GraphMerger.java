@@ -38,7 +38,6 @@ public class GraphMerger extends Thread {
 		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
 		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(1));
 		graphMerger.run();
-
 	}
 
 	public GraphMerger() {
@@ -646,6 +645,14 @@ public class GraphMerger extends Thread {
 															.getIndex()));
 									return null;
 								}
+								
+								if (DebugUtils.debug) {
+									DebugUtils.debug_matchingTrace
+											.addInstance(new MatchingInstance(
+													pairNode.level, childNode1.getIndex(),
+													e.getNode().getIndex(),
+													MatchingType.DirectBranch, n2.getIndex()));
+								}
 
 								if (DebugUtils.debug) {
 									// Print out indirect nodes that can be
@@ -679,9 +686,16 @@ public class GraphMerger extends Thread {
 				Node parentNode1 = nodeEdgePair.getParentNode1(), parentNode2 = nodeEdgePair
 						.getParentNode2();
 				Edge e = nodeEdgePair.getCurNodeEdge();
+				
+				if (DebugUtils.debug) {
+					if (e.getNode().getIndex() == 8480) {
+						System.out.println();
+					}
+				}
+				
 				Node childNode1 = getCorrespondingIndirectChildNode(graph1,
 						parentNode1, e, matchedNodes);
-
+				
 				if (childNode1 != null) {
 					matchedQueue.add(new PairNode(childNode1, e.getNode(),
 							pairNode.level + 1));

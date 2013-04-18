@@ -11,6 +11,7 @@ import analysis.graph.representation.ExecutionGraph;
 
 public class GraphAnalyzer {
 
+	// The number of threads on a single machine, it's configurable
 	private static int threadGroupSize = 32;
 
 	public static void main(String[] argvs) {
