@@ -94,7 +94,9 @@ public class GraphMerger extends Thread {
 
 		// Should return immediately if the two nodes are already matched
 		if (matchedNodes.hasPair(node1.getIndex(), node2.getIndex())) {
-			return 1;
+			// The idea is to take advantage of previous computation on the
+			// score of that node, but this is not a well-tested idea...
+			return node1.getIndex() == -1 ? 1 : node1.getIndex();
 		}
 
 		if (DebugUtils.debug) {
@@ -519,7 +521,7 @@ public class GraphMerger extends Thread {
 
 	private Node getMainBlock(ExecutionGraph graph) {
 		// Checkout if the first main block equals to each other
-		ArrayList<Node> preMainBlocks = graph1.getHash2Nodes().get(
+		ArrayList<Node> preMainBlocks = graph.getHash2Nodes().get(
 				GraphMerger.specialHash);
 
 		if (preMainBlocks.size() == 1) {
@@ -575,15 +577,18 @@ public class GraphMerger extends Thread {
 		matchedQueue.add(pairNode);
 		matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
 
-		Node mainNode1 = getMainBlock(graph1), mainNode2 = getMainBlock(graph2);
-		if (mainNode1 != null && mainNode2 != null) {
-			
-			if (!DebugUtils.debug) {
+		if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN_ADD_MAIN)) {
+			Node mainNode1 = getMainBlock(graph1), mainNode2 = getMainBlock(graph2);
+			if (mainNode1 != null && mainNode2 != null) {
 				matchedNodes
 						.addPair(mainNode1.getIndex(), mainNode2.getIndex());
 				matchedQueue.add(new PairNode(mainNode1, mainNode2, 0));
+				
+				DebugUtils.debug_matchingTrace
+				.addInstance(new MatchingInstance(0, mainNode1.getIndex(), mainNode2
+						.getIndex(), MatchingType.Heuristic, -1));
+				
 			}
-			
 		}
 
 		// This is a queue to record all the unvisited indirect node...
@@ -599,12 +604,19 @@ public class GraphMerger extends Thread {
 				.size() > 0) && !hasConflict) {
 			if (matchedQueue.size() > 0) {
 				pairNode = matchedQueue.remove();
+				
 
 				// Nodes in the matchedQueue is already matched
 				Node n1 = pairNode.getNode1(), n2 = pairNode.getNode2();
 				if (n2.isVisited())
 					continue;
 				n2.setVisited();
+				
+				if (DebugUtils.debug) {
+					if (n2.getIndex() == 853) {
+						DebugUtils.stopHere();
+					}
+				}
 
 				for (int k = 0; k < n2.getEdges().size(); k++) {
 					Edge e = n2.getEdges().get(k);
@@ -645,13 +657,16 @@ public class GraphMerger extends Thread {
 															.getIndex()));
 									return null;
 								}
-								
+
 								if (DebugUtils.debug) {
 									DebugUtils.debug_matchingTrace
 											.addInstance(new MatchingInstance(
-													pairNode.level, childNode1.getIndex(),
-													e.getNode().getIndex(),
-													MatchingType.DirectBranch, n2.getIndex()));
+													pairNode.level, childNode1
+															.getIndex(), e
+															.getNode()
+															.getIndex(),
+													MatchingType.DirectBranch,
+													n2.getIndex()));
 								}
 
 								if (DebugUtils.debug) {
@@ -666,7 +681,7 @@ public class GraphMerger extends Thread {
 											+ n1.getIndex() + "<->"
 											+ n2.getIndex() + ")");
 								}
-								
+
 							}
 						} else {
 							unmatchedQueue.add(new PairNode(null, e.getNode(),
@@ -686,16 +701,10 @@ public class GraphMerger extends Thread {
 				Node parentNode1 = nodeEdgePair.getParentNode1(), parentNode2 = nodeEdgePair
 						.getParentNode2();
 				Edge e = nodeEdgePair.getCurNodeEdge();
-				
-				if (DebugUtils.debug) {
-					if (e.getNode().getIndex() == 8480) {
-						System.out.println();
-					}
-				}
-				
+
 				Node childNode1 = getCorrespondingIndirectChildNode(graph1,
 						parentNode1, e, matchedNodes);
-				
+
 				if (childNode1 != null) {
 					matchedQueue.add(new PairNode(childNode1, e.getNode(),
 							pairNode.level + 1));
@@ -713,11 +722,13 @@ public class GraphMerger extends Thread {
 						if (DebugUtils.debug) {
 							DebugUtils.debug_matchingTrace
 									.addInstance(new MatchingInstance(
-											pairNode.level, childNode1.getIndex(),
-											e.getNode().getIndex(),
-											MatchingType.IndirectBranch, parentNode2.getIndex()));
+											pairNode.level, childNode1
+													.getIndex(), e.getNode()
+													.getIndex(),
+											MatchingType.IndirectBranch,
+											parentNode2.getIndex()));
 						}
-						
+
 						if (DebugUtils.debug) {
 							// Print out indirect nodes that must be decided by
 							// heuristic
@@ -727,7 +738,7 @@ public class GraphMerger extends Thread {
 									+ parentNode1.getIndex() + "<->"
 									+ parentNode2.getIndex() + ")");
 						}
-						
+
 					}
 				} else {
 					unmatchedQueue.add(new PairNode(null, e.getNode(),

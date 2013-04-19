@@ -40,7 +40,7 @@ public class MatchedNodes implements Iterable<Integer> {
 		matchedNodes21.put(index2, index1);
 		
 		if (DebugUtils.debug) {
-			if (index2 == 18526) {
+			if (index2 == 853) {
 				DebugUtils.stopHere();
 			}
 		}

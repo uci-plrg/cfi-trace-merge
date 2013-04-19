@@ -23,15 +23,20 @@ public class MatchingTrace {
 		matchingInstances.add(instance);
 		index2MatchingInstance.put(instance.index2, instance);
 	}
-	
+
 	public void printTrace(int index) {
 		MatchingInstance inst = index2MatchingInstance.get(index);
 		System.out.println(inst.level + ":" + inst.matchingType + ":"
 				+ inst.index1 + "<->" + inst.index2);
 		while (inst.parentIndex != -1) {
 			inst = index2MatchingInstance.get(inst.parentIndex);
+			MatchingInstance parentInst = index2MatchingInstance
+					.get(inst.parentIndex);
+			int parentIdx1 = parentInst == null ? -1 : parentInst.index1,
+					parentIdx2 = parentInst == null ? -1 : parentInst.index2;
 			System.out.println(inst.level + ":" + inst.matchingType + ":"
-					+ inst.index1 + "<->" + inst.index2);
+					+ inst.index1 + "<->" + inst.index2 + "(By "
+					+ parentIdx1 + "<->" + parentIdx2 + ")");
 		}
 	}
 
