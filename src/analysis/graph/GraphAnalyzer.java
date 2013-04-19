@@ -71,7 +71,6 @@ public class GraphAnalyzer {
 	public static void pairComparison(String dir) {
 		File file = new File(dir);
 		File[] runDirs = file.listFiles();
-		ExecutionGraph[] graphs = new ExecutionGraph[runDirs.length];
 
 		GraphMerger[] mergers = new GraphMerger[threadGroupSize];
 		int threadCnt = 0;
@@ -82,23 +81,16 @@ public class GraphAnalyzer {
 						|| runDirs[j].getName().indexOf("run") == -1) {
 					continue;
 				}
-				if (graphs[i] == null) {
-					graphs[i] = ExecutionGraph.buildGraphsFromRunDir(
-							runDirs[i].getAbsolutePath()).get(0);
-					GraphMergingInfo.dumpGraph(graphs[i],
-							"graph-files/" + graphs[i].getProgName()
-									+ graphs[i].getPid() + ".dot");
+				if (Integer.parseInt(runDirs[i].getName().substring(3)) < 480) {
+					continue;
 				}
-				if (graphs[j] == null) {
-					graphs[j] = ExecutionGraph.buildGraphsFromRunDir(
-							runDirs[j].getAbsolutePath()).get(0);
-					GraphMergingInfo.dumpGraph(graphs[j],
-							"graph-files/" + graphs[j].getProgName()
-									+ graphs[j].getPid() + ".dot");
-				}
+				ExecutionGraph g1 = ExecutionGraph.buildGraphsFromRunDir(
+						runDirs[i].getAbsolutePath()).get(0),
+						g2 = ExecutionGraph.buildGraphsFromRunDir(
+								runDirs[j].getAbsolutePath()).get(0);
 
-				System.out.println("Current thread: " + threadCnt);
-				mergers[threadCnt] = new GraphMerger(graphs[i], graphs[j]);
+//				System.out.println("Current thread: " + threadCnt);
+				mergers[threadCnt] = new GraphMerger(g1, g2);
 				mergers[threadCnt].start();
 				threadCnt++;
 

@@ -3,14 +3,16 @@ package analysis.graph.debug;
 import analysis.graph.GraphMerger;
 
 public class DebugUtils {
-	public static final boolean debug = true;
+	public static final boolean debug = false;
 	
 	public static final int DEBUG_ONLY = 0x0;
 	public static final int PRINT_MATCHING_HISTORY = 0x1;
 	public static final int MAIN_KNOWN_ONLY = 0x2;
 	public static final int MAIN_KNOWN_ADD_MAIN = 0x4;
+	public static final int MERGE_ERROR = 0x8;
 	
-	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY, PRINT_MATCHING_HISTORY);
+	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY);
+//	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY, MERGE_ERROR, PRINT_MATCHING_HISTORY);
 	
 	public static int debugOption(int...options) {
 		int opt = 0;
