@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import utils.AnalysisUtil;
+
 import analysis.graph.debug.ContextSimilarityTrace;
 import analysis.graph.debug.MatchingInstance;
 import analysis.graph.debug.MatchingTrace;
@@ -35,9 +37,26 @@ public class GraphMerger extends Thread {
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
 	public static void main(String[] argvs) {
-		ArrayList<ExecutionGraph> graphs = ExecutionGraph.getGraphs(argvs[0]);
-		GraphMerger graphMerger = new GraphMerger(graphs.get(0), graphs.get(1));
-		graphMerger.run();
+		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(argvs[0]);
+		for (int i = 0; i < runDirs.size(); i++) {
+			for (int j = i + 1; j < runDirs.size(); j++) {
+				ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
+						runDirs.get(i)).get(0), graph2 = ExecutionGraph
+						.buildGraphsFromRunDir(runDirs.get(j)).get(0);
+				if (DebugUtils.debug) {
+					if (graph1.getPid() == 26598 && graph2.getPid() == 30465) {
+						GraphMerger graphMerger = new GraphMerger(graph1,
+								graph2);
+						graphMerger.run();
+					}
+				} else {
+					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+					graphMerger.run();
+				}
+
+			}
+		}
+
 	}
 
 	public GraphMerger() {
@@ -583,11 +602,12 @@ public class GraphMerger extends Thread {
 				matchedNodes
 						.addPair(mainNode1.getIndex(), mainNode2.getIndex());
 				matchedQueue.add(new PairNode(mainNode1, mainNode2, 0));
-				
+
 				DebugUtils.debug_matchingTrace
-				.addInstance(new MatchingInstance(0, mainNode1.getIndex(), mainNode2
-						.getIndex(), MatchingType.Heuristic, -1));
-				
+						.addInstance(new MatchingInstance(0, mainNode1
+								.getIndex(), mainNode2.getIndex(),
+								MatchingType.Heuristic, -1));
+
 			}
 		}
 
@@ -604,14 +624,13 @@ public class GraphMerger extends Thread {
 				.size() > 0) && !hasConflict) {
 			if (matchedQueue.size() > 0) {
 				pairNode = matchedQueue.remove();
-				
 
 				// Nodes in the matchedQueue is already matched
 				Node n1 = pairNode.getNode1(), n2 = pairNode.getNode2();
 				if (n2.isVisited())
 					continue;
 				n2.setVisited();
-				
+
 				if (DebugUtils.debug) {
 					if (n2.getIndex() == 853) {
 						DebugUtils.stopHere();
@@ -641,6 +660,9 @@ public class GraphMerger extends Thread {
 								if (!matchedNodes.addPair(
 										childNode1.getIndex(), e.getNode()
 												.getIndex())) {
+									System.out.println("In execution "
+											+ graph1.getPid() + " & "
+											+ graph2.getPid());
 									System.out.println("Node "
 											+ childNode1.getIndex()
 											+ " of G1 is already matched!");
@@ -669,7 +691,8 @@ public class GraphMerger extends Thread {
 													n2.getIndex()));
 								}
 
-								if (DebugUtils.debug) {
+								if (DebugUtils
+										.debugDecision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 									// Print out indirect nodes that can be
 									// matched
 									// by direct edges. However, they might also
@@ -729,7 +752,8 @@ public class GraphMerger extends Thread {
 											parentNode2.getIndex()));
 						}
 
-						if (DebugUtils.debug) {
+						if (DebugUtils
+								.debugDecision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 							// Print out indirect nodes that must be decided by
 							// heuristic
 							System.out.println("Indirect: "
@@ -761,7 +785,16 @@ public class GraphMerger extends Thread {
 								.addInstance(new MatchingInstance(
 										pairNode.level, node1.getIndex(),
 										curNode.getIndex(),
-										MatchingType.Heuristic, -1));
+										MatchingType.PureHeuristic, -1));
+					}
+
+					if (DebugUtils
+							.debugDecision(DebugUtils.PRINT_MATCHING_HISTORY)) {
+						// Print out indirect nodes that must be decided by
+						// heuristic
+						System.out.println("PureHeuristic: " + node1.getIndex()
+								+ "<->" + curNode.getIndex()
+								+ "(by pure heuristic");
 					}
 
 					matchedQueue.add(new PairNode(node1, curNode,
@@ -783,6 +816,9 @@ public class GraphMerger extends Thread {
 
 		if (hasConflict) {
 			// System.out.println("Can't merge the two graphs!!");
+			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2,
+					matchedNodes);
+			mergingInfo.outputMergedGraphInfo();
 			return null;
 		} else {
 			// System.out.println("The two graphs merge!!");

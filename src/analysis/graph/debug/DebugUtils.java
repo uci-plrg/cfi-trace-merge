@@ -3,13 +3,14 @@ package analysis.graph.debug;
 import analysis.graph.GraphMerger;
 
 public class DebugUtils {
-	public static final int DEBUG_ONLY = 0x0;
-	public static final int MAIN_KNOWN_ONLY = 0x1;
-	public static final int MAIN_KNOWN_ADD_MAIN = 0x2;
-	
 	public static final boolean debug = true;
 	
-	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY);
+	public static final int DEBUG_ONLY = 0x0;
+	public static final int PRINT_MATCHING_HISTORY = 0x1;
+	public static final int MAIN_KNOWN_ONLY = 0x2;
+	public static final int MAIN_KNOWN_ADD_MAIN = 0x4;
+	
+	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY, PRINT_MATCHING_HISTORY);
 	
 	public static int debugOption(int...options) {
 		int opt = 0;
@@ -23,7 +24,12 @@ public class DebugUtils {
 		if (!debug)
 			return false;
 		int opt = debugOption(options);
-		return opt == DEBUG_OPTION;
+		// Check all the debug options
+		for (int i = 0; i < options.length; i++) {
+			if ((options[i] & DEBUG_OPTION) == 0)
+				return false;
+		}
+		return true;
 	}
 	
 
