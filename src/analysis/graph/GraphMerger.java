@@ -44,11 +44,8 @@ public class GraphMerger extends Thread {
 						runDirs.get(i)).get(0), graph2 = ExecutionGraph
 						.buildGraphsFromRunDir(runDirs.get(j)).get(0);
 				if (DebugUtils.debug) {
-					if (graph1.getPid() == 29260 && graph2.getPid() == 30835) {
-						GraphMerger graphMerger = new GraphMerger(graph1,
-								graph2);
-						graphMerger.mergeGraph();
-					}
+					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+					graphMerger.mergeGraph();
 				} else {
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
 					graphMerger.run();
@@ -858,6 +855,6 @@ public class GraphMerger extends Thread {
 		} else {
 			mergedGraph = mergeGraph(graph2, graph1);
 		}
-		
+
 	}
 }

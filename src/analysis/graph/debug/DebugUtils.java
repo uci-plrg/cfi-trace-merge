@@ -11,8 +11,8 @@ public class DebugUtils {
 	public static final int MAIN_KNOWN_ADD_MAIN = 0x4;
 	public static final int MERGE_ERROR = 0x8;
 	
-//	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY);
-	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY, MERGE_ERROR, PRINT_MATCHING_HISTORY);
+	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY);
+//	public static final int DEBUG_OPTION = debugOption(DEBUG_ONLY, MERGE_ERROR, PRINT_MATCHING_HISTORY);
 	
 	public static int debugOption(int...options) {
 		int opt = 0;
