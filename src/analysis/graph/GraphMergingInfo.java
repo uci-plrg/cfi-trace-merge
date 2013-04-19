@@ -34,7 +34,7 @@ public class GraphMergingInfo {
 		}
 	}
 
-	public void outputMergedGraphInfo() {
+	synchronized public void outputMergedGraphInfo() {
 		System.out.println("Comparison between " + graph1.getProgName() + graph1.getPid() + " & " + 
 			graph2.getProgName() + graph2.getPid() + ":");
 		

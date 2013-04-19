@@ -9,5 +9,7 @@ RESULT_DIR=$ANALYSIS_HOME/results
 for prog in ${progs[@]} ;do
 	runDir=$HASHLOG_DIR/$prog
 	echo $runDir
-	java -cp $_CLASSPATH analysis.graph.GraphAnalyzer $runDir > $RESULT_DIR/$prog_result.txt
+	#java -cp $_CLASSPATH analysis.graph.GraphAnalyzer $runDir 
+	#java -cp $_CLASSPATH analysis.graph.GraphAnalyzer $runDir > $RESULT_DIR/"$prog"_result.txt
+	java -cp $_CLASSPATH analysis.graph.GraphAnalyzer $runDir
 done

@@ -824,7 +824,7 @@ public class GraphMerger extends Thread {
 		// }
 
 		if (hasConflict) {
-			// System.out.println("Can't merge the two graphs!!");
+			System.out.println("Can't merge the two graphs!!");
 			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2,
 					matchedNodes);
 			mergingInfo.outputMergedGraphInfo();
