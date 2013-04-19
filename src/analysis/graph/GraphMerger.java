@@ -44,10 +44,10 @@ public class GraphMerger extends Thread {
 						runDirs.get(i)).get(0), graph2 = ExecutionGraph
 						.buildGraphsFromRunDir(runDirs.get(j)).get(0);
 				if (DebugUtils.debug) {
-					if (graph1.getPid() == 26598 && graph2.getPid() == 30465) {
+					if (graph1.getPid() == 29260 && graph2.getPid() == 30835) {
 						GraphMerger graphMerger = new GraphMerger(graph1,
 								graph2);
-						graphMerger.run();
+						graphMerger.mergeGraph();
 					}
 				} else {
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
@@ -343,9 +343,11 @@ public class GraphMerger extends Thread {
 									.println("Call continuation has different targets!");
 						}
 
-						if (DebugUtils.debug) {
+						if (DebugUtils.debugDecision(DebugUtils.MERGE_ERROR)) {
 							System.out.println("Direct edge conflict: "
-									+ parentNode1.getIndex());
+									+ e.getNode().getIndex() + "<->"
+									+ curNode.getIndex() + "(By "
+									+ parentNode1.getIndex() + "<->Unknown)");
 						}
 
 						hasConflict = true;
@@ -561,13 +563,23 @@ public class GraphMerger extends Thread {
 		return null;
 	}
 
+	public ExecutionGraph mergeGraph() {
+		GraphMergingInfo.dumpGraph(graph1,
+				"graph-files/" + graph1.getProgName() + graph1.getPid()
+						+ ".dot");
+		GraphMergingInfo.dumpGraph(graph2,
+				"graph-files/" + graph2.getProgName() + graph2.getPid()
+						+ ".dot");
+		return mergeGraph(graph1, graph2);
+	}
+
 	/**
 	 * 
 	 * @param graph1
 	 * @param graph2
 	 * @return
 	 */
-	private ExecutionGraph mergeGraph(ExecutionGraph graph1,
+	public ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
 
 		// Merge based on the similarity of the first node ---- sanity check!
@@ -841,6 +853,11 @@ public class GraphMerger extends Thread {
 		GraphMergingInfo.dumpGraph(graph2,
 				"graph-files/" + graph2.getProgName() + graph2.getPid()
 						+ ".dot");
-		mergedGraph = mergeGraph(graph1, graph2);
+		if (graph1.getNodes().size() < graph2.getNodes().size()) {
+			mergedGraph = mergeGraph(graph1, graph2);
+		} else {
+			mergedGraph = mergeGraph(graph2, graph1);
+		}
+		
 	}
 }
