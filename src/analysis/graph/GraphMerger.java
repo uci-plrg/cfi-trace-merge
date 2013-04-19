@@ -844,12 +844,14 @@ public class GraphMerger extends Thread {
 	public void run() {
 		if (graph1 == null || graph2 == null)
 			return;
-		GraphMergingInfo.dumpGraph(graph1,
-				"graph-files/" + graph1.getProgName() + graph1.getPid()
-						+ ".dot");
-		GraphMergingInfo.dumpGraph(graph2,
-				"graph-files/" + graph2.getProgName() + graph2.getPid()
-						+ ".dot");
+		if (DebugUtils.debug) {
+			GraphMergingInfo.dumpGraph(graph1,
+					"graph-files/" + graph1.getProgName() + graph1.getPid()
+							+ ".dot");
+			GraphMergingInfo.dumpGraph(graph2,
+					"graph-files/" + graph2.getProgName() + graph2.getPid()
+							+ ".dot");
+		}
 		if (graph1.getNodes().size() < graph2.getNodes().size()) {
 			mergedGraph = mergeGraph(graph1, graph2);
 		} else {
