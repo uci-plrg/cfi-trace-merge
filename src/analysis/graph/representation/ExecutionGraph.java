@@ -26,7 +26,7 @@ public class ExecutionGraph {
 
 	private String pairHashFile;
 	private String blockHashFile;
-	private String runDirName;
+	private String runDir;
 	private String progName;
 	private int pid;
 
@@ -50,7 +50,49 @@ public class ExecutionGraph {
 
 	// FIXME: Deep copy of a graph
 	public ExecutionGraph(ExecutionGraph anotherGraph) {
+		pairHashes = anotherGraph.pairHashes;
+		blockHashes = anotherGraph.blockHashes;
+		pairHashInstances = anotherGraph.pairHashInstances;
+		blockHashInstances = anotherGraph.blockHashInstances;
 
+		pairHashFile = anotherGraph.pairHashFile;
+		blockHashFile = anotherGraph.blockHashFile;
+		runDir = anotherGraph.runDir;
+		progName = anotherGraph.progName;
+		pid = anotherGraph.pid;
+
+		isValidGraph = anotherGraph.isValidGraph;
+
+		// Copy the nodes, but the edges are not yet copied...
+		nodes = new ArrayList<Node>(anotherGraph.nodes.size());
+		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
+			nodes.add(new Node(anotherGraph.nodes.get(i)));
+		}
+		// Copy the edges of each nodes
+		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
+			Node anotherNode = anotherGraph.nodes.get(i);
+			Node node = nodes.get(i);
+			// Incoming edges
+			for (int j = 0; j < anotherNode.getIncomingEdges().size(); j++) {
+				Edge e = anotherNode.getIncomingEdges().get(j);
+				node.addIncomingEdge(new Edge(nodes.get(e.getNode().getIndex()), e.getEdgeType(), e.getOrdinal()));
+			}
+			// Outgoing edges
+			for (int j = 0; j < anotherNode.getEdges().size(); j++) {
+				Edge e = anotherNode.getEdges().get(j);
+				node.addIncomingEdge(new Edge(nodes.get(e.getNode().getIndex()), e.getEdgeType(), e.getOrdinal()));
+			}
+		}
+		
+		// Copy hash2Nodes field
+		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
+		for (long l : anotherGraph.hash2Nodes.keySet()) {
+			ArrayList<Node> anotherNodes = anotherGraph.hash2Nodes.get(l);
+			hash2Nodes.put(l, new ArrayList<Node>());
+			for (int i = 0; i < anotherNodes.size(); i++) {
+				hash2Nodes.get(l).add(nodes.get(anotherNodes.get(i).getIndex()));
+			}
+		}
 	}
 
 	// Add a node with hashcode hash and return the newly
@@ -99,6 +141,7 @@ public class ExecutionGraph {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 		this.progName = AnalysisUtil.getProgName(tagFiles.get(0));
+		this.runDir = AnalysisUtil.getRunStr(tagFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(tagFiles.get(0));
 
 		// The edges of the graph comes with an ordinal
@@ -117,6 +160,10 @@ public class ExecutionGraph {
 
 	public String getProgName() {
 		return progName;
+	}
+	
+	public String getRunDir() {
+		return runDir;
 	}
 
 	public void setProgName(String progName) {

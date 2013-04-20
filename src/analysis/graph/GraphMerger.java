@@ -37,23 +37,37 @@ public class GraphMerger extends Thread {
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
 	public static void main(String[] argvs) {
-		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(argvs[0]);
-		for (int i = 0; i < runDirs.size(); i++) {
-			for (int j = i + 1; j < runDirs.size(); j++) {
-				ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
-						runDirs.get(i)).get(0), graph2 = ExecutionGraph
-						.buildGraphsFromRunDir(runDirs.get(j)).get(0);
-				if (DebugUtils.debug) {
-					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
-					graphMerger.mergeGraph();
-				} else {
-					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
-					graphMerger.run();
-				}
 
+		if (DebugUtils.debug) {
+			// Really ad-hoc debugging code
+			ArrayList<String> runDirs = AnalysisUtil
+					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/dot");
+			ExecutionGraph bigGraph = ExecutionGraph
+					.buildGraphsFromRunDir(runDirs.get(0)).get(0);
+			bigGraph.setProgName("bigGraph");
+			for (int i = 1; i < runDirs.size(); i++) {
+				GraphMerger graphMerger = new GraphMerger(bigGraph, ExecutionGraph
+						.buildGraphsFromRunDir(runDirs.get(i)).get(0));
+				bigGraph = graphMerger.mergeGraph();
+				GraphMergingInfo.dumpGraph(bigGraph,
+						"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
+								+ ".dot");
 			}
-		}
 
+			// ArrayList<String> runDirs = AnalysisUtil
+			// .getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/ls");
+			// String graphDir1 = runDirs.get(runDirs
+			// .indexOf(DebugUtils.TMP_HASHLOG_DIR + "/ls/run483")), graphDir2 =
+			// runDirs
+			// .get(runDirs
+			// .indexOf(DebugUtils.TMP_HASHLOG_DIR + "/ls/run391"));
+			//
+			// ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
+			// graphDir1).get(0), graph2 = ExecutionGraph
+			// .buildGraphsFromRunDir(graphDir2).get(0);
+			// GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+			// graphMerger.mergeGraph();
+		}
 	}
 
 	public GraphMerger() {
@@ -67,6 +81,8 @@ public class GraphMerger extends Thread {
 
 	private ExecutionGraph graph1, graph2;
 	private ExecutionGraph mergedGraph;
+
+	public static GraphMergingInfo graphMergingInfo;
 
 	public void setGraph1(ExecutionGraph graph1) {
 		this.graph1 = graph1;
@@ -136,7 +152,6 @@ public class GraphMerger extends Thread {
 				return 0;
 		}
 
-		boolean hasDirectBranch = false;
 		int res = -1;
 
 		// First treat call node
@@ -174,9 +189,10 @@ public class GraphMerger extends Thread {
 						// Need to treat the edge type specially here
 						continue;
 					}
-					if (e1.getEdgeType() == EdgeType.Direct
-							|| e1.getEdgeType() == EdgeType.Call_Continuation) {
-						hasDirectBranch = true;
+					if (e1.getEdgeType() == EdgeType.Call_Continuation) {
+						continue;
+					}
+					if (e1.getEdgeType() == EdgeType.Direct) {
 						if (e1.getNode().getHash() != e2.getNode().getHash()) {
 							return -1;
 						} else {
@@ -247,9 +263,6 @@ public class GraphMerger extends Thread {
 				}
 			}
 		}
-
-		if (!hasDirectBranch && score == 0)
-			return -1;
 
 		return score;
 	}
@@ -561,13 +574,22 @@ public class GraphMerger extends Thread {
 	}
 
 	public ExecutionGraph mergeGraph() {
-		GraphMergingInfo.dumpGraph(graph1,
-				"graph-files/" + graph1.getProgName() + graph1.getPid()
-						+ ".dot");
-		GraphMergingInfo.dumpGraph(graph2,
-				"graph-files/" + graph2.getProgName() + graph2.getPid()
-						+ ".dot");
-		return mergeGraph(graph1, graph2);
+		if (graph1 == null || graph2 == null)
+			return null;
+		if (DebugUtils.debugDecision(DebugUtils.DUMP_GRAPH)) {
+			GraphMergingInfo.dumpGraph(graph1,
+					"graph-files/" + graph1.getProgName() + graph1.getPid()
+							+ ".dot");
+			GraphMergingInfo.dumpGraph(graph2,
+					"graph-files/" + graph2.getProgName() + graph2.getPid()
+							+ ".dot");
+		}
+		if (graph1.getNodes().size() > graph2.getNodes().size()) {
+			mergedGraph = mergeGraph(graph1, graph2);
+		} else {
+			mergedGraph = mergeGraph(graph2, graph1);
+		}
+		return mergedGraph;
 	}
 
 	/**
@@ -578,6 +600,15 @@ public class GraphMerger extends Thread {
 	 */
 	public ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
+		// Pre-examination of the graph
+		if (graph1 == null || graph2 == null) {
+			return null;
+		}
+		if (graph1.getNodes().size() == 0) {
+			return new ExecutionGraph(graph2);
+		} else if (graph2.getNodes().size() == 0) {
+			return new ExecutionGraph(graph1);
+		}
 
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
@@ -639,12 +670,6 @@ public class GraphMerger extends Thread {
 				if (n2.isVisited())
 					continue;
 				n2.setVisited();
-
-				if (DebugUtils.debug) {
-					if (n2.getIndex() == 853) {
-						DebugUtils.stopHere();
-					}
-				}
 
 				for (int k = 0; k < n2.getEdges().size(); k++) {
 					Edge e = n2.getEdges().get(k);
@@ -733,10 +758,14 @@ public class GraphMerger extends Thread {
 				Node parentNode1 = nodeEdgePair.getParentNode1(), parentNode2 = nodeEdgePair
 						.getParentNode2();
 				Edge e = nodeEdgePair.getCurNodeEdge();
-
+				if (DebugUtils.debug) {
+					// Debug direct edge conflict after entering the main block
+					if (e.getNode().getIndex() == 181) {
+						DebugUtils.stopHere();
+					}
+				}
 				Node childNode1 = getCorrespondingIndirectChildNode(graph1,
 						parentNode1, e, matchedNodes);
-
 				if (childNode1 != null) {
 					matchedQueue.add(new PairNode(childNode1, e.getNode(),
 							pairNode.level + 1));
@@ -803,7 +832,7 @@ public class GraphMerger extends Thread {
 						// heuristic
 						System.out.println("PureHeuristic: " + node1.getIndex()
 								+ "<->" + curNode.getIndex()
-								+ "(by pure heuristic");
+								+ "(by pure heuristic)");
 					}
 
 					matchedQueue.add(new PairNode(node1, curNode,
@@ -825,18 +854,22 @@ public class GraphMerger extends Thread {
 
 		if (hasConflict) {
 			System.out.println("Can't merge the two graphs!!");
-			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2,
+			graphMergingInfo = new GraphMergingInfo(graph1, graph2,
 					matchedNodes);
-			mergingInfo.outputMergedGraphInfo();
+			graphMergingInfo.outputMergedGraphInfo();
 			return null;
 		} else {
 			// System.out.println("The two graphs merge!!");
 			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2,
 					matchedNodes);
 
-			GraphMergingInfo mergingInfo = new GraphMergingInfo(graph1, graph2,
+			graphMergingInfo = new GraphMergingInfo(graph1, graph2,
 					matchedNodes);
-			mergingInfo.outputMergedGraphInfo();
+			if (graphMergingInfo.lowMatching()) {
+				graphMergingInfo.outputMergedGraphInfo();
+			} else {
+				graphMergingInfo.outputMergedGraphInfo();
+			}
 			return mergedGraph;
 		}
 	}
@@ -844,7 +877,7 @@ public class GraphMerger extends Thread {
 	public void run() {
 		if (graph1 == null || graph2 == null)
 			return;
-		if (DebugUtils.debug) {
+		if (DebugUtils.debugDecision(DebugUtils.DUMP_GRAPH)) {
 			GraphMergingInfo.dumpGraph(graph1,
 					"graph-files/" + graph1.getProgName() + graph1.getPid()
 							+ ".dot");
@@ -852,7 +885,7 @@ public class GraphMerger extends Thread {
 					"graph-files/" + graph2.getProgName() + graph2.getPid()
 							+ ".dot");
 		}
-		if (graph1.getNodes().size() < graph2.getNodes().size()) {
+		if (graph1.getNodes().size() > graph2.getNodes().size()) {
 			mergedGraph = mergeGraph(graph1, graph2);
 		} else {
 			mergedGraph = mergeGraph(graph2, graph1);

@@ -44,7 +44,6 @@ public class AnalysisUtil {
 			pid = Integer.parseInt(pidStr);
 		} catch (NumberFormatException e) {
 			pid = 0;
-			e.printStackTrace();
 		}
 		return pid;
 	}
@@ -150,6 +149,12 @@ public class AnalysisUtil {
 				res.remove(elem);
 		return res;
 	}
+	
+	public static HashSet<Long> union(HashSet<Long> s1, HashSet<Long> s2) {
+		HashSet<Long> res = new HashSet<Long>(s1);
+		res.addAll(s2);
+		return res;
+	}
 
 	public static HashSet<Long> intersection(HashSet<Long> s1, HashSet<Long> s2) {
 		HashSet<Long> res = new HashSet<Long>(s1);
@@ -166,6 +171,23 @@ public class AnalysisUtil {
 			return bbuf.getLong(0);
 		}
 		return l;
+	}
+	
+	public static String getRunStr(String path) {
+		if (path == null) {
+			return null;
+		}
+		int runIdx = path.indexOf("run");
+		int endIdx = path.indexOf('/', runIdx);
+		endIdx = endIdx == -1 ? path.length() : endIdx;
+		return path.substring(runIdx, endIdx);
+	}
+	
+	public static String getRunPath(String path) {
+		int runIdx = path.indexOf("run");
+		int endIdx = path.indexOf('/', runIdx);
+		endIdx = endIdx == -1 ? path.length() : endIdx;
+		return path.substring(0, endIdx);
 	}
 	
 	public static String getBaseNameFromPath(String path, String separator) {

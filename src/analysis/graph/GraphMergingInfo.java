@@ -5,26 +5,49 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import utils.AnalysisUtil;
 
+import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.Edge;
-import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
-import analysis.graph.representation.Node;
 
 public class GraphMergingInfo {
-	
+
 	public final ExecutionGraph graph1, graph2;
 	public final MatchedNodes matchedNodes;
 	
-	public GraphMergingInfo(ExecutionGraph graph1, ExecutionGraph graph2, MatchedNodes matchedNodes) {
+	public static final float LowMatchingThreshold = 0.15f;
+
+	private float setInterRate;
+	private float nodeInterRate;
+	private int totalNodeSize;
+
+	public GraphMergingInfo(ExecutionGraph graph1, ExecutionGraph graph2,
+			MatchedNodes matchedNodes) {
 		this.graph1 = graph1;
 		this.graph2 = graph2;
 		this.matchedNodes = matchedNodes;
+
+		HashSet<Long> interBlockHashes = AnalysisUtil.intersection(
+				graph1.getBlockHashes(), graph2.getBlockHashes());
+		HashSet<Long> totalBlockHashes = AnalysisUtil.union(
+				graph1.getBlockHashes(), graph2.getBlockHashes());
+		setInterRate = (float) interBlockHashes.size()
+				/ totalBlockHashes.size();
+		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
+				- matchedNodes.size();
+		nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
+	}
+	
+	public boolean lowMatching() {
+		if ((setInterRate - nodeInterRate) > LowMatchingThreshold) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void dumpMatchedNodes() {
@@ -35,29 +58,26 @@ public class GraphMergingInfo {
 	}
 
 	synchronized public void outputMergedGraphInfo() {
-		System.out.println("Comparison between " + graph1.getProgName() + graph1.getPid() + " & " + 
-			graph2.getProgName() + graph2.getPid() + ":");
-		
-		System.out.println("Size of nodes in graph1: " + graph1.getNodes().size());
-		System.out.println("Size of nodes in graph2: " + graph2.getNodes().size());
-		HashSet<Long> interPairHashes = AnalysisUtil.intersection(
-				graph1.getPairHashes(), graph2.getPairHashes()), interBlockHashes = AnalysisUtil
-				.intersection(graph1.getBlockHashes(), graph2.getBlockHashes());
-		HashSet<Long> totalPairHashes = new HashSet(graph1.getPairHashes());
-		totalPairHashes.addAll(graph2.getPairHashes());
-		HashSet<Long> totalBlockHashes = new HashSet(graph1.getBlockHashes());
-		totalBlockHashes.addAll(graph2.getBlockHashes());
+		System.out.println();
+		System.out.println("Comparison between " + graph1.getProgName()
+				+ graph1.getPid() + " & " + graph2.getProgName()
+				+ graph2.getPid() + ":");
+		System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir()) + " & "
+				+ AnalysisUtil.getRunStr(graph2.getRunDir()));
+
+		System.out.println("Size of nodes in graph1: "
+				+ graph1.getNodes().size());
+		System.out.println("Size of nodes in graph2: "
+				+ graph2.getNodes().size());
+
 		System.out.println("Intersection ratio of block hashes: "
-				+ (float) interBlockHashes.size() / totalBlockHashes.size());
-		int totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
-				- matchedNodes.size();
+				+ setInterRate);
 		System.out.println("Merged nodes: " + matchedNodes.size());
 		System.out.println("Merged nodes / G1 nodes: "
 				+ (float) matchedNodes.size() / graph1.getNodes().size());
 		System.out.println("Merged nodes / G2 nodes: "
 				+ (float) matchedNodes.size() / graph2.getNodes().size());
-		System.out.println("Merged nodes / all nodes: "
-				+ (float) matchedNodes.size() / totalNodeSize);
+		System.out.println("Merged nodes / all nodes: " + nodeInterRate);
 		System.out.println();
 	}
 
@@ -170,5 +190,17 @@ public class GraphMergingInfo {
 
 	public static void dumpHashCollision(ExecutionGraph graph) {
 
+	}
+
+	public int getTotalNodeSize() {
+		return totalNodeSize;
+	}
+
+	public float getSetInterRate() {
+		return setInterRate;
+	}
+
+	public float getNodeInterRate() {
+		return nodeInterRate;
 	}
 }

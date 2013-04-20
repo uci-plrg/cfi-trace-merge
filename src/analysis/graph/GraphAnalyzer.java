@@ -13,6 +13,12 @@ public class GraphAnalyzer {
 
 	// The number of threads on a single machine, it's configurable
 	private static int threadGroupSize = 32;
+	
+	// Counter of pair comparisons it has done
+	private static int pairCnt;
+	
+	// The current thread counter
+	private static int threadCnt;
 
 	public static void main(String[] argvs) {
 		// Getopt g = new Getopt("GraphAnalyzer", argvs, "xonf:d:t:m:");
@@ -73,15 +79,13 @@ public class GraphAnalyzer {
 		File[] runDirs = file.listFiles();
 
 		GraphMerger[] mergers = new GraphMerger[threadGroupSize];
-		int threadCnt = 0;
+		threadCnt = 0;
+		pairCnt = 0;
 
 		for (int i = 0; i < runDirs.length; i++) {
 			for (int j = i + 1; j < runDirs.length; j++) {
 				if (runDirs[i].getName().indexOf("run") == -1
 						|| runDirs[j].getName().indexOf("run") == -1) {
-					continue;
-				}
-				if (Integer.parseInt(runDirs[i].getName().substring(3)) < 480) {
 					continue;
 				}
 				ExecutionGraph g1 = ExecutionGraph.buildGraphsFromRunDir(
@@ -93,9 +97,11 @@ public class GraphAnalyzer {
 				mergers[threadCnt] = new GraphMerger(g1, g2);
 				mergers[threadCnt].start();
 				threadCnt++;
+				pairCnt++;
 
 				if (threadCnt == threadGroupSize) {
 					threadCnt = 0;
+					System.out.println(pairCnt + " pairs have been launched!");
 					for (int k = 0; k < threadGroupSize; k++) {
 						try {
 							mergers[k].join();
