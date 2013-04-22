@@ -15,3 +15,11 @@ are not the same. On dc-1, it was strcpy_sse2 while on dc-2 it was strcpy_sse3. 
 	In the case where a node must try to match its indirect outgoing edges, it occurs that different pairs of nodes get mismatched. This happens
 in one case because the 'getContextSimilarity' score heuristic does not reflect exactly the similarity of nodes.
 	TODO: 1. Fix the score strategy; 2. To increase the precision of matching, should consider a pair-wise comparison between indirect edges.
+
+
+3.  Low matching rate
+    From the result, some executions of ls have a very low matching rate compared to the block hash intersection rate (something like 
+20%:90%). This does not happen all the time, it might be normal because those executions might be really different. However, it needs further validation.
+
+4.  Dangling nodes
+    There are a few hundreds of dangling nodes in one graph (nodes that have no incoming edges except the first node). When using the heuristic to match nodes, we should ignore those dangling nodes.

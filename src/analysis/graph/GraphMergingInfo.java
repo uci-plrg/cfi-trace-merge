@@ -13,6 +13,7 @@ import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
+import analysis.graph.representation.Node;
 
 public class GraphMergingInfo {
 
@@ -40,6 +41,28 @@ public class GraphMergingInfo {
 		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
 				- matchedNodes.size();
 		nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
+	}
+	
+	public ArrayList<Node> unmatchedGraph1Nodes() {
+		ArrayList<Node> unmatchedNodes = new ArrayList<Node>();
+		for (int i = 0; i < graph1.getNodes().size(); i++) {
+			Node n = graph1.getNodes().get(i);
+			if (!matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
+				unmatchedNodes.add(n);
+			}
+		}
+		return unmatchedNodes;
+	}
+	
+	public ArrayList<Node> unmatchedGraph2Nodes() {
+		ArrayList<Node> unmatchedNodes = new ArrayList<Node>();
+		for (int i = 0; i < graph2.getNodes().size(); i++) {
+			Node n = graph2.getNodes().get(i);
+			if (!matchedNodes.containsKeyBySecondIndex(n.getIndex())) {
+				unmatchedNodes.add(n);
+			}
+		}
+		return unmatchedNodes;
 	}
 	
 	public boolean lowMatching() {

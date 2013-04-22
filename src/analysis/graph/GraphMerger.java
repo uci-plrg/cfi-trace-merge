@@ -41,32 +41,20 @@ public class GraphMerger extends Thread {
 		if (DebugUtils.debug) {
 			// Really ad-hoc debugging code
 			ArrayList<String> runDirs = AnalysisUtil
-					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/dot");
-			ExecutionGraph bigGraph = ExecutionGraph
-					.buildGraphsFromRunDir(runDirs.get(0)).get(0);
-			bigGraph.setProgName("bigGraph");
-			for (int i = 1; i < runDirs.size(); i++) {
-				GraphMerger graphMerger = new GraphMerger(bigGraph, ExecutionGraph
-						.buildGraphsFromRunDir(runDirs.get(i)).get(0));
-				bigGraph = graphMerger.mergeGraph();
-				GraphMergingInfo.dumpGraph(bigGraph,
-						"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
-								+ ".dot");
-			}
+					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/latex");
+			String graphDir1 = runDirs.get(runDirs
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/latex/run483")), graphDir2 = runDirs
+					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR
+							+ "/latex/run653"));
 
-			// ArrayList<String> runDirs = AnalysisUtil
-			// .getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/ls");
-			// String graphDir1 = runDirs.get(runDirs
-			// .indexOf(DebugUtils.TMP_HASHLOG_DIR + "/ls/run483")), graphDir2 =
-			// runDirs
-			// .get(runDirs
-			// .indexOf(DebugUtils.TMP_HASHLOG_DIR + "/ls/run391"));
-			//
-			// ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
-			// graphDir1).get(0), graph2 = ExecutionGraph
-			// .buildGraphsFromRunDir(graphDir2).get(0);
-			// GraphMerger graphMerger = new GraphMerger(graph1, graph2);
-			// graphMerger.mergeGraph();
+			ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
+					graphDir1).get(0), graph2 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir2).get(0);
+			ArrayList accessibleNodes = graph2.getAccessibleNodes();
+			GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+			graphMerger.mergeGraph();
+			ArrayList unmatchedNodes = GraphMerger.graphMergingInfo.unmatchedGraph1Nodes();
+			System.out.println("Accessible nodes of graph1: " + accessibleNodes.size());
 		}
 	}
 
@@ -636,8 +624,11 @@ public class GraphMerger extends Thread {
 		matchedQueue.add(pairNode);
 		matchedNodes.addPair(n_1.getIndex(), n_2.getIndex());
 
+		Node mainNode1 = null, mainNode2 = null;
+		mainNode1 = getMainBlock(graph1);
+		mainNode2 = getMainBlock(graph2);
+
 		if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN_ADD_MAIN)) {
-			Node mainNode1 = getMainBlock(graph1), mainNode2 = getMainBlock(graph2);
 			if (mainNode1 != null && mainNode2 != null) {
 				matchedNodes
 						.addPair(mainNode1.getIndex(), mainNode2.getIndex());
@@ -670,6 +661,19 @@ public class GraphMerger extends Thread {
 				if (n2.isVisited())
 					continue;
 				n2.setVisited();
+
+				if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN)) {
+					// Treat the first main block specially
+					if (n2.getHash() == specialHash) {
+						if (mainNode1 != null && mainNode2 != null) {
+							if (mainNode1.getHash() != mainNode2.getHash()) {
+								System.out.println("Conflict at first block!");
+								hasConflict = true;
+								break;
+							}
+						}
+					}
+				}
 
 				for (int k = 0; k < n2.getEdges().size(); k++) {
 					Edge e = n2.getEdges().get(k);
@@ -758,12 +762,14 @@ public class GraphMerger extends Thread {
 				Node parentNode1 = nodeEdgePair.getParentNode1(), parentNode2 = nodeEdgePair
 						.getParentNode2();
 				Edge e = nodeEdgePair.getCurNodeEdge();
+				
 				if (DebugUtils.debug) {
 					// Debug direct edge conflict after entering the main block
 					if (e.getNode().getIndex() == 181) {
 						DebugUtils.stopHere();
 					}
 				}
+				
 				Node childNode1 = getCorrespondingIndirectChildNode(graph1,
 						parentNode1, e, matchedNodes);
 				if (childNode1 != null) {
@@ -850,7 +856,15 @@ public class GraphMerger extends Thread {
 				curNode.setVisited();
 			}
 		}
-		// }
+
+		if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN)) {
+			if (mainNode1 != null && mainNode2 != null) {
+				if (mainNode1.getHash() != mainNode2.getHash()) {
+					System.out.println("Conflict at first block!");
+					hasConflict = true;
+				}
+			}
+		}
 
 		if (hasConflict) {
 			System.out.println("Can't merge the two graphs!!");

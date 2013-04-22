@@ -416,6 +416,39 @@ public class ExecutionGraph {
 		}
 		return graphs;
 	}
+	
+	public ArrayList<Node> getAccessibleNodes() {
+		ArrayList<Node> accessibleNodes = new ArrayList<Node>();
+		for (int i = 0; i < nodes.size(); i++) {
+			nodes.get(i).resetVisited();
+		}
+		Queue<Node> bfsQueue = new LinkedList<Node>();
+		bfsQueue.add(nodes.get(0));
+		nodes.get(0).setVisited();
+		while (bfsQueue.size() > 0) {
+			Node n = bfsQueue.remove();
+			accessibleNodes.add(n);
+			for (int i = 0; i < n.getEdges().size(); i++) {
+				Node neighbor = n.getEdges().get(i).getNode();
+				if (!neighbor.isVisited()) {
+					bfsQueue.add(neighbor);
+					neighbor.setVisited();
+				}
+			}
+		}
+		return accessibleNodes;
+	}
+	
+	public ArrayList<Node> getDanglingNodes() {
+		ArrayList<Node> danglingNodes = new ArrayList<Node>();
+		for (int i = 0; i < nodes.size(); i++) {
+			Node n = nodes.get(i);
+			if (n.getIncomingEdges().size() == 0
+					&& n.getEdges().size() == 0)
+				danglingNodes.add(n);
+		}
+		return danglingNodes;
+	}
 
 	/**
 	 * To validate the correctness of the graph. Basically it checks if entry

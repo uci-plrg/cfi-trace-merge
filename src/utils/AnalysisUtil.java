@@ -190,6 +190,7 @@ public class AnalysisUtil {
 		return path.substring(0, endIdx);
 	}
 	
+	
 	public static String getBaseNameFromPath(String path, String separator) {
 		int lastIndex = path.lastIndexOf(separator);
 		if (lastIndex == -1) {
