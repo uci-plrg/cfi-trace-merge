@@ -41,7 +41,7 @@ public class MatchedNodes implements Iterable<Integer> {
 		
 		if (DebugUtils.debug) {
 			if (index2 == 853) {
-				DebugUtils.stopHere();
+				DebugUtils.debug_stopHere();
 			}
 		}
 		

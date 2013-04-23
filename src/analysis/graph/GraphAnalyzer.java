@@ -74,8 +74,8 @@ public class GraphAnalyzer {
 		// }
 		// }
 
-		pairComparison(argvs[0], true);
-//		ExecutionGraph bigGraph = mergeOneGraph(argvs[0]);
+//		pairComparison(argvs[0], true);
+		ExecutionGraph bigGraph = mergeOneGraph(argvs[0]);
 	}
 	
 	public static ExecutionGraph mergeOneGraph(String dir) {
@@ -83,11 +83,15 @@ public class GraphAnalyzer {
 		
 		ExecutionGraph bigGraph = ExecutionGraph.buildGraphsFromRunDir(
 				runDirs.get(0)).get(0);
+		GraphMergingInfo.dumpGraph(
+				bigGraph,
+				"graph-files/" + bigGraph.getProgName()
+						+ bigGraph.getPid() + ".dot");
 		bigGraph.setProgName("bigGraph");
 		for (int i = 1; i < runDirs.size(); i++) {
-			GraphMerger graphMerger = new GraphMerger(bigGraph,
-					ExecutionGraph.buildGraphsFromRunDir(runDirs.get(i))
-							.get(0));
+			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(runDirs.get(i))
+					.get(0);
+			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
 			bigGraph = graphMerger.mergeGraph();
 			GraphMergingInfo.dumpGraph(
 					bigGraph,

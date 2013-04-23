@@ -40,6 +40,8 @@ public class GraphMergingInfo {
 				/ totalBlockHashes.size();
 		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
 				- matchedNodes.size();
+//		totalNodeSize = graph1.getAccessibleNodes().size() + graph2.getAccessibleNodes().size()
+//				- matchedNodes.size();
 		nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 	}
 	

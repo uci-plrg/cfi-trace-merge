@@ -41,11 +41,11 @@ public class GraphMerger extends Thread {
 		if (DebugUtils.debug) {
 			// Really ad-hoc debugging code
 			ArrayList<String> runDirs = AnalysisUtil
-					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/latex");
+					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/ls");
 			String graphDir1 = runDirs.get(runDirs
-					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/latex/run483")), graphDir2 = runDirs
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/ls/run310")), graphDir2 = runDirs
 					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR
-							+ "/latex/run653"));
+							+ "/ls/run483"));
 
 			ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
 					graphDir1).get(0), graph2 = ExecutionGraph
@@ -257,17 +257,27 @@ public class GraphMerger extends Thread {
 
 	private Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2, MatchedNodes matchedNodes) {
+		
+		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+			DebugUtils.debug_pureHeuristicCnt++;
+		}
+		
 		// First check if this is a node already merged
 		if (matchedNodes.getBySecondIndex(node2.getIndex()) != null) {
 			return graph1.getNodes().get(
 					matchedNodes.getBySecondIndex(node2.getIndex()));
 		}
-
 		// This node does not belongs to G1 and
 		// is not yet added to G1
 		ArrayList<Node> nodes1 = graph1.getHash2Nodes().get(node2.getHash());
-		if (nodes1 == null || nodes1.size() == 0)
+		if (nodes1 == null || nodes1.size() == 0) {
+			
+			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+				DebugUtils.debug_pureHeuristicNotPresentCnt++;
+			}
+			
 			return null;
+		}
 
 		ArrayList<Node> candidates = new ArrayList<Node>();
 		for (int i = 0; i < nodes1.size(); i++) {
@@ -341,7 +351,7 @@ public class GraphMerger extends Thread {
 									.println("Call continuation has different targets!");
 						}
 
-						if (DebugUtils.debugDecision(DebugUtils.MERGE_ERROR)) {
+						if (DebugUtils.debug_decision(DebugUtils.MERGE_ERROR)) {
 							System.out.println("Direct edge conflict: "
 									+ e.getNode().getIndex() + "<->"
 									+ curNode.getIndex() + "(By "
@@ -370,6 +380,10 @@ public class GraphMerger extends Thread {
 	 */
 	private Node getCorrespondingIndirectChildNode(ExecutionGraph graph1,
 			Node parentNode1, Edge curNodeEdge, MatchedNodes matchedNodes) {
+		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+			DebugUtils.debug_indirectCnt++;
+		}
+		
 		Node curNode = curNodeEdge.getNode();
 
 		// First check if the current node is already matched
@@ -379,6 +393,7 @@ public class GraphMerger extends Thread {
 		}
 
 		ArrayList<Node> candidates = new ArrayList<Node>();
+		
 		for (int i = 0; i < parentNode1.getEdges().size(); i++) {
 			Edge e = parentNode1.getEdges().get(i);
 			if (e.getOrdinal() == curNodeEdge.getOrdinal()) {
@@ -564,7 +579,7 @@ public class GraphMerger extends Thread {
 	public ExecutionGraph mergeGraph() {
 		if (graph1 == null || graph2 == null)
 			return null;
-		if (DebugUtils.debugDecision(DebugUtils.DUMP_GRAPH)) {
+		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
 			GraphMergingInfo.dumpGraph(graph1,
 					"graph-files/" + graph1.getProgName() + graph1.getPid()
 							+ ".dot");
@@ -588,6 +603,11 @@ public class GraphMerger extends Thread {
 	 */
 	public ExecutionGraph mergeGraph(ExecutionGraph graph1,
 			ExecutionGraph graph2) {
+		// Initialize debugging info before merging the graph
+		if (DebugUtils.debug) {
+			DebugUtils.debug_init();
+		}
+		
 		// Pre-examination of the graph
 		if (graph1 == null || graph2 == null) {
 			return null;
@@ -601,6 +621,9 @@ public class GraphMerger extends Thread {
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
 				.getHash()) {
+			System.out.println("In execution "
+					+ graph1.getProgName() + graph1.getPid() + " & "
+					+ graph2.getProgName() + graph2.getPid());
 			System.out
 					.println("First node not the same, so wired and I can't merge...");
 			return null;
@@ -628,7 +651,7 @@ public class GraphMerger extends Thread {
 		mainNode1 = getMainBlock(graph1);
 		mainNode2 = getMainBlock(graph2);
 
-		if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN_ADD_MAIN)) {
+		if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN_ADD_MAIN)) {
 			if (mainNode1 != null && mainNode2 != null) {
 				matchedNodes
 						.addPair(mainNode1.getIndex(), mainNode2.getIndex());
@@ -662,7 +685,7 @@ public class GraphMerger extends Thread {
 					continue;
 				n2.setVisited();
 
-				if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN)) {
+				if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN)) {
 					// Treat the first main block specially
 					if (n2.getHash() == specialHash) {
 						if (mainNode1 != null && mainNode2 != null) {
@@ -730,7 +753,7 @@ public class GraphMerger extends Thread {
 								}
 
 								if (DebugUtils
-										.debugDecision(DebugUtils.PRINT_MATCHING_HISTORY)) {
+										.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 									// Print out indirect nodes that can be
 									// matched
 									// by direct edges. However, they might also
@@ -766,7 +789,7 @@ public class GraphMerger extends Thread {
 				if (DebugUtils.debug) {
 					// Debug direct edge conflict after entering the main block
 					if (e.getNode().getIndex() == 181) {
-						DebugUtils.stopHere();
+						DebugUtils.debug_stopHere();
 					}
 				}
 				
@@ -797,7 +820,7 @@ public class GraphMerger extends Thread {
 						}
 
 						if (DebugUtils
-								.debugDecision(DebugUtils.PRINT_MATCHING_HISTORY)) {
+								.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 							// Print out indirect nodes that must be decided by
 							// heuristic
 							System.out.println("Indirect: "
@@ -809,6 +832,9 @@ public class GraphMerger extends Thread {
 
 					}
 				} else {
+					if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+						DebugUtils.debug_indirectUnmatchedCnt++;
+					}
 					unmatchedQueue.add(new PairNode(null, e.getNode(),
 							pairNode.level + 1));
 				}
@@ -833,7 +859,7 @@ public class GraphMerger extends Thread {
 					}
 
 					if (DebugUtils
-							.debugDecision(DebugUtils.PRINT_MATCHING_HISTORY)) {
+							.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 						// Print out indirect nodes that must be decided by
 						// heuristic
 						System.out.println("PureHeuristic: " + node1.getIndex()
@@ -857,7 +883,7 @@ public class GraphMerger extends Thread {
 			}
 		}
 
-		if (DebugUtils.debugDecision(DebugUtils.MAIN_KNOWN)) {
+		if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN)) {
 			if (mainNode1 != null && mainNode2 != null) {
 				if (mainNode1.getHash() != mainNode2.getHash()) {
 					System.out.println("Conflict at first block!");
@@ -866,6 +892,13 @@ public class GraphMerger extends Thread {
 			}
 		}
 
+		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+			System.out.println("All pure heuristic: " + DebugUtils.debug_pureHeuristicCnt);
+			System.out.println("Pure heuristic not present: " + DebugUtils.debug_pureHeuristicNotPresentCnt);
+			System.out.println("All indirect heuristic: " + DebugUtils.debug_indirectCnt);
+			System.out.println("Indirect heuristic unmatched: " + DebugUtils.debug_indirectUnmatchedCnt);
+		}
+		
 		if (hasConflict) {
 			System.out.println("Can't merge the two graphs!!");
 			graphMergingInfo = new GraphMergingInfo(graph1, graph2,
@@ -891,7 +924,7 @@ public class GraphMerger extends Thread {
 	public void run() {
 		if (graph1 == null || graph2 == null)
 			return;
-		if (DebugUtils.debugDecision(DebugUtils.DUMP_GRAPH)) {
+		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
 			GraphMergingInfo.dumpGraph(graph1,
 					"graph-files/" + graph1.getProgName() + graph1.getPid()
 							+ ".dot");
