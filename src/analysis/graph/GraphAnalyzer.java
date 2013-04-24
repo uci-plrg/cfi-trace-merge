@@ -24,79 +24,69 @@ public class GraphAnalyzer {
 	private static int threadCnt;
 
 	public static void main(String[] argvs) {
-		// Getopt g = new Getopt("GraphAnalyzer", argvs, "xonf:d:t:m:");
-		// int c;
-		// // By default we will have numThreads number of threads
-		// boolean append = true,
-		// isAnalyzing = true,
-		// error = false;
-		// String dir4Files = null, dir4Runs = null,
-		// recordFile = null, freqFile = null;
-		// String dir4Hashset1 = null, dir4Hashset2 = null;
-		// boolean isDistance = false;
-		// while ((c = g.getopt()) != -1) {
-		// switch (c) {
-		// case 'o':
-		// append = false;
-		// break;
-		// case 'f':
-		// dir4Files = g.getOptarg();
-		// if (dir4Files.startsWith("-"))
-		// error = true;
-		// break;
-		// case 'd':
-		// dir4Runs = g.getOptarg();
-		// if (dir4Runs.startsWith("-"))
-		// error = true;
-		// break;
-		// case 't':
-		// numThreads = Integer.parseInt(g.getOptarg());
-		// break;
-		// case 'n':
-		// isAnalyzing = false;
-		// break;
-		// case 'm':
-		// freqFile = g.getOptarg();
-		// break;
-		// case 'x':
-		// // this option is used to compute the distance of two sets
-		// // it should work with -m option
-		// isDistance = true;
-		// break;
-		// case '?':
-		// error = true;
-		// System.out.println("parse error for option: -" + (char)
-		// g.getOptopt());
-		// break;
-		// default:
-		// error = true;
-		// break;
-		// }
-		// }
+		Getopt g = new Getopt("GraphAnalyzer", argvs, "msd:t:");
+		int c;
+		// By default we will have numThreads number of threads
+		boolean error = false, sameProg = false, merge = false;
+		String runDirs = null;
+		while ((c = g.getopt()) != -1) {
+			switch (c) {
+			case 'm':
+				merge = true;
+				break;
+			case 's':
+				sameProg = true;
+				break;
+			case 'd':
+				runDirs = g.getOptarg();
+				break;
+			case 't':
+				threadGroupSize = Integer.parseInt(g.getOptarg());
+				break;
+			case '?':
+				error = true;
+				System.out.println("parse error for option: -"
+						+ (char) g.getOptopt());
+				break;
+			default:
+				error = true;
+				break;
+			}
+		}
 
-//		pairComparison(argvs[0], true);
-		ExecutionGraph bigGraph = mergeOneGraph(argvs[0]);
+		if (runDirs == null) {
+			error = true;
+		}
+		
+		if (error) {
+			System.out.println("Parameter error, correct it first!");
+			return;
+		}
+		
+		if (merge) {
+			ExecutionGraph bigGraph = mergeOneGraph(runDirs);
+		} else {
+			pairComparison(runDirs, sameProg);
+		}
 	}
-	
+
 	public static ExecutionGraph mergeOneGraph(String dir) {
 		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(dir);
-		
+
 		ExecutionGraph bigGraph = ExecutionGraph.buildGraphsFromRunDir(
 				runDirs.get(0)).get(0);
-		GraphMergingInfo.dumpGraph(
-				bigGraph,
-				"graph-files/" + bigGraph.getProgName()
-						+ bigGraph.getPid() + ".dot");
+		GraphMergingInfo.dumpGraph(bigGraph,
+				"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
+						+ ".dot");
 		bigGraph.setProgName("bigGraph");
 		for (int i = 1; i < runDirs.size(); i++) {
-			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(runDirs.get(i))
-					.get(0);
+			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(
+					runDirs.get(i)).get(0);
 			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
 			bigGraph = graphMerger.mergeGraph();
-			GraphMergingInfo.dumpGraph(
-					bigGraph,
-					"graph-files/" + bigGraph.getProgName()
-							+ bigGraph.getPid() + ".dot");
+			GraphMergingInfo.dumpGraph(bigGraph,
+					"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
+							+ ".dot");
 		}
 		return bigGraph;
 	}
@@ -115,7 +105,7 @@ public class GraphAnalyzer {
 						|| dirName2.indexOf("run") == -1) {
 					continue;
 				}
-				
+
 				// Run the algorithm on different programs or the same programs
 				if (AnalysisUtil.getProgNameFromPath(dirName1).equals(
 						AnalysisUtil.getProgNameFromPath(dirName2))) {

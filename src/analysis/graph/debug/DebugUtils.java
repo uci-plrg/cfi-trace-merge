@@ -58,21 +58,31 @@ public class DebugUtils {
 	// Times of heuristic used that the hash is not present in graph1
 	public static int debug_pureHeuristicNotPresentCnt;
 	// Times of indirect heuristic used to decide if two nodes match
-	public static int debug_indirectCnt;
+	public static int debug_indirectHeuristicCnt;
 	// Times of indirect heuristic used that the two nodes does not match
-	public static int debug_indirectUnmatchedCnt;
+	public static int debug_indirectHeuristicUnmatchedCnt;
+	// Times of direct nodes does not match
+	public static int debug_directUnmatchedCnt;
+
+	// Nodes that have been visited during merging
+	public static int debug_visitedCnt;
 
 	public static MatchingTrace debug_matchingTrace;
 	public static ContextSimilarityTrace debug_contextSimilarityTrace;
 
+	public static int searchDepth = GraphMerger.pureSearchDepth;
+
 	public static void debug_init() {
 		debug_pureHeuristicCnt = 0;
 		debug_pureHeuristicNotPresentCnt = 0;
-		debug_indirectCnt = 0;
-		debug_indirectUnmatchedCnt = 0;
+		debug_indirectHeuristicCnt = 0;
+		debug_indirectHeuristicUnmatchedCnt = 0;
+		debug_directUnmatchedCnt = 0;
+
+		debug_visitedCnt = 0;
+
 		debug_matchingTrace = new MatchingTrace();
-		debug_contextSimilarityTrace = new ContextSimilarityTrace(
-				GraphMerger.searchDepth);
+		debug_contextSimilarityTrace = new ContextSimilarityTrace(searchDepth);
 	}
 
 	public static void debug_stopHere() {
