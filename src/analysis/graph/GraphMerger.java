@@ -113,7 +113,7 @@ public class GraphMerger extends Thread {
 	// Return value: the score of the similarity, -1 means definitely
 	// not the same, 0 means might be
 	public final static int indirectSearchDepth = 10;
-	public final static int pureSearchDepth = 20;
+	public final static int pureSearchDepth = 10;
 
 	private boolean hasConflict = false;
 
@@ -734,8 +734,8 @@ public class GraphMerger extends Thread {
 					// Find out the next matched node
 					// Prioritize direct edge and call continuation edge
 					Node childNode1;
-					if (e.getEdgeType() == EdgeType.Direct
-							|| e.getEdgeType() == EdgeType.Call_Continuation) {
+					if ((e.getEdgeType() == EdgeType.Direct
+							|| e.getEdgeType() == EdgeType.Call_Continuation)) {
 						childNode1 = getCorrespondingDirectChildNode(n1, e,
 								matchedNodes);
 
@@ -768,6 +768,9 @@ public class GraphMerger extends Thread {
 											+ matchedNodes
 													.getByFirstIndex(childNode1
 															.getIndex()));
+									System.out.println(matchedNodes
+											.getBySecondIndex(e.getNode()
+													.getIndex()));
 									return null;
 								}
 
@@ -950,7 +953,7 @@ public class GraphMerger extends Thread {
 			System.out.println("Can't merge the two graphs!!");
 			graphMergingInfo = new GraphMergingInfo(graph1, graph2,
 					matchedNodes);
-			graphMergingInfo.outputMergedGraphInfo();
+//			graphMergingInfo.outputMergedGraphInfo();
 			return null;
 		} else {
 			// System.out.println("The two graphs merge!!");

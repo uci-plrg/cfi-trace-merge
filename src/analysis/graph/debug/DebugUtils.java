@@ -31,7 +31,7 @@ public class DebugUtils {
 
 	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION3;
 
-	public static final boolean debug = true;
+	public static final boolean debug = false;
 
 	public static int debug_option(int... options) {
 		int opt = 0;

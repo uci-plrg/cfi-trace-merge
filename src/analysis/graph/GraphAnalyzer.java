@@ -83,10 +83,15 @@ public class GraphAnalyzer {
 			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(
 					runDirs.get(i)).get(0);
 			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
-			bigGraph = graphMerger.mergeGraph();
-			GraphMergingInfo.dumpGraph(bigGraph,
-					"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
-							+ ".dot");
+			ExecutionGraph tmpGraph = graphMerger.mergeGraph();
+			if (tmpGraph != null) {
+				int newNodeSize = tmpGraph.getNodes().size() - bigGraph.getNodes().size();
+				bigGraph = tmpGraph;
+				GraphMergingInfo.dumpGraph(bigGraph,
+						"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
+								+ ".dot");
+				System.out.println("Added " + newNodeSize + " nodes to the bigGraph");
+			}
 		}
 		return bigGraph;
 	}

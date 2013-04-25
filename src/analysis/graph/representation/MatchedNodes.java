@@ -34,8 +34,11 @@ public class MatchedNodes implements Iterable<Integer> {
 	}
 	
 	public boolean addPair(int index1, int index2) {
-		if (matchedNodes12.containsKey(index1) || matchedNodes21.containsKey(index2))
+		if (hasPair(index1, index2))
+			return true;
+		if (matchedNodes12.containsKey(index1) || matchedNodes21.containsKey(index2)) {
 			return false;
+		}
 		matchedNodes12.put(index1, index2);
 		matchedNodes21.put(index2, index1);
 		
