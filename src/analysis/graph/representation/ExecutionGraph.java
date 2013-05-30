@@ -44,8 +44,8 @@ public class ExecutionGraph {
 		return nodes;
 	}
 
-	public HashMap<Long, ArrayList<Node>> getHash2Nodes() {
-		return hash2Nodes;
+	public ArrayList<Node> getNodesByHash(long l) {
+		return hash2Nodes.get(l);
 	}
 
 	// FIXME: Deep copy of a graph
@@ -75,22 +75,55 @@ public class ExecutionGraph {
 			// Incoming edges
 			for (int j = 0; j < anotherNode.getIncomingEdges().size(); j++) {
 				Edge e = anotherNode.getIncomingEdges().get(j);
-				node.addIncomingEdge(new Edge(nodes.get(e.getNode().getIndex()), e.getEdgeType(), e.getOrdinal()));
+				node.addIncomingEdge(new Edge(
+						nodes.get(e.getNode().getIndex()), e.getEdgeType(), e
+								.getOrdinal()));
 			}
 			// Outgoing edges
 			for (int j = 0; j < anotherNode.getEdges().size(); j++) {
 				Edge e = anotherNode.getEdges().get(j);
-				node.addIncomingEdge(new Edge(nodes.get(e.getNode().getIndex()), e.getEdgeType(), e.getOrdinal()));
+				node.addIncomingEdge(new Edge(
+						nodes.get(e.getNode().getIndex()), e.getEdgeType(), e
+								.getOrdinal()));
 			}
 		}
-		
+
 		// Copy hash2Nodes field
 		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
 		for (long l : anotherGraph.hash2Nodes.keySet()) {
 			ArrayList<Node> anotherNodes = anotherGraph.hash2Nodes.get(l);
 			hash2Nodes.put(l, new ArrayList<Node>());
 			for (int i = 0; i < anotherNodes.size(); i++) {
-				hash2Nodes.get(l).add(nodes.get(anotherNodes.get(i).getIndex()));
+				hash2Nodes.get(l)
+						.add(nodes.get(anotherNodes.get(i).getIndex()));
+			}
+		}
+		
+		// Make sure the reachable field is set after being copied, might be redundant
+		setReachableNodes();
+	}
+
+	/**
+	 * Traverse the graph to decide if each node is reachable from the entry
+	 * node. This method must be called after the graph has been constructed.
+	 */
+	private void setReachableNodes() {
+		for (int i = 0; i < nodes.size(); i++) {
+			nodes.get(i).resetVisited();
+			nodes.get(i).setReachable(false);
+		}
+		Queue<Node> bfsQueue = new LinkedList<Node>();
+		bfsQueue.add(nodes.get(0));
+		nodes.get(0).setVisited();
+		while (bfsQueue.size() > 0) {
+			Node n = bfsQueue.remove();
+			n.setReachable(true);
+			for (int i = 0; i < n.getEdges().size(); i++) {
+				Node neighbor = n.getEdges().get(i).getNode();
+				if (!neighbor.isVisited()) {
+					bfsQueue.add(neighbor);
+					neighbor.setVisited();
+				}
 			}
 		}
 	}
@@ -148,6 +181,8 @@ public class ExecutionGraph {
 		HashMap<Long, Node> hashLookupTable = readGraphLookup(lookupFiles);
 		readGraph(tagFiles, hashLookupTable);
 
+		// Some other initialization and sanity checks
+		setReachableNodes();
 		validate();
 		if (!isValidGraph) {
 			System.out.println("Pid " + pid + " is not a valid graph!");
@@ -161,7 +196,7 @@ public class ExecutionGraph {
 	public String getProgName() {
 		return progName;
 	}
-	
+
 	public String getRunDir() {
 		return runDir;
 	}
@@ -327,9 +362,9 @@ public class ExecutionGraph {
 			}
 			if (hashesNotInLookup.size() != 0) {
 				// For now, the missing lookup entry is small, just skip it
-//				isValidGraph = false;
-//				System.out.println(hashesNotInLookup.size()
-//						+ " tag doesn't exist in lookup file -> " + tagFile);
+				// isValidGraph = false;
+				// System.out.println(hashesNotInLookup.size()
+				// + " tag doesn't exist in lookup file -> " + tagFile);
 			}
 
 			if (dataIn != null) {
@@ -416,7 +451,7 @@ public class ExecutionGraph {
 		}
 		return graphs;
 	}
-	
+
 	public ArrayList<Node> getAccessibleNodes() {
 		ArrayList<Node> accessibleNodes = new ArrayList<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
@@ -438,13 +473,12 @@ public class ExecutionGraph {
 		}
 		return accessibleNodes;
 	}
-	
+
 	public ArrayList<Node> getDanglingNodes() {
 		ArrayList<Node> danglingNodes = new ArrayList<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
-			if (n.getIncomingEdges().size() == 0
-					&& n.getEdges().size() == 0)
+			if (n.getIncomingEdges().size() == 0 && n.getEdges().size() == 0)
 				danglingNodes.add(n);
 		}
 		return danglingNodes;

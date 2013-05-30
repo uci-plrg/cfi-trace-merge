@@ -18,6 +18,8 @@ public class Node {
 	private int fromWhichGraph = -1;
 	// Meta data of the node
 	private MetaNodeType metaNodeType;
+	// Indicate if this node is reachable from the entry point
+	private boolean reachable = false;
 	
 	// Incomming edges, just in case they might be needed
 	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
@@ -173,5 +175,13 @@ public class Node {
 
 	public int hashCode() {
 		return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode();
+	}
+
+	public boolean isReachable() {
+		return reachable;
+	}
+
+	public void setReachable(boolean reachable) {
+		this.reachable = reachable;
 	}
 }

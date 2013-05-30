@@ -148,10 +148,7 @@ public class GraphAnalyzer {
 							}
 						}
 					}
-				}
-				
-
-				
+				}	
 			}
 		}
 	}

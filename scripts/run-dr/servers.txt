@@ -1,7 +1,7 @@
 # Hostname of servers   Number of logical processors
 #dc-1.eecs.uci.edu	12
 dc-2.eecs.uci.edu	12
-dc-3.eecs.uci.edu	8
+#dc-3.eecs.uci.edu	8
 #dw-4.eecs.uci.edu	4
 #dw-5.eecs.uci.edu	3
 #dw-6.eecs.uci.edu	10

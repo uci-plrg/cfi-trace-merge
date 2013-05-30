@@ -30,7 +30,7 @@ public class GraphMerger extends Thread {
 	 * One case is unmergeable: two direct branch nodes with same hash value but
 	 * have different branch targets (Seems wired!!)
 	 * 
-	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seems
+	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seem
 	 * to enter their main function after a very similar dynamic-loading
 	 * process, at the end of which there is a indirect branch which jumps to
 	 * the real main blocks. In the environment of this machine, the hash value
@@ -299,7 +299,7 @@ public class GraphMerger extends Thread {
 		}
 		// This node does not belongs to G1 and
 		// is not yet added to G1
-		ArrayList<Node> nodes1 = graph1.getHash2Nodes().get(node2.getHash());
+		ArrayList<Node> nodes1 = graph1.getNodesByHash(node2.getHash());
 		if (nodes1 == null || nodes1.size() == 0) {
 
 			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
@@ -593,8 +593,7 @@ public class GraphMerger extends Thread {
 
 	private Node getMainBlock(ExecutionGraph graph) {
 		// Checkout if the first main block equals to each other
-		ArrayList<Node> preMainBlocks = graph.getHash2Nodes().get(
-				GraphMerger.specialHash);
+		ArrayList<Node> preMainBlocks = graph.getNodesByHash(GraphMerger.specialHash);
 		if (preMainBlocks == null) {
 			return null;
 		}
