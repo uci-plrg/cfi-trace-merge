@@ -41,15 +41,14 @@ public class GraphMerger extends Thread {
 		if (DebugUtils.debug) {
 			// Really ad-hoc debugging code
 			ArrayList<String> runDirs = AnalysisUtil
-					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR + "/dd");
+					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 			String graphDir1 = runDirs.get(runDirs
-					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/dd/run721")), graphDir2 = runDirs
-					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR
-							+ "/dd/run27"));
-
-			ExecutionGraph graph1 = ExecutionGraph.buildGraphsFromRunDir(
-					graphDir1).get(0), graph2 = ExecutionGraph
-					.buildGraphsFromRunDir(graphDir2).get(0);
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run8")), graphDir2 = runDirs
+					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run10"));
+			ArrayList<ExecutionGraph> graphs1 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir2);
+			ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2.get(0);
 			ArrayList accessibleNodes1 = graph1.getAccessibleNodes(), accessibleNodes2 = graph2
 					.getAccessibleNodes();
 			GraphMerger graphMerger = new GraphMerger(graph1, graph2);
@@ -62,8 +61,8 @@ public class GraphMerger extends Thread {
 					+ accessibleNodes1.size());
 			System.out.println("Accessible nodes of graph2: "
 					+ accessibleNodes2.size());
-			
-//			DebugUtils.debug_matchingTrace.printTrace(Integer.parseInt(argvs[0]));
+
+			// DebugUtils.debug_matchingTrace.printTrace(Integer.parseInt(argvs[0]));
 		}
 	}
 
@@ -166,15 +165,19 @@ public class GraphMerger extends Thread {
 					MatchingInstance inst;
 					int parentIdx = DebugUtils.searchDepth;
 
-					inst = new MatchingInstance(DebugUtils.searchDepth - depth + 1, e1
-							.getNode().getIndex(), e2.getNode().getIndex(),
-							MatchingType.CallingContinuation, node2.getIndex());
+					inst = new MatchingInstance(DebugUtils.searchDepth - depth
+							+ 1, e1.getNode().getIndex(), e2.getNode()
+							.getIndex(), MatchingType.CallingContinuation,
+							node2.getIndex());
 					DebugUtils.debug_contextSimilarityTrace.addTraceAtDepth(
 							DebugUtils.searchDepth - depth + 1, inst);
 				}
-				// Next nodes already matched, the environment must not be the same
-				if (matchedNodes.containsKeyByFirstIndex(e1.getNode().getIndex())
-						&& !matchedNodes.hasPair(e1.getNode().getIndex(), e2.getNode().getIndex())) {
+				// Next nodes already matched, the environment must not be the
+				// same
+				if (matchedNodes.containsKeyByFirstIndex(e1.getNode()
+						.getIndex())
+						&& !matchedNodes.hasPair(e1.getNode().getIndex(), e2
+								.getNode().getIndex())) {
 					return -1;
 				}
 				score = getContextSimilarity(e1.getNode(), e2.getNode(),
@@ -200,23 +203,28 @@ public class GraphMerger extends Thread {
 						if (e1.getNode().getHash() != e2.getNode().getHash()) {
 							return -1;
 						} else {
-							// Next nodes already matched, the environment must not be the same
-							if (matchedNodes.containsKeyByFirstIndex(e1.getNode().getIndex())
-									&& !matchedNodes.hasPair(e1.getNode().getIndex(), e2.getNode().getIndex())) {
+							// Next nodes already matched, the environment must
+							// not be the same
+							if (matchedNodes.containsKeyByFirstIndex(e1
+									.getNode().getIndex())
+									&& !matchedNodes.hasPair(e1.getNode()
+											.getIndex(), e2.getNode()
+											.getIndex())) {
 								return -1;
 							}
 							if (DebugUtils.debug) {
 								MatchingInstance inst;
 								int parentIdx = DebugUtils.searchDepth;
 
-								inst = new MatchingInstance(DebugUtils.searchDepth - depth
-										+ 1, e1.getNode().getIndex(), e2
-										.getNode().getIndex(),
+								inst = new MatchingInstance(
+										DebugUtils.searchDepth - depth + 1, e1
+												.getNode().getIndex(), e2
+												.getNode().getIndex(),
 										MatchingType.DirectBranch,
 										node2.getIndex());
 								DebugUtils.debug_contextSimilarityTrace
-										.addTraceAtDepth(DebugUtils.searchDepth - depth
-												+ 1, inst);
+										.addTraceAtDepth(DebugUtils.searchDepth
+												- depth + 1, inst);
 							}
 
 							res = getContextSimilarity(e1.getNode(),
@@ -236,28 +244,30 @@ public class GraphMerger extends Thread {
 									MatchingInstance inst;
 									int parentIdx = DebugUtils.searchDepth;
 
-									inst = new MatchingInstance(DebugUtils.searchDepth
-											- depth + 1, e1.getNode()
-											.getIndex(), e2.getNode()
-											.getIndex(),
+									inst = new MatchingInstance(
+											DebugUtils.searchDepth - depth + 1,
+											e1.getNode().getIndex(), e2
+													.getNode().getIndex(),
 											MatchingType.IndirectBranch,
 											node2.getIndex());
 									DebugUtils.debug_contextSimilarityTrace
-											.addTraceAtDepth(DebugUtils.searchDepth
-													- depth + 1, inst);
+											.addTraceAtDepth(
+													DebugUtils.searchDepth
+															- depth + 1, inst);
 								} else {
 									MatchingInstance inst;
 									int parentIdx = DebugUtils.searchDepth;
 
-									inst = new MatchingInstance(DebugUtils.searchDepth
-											- depth + 1, e1.getNode()
-											.getIndex(), e2.getNode()
-											.getIndex(),
+									inst = new MatchingInstance(
+											DebugUtils.searchDepth - depth + 1,
+											e1.getNode().getIndex(), e2
+													.getNode().getIndex(),
 											MatchingType.UnexpectedReturn,
 											node2.getIndex());
 									DebugUtils.debug_contextSimilarityTrace
-											.addTraceAtDepth(DebugUtils.searchDepth
-													- depth + 1, inst);
+											.addTraceAtDepth(
+													DebugUtils.searchDepth
+															- depth + 1, inst);
 								}
 							}
 
@@ -302,7 +312,7 @@ public class GraphMerger extends Thread {
 		ArrayList<Node> candidates = new ArrayList<Node>();
 		for (int i = 0; i < nodes1.size(); i++) {
 			int score = 0;
-			
+
 			if (DebugUtils.debug) {
 				DebugUtils.searchDepth = GraphMerger.pureSearchDepth;
 			}
@@ -425,7 +435,7 @@ public class GraphMerger extends Thread {
 					continue;
 				} else if (e.getNode().getHash() == curNode.getHash()) {
 					int score = -1;
-					
+
 					if (DebugUtils.debug) {
 						DebugUtils.searchDepth = GraphMerger.indirectSearchDepth;
 					}
@@ -585,7 +595,9 @@ public class GraphMerger extends Thread {
 		// Checkout if the first main block equals to each other
 		ArrayList<Node> preMainBlocks = graph.getHash2Nodes().get(
 				GraphMerger.specialHash);
-
+		if (preMainBlocks == null) {
+			return null;
+		}
 		if (preMainBlocks.size() == 1) {
 			Node preMainNode = preMainBlocks.get(0);
 			for (int i = 0; i < preMainNode.getEdges().size(); i++) {
@@ -734,8 +746,7 @@ public class GraphMerger extends Thread {
 					// Find out the next matched node
 					// Prioritize direct edge and call continuation edge
 					Node childNode1;
-					if ((e.getEdgeType() == EdgeType.Direct
-							|| e.getEdgeType() == EdgeType.Call_Continuation)) {
+					if ((e.getEdgeType() == EdgeType.Direct || e.getEdgeType() == EdgeType.Call_Continuation)) {
 						childNode1 = getCorrespondingDirectChildNode(n1, e,
 								matchedNodes);
 
@@ -752,8 +763,8 @@ public class GraphMerger extends Thread {
 									System.out.println("In execution "
 											+ graph1.getPid() + " & "
 											+ graph2.getPid());
-									System.out.println(graph1.getRunDir() + " & "
-											+ graph2.getRunDir());
+									System.out.println(graph1.getRunDir()
+											+ " & " + graph2.getRunDir());
 									System.out.println("Node "
 											+ childNode1.getIndex()
 											+ " of G1 is already matched!");
@@ -771,7 +782,8 @@ public class GraphMerger extends Thread {
 									System.out.println(matchedNodes
 											.getBySecondIndex(e.getNode()
 													.getIndex()));
-									return null;
+									hasConflict = true;
+									break;
 								}
 
 								if (DebugUtils.debug) {
@@ -801,11 +813,13 @@ public class GraphMerger extends Thread {
 
 							}
 						} else {
-							if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+							if (DebugUtils
+									.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 								DebugUtils.debug_directUnmatchedCnt++;
 							}
-							
-							// Should mark that this node should never be matched when
+
+							// Should mark that this node should never be
+							// matched when
 							// it is popped out of the unmatchedQueue
 							unmatchedQueue.add(new PairNode(null, e.getNode(),
 									pairNode.level + 1, true));
@@ -883,7 +897,7 @@ public class GraphMerger extends Thread {
 				Node curNode = pairNode.getNode2();
 				if (curNode.isVisited())
 					continue;
-				
+
 				Node node1 = null;
 				// For nodes that are already known not to match,
 				// simply don't match them
@@ -891,7 +905,7 @@ public class GraphMerger extends Thread {
 					node1 = getCorrespondingNode(graph1, graph2, curNode,
 							matchedNodes);
 				}
-				
+
 				if (node1 != null) {
 
 					if (DebugUtils.debug) {
@@ -949,24 +963,14 @@ public class GraphMerger extends Thread {
 					+ DebugUtils.debug_indirectHeuristicUnmatchedCnt);
 		}
 
+		graphMergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
 		if (hasConflict) {
 			System.out.println("Can't merge the two graphs!!");
-			graphMergingInfo = new GraphMergingInfo(graph1, graph2,
-					matchedNodes);
-//			graphMergingInfo.outputMergedGraphInfo();
+			graphMergingInfo.outputMergedGraphInfo();
 			return null;
 		} else {
-			// System.out.println("The two graphs merge!!");
-			ExecutionGraph mergedGraph = buildMergedGraph(graph1, graph2,
-					matchedNodes);
-
-			graphMergingInfo = new GraphMergingInfo(graph1, graph2,
-					matchedNodes);
-			if (graphMergingInfo.lowMatching()) {
-				graphMergingInfo.outputMergedGraphInfo();
-			} else {
-				graphMergingInfo.outputMergedGraphInfo();
-			}
+			System.out.println("The two graphs merge!!");
+			graphMergingInfo.outputMergedGraphInfo();
 			return mergedGraph;
 		}
 	}

@@ -19,12 +19,14 @@ public class GraphMergingInfo {
 
 	public final ExecutionGraph graph1, graph2;
 	public final MatchedNodes matchedNodes;
-	
+
 	public static final float LowMatchingThreshold = 0.15f;
 
 	private float setInterRate;
 	private float nodeInterRate;
 	private int totalNodeSize;
+	private int totalHashSize;
+	private int interHashSize;
 
 	public GraphMergingInfo(ExecutionGraph graph1, ExecutionGraph graph2,
 			MatchedNodes matchedNodes) {
@@ -36,15 +38,17 @@ public class GraphMergingInfo {
 				graph1.getBlockHashes(), graph2.getBlockHashes());
 		HashSet<Long> totalBlockHashes = AnalysisUtil.union(
 				graph1.getBlockHashes(), graph2.getBlockHashes());
-		setInterRate = (float) interBlockHashes.size()
-				/ totalBlockHashes.size();
+		interHashSize = interBlockHashes.size();
+		totalHashSize = totalBlockHashes.size();
+		setInterRate = (float) interBlockHashes.size() / totalHashSize;
 		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
 				- matchedNodes.size();
-//		totalNodeSize = graph1.getAccessibleNodes().size() + graph2.getAccessibleNodes().size()
-//				- matchedNodes.size();
+		// totalNodeSize = graph1.getAccessibleNodes().size() +
+		// graph2.getAccessibleNodes().size()
+		// - matchedNodes.size();
 		nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 	}
-	
+
 	public ArrayList<Node> unmatchedGraph1Nodes() {
 		ArrayList<Node> unmatchedNodes = new ArrayList<Node>();
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
@@ -55,7 +59,7 @@ public class GraphMergingInfo {
 		}
 		return unmatchedNodes;
 	}
-	
+
 	public ArrayList<Node> unmatchedGraph2Nodes() {
 		ArrayList<Node> unmatchedNodes = new ArrayList<Node>();
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
@@ -66,7 +70,7 @@ public class GraphMergingInfo {
 		}
 		return unmatchedNodes;
 	}
-	
+
 	public boolean lowMatching() {
 		if ((setInterRate - nodeInterRate) > LowMatchingThreshold) {
 			return true;
@@ -96,7 +100,9 @@ public class GraphMergingInfo {
 				+ graph2.getNodes().size());
 
 		System.out.println("Intersection ratio of block hashes: "
-				+ setInterRate);
+				+ setInterRate + "  " + graph1.getBlockHashes().size() + ","
+				+ graph2.getBlockHashes().size() + ":" + interHashSize + "/"
+				+ totalHashSize);
 		System.out.println("Merged nodes: " + matchedNodes.size());
 		System.out.println("Merged nodes / G1 nodes: "
 				+ (float) matchedNodes.size() / graph1.getNodes().size());

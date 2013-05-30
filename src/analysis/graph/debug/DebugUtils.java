@@ -12,7 +12,7 @@ public class DebugUtils {
 	public static final int DUMP_GRAPH = 0x1 << 4;
 	public static final int TRACE_HEURISTIC = 0x1 << 5;
 
-	public static final String TMP_HASHLOG_DIR = "/home/peizhaoo/hashlog";
+	public static final String TMP_HASHLOG_DIR = "/scratch/malware/reports-sality/tmp";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
 	public static final int USEFUL_DEBUG_OPTION1 = debug_option(MERGE_ERROR);
@@ -31,7 +31,7 @@ public class DebugUtils {
 
 	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION3;
 
-	public static final boolean debug = false;
+	public static final boolean debug = true;
 
 	public static int debug_option(int... options) {
 		int opt = 0;

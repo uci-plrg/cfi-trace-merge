@@ -6,12 +6,38 @@ import java.util.Iterator;
 
 import analysis.graph.debug.DebugUtils;
 
+/**
+ * MatchedNodes contains pairs of matched nodes. It maintains one-to-one map that
+ * maps the matched nodes, an arraylist that records matched nodes in a chronological
+ * order. It also records the speculatively matched nodes and its matching confidence
+ * in order to rewind the speculative matching.
+ * @author peizhaoo
+ *
+ */
 public class MatchedNodes implements Iterable<Integer> {
 	private HashMap<Integer, Integer> matchedNodes12, matchedNodes21;
+	private ArrayList<Integer> orderedMatchedNodes;
+	
+	private ArrayList<Integer> speculativeMatching;
+	private ArrayList<Float> confidence;
 	
 	public MatchedNodes() {
 		matchedNodes12 = new HashMap<Integer, Integer>();
 		matchedNodes21 = new HashMap<Integer, Integer>();
+		
+		orderedMatchedNodes = new ArrayList<Integer>();
+		speculativeMatching  = new ArrayList<Integer>();
+		confidence = new ArrayList<Float>();
+	}
+	
+	public boolean rewind() {
+		if (speculativeMatching.size() == 0) {
+			return false;
+		}
+		int rewindIdx = speculativeMatching.remove(speculativeMatching.size() - 1);
+		
+		
+		return true;
 	}
 	
 	public String toString() {

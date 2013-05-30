@@ -265,7 +265,7 @@ public class ExecutionGraph {
 			File file = new File(tagFile);
 			FileInputStream fileIn = null;
 			DataInputStream dataIn = null;
-			// to track how many tags does not exist in lookup file
+			// Track how many tags does not exist in lookup file
 			HashSet<Long> hashesNotInLookup = new HashSet<Long>();
 			try {
 				fileIn = new FileInputStream(file);
@@ -285,7 +285,7 @@ public class ExecutionGraph {
 					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
 							.get(tag2);
 
-					// double check if tag1 and tag2 exist in the lookup file
+					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
 					}
@@ -299,9 +299,9 @@ public class ExecutionGraph {
 						continue;
 					}
 
-					// also put the nodes into the adjacentList if they are not
+					// Also put the nodes into the adjacentList if they are not
 					// stored yet
-					// add node to an array, which is in their seen order in the
+					// Add node to an array, which is in their seen order in the
 					// file
 					if (!adjacentList.containsKey(node1)) {
 						adjacentList.put(node1, new HashMap<Node, Integer>());

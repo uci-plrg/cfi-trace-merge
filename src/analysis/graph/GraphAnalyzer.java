@@ -15,7 +15,7 @@ import analysis.graph.representation.ExecutionGraph;
 public class GraphAnalyzer {
 
 	// The number of threads on a single machine, it's configurable
-	private static int threadGroupSize = 32;
+	private static int threadGroupSize = 1;
 
 	// Counter of pair comparisons it has done
 	private static int pairCnt;
@@ -122,28 +122,36 @@ public class GraphAnalyzer {
 						continue;
 					}
 				}
-				ExecutionGraph g1 = ExecutionGraph.buildGraphsFromRunDir(
-						dirName1).get(0), g2 = ExecutionGraph
-						.buildGraphsFromRunDir(dirName2).get(0);
+				ArrayList<ExecutionGraph> graphs1 = ExecutionGraph.buildGraphsFromRunDir(
+						dirName1),
+						graphs2 = ExecutionGraph
+								.buildGraphsFromRunDir(dirName2);
+				for (int k = 0; k < graphs1.size(); k++) {
+					for (int l = 0; l < graphs2.size(); l++) {
+						ExecutionGraph g1 = graphs1.get(k), g2 = graphs2.get(l);
+						
+						// System.out.println("Current thread: " + threadCnt);
+						mergers[threadCnt] = new GraphMerger(g1, g2);
+						mergers[threadCnt].start();
+						threadCnt++;
+						pairCnt++;
 
-				// System.out.println("Current thread: " + threadCnt);
-				mergers[threadCnt] = new GraphMerger(g1, g2);
-				mergers[threadCnt].start();
-				threadCnt++;
-				pairCnt++;
-
-				if (threadCnt == threadGroupSize) {
-					threadCnt = 0;
-					System.out.println(pairCnt + " pairs have been launched!");
-					for (int k = 0; k < threadGroupSize; k++) {
-						try {
-							mergers[k].join();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+						if (threadCnt == threadGroupSize) {
+							threadCnt = 0;
+							System.out.println(pairCnt + " pairs have been launched!");
+							for (int m = 0; m < threadGroupSize; m++) {
+								try {
+									mergers[m].join();
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
 						}
 					}
 				}
+				
 
+				
 			}
 		}
 	}
