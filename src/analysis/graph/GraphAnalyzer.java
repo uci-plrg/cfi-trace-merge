@@ -96,6 +96,7 @@ public class GraphAnalyzer {
 		return bigGraph;
 	}
 
+	
 	public static void pairComparison(String dir, boolean runSameProgram) {
 		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(dir);
 

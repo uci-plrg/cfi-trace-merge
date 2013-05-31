@@ -30,7 +30,7 @@ public class GraphMerger extends Thread {
 	 * One case is unmergeable: two direct branch nodes with same hash value but
 	 * have different branch targets (Seems wired!!)
 	 * 
-	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seem
+	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seems
 	 * to enter their main function after a very similar dynamic-loading
 	 * process, at the end of which there is a indirect branch which jumps to
 	 * the real main blocks. In the environment of this machine, the hash value
@@ -786,13 +786,14 @@ public class GraphMerger extends Thread {
 								}
 
 								if (DebugUtils.debug) {
+									MatchingType matchType = e.getEdgeType() == EdgeType.Direct ? MatchingType.DirectBranch : MatchingType.CallingContinuation;
 									DebugUtils.debug_matchingTrace
 											.addInstance(new MatchingInstance(
 													pairNode.level, childNode1
 															.getIndex(), e
 															.getNode()
 															.getIndex(),
-													MatchingType.DirectBranch,
+															matchType,
 													n2.getIndex()));
 								}
 
@@ -803,7 +804,8 @@ public class GraphMerger extends Thread {
 									// by direct edges. However, they might also
 									// indirectly
 									// decided by the heuristic
-									System.out.println("Direct: "
+									MatchingType matchType = e.getEdgeType() == EdgeType.Direct ? MatchingType.DirectBranch : MatchingType.CallingContinuation;
+									System.out.println(matchType + ": "
 											+ childNode1.getIndex() + "<->"
 											+ e.getNode().getIndex() + "(by "
 											+ n1.getIndex() + "<->"

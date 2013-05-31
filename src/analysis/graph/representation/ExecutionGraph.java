@@ -16,6 +16,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import utils.AnalysisUtil;
+import analysis.exception.graph.InvalidTagException;
+import analysis.exception.graph.MultipleEdgeException;
+import analysis.exception.graph.TagNotFoundException;
 import analysis.graph.representation.*;
 
 public class ExecutionGraph {
@@ -98,8 +101,9 @@ public class ExecutionGraph {
 						.add(nodes.get(anotherNodes.get(i).getIndex()));
 			}
 		}
-		
-		// Make sure the reachable field is set after being copied, might be redundant
+
+		// Make sure the reachable field is set after being copied, might be
+		// redundant
 		setReachableNodes();
 	}
 
@@ -178,8 +182,21 @@ public class ExecutionGraph {
 		this.pid = AnalysisUtil.getPidFromFileName(tagFiles.get(0));
 
 		// The edges of the graph comes with an ordinal
-		HashMap<Long, Node> hashLookupTable = readGraphLookup(lookupFiles);
-		readGraph(tagFiles, hashLookupTable);
+		
+			HashMap<Long, Node> hashLookupTable;
+			try {
+				hashLookupTable = readGraphLookup(lookupFiles);
+				readGraph(tagFiles, hashLookupTable);
+			} catch (InvalidTagException e) {
+				e.printStackTrace();
+			} catch (TagNotFoundException e) {
+				e.printStackTrace();
+			} catch (MultipleEdgeException e) {
+				e.printStackTrace();
+			} finally {
+				System.out.println("This is not a valid graph!!!");
+				isValidGraph = false;
+			}
 
 		// Some other initialization and sanity checks
 		setReachableNodes();
@@ -209,7 +226,8 @@ public class ExecutionGraph {
 		return isValidGraph;
 	}
 
-	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles) {
+	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles)
+			throws InvalidTagException {
 		HashMap<Long, Node> hashLookupTable = new HashMap<Long, Node>();
 
 		FileInputStream fileIn = null;
@@ -238,12 +256,13 @@ public class ExecutionGraph {
 					if (hashLookupTable.containsKey(tag)) {
 						if (hashLookupTable.get(tag).getHash() != hash) {
 							isValidGraph = false;
-							System.out.println(Long.toHexString(tag)
+							String msg = "Duplicate tags: " + Long.toHexString(tag)
 									+ " -> "
 									+ Long.toHexString(hashLookupTable.get(tag)
 											.getHash()) + ":"
 									+ Long.toHexString(hash) + "  "
-									+ lookupFile);
+									+ lookupFile;
+							throw new InvalidTagException(msg);
 						}
 					}
 					Node node = new Node(tag, hash, nodes.size(), metaNodeType);
@@ -251,7 +270,7 @@ public class ExecutionGraph {
 					nodes.add(node);
 
 					// Add it the the hash2Nodes mapping
-					if (hash2Nodes.get(hash) == null) {
+					if (!hash2Nodes.containsKey(hash)) {
 						hash2Nodes.put(hash, new ArrayList<Node>());
 					}
 					if (!hash2Nodes.get(hash).contains(node)) {
@@ -292,7 +311,7 @@ public class ExecutionGraph {
 	}
 
 	public void readGraph(ArrayList<String> tagFiles,
-			HashMap<Long, Node> hashLookupTable) throws NullPointerException {
+			HashMap<Long, Node> hashLookupTable) throws InvalidTagException, TagNotFoundException, MultipleEdgeException {
 
 		HashMap<Node, HashMap<Node, Integer>> adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		for (int i = 0; i < tagFiles.size(); i++) {
@@ -314,7 +333,9 @@ public class ExecutionGraph {
 							.reverseForLittleEndian(dataIn.readLong());
 					long tag2 = getTagEffectiveValue(tag2Original);
 					if (tag2 != tag2Original) {
-						System.out.println("Something wrong about the tag");
+						throw new InvalidTagException("Tag 0x"
+								+ Long.toHexString(tag2Original)
+								+ " has more than 6 bytes");
 					}
 
 					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
@@ -323,21 +344,20 @@ public class ExecutionGraph {
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
+						throw new TagNotFoundException("0x " + Long.toHexString(tag1) + " is missed in graph lookup file!");
 					}
 					if (node2 == null) {
 						hashesNotInLookup.add(tag2);
+						throw new TagNotFoundException("0x " + Long.toHexString(tag2) + " is missed in graph lookup file!");
 					}
 					if (node1 == null || node2 == null) {
-						// System.out.println("Missing lookup entry in hash lookup file!");
-						// System.out.println(Long.toHexString(tag1));
-						// System.out.println(Long.toHexString(tag2));
-						continue;
+//						continue;
 					}
 
 					// Also put the nodes into the adjacentList if they are not
 					// stored yet
-					// Add node to an array, which is in their seen order in the
-					// file
+					// Add node to an array, which is in the order they are read in the
+					// graph file
 					if (!adjacentList.containsKey(node1)) {
 						adjacentList.put(node1, new HashMap<Node, Integer>());
 					}
@@ -349,8 +369,15 @@ public class ExecutionGraph {
 						node1.addEdge(new Edge(node2, flag));
 						node2.addIncomingEdge(new Edge(node1, flag));
 					} else {
-						if (flag != edges.get(node2))
-							System.out.println("Multiple edges!!");
+						if (flag != edges.get(node2)) {
+							String msg = "Multiple edges:\n" +
+									"Edge1: " + node1.getHash()
+									+ "->" + node2.getHash() + ": "
+									+ edges.get(node2)
+									+ "Edge2: " + node1.getHash()
+									+ "->" + node2.getHash() + ": " + flag;
+							throw new MultipleEdgeException(msg);
+						}
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -376,9 +403,8 @@ public class ExecutionGraph {
 			}
 		}
 
-		// since V will never change once the graph is created
+		// since the vertices will never change once the graph is created
 		nodes.trimToSize();
-
 	}
 
 	public static ArrayList<ExecutionGraph> buildGraphsFromRunDir(String dir) {
