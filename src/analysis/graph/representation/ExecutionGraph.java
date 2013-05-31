@@ -19,6 +19,7 @@ import utils.AnalysisUtil;
 import analysis.exception.graph.InvalidTagException;
 import analysis.exception.graph.MultipleEdgeException;
 import analysis.exception.graph.TagNotFoundException;
+import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.*;
 
 public class ExecutionGraph {
@@ -188,14 +189,17 @@ public class ExecutionGraph {
 				hashLookupTable = readGraphLookup(lookupFiles);
 				readGraph(tagFiles, hashLookupTable);
 			} catch (InvalidTagException e) {
-				e.printStackTrace();
-			} catch (TagNotFoundException e) {
-				e.printStackTrace();
-			} catch (MultipleEdgeException e) {
-				e.printStackTrace();
-			} finally {
 				System.out.println("This is not a valid graph!!!");
 				isValidGraph = false;
+				e.printStackTrace();
+			} catch (TagNotFoundException e) {
+				System.out.println("This is not a valid graph!!!");
+				isValidGraph = false;
+				e.printStackTrace();
+			} catch (MultipleEdgeException e) {
+				System.out.println("This is not a valid graph!!!");
+				isValidGraph = false;
+				e.printStackTrace();
 			}
 
 		// Some other initialization and sanity checks
@@ -262,7 +266,9 @@ public class ExecutionGraph {
 											.getHash()) + ":"
 									+ Long.toHexString(hash) + "  "
 									+ lookupFile;
-							throw new InvalidTagException(msg);
+							if (DebugUtils.ThrowInvalidTag) {
+								throw new InvalidTagException(msg);
+							}
 						}
 					}
 					Node node = new Node(tag, hash, nodes.size(), metaNodeType);
@@ -333,9 +339,11 @@ public class ExecutionGraph {
 							.reverseForLittleEndian(dataIn.readLong());
 					long tag2 = getTagEffectiveValue(tag2Original);
 					if (tag2 != tag2Original) {
-						throw new InvalidTagException("Tag 0x"
-								+ Long.toHexString(tag2Original)
-								+ " has more than 6 bytes");
+						if (DebugUtils.ThrowInvalidTag) {
+							throw new InvalidTagException("Tag 0x"
+									+ Long.toHexString(tag2Original)
+									+ " has more than 6 bytes");
+						}
 					}
 
 					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
@@ -344,14 +352,20 @@ public class ExecutionGraph {
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
-						throw new TagNotFoundException("0x " + Long.toHexString(tag1) + " is missed in graph lookup file!");
+						if (DebugUtils.ThrowTagNotFound) {
+							throw new TagNotFoundException("0x" + Long.toHexString(tag1) + " is missed in graph lookup file!");
+						}
 					}
 					if (node2 == null) {
 						hashesNotInLookup.add(tag2);
-						throw new TagNotFoundException("0x " + Long.toHexString(tag2) + " is missed in graph lookup file!");
+						if (DebugUtils.ThrowTagNotFound) {
+							throw new TagNotFoundException("0x" + Long.toHexString(tag2) + " is missed in graph lookup file!");
+						}
 					}
 					if (node1 == null || node2 == null) {
-//						continue;
+						if (!DebugUtils.ThrowTagNotFound) {
+							continue;
+						}
 					}
 
 					// Also put the nodes into the adjacentList if they are not

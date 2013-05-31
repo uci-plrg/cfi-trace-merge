@@ -3,7 +3,13 @@ package analysis.graph.debug;
 import analysis.graph.GraphMerger;
 
 public class DebugUtils {
-
+	// Some options about whether to throw graph exception or tolerate minor
+	// graph errors
+	public static final boolean ThrowTagNotFound = false;
+	public static final boolean ThrowDuplicateTag = true;
+	public static final boolean ThrowInvalidTag = true;
+	
+	// Some debugging options
 	public static final int DEBUG_ONLY = 0x0;
 	public static final int PRINT_MATCHING_HISTORY = 0x1;
 	public static final int MAIN_KNOWN = 0x1 << 1;
