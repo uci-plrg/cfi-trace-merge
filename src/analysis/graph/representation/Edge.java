@@ -1,12 +1,24 @@
 package analysis.graph.representation;
 
 public class Edge {
-	private Node node;
+	private Node toNode;
 	private EdgeType edgeType;
 	private int ordinal;
 	
-	public Node getNode() {
-		return node;
+	// Add this filed for debugging reason, cause it provides
+	// more information when debugging
+	private Node fromNode;
+	
+	public Node getFromNode() {
+		return fromNode;
+	}
+	
+	public String toString() {
+		return fromNode.getIndex() + "(" + fromNode.getHashHex() + ")" + "(" + edgeType + ")--" + ordinal + "-->" + toNode.getIndex() + "(" + toNode.getHashHex() + ")";
+	}
+	
+	public Node getToNode() {
+		return toNode;
 	}
 	
 	public EdgeType getEdgeType() {
@@ -17,14 +29,16 @@ public class Edge {
 		return ordinal;
 	}
 
-	public Edge(Node node, EdgeType edgeType, int ordinal) {
-		this.node = node;
+	public Edge(Node fromNode, Node toNode, EdgeType edgeType, int ordinal) {
+		this.fromNode = fromNode;
+		this.toNode = toNode;
 		this.edgeType = edgeType;
 		this.ordinal = ordinal;
 	}
 
-	public Edge(Node node, int flag) {
-		this.node = node;
+	public Edge(Node fromNode, Node toNode, int flag) {
+		this.fromNode = fromNode;
+		this.toNode = toNode;
 		this.ordinal = flag % 256;
 		edgeType = EdgeType.values()[flag / 256];
 	}
@@ -35,7 +49,9 @@ public class Edge {
 		if (o.getClass() != Edge.class)
 			return false;
 		Edge e = (Edge) o;
-		if (e.node.getIndex() == node.getIndex() && e.edgeType == edgeType
+		if (e.fromNode.getIndex() == fromNode.getIndex() 
+				&& e.toNode.getIndex() == toNode.getIndex()
+				&& e.edgeType == edgeType
 				&& e.ordinal == ordinal)
 			return true;
 		return false;
@@ -43,6 +59,6 @@ public class Edge {
 	}
 
 	public int hashCode() {
-		return node.getIndex();
+		return fromNode.getIndex() << 5 ^ toNode.getIndex();
 	}
 }

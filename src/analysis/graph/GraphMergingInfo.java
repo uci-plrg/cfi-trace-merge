@@ -146,16 +146,16 @@ public class GraphMergingInfo {
 		for (int i = 0; i < graph.getNodes().size(); i++) {
 			if (graph.getNodes().get(i).getHash() == GraphMerger.specialHash) {
 				n = graph.getNodes().get(i);
-				if (n.getEdges().size() > 1) {
-					for (int j = 0; j < n.getEdges().size(); j++) {
-						if (n.getEdges().get(j).getEdgeType() == EdgeType.Indirect) {
-							return n.getEdges().get(j).getNode().getHash();
+				if (n.getOutgoingEdges().size() > 1) {
+					for (int j = 0; j < n.getOutgoingEdges().size(); j++) {
+						if (n.getOutgoingEdges().get(j).getEdgeType() == EdgeType.Indirect) {
+							return n.getOutgoingEdges().get(j).getToNode().getHash();
 						}
 					}
 					System.out.println("More than one target!");
-					return n.getEdges().size();
+					return n.getOutgoingEdges().size();
 				} else {
-					firstMainHash = n.getEdges().get(0).getNode().getHash();
+					firstMainHash = n.getOutgoingEdges().get(0).getToNode().getHash();
 				}
 				break;
 			}
@@ -202,7 +202,7 @@ public class GraphMergingInfo {
 						+ Long.toHexString(graph.getNodes().get(i).getHash())
 						+ "\"]");
 
-				ArrayList<Edge> edges = graph.getNodes().get(i).getEdges();
+				ArrayList<Edge> edges = graph.getNodes().get(i).getOutgoingEdges();
 				for (Edge e : edges) {
 					String branchType;
 					switch (e.getEdgeType()) {
@@ -223,7 +223,7 @@ public class GraphMergingInfo {
 						break;
 					}
 
-					pwDotFile.println(i + "->" + e.getNode().getIndex()
+					pwDotFile.println(i + "->" + e.getToNode().getIndex()
 							+ "[label=\"" + branchType + "_" + e.getOrdinal()
 							+ "\"]");
 				}

@@ -8,6 +8,9 @@ public class DebugUtils {
 	public static final boolean ThrowTagNotFound = false;
 	public static final boolean ThrowDuplicateTag = true;
 	public static final boolean ThrowInvalidTag = true;
+	public static final boolean ThrowMultipleEdge = false;
+	
+	public static final boolean ThrowWrongEdgeType = false;
 	
 	// Some debugging options
 	public static final int DEBUG_ONLY = 0x0;

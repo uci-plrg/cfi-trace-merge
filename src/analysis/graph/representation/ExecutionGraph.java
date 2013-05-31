@@ -6,9 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigInteger;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,20 +72,15 @@ public class ExecutionGraph {
 		// Copy the edges of each nodes
 		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
 			Node anotherNode = anotherGraph.nodes.get(i);
-			Node node = nodes.get(i);
-			// Incoming edges
-			for (int j = 0; j < anotherNode.getIncomingEdges().size(); j++) {
-				Edge e = anotherNode.getIncomingEdges().get(j);
-				node.addIncomingEdge(new Edge(
-						nodes.get(e.getNode().getIndex()), e.getEdgeType(), e
-								.getOrdinal()));
-			}
-			// Outgoing edges
-			for (int j = 0; j < anotherNode.getEdges().size(); j++) {
-				Edge e = anotherNode.getEdges().get(j);
-				node.addIncomingEdge(new Edge(
-						nodes.get(e.getNode().getIndex()), e.getEdgeType(), e
-								.getOrdinal()));
+			// Traverse all the edges by outgoing edges
+			for (int j = 0; j < anotherNode.getOutgoingEdges().size(); j++) {
+				Edge e = anotherNode.getOutgoingEdges().get(j);
+				Node n1 = nodes.get(e.getFromNode().getIndex()),
+						n2 = nodes.get(e.getToNode().getIndex());
+				Edge newEdge = new Edge(n1, n2,
+								e.getEdgeType(), e.getOrdinal());
+				n1.addOutgoingEdge(newEdge);
+				n2.addIncomingEdge(newEdge);
 			}
 		}
 
@@ -123,8 +115,8 @@ public class ExecutionGraph {
 		while (bfsQueue.size() > 0) {
 			Node n = bfsQueue.remove();
 			n.setReachable(true);
-			for (int i = 0; i < n.getEdges().size(); i++) {
-				Node neighbor = n.getEdges().get(i).getNode();
+			for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
+				Node neighbor = n.getOutgoingEdges().get(i).getToNode();
 				if (!neighbor.isVisited()) {
 					bfsQueue.add(neighbor);
 					neighbor.setVisited();
@@ -146,7 +138,7 @@ public class ExecutionGraph {
 	}
 
 	public void addEdge(Node from, Edge e) {
-		from.addEdge(e);
+		from.addOutgoingEdge(e);
 	}
 
 	public void addBlockHash(ExecutionGraph anotherGraph) {
@@ -380,8 +372,9 @@ public class ExecutionGraph {
 					// Also update the ArrayList<Edge> of node
 					if (!edges.containsKey(node2)) {
 						edges.put(node2, flag);
-						node1.addEdge(new Edge(node2, flag));
-						node2.addIncomingEdge(new Edge(node1, flag));
+						Edge e = new Edge(node1, node2, flag);
+						node1.addOutgoingEdge(e);
+						node2.addIncomingEdge(e);
 					} else {
 						if (flag != edges.get(node2)) {
 							String msg = "Multiple edges:\n" +
@@ -390,7 +383,9 @@ public class ExecutionGraph {
 									+ edges.get(node2)
 									+ "Edge2: " + node1.getHash()
 									+ "->" + node2.getHash() + ": " + flag;
-							throw new MultipleEdgeException(msg);
+							if (DebugUtils.ThrowMultipleEdge) {
+								throw new MultipleEdgeException(msg);
+							}
 						}
 					}
 				}
@@ -503,8 +498,8 @@ public class ExecutionGraph {
 		while (bfsQueue.size() > 0) {
 			Node n = bfsQueue.remove();
 			accessibleNodes.add(n);
-			for (int i = 0; i < n.getEdges().size(); i++) {
-				Node neighbor = n.getEdges().get(i).getNode();
+			for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
+				Node neighbor = n.getOutgoingEdges().get(i).getToNode();
 				if (!neighbor.isVisited()) {
 					bfsQueue.add(neighbor);
 					neighbor.setVisited();
@@ -518,7 +513,7 @@ public class ExecutionGraph {
 		ArrayList<Node> danglingNodes = new ArrayList<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
-			if (n.getIncomingEdges().size() == 0 && n.getEdges().size() == 0)
+			if (n.getIncomingEdges().size() == 0 && n.getOutgoingEdges().size() == 0)
 				danglingNodes.add(n);
 		}
 		return danglingNodes;
@@ -543,7 +538,7 @@ public class ExecutionGraph {
 				}
 				break;
 			case EXIT:
-				if (n.getEdges().size() != 0) {
+				if (n.getOutgoingEdges().size() != 0) {
 					System.out.println("Exit point has outgoing edges!");
 					isValidGraph = false;
 					break outerLoop;

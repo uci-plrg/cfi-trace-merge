@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Node {
 	private long tag, hash;
 
-	private ArrayList<Edge> edges = new ArrayList<Edge>();
+	private ArrayList<Edge> outgoingEdges = new ArrayList<Edge>();
 	private boolean isVisited;
 	// Index in the ArrayList<Node>
 	private int index;
@@ -23,6 +23,7 @@ public class Node {
 	
 	// Incomming edges, just in case they might be needed
 	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
+	
 	public void addIncomingEdge(Edge e) {
 		if (!incomingEdges.contains(e))
 			incomingEdges.add(e);
@@ -41,13 +42,13 @@ public class Node {
 		if (index == -1) {
 			return null;
 		} else {
-			return edges.get(index); 
+			return outgoingEdges.get(index); 
 		}
 	}
 	
 	private int getContinuationEdgeIndex() {
-		for (int i = 0; i < edges.size(); i++) {
-			if (edges.get(i).getEdgeType() == EdgeType.Call_Continuation) {
+		for (int i = 0; i < outgoingEdges.size(); i++) {
+			if (outgoingEdges.get(i).getEdgeType() == EdgeType.Call_Continuation) {
 				return i;
 			}
 		}
@@ -56,13 +57,13 @@ public class Node {
 
 	int score = 0;
 	
-	public void addEdge(Edge e) {
-		if (!edges.contains(e))
-			edges.add(e);
+	public void addOutgoingEdge(Edge e) {
+		if (!outgoingEdges.contains(e))
+			outgoingEdges.add(e);
 	}
 	
-	public ArrayList<Edge> getEdges() {
-		return edges;
+	public ArrayList<Edge> getOutgoingEdges() {
+		return outgoingEdges;
 	}
 	
 	public MetaNodeType getMetaNodeType() {
@@ -113,9 +114,13 @@ public class Node {
 	public void setFromWhichGraph(int fromWhichGraph) {
 		this.fromWhichGraph = fromWhichGraph;
 	}
+	
+	public String getHashHex() {
+		return "0x" + Long.toHexString(hash);
+	}
 
 	public String toString() {
-		return Long.toHexString(hash) + ":" + score + ":" + index;
+		return "0x" + Long.toHexString(hash) + ":" + score + ":" + index;
 	}
 
 	// Not a deep copy, we don't care about edges...
