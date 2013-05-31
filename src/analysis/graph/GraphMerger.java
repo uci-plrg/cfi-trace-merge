@@ -396,20 +396,31 @@ public class GraphMerger extends Thread {
 							System.out
 									.println("Call continuation has different targets!");
 						}
-						
-						// This part of code is purely for the purpose of debugging
-						// Because of the failure to filter out immediate address in some instruction,
-						// some of the block hashcode is different, which they are supposed to be the same
-						if (DebugUtils.debug_decision(DebugUtils.IGNORE_CONFLICT)) {
-							e.getToNode().setHash(curNode.getHash());
-							return e.getToNode();
+
+						// This part of code is purely for the purpose of
+						// debugging
+						// Because of the failure to filter out immediate
+						// address in some instruction,
+						// some of the block hashcode is different, which they
+						// are supposed to be the same
+						if (DebugUtils
+								.debug_decision(DebugUtils.IGNORE_CONFLICT)) {
+//							if (DebugUtils.chageHashLimit > 0) {
+							if (DebugUtils.commonBitsCnt(e.getToNode().getHash(), curNode.getHash()) >= DebugUtils.commonBitNum) {
+								e.getToNode().setHash(curNode.getHash());
+								DebugUtils.chageHashLimit--;
+								DebugUtils.chageHashCnt++;
+								return e.getToNode();
+							}
 						}
-						
+
 						if (DebugUtils.debug_decision(DebugUtils.MERGE_ERROR)) {
 							System.out.println("Direct edge conflict: "
 									+ e.getToNode().getIndex() + "<->"
 									+ curNode.getIndex() + "(By "
-									+ parentNode1.getIndex() + "<->" + curNodeEdge.getFromNode().getIndex() + ")");
+									+ parentNode1.getIndex() + "<->"
+									+ curNodeEdge.getFromNode().getIndex()
+									+ ")");
 						}
 
 						hasConflict = true;
@@ -1037,6 +1048,7 @@ public class GraphMerger extends Thread {
 		} else {
 			System.out.println("The two graphs merge!!");
 			graphMergingInfo.outputMergedGraphInfo();
+			mergedGraph = buildMergedGraph(graph1, graph2, matchedNodes);
 			return mergedGraph;
 		}
 	}
@@ -1059,6 +1071,7 @@ public class GraphMerger extends Thread {
 			} else {
 				mergedGraph = mergeGraph(graph2, graph1);
 			}
+//			System.out.println("Changed hashcode for " + DebugUtils.chageHashCnt + " times");
 		} catch (WrongEdgeTypeException e) {
 			e.printStackTrace();
 		}

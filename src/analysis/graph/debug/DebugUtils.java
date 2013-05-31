@@ -21,6 +21,10 @@ public class DebugUtils {
 	public static final int DUMP_GRAPH = 0x1 << 4;
 	public static final int TRACE_HEURISTIC = 0x1 << 5;
 	public static final int IGNORE_CONFLICT =  0x1 << 6;
+	
+	public static int chageHashLimit = 138 * 5;
+	public static int chageHashCnt = 0;
+	public static final int commonBitNum = 5;
 
 	public static final String TMP_HASHLOG_DIR = "/scratch/malware/reports-sality/tmp";
 
@@ -39,7 +43,7 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION3 | IGNORE_CONFLICT;
+	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | IGNORE_CONFLICT;
 
 	public static final boolean debug = true;
 
@@ -49,6 +53,24 @@ public class DebugUtils {
 			opt |= options[i];
 		}
 		return opt;
+	}
+	
+	public static int commonBitsCnt(long hash1, long hash2) {
+		String s1 = Long.toHexString(hash1),
+				s2 = Long.toHexString(hash2);
+		int cnt = 0,
+				idx1 = s1.length() - 1,
+				idx2 = s2.length() - 1;
+		while (idx1 > -1 && idx2 > -1) {
+			if (s1.charAt(idx1--) == s2.charAt(idx2--)) {
+				cnt++;
+			}
+		}
+		if (cnt < commonBitNum) {
+//		if (true) {
+			System.out.println(s1 + "<->" + s2);
+		}
+		return cnt;
 	}
 
 	public static boolean debug_decision(int... options) {
