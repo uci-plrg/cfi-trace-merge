@@ -396,6 +396,15 @@ public class GraphMerger extends Thread {
 							System.out
 									.println("Call continuation has different targets!");
 						}
+						
+						// This part of code is purely for the purpose of debugging
+						// Because of the failure to filter out immediate address in some instruction,
+						// some of the block hashcode is different, which they are supposed to be the same
+						if (DebugUtils.debug_decision(DebugUtils.IGNORE_CONFLICT)) {
+							e.getToNode().setHash(curNode.getHash());
+							return e.getToNode();
+						}
+						
 						if (DebugUtils.debug_decision(DebugUtils.MERGE_ERROR)) {
 							System.out.println("Direct edge conflict: "
 									+ e.getToNode().getIndex() + "<->"

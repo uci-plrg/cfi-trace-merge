@@ -20,6 +20,7 @@ public class DebugUtils {
 	public static final int MERGE_ERROR = 0x1 << 3;
 	public static final int DUMP_GRAPH = 0x1 << 4;
 	public static final int TRACE_HEURISTIC = 0x1 << 5;
+	public static final int IGNORE_CONFLICT =  0x1 << 6;
 
 	public static final String TMP_HASHLOG_DIR = "/scratch/malware/reports-sality/tmp";
 
@@ -38,7 +39,7 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION3;
+	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION3 | IGNORE_CONFLICT;
 
 	public static final boolean debug = true;
 

@@ -78,6 +78,14 @@ public class Node {
 		return hash;
 	}
 	
+	/**
+	 * This is added purely for the purpose of debugging
+	 * We should never expose this to the outside world
+	 */
+	public void setHash(long hash) {
+		this.hash = hash;
+	}
+	
 	public void resetVisited() {
 		isVisited = false;
 	}
