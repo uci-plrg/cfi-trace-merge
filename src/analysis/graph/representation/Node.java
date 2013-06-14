@@ -124,7 +124,7 @@ public class Node {
 	}
 
 	public String toString() {
-		return "0x" + Long.toHexString(hash) + ":" + score + ":" + index;
+		return "0x" + Long.toHexString(hash) + ":" + score + "-" + index;
 	}
 
 	// Not a deep copy, we don't care about edges...

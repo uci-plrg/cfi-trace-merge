@@ -32,4 +32,7 @@ running hashset because it varies so much. For example, for dot, a normal run wi
 checking the version, i.e. 'dot -V'. b) For those runs with small sizes, only a limited number of hash codes actually comes from the 
 function of that program(most of the others from library). This makes grouping according to size of intersection difficult.
 
-
+10. The speculative matching would fail if the node has no following context to compare!!! One idea is to cascade the nodes that have the same
+hashcode. The nodes that have the same hashcode only replicate when they have different outgoing edge type. This might work because nodes with
+extreamly similar instructions (only differ in address information that has already been filtered out) can be considered as the same code. In this
+case, each node roughly represents a functional block of instruction.

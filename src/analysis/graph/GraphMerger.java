@@ -33,7 +33,7 @@ public class GraphMerger extends Thread {
 	 * the real main blocks. In the environment of this machine, the hash value
 	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
-	public static void main(String[] argvs) {
+	public static void Main(String[] argvs) {
 
 		if (DebugUtils.debug) {
 			// Really ad-hoc debugging code
@@ -316,6 +316,7 @@ public class GraphMerger extends Thread {
 			if (DebugUtils.debug) {
 				DebugUtils.searchDepth = GraphMerger.pureSearchDepth;
 			}
+			
 			if ((score = getContextSimilarity(nodes1.get(i), node2,
 					pureSearchDepth, matchedNodes)) != -1) {
 				// If the node is already merged, skip it
@@ -336,7 +337,8 @@ public class GraphMerger extends Thread {
 				}
 			}
 
-			// In the OUTPUT_SCORE debug mode, output all the scores in a file
+			// In the OUTPUT_SCORE debug mode, output the completely speculative
+			// matching score to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				String moduleName = AnalysisUtil.getModuleName(graph2,
 						node2.getTag());
@@ -344,10 +346,12 @@ public class GraphMerger extends Thread {
 						node2.getTag());
 				DebugUtils.getScorePW().print(
 						"PureHeuristic_" + moduleName + "_0x"
-								+ Long.toHexString(relativeTag) + ":\t");
+								+ Long.toHexString(relativeTag) + "_0x" + Long.toHexString(node2.getTag()) + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
-					DebugUtils.getScorePW().print(n.getScore() + "\t");
+					if (n.getScore() > 0) {
+						DebugUtils.getScorePW().print(n.getScore() + "\t");
+					}
 				}
 				DebugUtils.getScorePW().println();
 			}
@@ -512,7 +516,8 @@ public class GraphMerger extends Thread {
 		if (candidates.size() == 0) {
 			return null;
 		} else {
-			// In the OUTPUT_SCORE debug mode, output all the scores in a file
+			// In the OUTPUT_SCORE debug mode, output the speculative
+			// matching score of indirect edges to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				String moduleName = AnalysisUtil.getModuleName(graph2,
 						curNode.getTag());
@@ -520,10 +525,13 @@ public class GraphMerger extends Thread {
 						curNode.getTag());
 				DebugUtils.getScorePW().print(
 						"Indirect_" + moduleName + "_0x"
-								+ Long.toHexString(relativeTag) + ":\t");
+								+ Long.toHexString(relativeTag) + "_0x" + Long.toHexString(curNode.getTag()) + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
-					DebugUtils.getScorePW().print(n.getScore() + "\t");
+					if (n.getScore() > 0) {
+						DebugUtils.getScorePW().print(n.getScore() + "\t");
+					}
+					
 				}
 				DebugUtils.getScorePW().println();
 			}
@@ -766,7 +774,7 @@ public class GraphMerger extends Thread {
 			return new ExecutionGraph(graph1);
 		}
 
-		// In the OUTPUT_SCORE debug mode, output all the scores in a file
+		// In the OUTPUT_SCORE debug mode, initialize the PrintWriter for this merging process
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 			if (DebugUtils.getScorePW() != null) {
 				DebugUtils.getScorePW().flush();
@@ -940,6 +948,7 @@ public class GraphMerger extends Thread {
 								DebugUtils.debug_directUnmatchedCnt++;
 							}
 
+							
 							// Should mark that this node should never be
 							// matched when
 							// it is popped out of the unmatchedQueue
@@ -960,13 +969,6 @@ public class GraphMerger extends Thread {
 				Node parentNode1 = nodeEdgePair.getParentNode1(), parentNode2 = nodeEdgePair
 						.getParentNode2();
 				Edge e = nodeEdgePair.getCurNodeEdge();
-
-				if (DebugUtils.debug) {
-					// Debug direct edge conflict after entering the main block
-					if (e.getToNode().getIndex() == 181) {
-						DebugUtils.debug_stopHere();
-					}
-				}
 
 				Node childNode1 = getCorrespondingIndirectChildNode(graph1,
 						parentNode1, e, matchedNodes);
@@ -1009,6 +1011,7 @@ public class GraphMerger extends Thread {
 					if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 						DebugUtils.debug_indirectHeuristicUnmatchedCnt++;
 					}
+					
 					unmatchedQueue.add(new PairNode(null, e.getToNode(),
 							pairNode.level + 1));
 				}
@@ -1055,6 +1058,7 @@ public class GraphMerger extends Thread {
 						Edge e = curNode.getOutgoingEdges().get(k);
 						if (e.getToNode().isVisited())
 							continue;
+						
 						unmatchedQueue.add(new PairNode(null, e.getToNode(),
 								pairNode.level + 1));
 					}
@@ -1085,7 +1089,7 @@ public class GraphMerger extends Thread {
 					+ DebugUtils.debug_indirectHeuristicUnmatchedCnt);
 		}
 
-		// In the OUTPUT_SCORE debug mode, output all the scores in a file
+		// In the OUTPUT_SCORE debug mode, close the PrintWriter when merging finishes
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 			DebugUtils.getScorePW().flush();
 			DebugUtils.getScorePW().close();
