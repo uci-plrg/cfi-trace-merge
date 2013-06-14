@@ -25,6 +25,9 @@ public class ExecutionGraph {
 	private ArrayList<Long> pairHashInstances;
 	private ArrayList<Long> blockHashInstances;
 
+	// This field is used to normalize the tag in a single graph
+	private ArrayList<ModuleDescriptor> modules;
+
 	private String pairHashFile;
 	private String blockHashFile;
 	private String runDir;
@@ -41,6 +44,10 @@ public class ExecutionGraph {
 	// which also helps to find out the hash collisions
 	private HashMap<Long, ArrayList<Node>> hash2Nodes;
 
+	public ArrayList<ModuleDescriptor> getModules() {
+		return modules;
+	}
+	
 	public ArrayList<Node> getNodes() {
 		return nodes;
 	}
@@ -67,7 +74,7 @@ public class ExecutionGraph {
 		// Copy the nodes, but the edges are not yet copied...
 		nodes = new ArrayList<Node>(anotherGraph.nodes.size());
 		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
-			nodes.add(new Node(anotherGraph.nodes.get(i)));
+			nodes.add(new Node(this, anotherGraph.nodes.get(i)));
 		}
 		// Copy the edges of each nodes
 		for (int i = 0; i < anotherGraph.nodes.size(); i++) {
@@ -75,10 +82,9 @@ public class ExecutionGraph {
 			// Traverse all the edges by outgoing edges
 			for (int j = 0; j < anotherNode.getOutgoingEdges().size(); j++) {
 				Edge e = anotherNode.getOutgoingEdges().get(j);
-				Node n1 = nodes.get(e.getFromNode().getIndex()),
-						n2 = nodes.get(e.getToNode().getIndex());
-				Edge newEdge = new Edge(n1, n2,
-								e.getEdgeType(), e.getOrdinal());
+				Node n1 = nodes.get(e.getFromNode().getIndex()), n2 = nodes
+						.get(e.getToNode().getIndex());
+				Edge newEdge = new Edge(n1, n2, e.getEdgeType(), e.getOrdinal());
 				n1.addOutgoingEdge(newEdge);
 				n2.addIncomingEdge(newEdge);
 			}
@@ -128,7 +134,7 @@ public class ExecutionGraph {
 	// Add a node with hashcode hash and return the newly
 	// created node
 	public Node addNode(long hash, MetaNodeType metaNodeType) {
-		Node n = new Node(hash, nodes.size(), metaNodeType);
+		Node n = new Node(this, hash, nodes.size(), metaNodeType);
 		nodes.add(n);
 		if (!hash2Nodes.containsKey(hash)) {
 			hash2Nodes.put(hash, new ArrayList<Node>());
@@ -175,24 +181,23 @@ public class ExecutionGraph {
 		this.pid = AnalysisUtil.getPidFromFileName(tagFiles.get(0));
 
 		// The edges of the graph comes with an ordinal
-		
-			HashMap<Long, Node> hashLookupTable;
-			try {
-				hashLookupTable = readGraphLookup(lookupFiles);
-				readGraph(tagFiles, hashLookupTable);
-			} catch (InvalidTagException e) {
-				System.out.println("This is not a valid graph!!!");
-				isValidGraph = false;
-				e.printStackTrace();
-			} catch (TagNotFoundException e) {
-				System.out.println("This is not a valid graph!!!");
-				isValidGraph = false;
-				e.printStackTrace();
-			} catch (MultipleEdgeException e) {
-				System.out.println("This is not a valid graph!!!");
-				isValidGraph = false;
-				e.printStackTrace();
-			}
+		HashMap<Long, Node> hashLookupTable;
+		try {
+			hashLookupTable = readGraphLookup(lookupFiles);
+			readGraph(tagFiles, hashLookupTable);
+		} catch (InvalidTagException e) {
+			System.out.println("This is not a valid graph!!!");
+			isValidGraph = false;
+			e.printStackTrace();
+		} catch (TagNotFoundException e) {
+			System.out.println("This is not a valid graph!!!");
+			isValidGraph = false;
+			e.printStackTrace();
+		} catch (MultipleEdgeException e) {
+			System.out.println("This is not a valid graph!!!");
+			isValidGraph = false;
+			e.printStackTrace();
+		}
 
 		// Some other initialization and sanity checks
 		setReachableNodes();
@@ -252,7 +257,8 @@ public class ExecutionGraph {
 					if (hashLookupTable.containsKey(tag)) {
 						if (hashLookupTable.get(tag).getHash() != hash) {
 							isValidGraph = false;
-							String msg = "Duplicate tags: " + Long.toHexString(tag)
+							String msg = "Duplicate tags: "
+									+ Long.toHexString(tag)
 									+ " -> "
 									+ Long.toHexString(hashLookupTable.get(tag)
 											.getHash()) + ":"
@@ -263,7 +269,8 @@ public class ExecutionGraph {
 							}
 						}
 					}
-					Node node = new Node(tag, hash, nodes.size(), metaNodeType);
+					Node node = new Node(this, tag, hash, nodes.size(),
+							metaNodeType);
 					hashLookupTable.put(tag, node);
 					nodes.add(node);
 
@@ -309,7 +316,8 @@ public class ExecutionGraph {
 	}
 
 	public void readGraph(ArrayList<String> tagFiles,
-			HashMap<Long, Node> hashLookupTable) throws InvalidTagException, TagNotFoundException, MultipleEdgeException {
+			HashMap<Long, Node> hashLookupTable) throws InvalidTagException,
+			TagNotFoundException, MultipleEdgeException {
 
 		HashMap<Node, HashMap<Node, Integer>> adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		for (int i = 0; i < tagFiles.size(); i++) {
@@ -345,13 +353,17 @@ public class ExecutionGraph {
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
 						if (DebugUtils.ThrowTagNotFound) {
-							throw new TagNotFoundException("0x" + Long.toHexString(tag1) + " is missed in graph lookup file!");
+							throw new TagNotFoundException("0x"
+									+ Long.toHexString(tag1)
+									+ " is missed in graph lookup file!");
 						}
 					}
 					if (node2 == null) {
 						hashesNotInLookup.add(tag2);
 						if (DebugUtils.ThrowTagNotFound) {
-							throw new TagNotFoundException("0x" + Long.toHexString(tag2) + " is missed in graph lookup file!");
+							throw new TagNotFoundException("0x"
+									+ Long.toHexString(tag2)
+									+ " is missed in graph lookup file!");
 						}
 					}
 					if (node1 == null || node2 == null) {
@@ -362,7 +374,8 @@ public class ExecutionGraph {
 
 					// Also put the nodes into the adjacentList if they are not
 					// stored yet
-					// Add node to an array, which is in the order they are read in the
+					// Add node to an array, which is in the order they are read
+					// in the
 					// graph file
 					if (!adjacentList.containsKey(node1)) {
 						adjacentList.put(node1, new HashMap<Node, Integer>());
@@ -377,12 +390,11 @@ public class ExecutionGraph {
 						node2.addIncomingEdge(e);
 					} else {
 						if (flag != edges.get(node2)) {
-							String msg = "Multiple edges:\n" +
-									"Edge1: " + node1.getHash()
-									+ "->" + node2.getHash() + ": "
-									+ edges.get(node2)
-									+ "Edge2: " + node1.getHash()
-									+ "->" + node2.getHash() + ": " + flag;
+							String msg = "Multiple edges:\n" + "Edge1: "
+									+ node1.getHash() + "->" + node2.getHash()
+									+ ": " + edges.get(node2) + "Edge2: "
+									+ node1.getHash() + "->" + node2.getHash()
+									+ ": " + flag;
 							if (DebugUtils.ThrowMultipleEdge) {
 								throw new MultipleEdgeException(msg);
 							}
@@ -423,6 +435,7 @@ public class ExecutionGraph {
 		String[] fileNames = dirFile.list();
 		HashMap<Integer, ArrayList<String>> pid2LookupFiles = new HashMap<Integer, ArrayList<String>>(), pid2TagFiles = new HashMap<Integer, ArrayList<String>>();
 		HashMap<Integer, String> pid2PairHashFile = new HashMap<Integer, String>(), pid2BlockHashFile = new HashMap<Integer, String>();
+		HashMap<Integer, String> pid2ModuleFile = new HashMap<Integer, String>(); 
 
 		for (int i = 0; i < fileNames.length; i++) {
 			int pid = AnalysisUtil.getPidFromFileName(fileNames[i]);
@@ -440,6 +453,8 @@ public class ExecutionGraph {
 				pid2PairHashFile.put(pid, dir + "/" + fileNames[i]);
 			} else if (fileNames[i].indexOf("block-hash") != -1) {
 				pid2BlockHashFile.put(pid, dir + "/" + fileNames[i]);
+			} else if (fileNames[i].indexOf("module") != -1) {
+				pid2ModuleFile.put(pid, dir + "/" + fileNames[i]);
 			}
 		}
 
@@ -454,6 +469,9 @@ public class ExecutionGraph {
 					.get(0));
 			ExecutionGraph graph = new ExecutionGraph(tagFiles, lookupFiles);
 
+			// Read the modules from file
+			graph.modules = AnalysisUtil.getModules(pid2ModuleFile.get(pid));
+			
 			// Initialize hash files and hash sets
 			graph.pairHashFile = pid2PairHashFile.get(pid);
 			graph.blockHashFile = pid2BlockHashFile.get(pid);
@@ -513,7 +531,8 @@ public class ExecutionGraph {
 		ArrayList<Node> danglingNodes = new ArrayList<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
-			if (n.getIncomingEdges().size() == 0 && n.getOutgoingEdges().size() == 0)
+			if (n.getIncomingEdges().size() == 0
+					&& n.getOutgoingEdges().size() == 0)
 				danglingNodes.add(n);
 		}
 		return danglingNodes;

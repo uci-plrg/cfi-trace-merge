@@ -8,6 +8,7 @@ import java.util.ArrayList;
  *
  */
 public class Node {
+	private ExecutionGraph containingGraph;
 	private long tag, hash;
 
 	private ArrayList<Edge> outgoingEdges = new ArrayList<Edge>();
@@ -89,14 +90,9 @@ public class Node {
 	public void resetVisited() {
 		isVisited = false;
 	}
-	private static int cnt = 0;
+
 	public void setVisited() {
 		isVisited = true;
-		cnt++;
-//		System.out.println(index);
-//		if (cnt == 30146) {
-//			System.out.println();
-//		}
 	}
 	
 	public boolean isVisited() {
@@ -132,22 +128,22 @@ public class Node {
 	}
 
 	// Not a deep copy, we don't care about edges...
-	public Node(Node anotherNode) {
-		this(anotherNode.tag, anotherNode.hash, anotherNode.index, MetaNodeType.NORMAl);
+	public Node(ExecutionGraph containingGraph, Node anotherNode) {
+		this(containingGraph, anotherNode.tag, anotherNode.hash, anotherNode.index, MetaNodeType.NORMAl);
 		this.score = anotherNode.score;
 		this.fromWhichGraph = anotherNode.fromWhichGraph;
 		this.metaNodeType = anotherNode.metaNodeType;
 	}
 	
 	// Copy 'everything' except fromWhichGraph
-	public Node(Node anotherNode, int fromWhichGraph) {
-		this(anotherNode.tag, anotherNode.hash, anotherNode.index, MetaNodeType.NORMAl);
+	public Node(ExecutionGraph containingGraph, Node anotherNode, int fromWhichGraph) {
+		this(containingGraph, anotherNode.tag, anotherNode.hash, anotherNode.index, MetaNodeType.NORMAl);
 		this.score = anotherNode.score;
 		this.fromWhichGraph = fromWhichGraph;
 		this.metaNodeType = anotherNode.metaNodeType;
 	}
 	
-	public Node(long hash, int index, MetaNodeType metaNodeType) {
+	public Node(ExecutionGraph containingGraph, long hash, int index, MetaNodeType metaNodeType) {
 		this.tag = -1;
 		this.hash = hash;
 		this.index = index;
@@ -155,7 +151,7 @@ public class Node {
 		this.metaNodeType = metaNodeType;
 	}
 
-	public Node(long tag, long hash, int index, MetaNodeType metaNodeType) {
+	public Node(ExecutionGraph containingGraph, long tag, long hash, int index, MetaNodeType metaNodeType) {
 		this.tag = tag;
 		this.hash = hash;
 		this.index = index;
@@ -163,7 +159,7 @@ public class Node {
 		this.metaNodeType = metaNodeType;
 	}
 
-	public Node(long tag) {
+	public Node(ExecutionGraph containingGraph, long tag) {
 		this.tag = tag;
 		isVisited = false;
 	}
@@ -180,7 +176,7 @@ public class Node {
 			return false;
 		}
 		Node node = (Node) o;
-		if (node.tag == tag)
+		if (node.tag == tag && node.containingGraph == containingGraph)
 			return true;
 		else
 			return false;

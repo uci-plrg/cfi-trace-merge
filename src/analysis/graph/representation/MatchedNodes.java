@@ -16,29 +16,17 @@ import analysis.graph.debug.DebugUtils;
  */
 public class MatchedNodes implements Iterable<Integer> {
 	private HashMap<Integer, Integer> matchedNodes12, matchedNodes21;
-	private ArrayList<Integer> orderedMatchedNodes;
 	
-	private ArrayList<Integer> speculativeMatching;
-	private ArrayList<Float> confidence;
+	// Maps index of node1 and its matching score with nodes
+	// If they are matched directly, then their score should be 0
+	private HashMap<Integer, Integer> matchingScore;
 	
 	public MatchedNodes() {
 		matchedNodes12 = new HashMap<Integer, Integer>();
 		matchedNodes21 = new HashMap<Integer, Integer>();
-		
-		orderedMatchedNodes = new ArrayList<Integer>();
-		speculativeMatching  = new ArrayList<Integer>();
-		confidence = new ArrayList<Float>();
+		matchingScore = new HashMap<Integer, Integer>();
 	}
 	
-	public boolean rewind() {
-		if (speculativeMatching.size() == 0) {
-			return false;
-		}
-		int rewindIdx = speculativeMatching.remove(speculativeMatching.size() - 1);
-		
-		
-		return true;
-	}
 	
 	public String toString() {
 		return matchedNodes12.toString();
@@ -59,7 +47,7 @@ public class MatchedNodes implements Iterable<Integer> {
 		}
 	}
 	
-	public boolean addPair(int index1, int index2) {
+	public boolean addPair(int index1, int index2, int score) {
 		if (hasPair(index1, index2))
 			return true;
 		if (matchedNodes12.containsKey(index1) || matchedNodes21.containsKey(index2)) {
@@ -68,11 +56,7 @@ public class MatchedNodes implements Iterable<Integer> {
 		matchedNodes12.put(index1, index2);
 		matchedNodes21.put(index2, index1);
 		
-		if (DebugUtils.debug) {
-			if (index2 == 853) {
-				DebugUtils.debug_stopHere();
-			}
-		}
+		matchingScore.put(index1, score);
 		
 		return true;
 	}
@@ -81,12 +65,14 @@ public class MatchedNodes implements Iterable<Integer> {
 		int index2 = matchedNodes12.get(index1);
 		matchedNodes12.remove(index1);
 		matchedNodes21.remove(index2);
+		matchingScore.remove(index1);
 	}
 	
 	public void removeBySecondIndex(int index2) {
 		int index1 = matchedNodes21.get(index2);
 		matchedNodes12.remove(index1);
 		matchedNodes21.remove(index2);
+		matchingScore.remove(index1);
 	}
 	
 	public boolean containsKeyByFirstIndex(int index1) {
@@ -103,6 +89,10 @@ public class MatchedNodes implements Iterable<Integer> {
 	
 	public Integer getBySecondIndex(int index2) {
 		return matchedNodes21.get(index2);
+	}
+	
+	public int getScoreByFirstIndex(int index1) {
+		return matchingScore.get(index1);
 	}
 	
 	public int size() {

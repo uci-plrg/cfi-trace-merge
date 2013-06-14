@@ -49,8 +49,8 @@ public class Edge {
 		if (o.getClass() != Edge.class)
 			return false;
 		Edge e = (Edge) o;
-		if (e.fromNode.getIndex() == fromNode.getIndex() 
-				&& e.toNode.getIndex() == toNode.getIndex()
+		if (e.fromNode.equals(fromNode) 
+				&& e.toNode.equals(toNode)
 				&& e.edgeType == edgeType
 				&& e.ordinal == ordinal)
 			return true;
@@ -59,6 +59,6 @@ public class Edge {
 	}
 
 	public int hashCode() {
-		return fromNode.getIndex() << 5 ^ toNode.getIndex();
+		return fromNode.hashCode() << 5 ^ toNode.hashCode();
 	}
 }

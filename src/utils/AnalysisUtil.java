@@ -16,8 +16,12 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import analysis.graph.representation.ExecutionGraph;
+import analysis.graph.representation.ModuleDescriptor;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -365,5 +369,70 @@ public class AnalysisUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Assume the module file is organized in the follwoing way:
+	 * Module USERENV.dll: 0x722a0000 - 0x722b7000
+	 * @param fileName
+	 * @return
+	 */
+	public static ArrayList<ModuleDescriptor> getModules(String fileName) {
+		ArrayList<ModuleDescriptor> res = new ArrayList<ModuleDescriptor>();;
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(fileName));
+			try {
+				String line;
+				while ((line = br.readLine()) != null) {
+					int beginIdx, endIdx;
+					String name;
+					long beginAddr, endAddr;
+					
+					beginIdx = line.indexOf(" ", 0);
+					endIdx = line.indexOf(":", 0);
+					name = line.substring(beginIdx + 1, endIdx);
+					
+					beginIdx = line.indexOf("x", endIdx);
+					endIdx = line.indexOf(" ", beginIdx);
+					beginAddr = Long.parseLong(line.substring(beginIdx + 1), 16);
+					
+					beginIdx = line.indexOf("x", endIdx);
+					endAddr = Long.parseLong(line.substring(beginIdx + 1), 16);
+					
+					ModuleDescriptor mod = new ModuleDescriptor(name, beginAddr, endAddr);
+					res.add(mod);
+				}
+				Collections.sort(res);
+				return res;
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static long getRelativeTag(ExecutionGraph graph, long tag) {
+		ArrayList<ModuleDescriptor> modules = graph.getModules();
+		for (int i = 0; i < modules.size(); i++) {
+			ModuleDescriptor mod = modules.get(i); 
+			if (mod.compareTo(tag) == 0) {
+				return tag - mod.beginAddr;
+			}
+		}
+		return -1;
+	}
+	
+	public static String getModuleName(ExecutionGraph graph, long tag) {
+		ArrayList<ModuleDescriptor> modules = graph.getModules();
+		for (int i = 0; i < modules.size(); i++) {
+			ModuleDescriptor mod = modules.get(i); 
+			if (mod.compareTo(tag) == 0) {
+				return mod.name;
+			}
+		}
+		return null;
 	}
 }

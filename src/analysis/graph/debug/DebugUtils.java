@@ -1,5 +1,8 @@
 package analysis.graph.debug;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 import analysis.graph.GraphMerger;
 
 public class DebugUtils {
@@ -21,6 +24,22 @@ public class DebugUtils {
 	public static final int DUMP_GRAPH = 0x1 << 4;
 	public static final int TRACE_HEURISTIC = 0x1 << 5;
 	public static final int IGNORE_CONFLICT =  0x1 << 6;
+	public static final int OUTPUT_SCORE =  0x1 << 7;
+	
+	public static final String SCORE_FILE_PATH = "./score.txt";
+	private static PrintWriter scorePW = null;
+	
+	public static PrintWriter getScorePW() {
+		if (scorePW == null) {
+			try {
+				scorePW = new PrintWriter(SCORE_FILE_PATH);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		return scorePW;
+	}
+	
 	
 	public static int chageHashLimit = 138 * 5;
 	public static int chageHashCnt = 0;
@@ -43,7 +62,7 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | IGNORE_CONFLICT;
+	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | IGNORE_CONFLICT | OUTPUT_SCORE;
 
 	public static final boolean debug = true;
 
