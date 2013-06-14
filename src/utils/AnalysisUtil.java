@@ -394,7 +394,7 @@ public class AnalysisUtil {
 					
 					beginIdx = line.indexOf("x", endIdx);
 					endIdx = line.indexOf(" ", beginIdx);
-					beginAddr = Long.parseLong(line.substring(beginIdx + 1), 16);
+					beginAddr = Long.parseLong(line.substring(beginIdx + 1, endIdx), 16);
 					
 					beginIdx = line.indexOf("x", endIdx);
 					endAddr = Long.parseLong(line.substring(beginIdx + 1), 16);
@@ -422,7 +422,7 @@ public class AnalysisUtil {
 				return tag - mod.beginAddr;
 			}
 		}
-		return -1;
+		return tag;
 	}
 	
 	public static String getModuleName(ExecutionGraph graph, long tag) {
@@ -433,6 +433,6 @@ public class AnalysisUtil {
 				return mod.name;
 			}
 		}
-		return null;
+		return "Unknown";
 	}
 }

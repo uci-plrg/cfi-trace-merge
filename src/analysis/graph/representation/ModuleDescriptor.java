@@ -10,6 +10,10 @@ public class ModuleDescriptor implements Comparable {
 		this.endAddr = endAddr;
 	}
 	
+	public String toString() {
+		return name + ": 0x" + Long.toHexString(beginAddr) + " - 0x" + Long.toHexString(endAddr);
+	}
+	
 	/**
 	 * Compare between two modules. Assume that the modules are from the
 	 * same execution and they are disjoint.

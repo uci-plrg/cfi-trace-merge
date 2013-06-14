@@ -1,5 +1,6 @@
 package analysis.graph.debug;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
@@ -26,24 +27,28 @@ public class DebugUtils {
 	public static final int IGNORE_CONFLICT =  0x1 << 6;
 	public static final int OUTPUT_SCORE =  0x1 << 7;
 	
-	public static final String SCORE_FILE_PATH = "./score.txt";
+	public static final String SCORE_FILE_DIR = "./scores/";
 	private static PrintWriter scorePW = null;
 	
 	public static PrintWriter getScorePW() {
-		if (scorePW == null) {
-			try {
-				scorePW = new PrintWriter(SCORE_FILE_PATH);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
 		return scorePW;
 	}
 	
+	public static void setScorePW(String fileName) {
+		try {
+			String absolutePath = SCORE_FILE_DIR + fileName;
+			File f = new File(SCORE_FILE_DIR);
+			f.mkdirs();
+			scorePW = new PrintWriter(absolutePath);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 	
-	public static int chageHashLimit = 138 * 5;
+	
+	public static int chageHashLimit = 138 * 3;
 	public static int chageHashCnt = 0;
-	public static final int commonBitNum = 5;
+	public static final int commonBitNum = 4;
 
 	public static final String TMP_HASHLOG_DIR = "/scratch/malware/reports-sality/tmp";
 
@@ -62,7 +67,7 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | IGNORE_CONFLICT | OUTPUT_SCORE;
+	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | IGNORE_CONFLICT | OUTPUT_SCORE;
 
 	public static final boolean debug = true;
 
@@ -86,7 +91,6 @@ public class DebugUtils {
 			}
 		}
 		if (cnt < commonBitNum) {
-//		if (true) {
 			System.out.println(s1 + "<->" + s2);
 		}
 		return cnt;

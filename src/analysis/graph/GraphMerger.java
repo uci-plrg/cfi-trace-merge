@@ -117,8 +117,8 @@ public class GraphMerger extends Thread {
 			MatchedNodes matchedNodes) {
 		if (depth <= 0)
 			return 0;
-		
-		// If node1 or node2 
+
+		// If node1 or node2
 
 		if (DebugUtils.debug) {
 			if (depth == DebugUtils.searchDepth) {
@@ -161,7 +161,8 @@ public class GraphMerger extends Thread {
 					DebugUtils.debug_contextSimilarityTrace.addTraceAtDepth(
 							DebugUtils.searchDepth - depth + 1, inst);
 				}
-				// Check if e1.toNode was already matched to another node; if so,
+				// Check if e1.toNode was already matched to another node; if
+				// so,
 				// it should return -1 to indicate a conflict
 				if (matchedNodes.containsKeyByFirstIndex(e1.getToNode()
 						.getIndex())
@@ -196,7 +197,8 @@ public class GraphMerger extends Thread {
 								.getHash()) {
 							return -1;
 						} else {
-							// Check if e1.toNode was already matched to another node; if so,
+							// Check if e1.toNode was already matched to another
+							// node; if so,
 							// it should return -1 to indicate a conflict
 							if (matchedNodes.containsKeyByFirstIndex(e1
 									.getToNode().getIndex())
@@ -229,8 +231,10 @@ public class GraphMerger extends Thread {
 							}
 						}
 					} else {
-						// Either indirect or unexpected edges, keep tracing down
-						// If the pair of node does not match, that does not mean
+						// Either indirect or unexpected edges, keep tracing
+						// down
+						// If the pair of node does not match, that does not
+						// mean
 						// the context is different.
 						if (e1.getToNode().getHash() == e2.getToNode()
 								.getHash()) {
@@ -268,7 +272,7 @@ public class GraphMerger extends Thread {
 
 							res = getContextSimilarity(e1.getToNode(),
 									e2.getToNode(), depth - 1, matchedNodes);
-							// In the case of res == -1, just leave it alone 
+							// In the case of res == -1, just leave it alone
 							// because of lack of information
 							if (res != -1) {
 								score += res + 1;
@@ -334,10 +338,13 @@ public class GraphMerger extends Thread {
 
 			// In the OUTPUT_SCORE debug mode, output all the scores in a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				String moduleName = AnalysisUtil.getModuleName(graph2, node2.getTag());
-				long relativeTag = AnalysisUtil.getRelativeTag(graph2, node2.getTag());
-				DebugUtils.getScorePW().print("PureHeuristic_" + moduleName + "_0x"
-						+ Long.toHexString(relativeTag) + ":\t");
+				String moduleName = AnalysisUtil.getModuleName(graph2,
+						node2.getTag());
+				long relativeTag = AnalysisUtil.getRelativeTag(graph2,
+						node2.getTag());
+				DebugUtils.getScorePW().print(
+						"PureHeuristic_" + moduleName + "_0x"
+								+ Long.toHexString(relativeTag) + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
 					DebugUtils.getScorePW().print(n.getScore() + "\t");
@@ -414,9 +421,10 @@ public class GraphMerger extends Thread {
 						// are supposed to be the same
 						if (DebugUtils
 								.debug_decision(DebugUtils.IGNORE_CONFLICT)) {
-							// if (DebugUtils.chageHashLimit > 0) {
-							if (DebugUtils.commonBitsCnt(e.getToNode()
-									.getHash(), curNode.getHash()) >= DebugUtils.commonBitNum) {
+							if (DebugUtils.chageHashLimit > 0) {
+								// if (DebugUtils.commonBitsCnt(e.getToNode()
+								// .getHash(), curNode.getHash()) >=
+								// DebugUtils.commonBitNum) {
 								e.getToNode().setHash(curNode.getHash());
 								DebugUtils.chageHashLimit--;
 								DebugUtils.chageHashCnt++;
@@ -506,10 +514,13 @@ public class GraphMerger extends Thread {
 		} else {
 			// In the OUTPUT_SCORE debug mode, output all the scores in a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				String moduleName = AnalysisUtil.getModuleName(graph2, curNode.getTag());
-				long relativeTag = AnalysisUtil.getRelativeTag(graph2, curNode.getTag());
-				DebugUtils.getScorePW().print("Indirect_" + moduleName + "_0x"
-						+ Long.toHexString(relativeTag) + ":\t");
+				String moduleName = AnalysisUtil.getModuleName(graph2,
+						curNode.getTag());
+				long relativeTag = AnalysisUtil.getRelativeTag(graph2,
+						curNode.getTag());
+				DebugUtils.getScorePW().print(
+						"Indirect_" + moduleName + "_0x"
+								+ Long.toHexString(relativeTag) + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
 					DebugUtils.getScorePW().print(n.getScore() + "\t");
@@ -755,6 +766,16 @@ public class GraphMerger extends Thread {
 			return new ExecutionGraph(graph1);
 		}
 
+		// In the OUTPUT_SCORE debug mode, output all the scores in a file
+		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+			if (DebugUtils.getScorePW() != null) {
+				DebugUtils.getScorePW().flush();
+				DebugUtils.getScorePW().close();
+			}
+			String fileName = graph1.getProgName() + ".score-" + graph1.getPid() + "-" + graph2.getPid() + ".txt";
+			DebugUtils.setScorePW(fileName);
+		}
+
 		// Merge based on the similarity of the first node ---- sanity check!
 		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
 				.getHash()) {
@@ -790,8 +811,8 @@ public class GraphMerger extends Thread {
 
 		if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN_ADD_MAIN)) {
 			if (mainNode1 != null && mainNode2 != null) {
-				matchedNodes
-						.addPair(mainNode1.getIndex(), mainNode2.getIndex(), 0);
+				matchedNodes.addPair(mainNode1.getIndex(),
+						mainNode2.getIndex(), 0);
 				matchedQueue.add(new PairNode(mainNode1, mainNode2, 0));
 
 				DebugUtils.debug_matchingTrace
@@ -856,7 +877,8 @@ public class GraphMerger extends Thread {
 									.getToNode().getIndex())) {
 								if (!matchedNodes.addPair(
 										childNode1.getIndex(), e.getToNode()
-												.getIndex(), childNode1.getScore())) {
+												.getIndex(), childNode1
+												.getScore())) {
 									System.out.println("In execution "
 											+ graph1.getPid() + " & "
 											+ graph2.getPid());
