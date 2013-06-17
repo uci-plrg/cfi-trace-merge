@@ -28,6 +28,12 @@ public class Edge {
 	public int getOrdinal() {
 		return ordinal;
 	}
+	
+	public boolean hasFlags(int flags) {
+		int ordinal = flags % 256;
+		EdgeType edgeType = EdgeType.values()[flags / 256];
+		return ((this.ordinal == ordinal) && (this.edgeType == edgeType));
+	}
 
 	public Edge(Node fromNode, Node toNode, EdgeType edgeType, int ordinal) {
 		this.fromNode = fromNode;
@@ -36,11 +42,11 @@ public class Edge {
 		this.ordinal = ordinal;
 	}
 
-	public Edge(Node fromNode, Node toNode, int flag) {
+	public Edge(Node fromNode, Node toNode, int flags) {
 		this.fromNode = fromNode;
 		this.toNode = toNode;
-		this.ordinal = flag % 256;
-		edgeType = EdgeType.values()[flag / 256];
+		this.ordinal = flags % 256;
+		edgeType = EdgeType.values()[flags / 256];
 	}
 
 	public boolean equals(Object o) {

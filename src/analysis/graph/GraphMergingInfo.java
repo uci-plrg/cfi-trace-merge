@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import utils.AnalysisUtil;
-
-import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -29,21 +27,17 @@ public class GraphMergingInfo {
 	private int totalHashSize;
 	private int interHashSize;
 
-	public GraphMergingInfo(ExecutionGraph graph1, ExecutionGraph graph2,
-			MatchedNodes matchedNodes) {
+	public GraphMergingInfo(ExecutionGraph graph1, ExecutionGraph graph2, MatchedNodes matchedNodes) {
 		this.graph1 = graph1;
 		this.graph2 = graph2;
 		this.matchedNodes = matchedNodes;
 
-		HashSet<Long> interBlockHashes = AnalysisUtil.intersection(
-				graph1.getBlockHashes(), graph2.getBlockHashes());
-		HashSet<Long> totalBlockHashes = AnalysisUtil.union(
-				graph1.getBlockHashes(), graph2.getBlockHashes());
+		HashSet<Long> interBlockHashes = AnalysisUtil.intersection(graph1.getBlockHashes(), graph2.getBlockHashes());
+		HashSet<Long> totalBlockHashes = AnalysisUtil.union(graph1.getBlockHashes(), graph2.getBlockHashes());
 		interHashSize = interBlockHashes.size();
 		totalHashSize = totalBlockHashes.size();
 		setInterRate = (float) interBlockHashes.size() / totalHashSize;
-		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
-				- matchedNodes.size();
+		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size() - matchedNodes.size();
 		// totalNodeSize = graph1.getAccessibleNodes().size() +
 		// graph2.getAccessibleNodes().size()
 		// - matchedNodes.size();
@@ -89,26 +83,17 @@ public class GraphMergingInfo {
 
 	synchronized public void outputMergedGraphInfo() {
 		System.out.println();
-		System.out.println("Comparison between " + graph1.getProgName()
-				+ graph1.getPid() + " & " + graph2.getProgName()
-				+ graph2.getPid() + ":");
-		System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir()) + " & "
-				+ AnalysisUtil.getRunStr(graph2.getRunDir()));
+		System.out.println("Comparison between " + graph1.getProgName() + graph1.getPid() + " & " + graph2.getProgName() + graph2.getPid() + ":");
+		System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir()) + " & " + AnalysisUtil.getRunStr(graph2.getRunDir()));
 
-		System.out.println("Size of nodes in graph1: "
-				+ graph1.getNodes().size());
-		System.out.println("Size of nodes in graph2: "
-				+ graph2.getNodes().size());
+		System.out.println("Size of nodes in graph1: " + graph1.getNodes().size());
+		System.out.println("Size of nodes in graph2: " + graph2.getNodes().size());
 
-		System.out.println("Intersection ratio of block hashes: "
-				+ setInterRate + "  " + graph1.getBlockHashes().size() + ","
-				+ graph2.getBlockHashes().size() + ":" + interHashSize + "/"
-				+ totalHashSize);
+		System.out.println("Intersection ratio of block hashes: " + setInterRate + "  " + graph1.getBlockHashes().size() + "," + graph2.getBlockHashes().size()
+				+ ":" + interHashSize + "/" + totalHashSize);
 		System.out.println("Merged nodes: " + matchedNodes.size());
-		System.out.println("Merged nodes / G1 nodes: "
-				+ (float) matchedNodes.size() / graph1.getNodes().size());
-		System.out.println("Merged nodes / G2 nodes: "
-				+ (float) matchedNodes.size() / graph2.getNodes().size());
+		System.out.println("Merged nodes / G1 nodes: " + (float) matchedNodes.size() / graph1.getNodes().size());
+		System.out.println("Merged nodes / G2 nodes: " + (float) matchedNodes.size() / graph2.getNodes().size());
 		System.out.println("Merged nodes / all nodes: " + nodeInterRate);
 		System.out.println();
 	}
@@ -165,6 +150,9 @@ public class GraphMergingInfo {
 
 	public static void dumpGraph(ExecutionGraph graph, String fileName) {
 		File file = new File(fileName);
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -189,18 +177,14 @@ public class GraphMergingInfo {
 			pwNodeFile = new PrintWriter(fileName + ".node");
 
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				pwNodeFile.println(Long.toHexString(graph.getNodes().get(i)
-						.getHash()));
+				pwNodeFile.println(Long.toHexString(graph.getNodes().get(i).getHash()));
 			}
 
 			pwDotFile.println("digraph runGraph {");
 			long firstMainBlock = outputFirstMain(graph);
-			pwDotFile.println("# First main block: "
-					+ Long.toHexString(firstMainBlock));
+			pwDotFile.println("# First main block: " + Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				pwDotFile.println(i + "[label=\""
-						+ Long.toHexString(graph.getNodes().get(i).getHash())
-						+ "\"]");
+				pwDotFile.println(i + "[label=\"" + Long.toHexString(graph.getNodes().get(i).getHash()) + "\"]");
 
 				ArrayList<Edge> edges = graph.getNodes().get(i).getOutgoingEdges();
 				for (Edge e : edges) {
@@ -223,9 +207,7 @@ public class GraphMergingInfo {
 						break;
 					}
 
-					pwDotFile.println(i + "->" + e.getToNode().getIndex()
-							+ "[label=\"" + branchType + "_" + e.getOrdinal()
-							+ "\"]");
+					pwDotFile.println(i + "->" + e.getToNode().getIndex() + "[label=\"" + branchType + "_" + e.getOrdinal() + "\"]");
 				}
 			}
 

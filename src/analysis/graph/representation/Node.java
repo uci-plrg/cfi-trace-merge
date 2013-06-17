@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * @author peizhaoo
  *
  */
-public class Node {
+public class Node implements NodeList {
 	private ExecutionGraph containingGraph;
 	private long tag, hash;
 
@@ -24,6 +24,26 @@ public class Node {
 	
 	// Incomming edges, just in case they might be needed
 	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
+	
+	@Override
+	public Node get(int index) {
+		return this;
+	}
+	
+	@Override
+	public int size() {
+		return 1;
+	}
+	
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
+	
+	@Override
+	public NodeList copy(ExecutionGraph containingGraph) {
+		return new Node(containingGraph, this, true);
+	}
 	
 	public void addIncomingEdge(Edge e) {
 		if (!incomingEdges.contains(e))
@@ -65,6 +85,15 @@ public class Node {
 	
 	public ArrayList<Edge> getOutgoingEdges() {
 		return outgoingEdges;
+	}
+	
+	public Edge getOutgoingEdge(Node node) {
+		for (Edge edge : outgoingEdges) {
+			if (edge.getToNode().getTag() == node.getTag())
+				return edge;
+		}
+		
+		return null;
 	}
 	
 	public MetaNodeType getMetaNodeType() {
@@ -162,6 +191,15 @@ public class Node {
 	public Node(ExecutionGraph containingGraph, long tag) {
 		this.tag = tag;
 		isVisited = false;
+	}
+
+	private Node(ExecutionGraph containingGraph, Node source, boolean _deep_implied_) {
+		this.containingGraph = containingGraph;
+		tag = source.tag;
+		hash = source.hash;
+		outgoingEdges.addAll(source.outgoingEdges);
+		isVisited = false;
+		metaNodeType = source.metaNodeType;
 	}
 
 	/**
