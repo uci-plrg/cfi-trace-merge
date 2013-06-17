@@ -83,7 +83,8 @@ public class ExecutionGraph {
 			// Traverse all the edges by outgoing edges
 			for (int j = 0; j < anotherNode.getOutgoingEdges().size(); j++) {
 				Edge e = anotherNode.getOutgoingEdges().get(j);
-				Node n1 = nodes.get(e.getFromNode().getIndex()), n2 = nodes.get(e.getToNode().getIndex());
+				Node n1 = nodes.get(e.getFromNode().getIndex()), n2 = nodes
+						.get(e.getToNode().getIndex());
 				Edge newEdge = new Edge(n1, n2, e.getEdgeType(), e.getOrdinal());
 				n1.addOutgoingEdge(newEdge);
 				n2.addIncomingEdge(newEdge);
@@ -103,8 +104,8 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * Traverse the graph to decide if each node is reachable from the entry
-	 * node. This method must be called after the graph has been constructed.
+	 * Traverse the graph to decide if each node is reachable from the entry node. This method must be called after the
+	 * graph has been constructed.
 	 */
 	private void setReachableNodes() {
 		for (int i = 0; i < nodes.size(); i++) {
@@ -165,7 +166,8 @@ public class ExecutionGraph {
 		pairHashes = new HashSet<Long>();
 	}
 
-	public ExecutionGraph(ArrayList<String> tagFiles, ArrayList<String> lookupFiles) {
+	public ExecutionGraph(ArrayList<String> tagFiles,
+			ArrayList<String> lookupFiles) {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
 		this.progName = AnalysisUtil.getProgName(tagFiles.get(0));
@@ -219,7 +221,8 @@ public class ExecutionGraph {
 		return isValidGraph;
 	}
 
-	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles) throws InvalidTagException {
+	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles)
+			throws InvalidTagException {
 		HashMap<Long, Node> hashLookupTable = new HashMap<Long, Node>();
 
 		FileInputStream fileIn = null;
@@ -262,14 +265,20 @@ public class ExecutionGraph {
 					if (hashLookupTable.containsKey(tag)) {
 						if (hashLookupTable.get(tag).getHash() != hash) {
 							isValidGraph = false;
-							String msg = "Duplicate tags: " + Long.toHexString(tag) + " -> " + Long.toHexString(hashLookupTable.get(tag).getHash()) + ":"
-									+ Long.toHexString(hash) + "  " + lookupFile;
+							String msg = "Duplicate tags: "
+									+ Long.toHexString(tag)
+									+ " -> "
+									+ Long.toHexString(hashLookupTable.get(tag)
+											.getHash()) + ":"
+									+ Long.toHexString(hash) + "  "
+									+ lookupFile;
 							if (DebugUtils.ThrowInvalidTag) {
 								throw new InvalidTagException(msg);
 							}
 						}
 					}
-					Node node = new Node(this, tag, hash, nodes.size(), metaNodeType);
+					Node node = new Node(this, tag, hash, nodes.size(),
+							metaNodeType);
 					hashLookupTable.put(tag, node);
 					nodes.add(node);
 
@@ -309,7 +318,9 @@ public class ExecutionGraph {
 		return res;
 	}
 
-	public void readGraph(ArrayList<String> tagFiles, HashMap<Long, Node> hashLookupTable) throws InvalidTagException, TagNotFoundException,
+	public void readGraph(ArrayList<String> tagFiles,
+			HashMap<Long, Node> hashLookupTable)
+			throws InvalidTagException, TagNotFoundException,
 			MultipleEdgeException {
 
 		for (int i = 0; i < tagFiles.size(); i++) {
@@ -340,23 +351,30 @@ public class ExecutionGraph {
 					long tag2 = getTagEffectiveValue(tag2Original);
 					if (tag2 != tag2Original) {
 						if (DebugUtils.ThrowInvalidTag) {
-							throw new InvalidTagException("Tag 0x" + Long.toHexString(tag2Original) + " has more than 6 bytes");
+							throw new InvalidTagException("Tag 0x"
+									+ Long.toHexString(tag2Original)
+									+ " has more than 6 bytes");
 						}
 					}
 
-					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable.get(tag2);
+					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
+							.get(tag2);
 
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
 						if (DebugUtils.ThrowTagNotFound) {
-							throw new TagNotFoundException("0x" + Long.toHexString(tag1) + " is missed in graph lookup file!");
+							throw new TagNotFoundException("0x"
+									+ Long.toHexString(tag1)
+									+ " is missed in graph lookup file!");
 						}
 					}
 					if (node2 == null) {
 						hashesNotInLookup.add(tag2);
 						if (DebugUtils.ThrowTagNotFound) {
-							throw new TagNotFoundException("0x" + Long.toHexString(tag2) + " is missed in graph lookup file!");
+							throw new TagNotFoundException("0x"
+									+ Long.toHexString(tag2)
+									+ " is missed in graph lookup file!");
 						}
 					}
 					if (node1 == null || node2 == null) {
@@ -372,8 +390,11 @@ public class ExecutionGraph {
 						node2.addIncomingEdge(e);
 					} else {
 						if (!existing.hasFlags(flags)) {
-							String msg = "Multiple edges:\n" + "Edge1: " + node1.getHash() + "->" + node2.getHash() + ": " + existing.getToNode() + "Edge2: "
-									+ node1.getHash() + "->" + node2.getHash() + ": " + flags;
+							String msg = "Multiple edges:\n" + "Edge1: "
+									+ node1.getHash() + "->" + node2.getHash()
+									+ ": " + existing.getToNode() + "Edge2: "
+									+ node1.getHash() + "->" + node2.getHash()
+									+ ": " + flags;
 							if (DebugUtils.ThrowMultipleEdge) {
 								throw new MultipleEdgeException(msg);
 							}
@@ -440,10 +461,12 @@ public class ExecutionGraph {
 		// Build the graphs
 		for (int pid : pid2LookupFiles.keySet()) {
 
-			ArrayList<String> lookupFiles = pid2LookupFiles.get(pid), tagFiles = pid2TagFiles.get(pid);
+			ArrayList<String> lookupFiles = pid2LookupFiles.get(pid), tagFiles = pid2TagFiles
+					.get(pid);
 			if (lookupFiles.size() == 0)
 				continue;
-			String possibleProgName = AnalysisUtil.getProgName(lookupFiles.get(0));
+			String possibleProgName = AnalysisUtil.getProgName(lookupFiles
+					.get(0));
 			ExecutionGraph graph = new ExecutionGraph(tagFiles, lookupFiles);
 
 			// Read the modules from file
@@ -453,9 +476,12 @@ public class ExecutionGraph {
 			graph.pairHashFile = pid2PairHashFile.get(pid);
 			graph.blockHashFile = pid2BlockHashFile.get(pid);
 			graph.pairHashes = AnalysisUtil.getSetFromPath(graph.pairHashFile);
-			graph.blockHashes = AnalysisUtil.getSetFromPath(graph.blockHashFile);
-			graph.pairHashInstances = AnalysisUtil.getAllHashInstanceFromPath(graph.pairHashFile);
-			graph.blockHashInstances = AnalysisUtil.getAllHashInstanceFromPath(graph.blockHashFile);
+			graph.blockHashes = AnalysisUtil
+					.getSetFromPath(graph.blockHashFile);
+			graph.pairHashInstances = AnalysisUtil
+					.getAllHashInstanceFromPath(graph.pairHashFile);
+			graph.blockHashInstances = AnalysisUtil
+					.getAllHashInstanceFromPath(graph.blockHashFile);
 
 			graph.progName = possibleProgName;
 			graph.pid = pid;
@@ -505,16 +531,16 @@ public class ExecutionGraph {
 		ArrayList<Node> danglingNodes = new ArrayList<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
-			if (n.getIncomingEdges().size() == 0 && n.getOutgoingEdges().size() == 0)
+			if (n.getIncomingEdges().size() == 0
+					&& n.getOutgoingEdges().size() == 0)
 				danglingNodes.add(n);
 		}
 		return danglingNodes;
 	}
 
 	/**
-	 * To validate the correctness of the graph. Basically it checks if entry
-	 * points have no incoming edges, exit points have no outgoing edges. It
-	 * might include more validation stuff later...
+	 * To validate the correctness of the graph. Basically it checks if entry points have no incoming edges, exit points
+	 * have no outgoing edges. It might include more validation stuff later...
 	 * 
 	 * @return true means this is a valid graph, otherwise it's invalid
 	 */
@@ -522,22 +548,22 @@ public class ExecutionGraph {
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
 			switch (n.getMetaNodeType()) {
-			case ENTRY:
-				if (n.getIncomingEdges().size() != 0) {
-					System.out.println("Entry point has incoming edges!");
-					isValidGraph = false;
-					break outerLoop;
-				}
-				break;
-			case EXIT:
-				if (n.getOutgoingEdges().size() != 0) {
-					System.out.println("Exit point has outgoing edges!");
-					isValidGraph = false;
-					break outerLoop;
-				}
-				break;
-			default:
-				break;
+				case ENTRY:
+					if (n.getIncomingEdges().size() != 0) {
+						System.out.println("Entry point has incoming edges!");
+						isValidGraph = false;
+						break outerLoop;
+					}
+					break;
+				case EXIT:
+					if (n.getOutgoingEdges().size() != 0) {
+						System.out.println("Exit point has outgoing edges!");
+						isValidGraph = false;
+						break outerLoop;
+					}
+					break;
+				default:
+					break;
 			}
 		}
 		return isValidGraph;

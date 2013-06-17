@@ -13,9 +13,9 @@ public class DebugUtils {
 	public static final boolean ThrowDuplicateTag = true;
 	public static final boolean ThrowInvalidTag = true;
 	public static final boolean ThrowMultipleEdge = false;
-	
+
 	public static final boolean ThrowWrongEdgeType = false;
-	
+
 	// Some debugging options
 	public static final int DEBUG_ONLY = 0x0;
 	public static final int PRINT_MATCHING_HISTORY = 0x1;
@@ -24,16 +24,16 @@ public class DebugUtils {
 	public static final int MERGE_ERROR = 0x1 << 3;
 	public static final int DUMP_GRAPH = 0x1 << 4;
 	public static final int TRACE_HEURISTIC = 0x1 << 5;
-	public static final int IGNORE_CONFLICT =  0x1 << 6;
-	public static final int OUTPUT_SCORE =  0x1 << 7;
-	
+	public static final int IGNORE_CONFLICT = 0x1 << 6;
+	public static final int OUTPUT_SCORE = 0x1 << 7;
+
 	public static final String SCORE_FILE_DIR = "./scores/";
 	private static PrintWriter scorePW = null;
-	
+
 	public static PrintWriter getScorePW() {
 		return scorePW;
 	}
-	
+
 	public static void setScorePW(String fileName) {
 		try {
 			String absolutePath = SCORE_FILE_DIR + fileName;
@@ -44,8 +44,7 @@ public class DebugUtils {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	public static int chageHashLimit = 138 * 3;
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
@@ -67,7 +66,8 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | IGNORE_CONFLICT | OUTPUT_SCORE;
+	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2
+			| IGNORE_CONFLICT | OUTPUT_SCORE;
 
 	public static final boolean debug = true;
 
@@ -78,13 +78,10 @@ public class DebugUtils {
 		}
 		return opt;
 	}
-	
+
 	public static int commonBitsCnt(long hash1, long hash2) {
-		String s1 = Long.toHexString(hash1),
-				s2 = Long.toHexString(hash2);
-		int cnt = 0,
-				idx1 = s1.length() - 1,
-				idx2 = s2.length() - 1;
+		String s1 = Long.toHexString(hash1), s2 = Long.toHexString(hash2);
+		int cnt = 0, idx1 = s1.length() - 1, idx2 = s2.length() - 1;
 		while (idx1 > -1 && idx2 > -1) {
 			if (s1.charAt(idx1--) == s2.charAt(idx2--)) {
 				cnt++;

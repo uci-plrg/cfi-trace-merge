@@ -1,5 +1,10 @@
 package analysis.graph.debug;
 
 public enum MatchingType {
-	PureHeuristic, Heuristic, CallingContinuation, DirectBranch, IndirectBranch, UnexpectedReturn
+	PureHeuristic,
+	Heuristic,
+	CallingContinuation,
+	DirectBranch,
+	IndirectBranch,
+	UnexpectedReturn
 }

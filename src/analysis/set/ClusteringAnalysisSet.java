@@ -21,16 +21,14 @@ import utils.Heap;
 
 /**
  * 
- * There are two steps to use this class:
- * 1. Extract all the execution source paths and store them in a file (one in a line),
- *    the line could be the specific hash file or the directory that contains all the
- *    hash file for that run.
- * 2. Read that file to initialize all the hash codes for each execution, then analyze them.
- *
- *
- *
- * When calculating the distance matrix, we statically distribute the pairwise calculation
- * workload to each thread (by default the number of threads is Tnum = 16). 
+ * There are two steps to use this class: 1. Extract all the execution source paths and store them in a file (one in a
+ * line), the line could be the specific hash file or the directory that contains all the hash file for that run. 2.
+ * Read that file to initialize all the hash codes for each execution, then analyze them.
+ * 
+ * 
+ * 
+ * When calculating the distance matrix, we statically distribute the pairwise calculation workload to each thread (by
+ * default the number of threads is Tnum = 16).
  */
 
 public class ClusteringAnalysisSet {
@@ -40,37 +38,37 @@ public class ClusteringAnalysisSet {
 	private float[] scores;
 	private String[] paths;
 	private String[] progNames;
-	
+
 	private HashMap<String, Integer> progName2Index;
 	private HashMap<Integer, String> index2ProgName;
-	
+
 	private int numThreads = 4;
 	public DistCalculationThread[] distThreads;
-	
+
 	// timing
 	long veryBeginning, veryEnding;
-	
-	private class DistCalculationThread implements Runnable{
+
+	private class DistCalculationThread implements Runnable {
 		private int fromIndex;
 		private int toIndex;
 		public Thread thread;
-		
+
 		private DistCalculationThread() {
-			
+
 		}
-		
+
 		public DistCalculationThread(int fromIndex, int toIndex) {
 			this.fromIndex = fromIndex;
 			this.toIndex = toIndex;
 			thread = new Thread(this);
 		}
-		
+
 		public void run() {
 			int count = 0;
 			long beginTime, endTime;
 			beginTime = System.currentTimeMillis();
 			int N = distMatrix[0].length;
-			
+
 			for (int k = fromIndex; k <= toIndex; k++) {
 				if (count == 1000) {
 					endTime = System.currentTimeMillis();
@@ -81,26 +79,26 @@ public class ClusteringAnalysisSet {
 					count = 0;
 				}
 				count++;
-				
-				int i = (int) ((2 * N + 1 - Math.sqrt((2 * N + 1) * (2 * N + 1) - 8 * k)) / 2),
-					j = k - i * (2 * N - i + 1) / 2 + i;
+
+				int i = (int) ((2 * N + 1 - Math.sqrt((2 * N + 1) * (2 * N + 1)
+						- 8 * k)) / 2), j = k - i * (2 * N - i + 1) / 2 + i;
 				float f = computeDist(i, j);
 				distMatrix[i][j] = f;
 			}
-			
+
 		}
-		
+
 	}
 
 	public ClusteringAnalysisSet() {
-		
+
 	}
 
 	public ClusteringAnalysisSet(String[] paths, int numThreads) {
 		this.paths = paths;
 		this.numThreads = numThreads;
 		progNames = new String[paths.length];
-		
+
 		progName2Index = new HashMap<String, Integer>();
 		index2ProgName = new HashMap<Integer, String>();
 		int index = 0;
@@ -112,23 +110,24 @@ public class ClusteringAnalysisSet {
 			}
 		}
 		init();
-		
-		int dimension = distMatrix[0].length,
-			interval = dimension * (dimension + 1) / 2 / numThreads,
-			beginIndex = 0,
-			endIndex = dimension * (dimension + 1) / 2 - 1;
-		
+
+		int dimension = distMatrix[0].length, interval = dimension
+				* (dimension + 1) / 2 / numThreads, beginIndex = 0, endIndex = dimension
+				* (dimension + 1) / 2 - 1;
+
 		computeScoreOfSets();
-		
+
 		distThreads = new DistCalculationThread[numThreads];
 		for (int i = 0; i < distThreads.length - 1; i++) {
-			distThreads[i] = new DistCalculationThread(beginIndex, beginIndex + interval - 1);
+			distThreads[i] = new DistCalculationThread(beginIndex, beginIndex
+					+ interval - 1);
 			beginIndex += interval;
 		}
-		distThreads[distThreads.length - 1] = new DistCalculationThread(beginIndex, endIndex);
-		//computeAllDist();
+		distThreads[distThreads.length - 1] = new DistCalculationThread(
+				beginIndex, endIndex);
+		// computeAllDist();
 	}
-	
+
 	public void parallelComputeAllDist() {
 		// record the timing when the threads start
 		veryBeginning = System.nanoTime();
@@ -147,29 +146,29 @@ public class ClusteringAnalysisSet {
 
 	public void timeElapsed() {
 		veryEnding = System.nanoTime();
-		System.out.println("Total time:" + (veryEnding - veryBeginning) / 1000000000.0f
-				+ " seconds");
+		System.out.println("Total time:" + (veryEnding - veryBeginning)
+				/ 1000000000.0f + " seconds");
 	}
-	
-	
-	public static float scoreOfSet(HashSet<Long> set, HashMap<Long, Integer> freqTable) {
+
+	public static float scoreOfSet(HashSet<Long> set,
+			HashMap<Long, Integer> freqTable) {
 		float score = 0.0f;
 		for (Long l : set) {
 			score += (1.0f / freqTable.get(l));
 		}
 		return score;
-//		return set.size();
+		// return set.size();
 	}
-	
+
 	private void computeScoreOfSets() {
 		for (int i = 0; i < scores.length; i++) {
 			scores[i] = scoreOfSet(hashes[i], freqTable);
 		}
 	}
-	
+
 	public void computeAllDist() {
 		computeScoreOfSets();
-		
+
 		int count = 0;
 		long beginTime, endTime, veryBeginning, veryEnding;
 		veryBeginning = System.currentTimeMillis();
@@ -194,14 +193,14 @@ public class ClusteringAnalysisSet {
 	}
 
 	public void outputDistMatrix() {
-//		for (int i = 0; i < paths.length; i++) {
-//			System.out.println(paths[i]);
-//		}
-//		System.out.printf("%7s", "");
-//		for (int i = 0; i < paths.length; i++) {
-//			System.out.printf("%7s", i + progNames[i]);
-//		}
-//		System.out.println();
+		// for (int i = 0; i < paths.length; i++) {
+		// System.out.println(paths[i]);
+		// }
+		// System.out.printf("%7s", "");
+		// for (int i = 0; i < paths.length; i++) {
+		// System.out.printf("%7s", i + progNames[i]);
+		// }
+		// System.out.println();
 		float min = 1.5f, max = 1.5f;
 		StringBuilder strBuilder = new StringBuilder();
 		for (int i = 0; i < paths.length; i++) {
@@ -233,14 +232,12 @@ public class ClusteringAnalysisSet {
 		System.out.println("\n");
 		System.out.printf("Minimum distance: %.1f\n", min);
 		System.out.printf("Maximum distance: %.1f\n", max);
-		//System.out.print(strBuilder.toString());
+		// System.out.print(strBuilder.toString());
 	}
-	
+
 	/**
-	 * This function needs to analyze how well the distance equation works,
-	 * especially in two aspects: 1. the minimum distance of different runs of
-	 * the same program; 2. the maximum distance of different runs of different
-	 * programs.
+	 * This function needs to analyze how well the distance equation works, especially in two aspects: 1. the minimum
+	 * distance of different runs of the same program; 2. the maximum distance of different runs of different programs.
 	 */
 	public void analyze() {
 		int numProgs = progName2Index.size();
@@ -253,13 +250,10 @@ public class ClusteringAnalysisSet {
 				minDistDiffProg[i][j] = 100000000.0f;
 			}
 		}
-		
+
 		float maxSameProg = 0.0f, minDiffProg = 100000.0f;
 		int maxIndex = 0, minIndexI = 0, minIndexJ = 0;
-		int maxInstanceI = 0,
-			maxInstanceJ = 0,
-			minInstanceI = 0,
-			minInstanceJ = 0;
+		int maxInstanceI = 0, maxInstanceJ = 0, minInstanceI = 0, minInstanceJ = 0;
 		float[] maxDistSameProgs = new float[numProgs];
 		float[] sumDistSameProgs = new float[numProgs];
 		int[] numSameProgs = new int[numProgs];
@@ -273,12 +267,11 @@ public class ClusteringAnalysisSet {
 						return a.compareTo(b);
 					}
 				});
-		
-		
-		for (int i = 0; i < distMatrix[0].length; i++) {	
+
+		for (int i = 0; i < distMatrix[0].length; i++) {
 			for (int j = i + 1; j < distMatrix[0].length; j++) {
-				int indexI = progName2Index.get(progNames[i]),
-					indexJ = progName2Index.get(progNames[j]);
+				int indexI = progName2Index.get(progNames[i]), indexJ = progName2Index
+						.get(progNames[j]);
 				// same program
 				if (indexI == indexJ) {
 					sumDistSameProgs[indexI] += distMatrix[i][j];
@@ -300,18 +293,14 @@ public class ClusteringAnalysisSet {
 				} else {
 					if (minDistDiffProgs.size() < numMinDistDiffProgs) {
 						DistancePair distPair = new DistancePair(
-							index2ProgName.get(indexI),
-							index2ProgName.get(indexJ),
-							paths[i],
-							paths[j],
-							distMatrix[i][j]);
+								index2ProgName.get(indexI),
+								index2ProgName.get(indexJ), paths[i], paths[j],
+								distMatrix[i][j]);
 						minDistDiffProgs.insertElem(distPair);
 					} else if (minDistDiffProgs.getMaxElem().dist > distMatrix[i][j]) {
 						DistancePair distPair = new DistancePair(
 								index2ProgName.get(indexI),
-								index2ProgName.get(indexJ),
-								paths[i],
-								paths[j],
+								index2ProgName.get(indexJ), paths[i], paths[j],
 								distMatrix[i][j]);
 						minDistDiffProgs.swapMaxElemWith(distPair);
 					}
@@ -328,38 +317,35 @@ public class ClusteringAnalysisSet {
 				}
 			}
 		}
-		
+
 		// output the result
 		System.out.println("Max distance of the same program("
-				+ index2ProgName.get(maxIndex)
-				+ "): " + maxSameProg);
+				+ index2ProgName.get(maxIndex) + "): " + maxSameProg);
 		System.out.println(paths[maxInstanceI]);
 		System.out.println(paths[maxInstanceJ]);
-		
+
 		System.out.println("Min distance of different programs("
-				+ index2ProgName.get(minIndexI)
-				+ " & "
-				+ index2ProgName.get(minIndexJ)
-				+ "): " + minDiffProg);
+				+ index2ProgName.get(minIndexI) + " & "
+				+ index2ProgName.get(minIndexJ) + "): " + minDiffProg);
 		System.out.println(paths[minInstanceI]);
 		System.out.println(paths[minInstanceJ]);
-		
+
 		for (int i = 0; i < numProgs; i++) {
 			System.out.println("Average distance of program("
-					+ index2ProgName.get(i)
-					+ "): " + sumDistSameProgs[i] / numSameProgs[i]);
+					+ index2ProgName.get(i) + "): " + sumDistSameProgs[i]
+					/ numSameProgs[i]);
 			System.out.println("Max distance of program("
-					+ index2ProgName.get(i)
-					+ "): " + maxDistSameProgs[i]);
+					+ index2ProgName.get(i) + "): " + maxDistSameProgs[i]);
 			System.out.println(paths[maxSameProgInstanceIs[i]]);
 			System.out.println(paths[maxSameProgInstanceJs[i]]);
 		}
-		
+
 		// output the N closest pairs of different programs
 		System.out.println("The closest pairs of different programs: ");
 		while (minDistDiffProgs.size() > 0) {
 			DistancePair pair = minDistDiffProgs.removeMaxElem();
-			System.out.println(pair.progName1 + " & " + pair.progName2 + " dist: " + pair.dist);
+			System.out.println(pair.progName1 + " & " + pair.progName2
+					+ " dist: " + pair.dist);
 			System.out.println(pair.path1 + "\n" + pair.path2 + "\n");
 		}
 	}
@@ -387,10 +373,10 @@ public class ClusteringAnalysisSet {
 			}
 		}
 	}
-	
+
 	public void storeFreqTableInFile(String fileName) {
 		try {
-			FileOutputStream fileOut =  new FileOutputStream(fileName);
+			FileOutputStream fileOut = new FileOutputStream(fileName);
 			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
 			objectOut.writeObject(freqTable);
 		} catch (FileNotFoundException e) {
@@ -399,10 +385,10 @@ public class ClusteringAnalysisSet {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static HashMap<Long, Integer> loadFreqTableFromFile(String fileName) {
 		try {
-			FileInputStream fileIn =  new FileInputStream(fileName);
+			FileInputStream fileIn = new FileInputStream(fileName);
 			ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 			return (HashMap<Long, Integer>) objectIn.readObject();
 		} catch (FileNotFoundException e) {
@@ -415,17 +401,13 @@ public class ClusteringAnalysisSet {
 		return null;
 	}
 
-	
 	public static void main(String[] argvs) {
-		
+
 		Getopt g = new Getopt("ClusteringAnalysis", argvs, "xonf:d:t:m:");
 		int c;
 		int numThreads = 4;
-		boolean append = true,
-			isAnalyzing = true,
-			error = false;
-		String dir4Files = null, dir4Runs = null,
-			recordFile = null, freqFile = null;
+		boolean append = true, isAnalyzing = true, error = false;
+		String dir4Files = null, dir4Runs = null, recordFile = null, freqFile = null;
 		String dir4Hashset1 = null, dir4Hashset2 = null;
 		boolean isDistance = false;
 		while ((c = g.getopt()) != -1) {
@@ -459,11 +441,12 @@ public class ClusteringAnalysisSet {
 					break;
 				case '?':
 					error = true;
-					System.out.println("parse error for option: -" + (char) g.getOptopt());
+					System.out.println("parse error for option: -"
+							+ (char) g.getOptopt());
 					break;
 				default:
 					error = true;
-					break;	
+					break;
 			}
 		}
 		if (error)
@@ -479,27 +462,26 @@ public class ClusteringAnalysisSet {
 		} else if (index < argvs.length) {
 			recordFile = argvs[index];
 		} else {
-			System.out.println("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
+			System.out
+					.println("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
 			return;
 		}
-		
-		
+
 		// output the distance info and then exit
 		if (isDistance) {
-			HashSet<Long> set1 = AnalysisUtil.getSetFromRunDir(dir4Hashset1),
-					set2 = AnalysisUtil.getSetFromRunDir(dir4Hashset2),
-					inter = AnalysisUtil.intersection(set1, set2);
-			float score1 = scoreOfSet(set1, freqTable),
-				score2 = scoreOfSet(set2, freqTable),
-				scoreInter = scoreOfSet(inter, freqTable),
-				dist = 2 /(scoreInter / score1 + scoreInter / score2) - 1;
+			HashSet<Long> set1 = AnalysisUtil.getSetFromRunDir(dir4Hashset1), set2 = AnalysisUtil
+					.getSetFromRunDir(dir4Hashset2), inter = AnalysisUtil
+					.intersection(set1, set2);
+			float score1 = scoreOfSet(set1, freqTable), score2 = scoreOfSet(
+					set2, freqTable), scoreInter = scoreOfSet(inter, freqTable), dist = 2 / (scoreInter
+					/ score1 + scoreInter / score2) - 1;
 			System.out.println("Score of " + dir4Hashset1 + " is: " + score1);
 			System.out.println("Score of " + dir4Hashset2 + " is: " + score2);
 			System.out.println("Score of the intersection is: " + scoreInter);
 			System.out.println("Distance of the two sets is: " + dist);
 			return;
 		}
-		
+
 		if (!(dir4Files == null && dir4Runs == null)) {
 			ArrayList<String> listFiles = new ArrayList<String>();
 			if (dir4Files != null) {
@@ -513,14 +495,15 @@ public class ClusteringAnalysisSet {
 		}
 		ArrayList<String> strList = AnalysisUtil.getStringPerline(recordFile);
 		String[] strArray = strList.toArray(new String[strList.size()]);
-		
+
 		if (isAnalyzing) {
-			ClusteringAnalysisSet clusterAnalysis = new ClusteringAnalysisSet(strArray, numThreads);
+			ClusteringAnalysisSet clusterAnalysis = new ClusteringAnalysisSet(
+					strArray, numThreads);
 			if (freqFile != null) {
 				clusterAnalysis.storeFreqTableInFile(freqFile);
 			}
 			clusterAnalysis.parallelComputeAllDist();
-			//clusterAnalysis.outputDistMatrix();
+			// clusterAnalysis.outputDistMatrix();
 			clusterAnalysis.analyze();
 			clusterAnalysis.timeElapsed();
 		}

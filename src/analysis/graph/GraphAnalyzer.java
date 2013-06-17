@@ -31,25 +31,26 @@ public class GraphAnalyzer {
 		String runDirs = null;
 		while ((c = g.getopt()) != -1) {
 			switch (c) {
-			case 'm':
-				merge = true;
-				break;
-			case 's':
-				sameProg = true;
-				break;
-			case 'd':
-				runDirs = g.getOptarg();
-				break;
-			case 't':
-				threadGroupSize = Integer.parseInt(g.getOptarg());
-				break;
-			case '?':
-				error = true;
-				System.out.println("parse error for option: -" + (char) g.getOptopt());
-				break;
-			default:
-				error = true;
-				break;
+				case 'm':
+					merge = true;
+					break;
+				case 's':
+					sameProg = true;
+					break;
+				case 'd':
+					runDirs = g.getOptarg();
+					break;
+				case 't':
+					threadGroupSize = Integer.parseInt(g.getOptarg());
+					break;
+				case '?':
+					error = true;
+					System.out.println("parse error for option: -"
+							+ (char) g.getOptopt());
+					break;
+				default:
+					error = true;
+					break;
 			}
 		}
 
@@ -72,22 +73,30 @@ public class GraphAnalyzer {
 	public static ExecutionGraph mergeOneGraph(String dir) {
 		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(dir);
 
-		ExecutionGraph bigGraph = ExecutionGraph.buildGraphsFromRunDir(runDirs.get(0)).get(0);
+		ExecutionGraph bigGraph = ExecutionGraph.buildGraphsFromRunDir(
+				runDirs.get(0)).get(0);
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-			GraphMergingInfo.dumpGraph(bigGraph, "graph-files/" + bigGraph.getProgName() + bigGraph.getPid() + ".dot");
+			GraphMergingInfo.dumpGraph(bigGraph,
+					"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
+							+ ".dot");
 		}
 		bigGraph.setProgName("bigGraph");
 		for (int i = 1; i < runDirs.size(); i++) {
-			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(runDirs.get(i)).get(0);
+			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(
+					runDirs.get(i)).get(0);
 			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
 			ExecutionGraph tmpGraph = graphMerger.mergeGraph();
 			if (tmpGraph != null) {
-				int newNodeSize = tmpGraph.getNodes().size() - bigGraph.getNodes().size();
+				int newNodeSize = tmpGraph.getNodes().size()
+						- bigGraph.getNodes().size();
 				bigGraph = tmpGraph;
 				if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-					GraphMergingInfo.dumpGraph(bigGraph, "graph-files/" + bigGraph.getProgName() + bigGraph.getPid() + ".dot");
+					GraphMergingInfo.dumpGraph(bigGraph, "graph-files/"
+							+ bigGraph.getProgName() + bigGraph.getPid()
+							+ ".dot");
 				}
-				System.out.println("Added " + newNodeSize + " nodes to the bigGraph");
+				System.out.println("Added " + newNodeSize
+						+ " nodes to the bigGraph");
 			}
 		}
 		return bigGraph;
@@ -103,12 +112,14 @@ public class GraphAnalyzer {
 		for (int i = 0; i < runDirs.size(); i++) {
 			for (int j = i + 1; j < runDirs.size(); j++) {
 				String dirName1 = runDirs.get(i), dirName2 = runDirs.get(j);
-				if (dirName1.indexOf("run") == -1 || dirName2.indexOf("run") == -1) {
+				if (dirName1.indexOf("run") == -1
+						|| dirName2.indexOf("run") == -1) {
 					continue;
 				}
 
 				// Run the algorithm on different programs or the same programs
-				if (AnalysisUtil.getProgNameFromPath(dirName1).equals(AnalysisUtil.getProgNameFromPath(dirName2))) {
+				if (AnalysisUtil.getProgNameFromPath(dirName1).equals(
+						AnalysisUtil.getProgNameFromPath(dirName2))) {
 					if (!runSameProgram) {
 						continue;
 					}
@@ -117,7 +128,9 @@ public class GraphAnalyzer {
 						continue;
 					}
 				}
-				ArrayList<ExecutionGraph> graphs1 = ExecutionGraph.buildGraphsFromRunDir(dirName1), graphs2 = ExecutionGraph.buildGraphsFromRunDir(dirName2);
+				ArrayList<ExecutionGraph> graphs1 = ExecutionGraph
+						.buildGraphsFromRunDir(dirName1), graphs2 = ExecutionGraph
+						.buildGraphsFromRunDir(dirName2);
 				for (int k = 0; k < graphs1.size(); k++) {
 					for (int l = 0; l < graphs2.size(); l++) {
 						ExecutionGraph g1 = graphs1.get(k), g2 = graphs2.get(l);
@@ -130,7 +143,8 @@ public class GraphAnalyzer {
 
 						if (threadCnt == threadGroupSize) {
 							threadCnt = 0;
-							System.out.println(pairCnt + " pairs have been launched!");
+							System.out.println(pairCnt
+									+ " pairs have been launched!");
 							for (int m = 0; m < threadGroupSize; m++) {
 								try {
 									mergers[m].join();

@@ -4,31 +4,33 @@ public class Edge {
 	private Node toNode;
 	private EdgeType edgeType;
 	private int ordinal;
-	
+
 	// Add this filed for debugging reason, cause it provides
 	// more information when debugging
 	private Node fromNode;
-	
+
 	public Node getFromNode() {
 		return fromNode;
 	}
-	
+
 	public String toString() {
-		return fromNode.getIndex() + "(" + fromNode.getHashHex() + ")" + "(" + edgeType + ")--" + ordinal + "-->" + toNode.getIndex() + "(" + toNode.getHashHex() + ")";
+		return fromNode.getIndex() + "(" + fromNode.getHashHex() + ")" + "("
+				+ edgeType + ")--" + ordinal + "-->" + toNode.getIndex() + "("
+				+ toNode.getHashHex() + ")";
 	}
-	
+
 	public Node getToNode() {
 		return toNode;
 	}
-	
+
 	public EdgeType getEdgeType() {
 		return edgeType;
 	}
-	
+
 	public int getOrdinal() {
 		return ordinal;
 	}
-	
+
 	public boolean hasFlags(int flags) {
 		int ordinal = flags % 256;
 		EdgeType edgeType = EdgeType.values()[flags / 256];
@@ -55,10 +57,8 @@ public class Edge {
 		if (o.getClass() != Edge.class)
 			return false;
 		Edge e = (Edge) o;
-		if (e.fromNode.equals(fromNode) 
-				&& e.toNode.equals(toNode)
-				&& e.edgeType == edgeType
-				&& e.ordinal == ordinal)
+		if (e.fromNode.equals(fromNode) && e.toNode.equals(toNode)
+				&& e.edgeType == edgeType && e.ordinal == ordinal)
 			return true;
 		return false;
 
