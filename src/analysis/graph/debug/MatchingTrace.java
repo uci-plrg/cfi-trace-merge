@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * This is to record how a trace of nodes are matched so that we can find out
- * the mismatch or conflict more easily
+ * This is to record how a trace of nodes are matched so that we can find out the mismatch or conflict more easily
  * 
  * @author peizhaoo
  * 
@@ -32,11 +31,11 @@ public class MatchingTrace {
 			inst = index2MatchingInstance.get(inst.parentIndex);
 			MatchingInstance parentInst = index2MatchingInstance
 					.get(inst.parentIndex);
-			int parentIdx1 = parentInst == null ? -1 : parentInst.index1,
-					parentIdx2 = parentInst == null ? -1 : parentInst.index2;
+			int parentIdx1 = parentInst == null ? -1 : parentInst.index1, parentIdx2 = parentInst == null ? -1
+					: parentInst.index2;
 			System.out.println(inst.level + ":" + inst.matchingType + ":"
-					+ inst.index1 + "<->" + inst.index2 + "(By "
-					+ parentIdx1 + "<->" + parentIdx2 + ")");
+					+ inst.index1 + "<->" + inst.index2 + "(By " + parentIdx1
+					+ "<->" + parentIdx2 + ")");
 		}
 	}
 

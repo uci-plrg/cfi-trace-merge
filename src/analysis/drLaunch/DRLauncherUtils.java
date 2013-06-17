@@ -19,10 +19,9 @@ import utils.AnalysisUtil;
 public class DRLauncherUtils {
 
 	/**
-	 * This function read the standard script file, which is supposed to have a
-	 * nice structure in the file, and split the script into a few pieces
-	 * according the server.config file so that the script can be executed in
-	 * parallel on different machines
+	 * This function read the standard script file, which is supposed to have a nice structure in the file, and split
+	 * the script into a few pieces according the server.config file so that the script can be executed in parallel on
+	 * different machines
 	 * 
 	 * After calling this function, the splitted
 	 * 
@@ -42,7 +41,7 @@ public class DRLauncherUtils {
 			totalProcessorNum += serverInfo.get(serverName);
 			server2StrBuilder.put(serverName, new StringBuilder());
 		}
-		
+
 		List<String> lines = new LinkedList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(scriptName));
@@ -76,7 +75,7 @@ public class DRLauncherUtils {
 					server2StrBuilder.get(serverName).append(curLine + "\n");
 				}
 			}
-			
+
 			// Split the executions into many files
 			int serverIdx = 0;
 			for (String serverName : serverInfo.keySet()) {
@@ -84,13 +83,16 @@ public class DRLauncherUtils {
 				StringBuilder strBuilder = server2StrBuilder.get(serverName);
 				int processorNum = serverInfo.get(serverName);
 				if (serverIdx != serverInfo.size()) {
-					
-					int subScriptsSize = (int) ((float) processorNum / totalProcessorNum * executionSize);
+
+					int subScriptsSize = (int) ((float) processorNum
+							/ totalProcessorNum * executionSize);
 					for (int i = 0; i < subScriptsSize; i++) {
 						curLine = iter.next();
 						strBuilder.append(curLine + "\n");
-						while (!(curLine = iter.next()).startsWith("# meta run")) {
-							if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
+						while (!(curLine = iter.next())
+								.startsWith("# meta run")) {
+							if (curLine.startsWith("$runcs")
+									|| curLine.startsWith("($runcs")) {
 								strBuilder.append(curLine + " &\n");
 							} else {
 								strBuilder.append(curLine + "\n");
@@ -112,7 +114,8 @@ public class DRLauncherUtils {
 								strBuilder.append("wait\n");
 							}
 						}
-						if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
+						if (curLine.startsWith("$runcs")
+								|| curLine.startsWith("($runcs")) {
 							strBuilder.append(curLine + " &\n");
 						} else {
 							strBuilder.append(curLine + "\n");
@@ -123,7 +126,8 @@ public class DRLauncherUtils {
 
 			// Write pieces of files back to disks
 			for (String serverName : serverInfo.keySet()) {
-				String subscriptName = generatedScriptsPath + "/" + serverName + "/"
+				String subscriptName = generatedScriptsPath + "/" + serverName
+						+ "/"
 						+ AnalysisUtil.getBaseNameFromPath(scriptName, "/");
 				System.out.println("Writing " + subscriptName + " ...");
 				writeSubScript(subscriptName, server2StrBuilder.get(serverName));
@@ -135,14 +139,15 @@ public class DRLauncherUtils {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static File[] getAllScripts() {
-		String originalScriptsPath = DRConfiguration.getConfig().getOriginalScriptsPath();
+		String originalScriptsPath = DRConfiguration.getConfig()
+				.getOriginalScriptsPath();
 		File dir = new File(originalScriptsPath);
 		File[] scripts = dir.listFiles();
 		return scripts;
 	}
-	
+
 	public static void splitScripts() {
 		File[] scripts = getAllScripts();
 		for (int i = 0; i < scripts.length; i++) {
@@ -155,7 +160,8 @@ public class DRLauncherUtils {
 			File file = new File(fileName);
 			if (!file.exists()) {
 				if (!file.getParentFile().mkdirs()) {
-					System.out.println("Can't create the necessary directories!");
+					System.out
+							.println("Can't create the necessary directories!");
 				}
 			}
 			PrintWriter pw = new PrintWriter(fileName);
@@ -163,7 +169,8 @@ public class DRLauncherUtils {
 			pw.flush();
 			pw.close();
 			try {
-				Runtime.getRuntime().exec("chmod u+x " + file.getAbsolutePath());
+				Runtime.getRuntime()
+						.exec("chmod u+x " + file.getAbsolutePath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

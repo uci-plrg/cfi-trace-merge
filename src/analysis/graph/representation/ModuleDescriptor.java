@@ -3,20 +3,21 @@ package analysis.graph.representation;
 public class ModuleDescriptor implements Comparable {
 	public final String name;
 	public final long beginAddr, endAddr;
-	
+
 	public ModuleDescriptor(String name, long beginAddr, long endAddr) {
 		this.name = name;
 		this.beginAddr = beginAddr;
 		this.endAddr = endAddr;
 	}
-	
+
 	public String toString() {
-		return name + ": 0x" + Long.toHexString(beginAddr) + " - 0x" + Long.toHexString(endAddr);
+		return name + ": 0x" + Long.toHexString(beginAddr) + " - 0x"
+				+ Long.toHexString(endAddr);
 	}
-	
+
 	/**
-	 * Compare between two modules. Assume that the modules are from the
-	 * same execution and they are disjoint.
+	 * Compare between two modules. Assume that the modules are from the same execution and they are disjoint.
+	 * 
 	 * @param anotherMod
 	 * @return
 	 */
@@ -30,9 +31,10 @@ public class ModuleDescriptor implements Comparable {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * Test where the given address locates relative to current module
+	 * 
 	 * @param addr
 	 * @return
 	 */

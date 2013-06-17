@@ -7,31 +7,28 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import utils.AnalysisUtil;
-
 import analysis.exception.graph.WrongEdgeTypeException;
+import analysis.graph.debug.DebugUtils;
 import analysis.graph.debug.MatchingInstance;
 import analysis.graph.debug.MatchingType;
-import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
+import analysis.graph.representation.NodeList;
 import analysis.graph.representation.PairNode;
 import analysis.graph.representation.PairNodeEdge;
 
 public class GraphMerger extends Thread {
 	/**
-	 * try to merge two graphs !!! Seems that every two graphs can be merged, so
-	 * maybe there should be a way to evaluate how much the two graphs conflict
-	 * One case is unmergeable: two direct branch nodes with same hash value but
-	 * have different branch targets (Seems wired!!)
+	 * try to merge two graphs !!! Seems that every two graphs can be merged, so maybe there should be a way to evaluate
+	 * how much the two graphs conflict One case is unmergeable: two direct branch nodes with same hash value but have
+	 * different branch targets (Seems wired!!)
 	 * 
-	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seems
-	 * to enter their main function after a very similar dynamic-loading
-	 * process, at the end of which there is a indirect branch which jumps to
-	 * the real main blocks. In the environment of this machine, the hash value
-	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
+	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seems to enter their main function after a
+	 * very similar dynamic-loading process, at the end of which there is a indirect branch which jumps to the real main
+	 * blocks. In the environment of this machine, the hash value of that 'final block' is 0x1d84443b9bf8a6b3. ####
 	 */
 	public static void Main(String[] argvs) {
 
@@ -299,7 +296,7 @@ public class GraphMerger extends Thread {
 		}
 		// This node does not belongs to G1 and
 		// is not yet added to G1
-		ArrayList<Node> nodes1 = graph1.getNodesByHash(node2.getHash());
+		NodeList nodes1 = graph1.getNodesByHash(node2.getHash());
 		if (nodes1 == null || nodes1.size() == 0) {
 
 			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
@@ -379,8 +376,7 @@ public class GraphMerger extends Thread {
 	}
 
 	/**
-	 * Search for corresponding direct child node, including direct edge and
-	 * call continuation edges
+	 * Search for corresponding direct child node, including direct edge and call continuation edges
 	 * 
 	 * @param parentNode1
 	 * @param curNodeEdge
@@ -457,8 +453,7 @@ public class GraphMerger extends Thread {
 	}
 
 	/**
-	 * Search for corresponding indirect child node, including indirect edge and
-	 * unexpected return edges
+	 * Search for corresponding indirect child node, including indirect edge and unexpected return edges
 	 * 
 	 * @param parentNode1
 	 * @param curNodeEdge
@@ -702,8 +697,7 @@ public class GraphMerger extends Thread {
 
 	private Node getMainBlock(ExecutionGraph graph) {
 		// Checkout if the first main block equals to each other
-		ArrayList<Node> preMainBlocks = graph
-				.getNodesByHash(GraphMerger.specialHash);
+		NodeList preMainBlocks = graph.getNodesByHash(GraphMerger.specialHash);
 		if (preMainBlocks == null) {
 			return null;
 		}
@@ -780,7 +774,8 @@ public class GraphMerger extends Thread {
 				DebugUtils.getScorePW().flush();
 				DebugUtils.getScorePW().close();
 			}
-			String fileName = graph1.getProgName() + ".score-" + graph1.getPid() + "-" + graph2.getPid() + ".txt";
+			String fileName = graph1.getProgName() + ".score-"
+					+ graph1.getPid() + "-" + graph2.getPid() + ".txt";
 			DebugUtils.setScorePW(fileName);
 		}
 

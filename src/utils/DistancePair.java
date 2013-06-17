@@ -4,8 +4,9 @@ public class DistancePair implements Comparable<DistancePair> {
 	public final String progName1, progName2;
 	public final String path1, path2;
 	public final float dist;
-	
-	public DistancePair(String progName1, String progName2, String path1, String path2, float dist) {
+
+	public DistancePair(String progName1, String progName2, String path1,
+			String path2, float dist) {
 		this.progName1 = progName1;
 		this.progName2 = progName2;
 		this.path1 = path1;

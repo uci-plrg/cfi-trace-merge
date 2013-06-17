@@ -22,7 +22,7 @@ public class ContextSimilarityTrace {
 	}
 
 	public void printTrace() {
-		for (int i = index; i >=0; i--) {
+		for (int i = index; i >= 0; i--) {
 			MatchingInstance inst = traces.get(i);
 			System.out.println(inst.level + ":" + inst.matchingType + ":"
 					+ inst.index1 + "<->" + inst.index2);

@@ -1,11 +1,13 @@
 package analysis.graph.representation;
 
-import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +19,6 @@ import analysis.exception.graph.InvalidTagException;
 import analysis.exception.graph.MultipleEdgeException;
 import analysis.exception.graph.TagNotFoundException;
 import analysis.graph.debug.DebugUtils;
-import analysis.graph.representation.*;
 
 public class ExecutionGraph {
 	private HashSet<Long> pairHashes;
@@ -42,17 +43,17 @@ public class ExecutionGraph {
 
 	// Map from hash to ArrayList<Node>,
 	// which also helps to find out the hash collisions
-	private HashMap<Long, ArrayList<Node>> hash2Nodes;
+	private NodeHashMap hash2Nodes;
 
 	public ArrayList<ModuleDescriptor> getModules() {
 		return modules;
 	}
-	
+
 	public ArrayList<Node> getNodes() {
 		return nodes;
 	}
 
-	public ArrayList<Node> getNodesByHash(long l) {
+	public NodeList getNodesByHash(long l) {
 		return hash2Nodes.get(l);
 	}
 
@@ -91,14 +92,10 @@ public class ExecutionGraph {
 		}
 
 		// Copy hash2Nodes field
-		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
+		hash2Nodes = new NodeHashMap();
 		for (long l : anotherGraph.hash2Nodes.keySet()) {
-			ArrayList<Node> anotherNodes = anotherGraph.hash2Nodes.get(l);
-			hash2Nodes.put(l, new ArrayList<Node>());
-			for (int i = 0; i < anotherNodes.size(); i++) {
-				hash2Nodes.get(l)
-						.add(nodes.get(anotherNodes.get(i).getIndex()));
-			}
+			NodeList anotherNodes = anotherGraph.hash2Nodes.get(l);
+			hash2Nodes.add(l, anotherNodes.copy(this));
 		}
 
 		// Make sure the reachable field is set after being copied, might be
@@ -107,8 +104,8 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * Traverse the graph to decide if each node is reachable from the entry
-	 * node. This method must be called after the graph has been constructed.
+	 * Traverse the graph to decide if each node is reachable from the entry node. This method must be called after the
+	 * graph has been constructed.
 	 */
 	private void setReachableNodes() {
 		for (int i = 0; i < nodes.size(); i++) {
@@ -136,10 +133,7 @@ public class ExecutionGraph {
 	public Node addNode(long hash, MetaNodeType metaNodeType) {
 		Node n = new Node(this, hash, nodes.size(), metaNodeType);
 		nodes.add(n);
-		if (!hash2Nodes.containsKey(hash)) {
-			hash2Nodes.put(hash, new ArrayList<Node>());
-		}
-		hash2Nodes.get(hash).add(n);
+		hash2Nodes.add(n);
 		return n;
 	}
 
@@ -167,7 +161,7 @@ public class ExecutionGraph {
 
 	public ExecutionGraph() {
 		nodes = new ArrayList<Node>();
-		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
+		hash2Nodes = new NodeHashMap();
 		blockHashes = new HashSet<Long>();
 		pairHashes = new HashSet<Long>();
 	}
@@ -175,7 +169,7 @@ public class ExecutionGraph {
 	public ExecutionGraph(ArrayList<String> tagFiles,
 			ArrayList<String> lookupFiles) {
 		nodes = new ArrayList<Node>();
-		hash2Nodes = new HashMap<Long, ArrayList<Node>>();
+		hash2Nodes = new NodeHashMap();
 		this.progName = AnalysisUtil.getProgName(tagFiles.get(0));
 		this.runDir = AnalysisUtil.getRunStr(tagFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(tagFiles.get(0));
@@ -232,20 +226,34 @@ public class ExecutionGraph {
 		HashMap<Long, Node> hashLookupTable = new HashMap<Long, Node>();
 
 		FileInputStream fileIn = null;
-		DataInputStream dataIn = null;
+		FileChannel channel = null;
+		ByteBuffer buffer = ByteBuffer.allocate(0x8);
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		for (int i = 0; i < lookupFiles.size(); i++) {
 			String lookupFile = lookupFiles.get(i);
 			try {
 				fileIn = new FileInputStream(lookupFile);
-				dataIn = new DataInputStream(fileIn);
+				channel = fileIn.getChannel();
 				long tag = 0, tagOriginal = 0, hash = 0;
+
 				while (true) {
+					if (channel.read(buffer) < 0)
+						break;
+					buffer.flip();
+					tagOriginal = buffer.getLong();
+					buffer.compact();
+
+					channel.read(buffer);
+					buffer.flip();
+					hash = buffer.getLong();
+					buffer.compact();
+
 					// the tag and hash here is already a big-endian value
-					tagOriginal = AnalysisUtil.reverseForLittleEndian(dataIn
-							.readLong());
-					hash = AnalysisUtil.reverseForLittleEndian(dataIn
-							.readLong());
+					// tagOriginal = AnalysisUtil.reverseForLittleEndian(dataIn
+					// .readLong());
+					// hash = AnalysisUtil.reverseForLittleEndian(dataIn
+					// .readLong());
 					// System.out.println(Long.toHexString(tagOriginal));
 					// System.out.println(Long.toHexString(hash));
 
@@ -275,12 +283,7 @@ public class ExecutionGraph {
 					nodes.add(node);
 
 					// Add it the the hash2Nodes mapping
-					if (!hash2Nodes.containsKey(hash)) {
-						hash2Nodes.put(hash, new ArrayList<Node>());
-					}
-					if (!hash2Nodes.get(hash).contains(node)) {
-						hash2Nodes.get(hash).add(node);
-					}
+					hash2Nodes.add(node);
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -289,9 +292,9 @@ public class ExecutionGraph {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if (dataIn != null) {
+			if (fileIn != null) {
 				try {
-					dataIn.close();
+					fileIn.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -316,27 +319,35 @@ public class ExecutionGraph {
 	}
 
 	public void readGraph(ArrayList<String> tagFiles,
-			HashMap<Long, Node> hashLookupTable) throws InvalidTagException,
-			TagNotFoundException, MultipleEdgeException {
+			HashMap<Long, Node> hashLookupTable)
+			throws InvalidTagException, TagNotFoundException,
+			MultipleEdgeException {
 
-		HashMap<Node, HashMap<Node, Integer>> adjacentList = new HashMap<Node, HashMap<Node, Integer>>();
 		for (int i = 0; i < tagFiles.size(); i++) {
 			String tagFile = tagFiles.get(i);
 			File file = new File(tagFile);
 			FileInputStream fileIn = null;
-			DataInputStream dataIn = null;
+			ByteBuffer buffer = ByteBuffer.allocate(0x8);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
 			// Track how many tags does not exist in lookup file
 			HashSet<Long> hashesNotInLookup = new HashSet<Long>();
 			try {
 				fileIn = new FileInputStream(file);
-				dataIn = new DataInputStream(fileIn);
+				FileChannel channel = fileIn.getChannel();
+
 				while (true) {
-					long tag1 = AnalysisUtil.reverseForLittleEndian(dataIn
-							.readLong());
-					int flag = getEdgeFlag(tag1);
+					if (channel.read(buffer) < 0)
+						break;
+					buffer.flip();
+					long tag1 = buffer.getLong();
+					buffer.compact();
+					int flags = getEdgeFlag(tag1);
 					tag1 = getTagEffectiveValue(tag1);
-					long tag2Original = AnalysisUtil
-							.reverseForLittleEndian(dataIn.readLong());
+
+					channel.read(buffer);
+					buffer.flip();
+					long tag2Original = buffer.getLong();
+					buffer.compact();
 					long tag2 = getTagEffectiveValue(tag2Original);
 					if (tag2 != tag2Original) {
 						if (DebugUtils.ThrowInvalidTag) {
@@ -372,29 +383,18 @@ public class ExecutionGraph {
 						}
 					}
 
-					// Also put the nodes into the adjacentList if they are not
-					// stored yet
-					// Add node to an array, which is in the order they are read
-					// in the
-					// graph file
-					if (!adjacentList.containsKey(node1)) {
-						adjacentList.put(node1, new HashMap<Node, Integer>());
-					}
-
-					HashMap<Node, Integer> edges = adjacentList.get(node1);
-					// Also update the ArrayList<Edge> of node
-					if (!edges.containsKey(node2)) {
-						edges.put(node2, flag);
-						Edge e = new Edge(node1, node2, flag);
+					Edge existing = node1.getOutgoingEdge(node2);
+					if (existing == null) {
+						Edge e = new Edge(node1, node2, flags);
 						node1.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);
 					} else {
-						if (flag != edges.get(node2)) {
+						if (!existing.hasFlags(flags)) {
 							String msg = "Multiple edges:\n" + "Edge1: "
 									+ node1.getHash() + "->" + node2.getHash()
-									+ ": " + edges.get(node2) + "Edge2: "
+									+ ": " + existing.getToNode() + "Edge2: "
 									+ node1.getHash() + "->" + node2.getHash()
-									+ ": " + flag;
+									+ ": " + flags;
 							if (DebugUtils.ThrowMultipleEdge) {
 								throw new MultipleEdgeException(msg);
 							}
@@ -404,7 +404,7 @@ public class ExecutionGraph {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (EOFException e) {
-				// System.out.println("Finish reading the file: " + fileName);
+				// System.out.println("Finiish reading the file: " + fileName);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -415,9 +415,9 @@ public class ExecutionGraph {
 				// + " tag doesn't exist in lookup file -> " + tagFile);
 			}
 
-			if (dataIn != null) {
+			if (fileIn != null) {
 				try {
-					dataIn.close();
+					fileIn.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -435,7 +435,7 @@ public class ExecutionGraph {
 		String[] fileNames = dirFile.list();
 		HashMap<Integer, ArrayList<String>> pid2LookupFiles = new HashMap<Integer, ArrayList<String>>(), pid2TagFiles = new HashMap<Integer, ArrayList<String>>();
 		HashMap<Integer, String> pid2PairHashFile = new HashMap<Integer, String>(), pid2BlockHashFile = new HashMap<Integer, String>();
-		HashMap<Integer, String> pid2ModuleFile = new HashMap<Integer, String>(); 
+		HashMap<Integer, String> pid2ModuleFile = new HashMap<Integer, String>();
 
 		for (int i = 0; i < fileNames.length; i++) {
 			int pid = AnalysisUtil.getPidFromFileName(fileNames[i]);
@@ -471,7 +471,7 @@ public class ExecutionGraph {
 
 			// Read the modules from file
 			graph.modules = AnalysisUtil.getModules(pid2ModuleFile.get(pid));
-			
+
 			// Initialize hash files and hash sets
 			graph.pairHashFile = pid2PairHashFile.get(pid);
 			graph.blockHashFile = pid2BlockHashFile.get(pid);
@@ -539,9 +539,8 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * To validate the correctness of the graph. Basically it checks if entry
-	 * points have no incoming edges, exit points have no outgoing edges. It
-	 * might include more validation stuff later...
+	 * To validate the correctness of the graph. Basically it checks if entry points have no incoming edges, exit points
+	 * have no outgoing edges. It might include more validation stuff later...
 	 * 
 	 * @return true means this is a valid graph, otherwise it's invalid
 	 */
@@ -549,22 +548,22 @@ public class ExecutionGraph {
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
 			switch (n.getMetaNodeType()) {
-			case ENTRY:
-				if (n.getIncomingEdges().size() != 0) {
-					System.out.println("Entry point has incoming edges!");
-					isValidGraph = false;
-					break outerLoop;
-				}
-				break;
-			case EXIT:
-				if (n.getOutgoingEdges().size() != 0) {
-					System.out.println("Exit point has outgoing edges!");
-					isValidGraph = false;
-					break outerLoop;
-				}
-				break;
-			default:
-				break;
+				case ENTRY:
+					if (n.getIncomingEdges().size() != 0) {
+						System.out.println("Entry point has incoming edges!");
+						isValidGraph = false;
+						break outerLoop;
+					}
+					break;
+				case EXIT:
+					if (n.getOutgoingEdges().size() != 0) {
+						System.out.println("Exit point has outgoing edges!");
+						isValidGraph = false;
+						break outerLoop;
+					}
+					break;
+				default:
+					break;
 			}
 		}
 		return isValidGraph;

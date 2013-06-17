@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import utils.AnalysisUtil;
-
-import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -149,13 +147,15 @@ public class GraphMergingInfo {
 				if (n.getOutgoingEdges().size() > 1) {
 					for (int j = 0; j < n.getOutgoingEdges().size(); j++) {
 						if (n.getOutgoingEdges().get(j).getEdgeType() == EdgeType.Indirect) {
-							return n.getOutgoingEdges().get(j).getToNode().getHash();
+							return n.getOutgoingEdges().get(j).getToNode()
+									.getHash();
 						}
 					}
 					System.out.println("More than one target!");
 					return n.getOutgoingEdges().size();
 				} else {
-					firstMainHash = n.getOutgoingEdges().get(0).getToNode().getHash();
+					firstMainHash = n.getOutgoingEdges().get(0).getToNode()
+							.getHash();
 				}
 				break;
 			}
@@ -165,6 +165,9 @@ public class GraphMergingInfo {
 
 	public static void dumpGraph(ExecutionGraph graph, String fileName) {
 		File file = new File(fileName);
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -202,25 +205,26 @@ public class GraphMergingInfo {
 						+ Long.toHexString(graph.getNodes().get(i).getHash())
 						+ "\"]");
 
-				ArrayList<Edge> edges = graph.getNodes().get(i).getOutgoingEdges();
+				ArrayList<Edge> edges = graph.getNodes().get(i)
+						.getOutgoingEdges();
 				for (Edge e : edges) {
 					String branchType;
 					switch (e.getEdgeType()) {
-					case Indirect:
-						branchType = "i";
-						break;
-					case Direct:
-						branchType = "d";
-						break;
-					case Call_Continuation:
-						branchType = "c";
-						break;
-					case Unexpected_Return:
-						branchType = "u";
-						break;
-					default:
-						branchType = "";
-						break;
+						case Indirect:
+							branchType = "i";
+							break;
+						case Direct:
+							branchType = "d";
+							break;
+						case Call_Continuation:
+							branchType = "c";
+							break;
+						case Unexpected_Return:
+							branchType = "u";
+							break;
+						default:
+							branchType = "";
+							break;
 					}
 
 					pwDotFile.println(i + "->" + e.getToNode().getIndex()

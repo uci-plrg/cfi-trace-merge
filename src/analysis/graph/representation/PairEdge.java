@@ -4,19 +4,19 @@ public class PairEdge {
 	private Node parent, child;
 	private boolean isDirect;
 	private int ordinal;
-	
+
 	public Node getParent() {
 		return parent;
 	}
-	
+
 	public Node getChild() {
 		return child;
 	}
-	
+
 	public boolean getIsDirect() {
 		return isDirect;
 	}
-	
+
 	public int getOrdinal() {
 		return ordinal;
 	}
