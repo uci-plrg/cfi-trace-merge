@@ -57,7 +57,8 @@ public class Node implements NodeList {
 
 	/**
 	 * 
-	 * @return null for non-call node, edge for the first block of the calling procedure
+	 * @return null for non-call node, edge for the first block of the calling
+	 *         procedure
 	 */
 	public Edge getContinuationEdge() {
 		int index = getContinuationEdgeIndex();
@@ -110,7 +111,8 @@ public class Node implements NodeList {
 	}
 
 	/**
-	 * This is added purely for the purpose of debugging We should never expose this to the outside world
+	 * This is added purely for the purpose of debugging We should never expose
+	 * this to the outside world
 	 */
 	public void setHash(long hash) {
 		this.hash = hash;
@@ -209,8 +211,9 @@ public class Node implements NodeList {
 	}
 
 	/**
-	 * In a single execution, tag is the only identifier for the node This is particularly used in the initialization of
-	 * the graph, where hashtables are needed
+	 * In a single execution, tag is the only identifier for the node This is
+	 * particularly used in the initialization of the graph, where hashtables
+	 * are needed
 	 */
 	public boolean equals(Object o) {
 		if (o == null)

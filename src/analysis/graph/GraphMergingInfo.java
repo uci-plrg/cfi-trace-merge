@@ -210,21 +210,21 @@ public class GraphMergingInfo {
 				for (Edge e : edges) {
 					String branchType;
 					switch (e.getEdgeType()) {
-						case Indirect:
-							branchType = "i";
-							break;
-						case Direct:
-							branchType = "d";
-							break;
-						case Call_Continuation:
-							branchType = "c";
-							break;
-						case Unexpected_Return:
-							branchType = "u";
-							break;
-						default:
-							branchType = "";
-							break;
+					case Indirect:
+						branchType = "i";
+						break;
+					case Direct:
+						branchType = "d";
+						break;
+					case Call_Continuation:
+						branchType = "c";
+						break;
+					case Unexpected_Return:
+						branchType = "u";
+						break;
+					default:
+						branchType = "";
+						break;
 					}
 
 					pwDotFile.println(i + "->" + e.getToNode().getIndex()

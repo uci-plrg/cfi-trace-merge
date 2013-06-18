@@ -16,7 +16,8 @@ public class ModuleDescriptor implements Comparable {
 	}
 
 	/**
-	 * Compare between two modules. Assume that the modules are from the same execution and they are disjoint.
+	 * Compare between two modules. Assume that the modules are from the same
+	 * execution and they are disjoint.
 	 * 
 	 * @param anotherMod
 	 * @return

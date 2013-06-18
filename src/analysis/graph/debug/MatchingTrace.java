@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * This is to record how a trace of nodes are matched so that we can find out the mismatch or conflict more easily
+ * This is to record how a trace of nodes are matched so that we can find out
+ * the mismatch or conflict more easily
  * 
  * @author peizhaoo
  * 

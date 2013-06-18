@@ -104,8 +104,8 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * Traverse the graph to decide if each node is reachable from the entry node. This method must be called after the
-	 * graph has been constructed.
+	 * Traverse the graph to decide if each node is reachable from the entry
+	 * node. This method must be called after the graph has been constructed.
 	 */
 	private void setReachableNodes() {
 		for (int i = 0; i < nodes.size(); i++) {
@@ -317,11 +317,25 @@ public class ExecutionGraph {
 		Long res = tag << 16 >>> 16;
 		return res;
 	}
+	
+	public boolean isTailNode(Node n) {
+		boolean isTailNode = false;
+		if 
+		
+		return isTailNode;
+	}
+	
+	public boolean isTailNode(Node n, int level) {
+		if (level == 0) {
+			return true;
+		}
+		ArrayList<Edge> outgoingEdges = n.getOutgoingEdges();
+		for 
+	}
 
 	public void readGraph(ArrayList<String> tagFiles,
-			HashMap<Long, Node> hashLookupTable)
-			throws InvalidTagException, TagNotFoundException,
-			MultipleEdgeException {
+			HashMap<Long, Node> hashLookupTable) throws InvalidTagException,
+			TagNotFoundException, MultipleEdgeException {
 
 		for (int i = 0; i < tagFiles.size(); i++) {
 			String tagFile = tagFiles.get(i);
@@ -539,8 +553,9 @@ public class ExecutionGraph {
 	}
 
 	/**
-	 * To validate the correctness of the graph. Basically it checks if entry points have no incoming edges, exit points
-	 * have no outgoing edges. It might include more validation stuff later...
+	 * To validate the correctness of the graph. Basically it checks if entry
+	 * points have no incoming edges, exit points have no outgoing edges. It
+	 * might include more validation stuff later...
 	 * 
 	 * @return true means this is a valid graph, otherwise it's invalid
 	 */
@@ -548,22 +563,22 @@ public class ExecutionGraph {
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
 			switch (n.getMetaNodeType()) {
-				case ENTRY:
-					if (n.getIncomingEdges().size() != 0) {
-						System.out.println("Entry point has incoming edges!");
-						isValidGraph = false;
-						break outerLoop;
-					}
-					break;
-				case EXIT:
-					if (n.getOutgoingEdges().size() != 0) {
-						System.out.println("Exit point has outgoing edges!");
-						isValidGraph = false;
-						break outerLoop;
-					}
-					break;
-				default:
-					break;
+			case ENTRY:
+				if (n.getIncomingEdges().size() != 0) {
+					System.out.println("Entry point has incoming edges!");
+					isValidGraph = false;
+					break outerLoop;
+				}
+				break;
+			case EXIT:
+				if (n.getOutgoingEdges().size() != 0) {
+					System.out.println("Exit point has outgoing edges!");
+					isValidGraph = false;
+					break outerLoop;
+				}
+				break;
+			default:
+				break;
 			}
 		}
 		return isValidGraph;

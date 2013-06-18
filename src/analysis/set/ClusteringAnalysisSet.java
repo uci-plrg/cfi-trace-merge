@@ -21,14 +21,17 @@ import utils.Heap;
 
 /**
  * 
- * There are two steps to use this class: 1. Extract all the execution source paths and store them in a file (one in a
- * line), the line could be the specific hash file or the directory that contains all the hash file for that run. 2.
- * Read that file to initialize all the hash codes for each execution, then analyze them.
+ * There are two steps to use this class: 1. Extract all the execution source
+ * paths and store them in a file (one in a line), the line could be the
+ * specific hash file or the directory that contains all the hash file for that
+ * run. 2. Read that file to initialize all the hash codes for each execution,
+ * then analyze them.
  * 
  * 
  * 
- * When calculating the distance matrix, we statically distribute the pairwise calculation workload to each thread (by
- * default the number of threads is Tnum = 16).
+ * When calculating the distance matrix, we statically distribute the pairwise
+ * calculation workload to each thread (by default the number of threads is Tnum
+ * = 16).
  */
 
 public class ClusteringAnalysisSet {
@@ -236,8 +239,10 @@ public class ClusteringAnalysisSet {
 	}
 
 	/**
-	 * This function needs to analyze how well the distance equation works, especially in two aspects: 1. the minimum
-	 * distance of different runs of the same program; 2. the maximum distance of different runs of different programs.
+	 * This function needs to analyze how well the distance equation works,
+	 * especially in two aspects: 1. the minimum distance of different runs of
+	 * the same program; 2. the maximum distance of different runs of different
+	 * programs.
 	 */
 	public void analyze() {
 		int numProgs = progName2Index.size();
@@ -412,41 +417,41 @@ public class ClusteringAnalysisSet {
 		boolean isDistance = false;
 		while ((c = g.getopt()) != -1) {
 			switch (c) {
-				case 'o':
-					append = false;
-					break;
-				case 'f':
-					dir4Files = g.getOptarg();
-					if (dir4Files.startsWith("-"))
-						error = true;
-					break;
-				case 'd':
-					dir4Runs = g.getOptarg();
-					if (dir4Runs.startsWith("-"))
-						error = true;
-					break;
-				case 't':
-					numThreads = Integer.parseInt(g.getOptarg());
-					break;
-				case 'n':
-					isAnalyzing = false;
-					break;
-				case 'm':
-					freqFile = g.getOptarg();
-					break;
-				case 'x':
-					// this option is used to compute the distance of two sets
-					// it should work with -m option
-					isDistance = true;
-					break;
-				case '?':
+			case 'o':
+				append = false;
+				break;
+			case 'f':
+				dir4Files = g.getOptarg();
+				if (dir4Files.startsWith("-"))
 					error = true;
-					System.out.println("parse error for option: -"
-							+ (char) g.getOptopt());
-					break;
-				default:
+				break;
+			case 'd':
+				dir4Runs = g.getOptarg();
+				if (dir4Runs.startsWith("-"))
 					error = true;
-					break;
+				break;
+			case 't':
+				numThreads = Integer.parseInt(g.getOptarg());
+				break;
+			case 'n':
+				isAnalyzing = false;
+				break;
+			case 'm':
+				freqFile = g.getOptarg();
+				break;
+			case 'x':
+				// this option is used to compute the distance of two sets
+				// it should work with -m option
+				isDistance = true;
+				break;
+			case '?':
+				error = true;
+				System.out.println("parse error for option: -"
+						+ (char) g.getOptopt());
+				break;
+			default:
+				error = true;
+				break;
 			}
 		}
 		if (error)

@@ -375,7 +375,8 @@ public class AnalysisUtil {
 	}
 
 	/**
-	 * Assume the module file is organized in the follwoing way: Module USERENV.dll: 0x722a0000 - 0x722b7000
+	 * Assume the module file is organized in the follwoing way: Module
+	 * USERENV.dll: 0x722a0000 - 0x722b7000
 	 * 
 	 * @param fileName
 	 * @return

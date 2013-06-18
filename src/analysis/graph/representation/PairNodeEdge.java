@@ -1,9 +1,11 @@
 package analysis.graph.representation;
 
 /**
- * In this class, parentNode1 is from the graph1, which is fixed; and parentNode2 is from graph2, which is traversed.
- * curNodeEdge2 is the edge which comes from parentNode2. When you use this class, you can assume that parentNode1 and
- * parentNode2 are matched and you are trying to match the "toNode" of curNodeEdge2.
+ * In this class, parentNode1 is from the graph1, which is fixed; and
+ * parentNode2 is from graph2, which is traversed. curNodeEdge2 is the edge
+ * which comes from parentNode2. When you use this class, you can assume that
+ * parentNode1 and parentNode2 are matched and you are trying to match the
+ * "toNode" of curNodeEdge2.
  * 
  * @author peizhaoo
  * 

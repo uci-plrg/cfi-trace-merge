@@ -27,7 +27,8 @@ public class ProgOverlap {
 
 	// private static String execFileDir =
 	// "/home/peizhaoo/crowd-safe-dynamorio-launcher/crowd-safe-dynamorio-launcher/stats/";
-	// private static String execFile = execFileDir + "tar.hashlog.2013-01-15.19-08-35.dat";
+	// private static String execFile = execFileDir +
+	// "tar.hashlog.2013-01-15.19-08-35.dat";
 
 	public ProgOverlap(int length) {
 		progNames = new String[length];
@@ -53,7 +54,8 @@ public class ProgOverlap {
 		po.outputOverlapInfo();
 		// po.outputTransGraph();
 
-		// HashSet<Long> runSet = AnalysisUtil.initSetFromFile(ProgOverlap.execFile);
+		// HashSet<Long> runSet =
+		// AnalysisUtil.initSetFromFile(ProgOverlap.execFile);
 		// po.classifyProg(runSet);
 	}
 

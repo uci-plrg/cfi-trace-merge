@@ -70,7 +70,8 @@ public class Diff {
 		// break;
 		// case '?':
 		// error = true;
-		// System.out.println("parse error for option: -" + (char) g.getOptopt());
+		// System.out.println("parse error for option: -" + (char)
+		// g.getOptopt());
 		// break;
 		// default:
 		// break;
@@ -81,7 +82,8 @@ public class Diff {
 		// return;
 		// }
 		//
-		// HashMap<Long, Integer> freqTable = ClusteringAnalysis.loadFreqTableFromFile("freqFile");
+		// HashMap<Long, Integer> freqTable =
+		// ClusteringAnalysis.loadFreqTableFromFile("freqFile");
 		// System.out.println("Freq Map Size: " + freqTable.size());
 
 		Diff d = new Diff();

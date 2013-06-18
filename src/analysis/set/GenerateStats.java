@@ -159,10 +159,14 @@ public class GenerateStats {
 			}
 
 			this.newHashesCounter.put(runNumber, countPair);
-			// outPlot.println(runIndex + "\t" + Math.log(count) + "\t" + Math.log(totalHashes4Run.size()));
-			// outPlot.println(runIndex + "\t" + countPair + "\t" + totalPairHashes4Run.size());
-			// // outPlot.println("#" + runNumber + "  " + runIndex + "\t" + countPair + "\t" + countBlock + "\t" +
-			// totalPairHashes4Run.size() + "\t" + totalPairHashes.size()+ "\t" + totalBlockHashes.size());
+			// outPlot.println(runIndex + "\t" + Math.log(count) + "\t" +
+			// Math.log(totalHashes4Run.size()));
+			// outPlot.println(runIndex + "\t" + countPair + "\t" +
+			// totalPairHashes4Run.size());
+			// // outPlot.println("#" + runNumber + "  " + runIndex + "\t" +
+			// countPair + "\t" + countBlock + "\t" +
+			// totalPairHashes4Run.size() + "\t" + totalPairHashes.size()+ "\t"
+			// + totalBlockHashes.size());
 			outPlot.println(runIndex + "\t" + countPair + "\t" + countBlock
 					+ "\t" + totalPairHashes4Run.size() + "\t"
 					+ totalPairHashes.size() + "\t" + totalBlockHashes.size());

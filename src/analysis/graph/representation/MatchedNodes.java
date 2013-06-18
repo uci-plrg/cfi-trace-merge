@@ -7,9 +7,10 @@ import java.util.Iterator;
 import analysis.graph.debug.DebugUtils;
 
 /**
- * MatchedNodes contains pairs of matched nodes. It maintains one-to-one map that maps the matched nodes, an arraylist
- * that records matched nodes in a chronological order. It also records the speculatively matched nodes and its matching
- * confidence in order to rewind the speculative matching.
+ * MatchedNodes contains pairs of matched nodes. It maintains one-to-one map
+ * that maps the matched nodes, an arraylist that records matched nodes in a
+ * chronological order. It also records the speculatively matched nodes and its
+ * matching confidence in order to rewind the speculative matching.
  * 
  * @author peizhaoo
  * 

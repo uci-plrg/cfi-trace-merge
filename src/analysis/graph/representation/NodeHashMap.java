@@ -12,7 +12,7 @@ public class NodeHashMap {
 		if (existing == null) {
 			map.put(node.getHash(), node);
 		} else {
-			if (node.isSingleton()) {
+			if (existing.isSingleton()) {
 				NodeArrayList list = new NodeArrayList();
 				list.add((Node) existing);
 				list.add(node);
