@@ -31,26 +31,26 @@ public class GraphAnalyzer {
 		String runDirs = null;
 		while ((c = g.getopt()) != -1) {
 			switch (c) {
-				case 'm':
-					merge = true;
-					break;
-				case 's':
-					sameProg = true;
-					break;
-				case 'd':
-					runDirs = g.getOptarg();
-					break;
-				case 't':
-					threadGroupSize = Integer.parseInt(g.getOptarg());
-					break;
-				case '?':
-					error = true;
-					System.out.println("parse error for option: -"
-							+ (char) g.getOptopt());
-					break;
-				default:
-					error = true;
-					break;
+			case 'm':
+				merge = true;
+				break;
+			case 's':
+				sameProg = true;
+				break;
+			case 'd':
+				runDirs = g.getOptarg();
+				break;
+			case 't':
+				threadGroupSize = Integer.parseInt(g.getOptarg());
+				break;
+			case '?':
+				error = true;
+				System.out.println("parse error for option: -"
+						+ (char) g.getOptopt());
+				break;
+			default:
+				error = true;
+				break;
 			}
 		}
 

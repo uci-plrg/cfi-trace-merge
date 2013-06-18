@@ -317,14 +317,14 @@ public class ExecutionGraph {
 		Long res = tag << 16 >>> 16;
 		return res;
 	}
-	
+
 	public boolean isTailNode(Node n) {
 		boolean isTailNode = false;
 		if 
 		
 		return isTailNode;
 	}
-	
+
 	public boolean isTailNode(Node n, int level) {
 		if (level == 0) {
 			return true;

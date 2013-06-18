@@ -19,14 +19,16 @@ public class SpeculativeScoreList {
 	public void add(SpeculativeScoreRecord record) {
 		records.add(record);
 	}
-	
+
 	public void showResult() {
-		System.out.println("The statistical results for speculative scoring is:");
+		System.out
+				.println("The statistical results for speculative scoring is:");
 		System.out.println("lowScoreTailCnt: " + lowScoreTailCnt);
 		System.out.println("lowScoreDivergenceCnt: " + lowScoreDivergenceCnt);
 		System.out.println("oneMatchFalseCnt: " + oneMatchFalseCnt);
 		System.out.println("oneMatchTrueCnt: " + oneMatchTrueCnt);
-		System.out.println("manyMatchesAmbifuityCnt: " + manyMatchesAmbifuityCnt);
+		System.out.println("manyMatchesAmbifuityCnt: "
+				+ manyMatchesAmbifuityCnt);
 		System.out.println("manyMatchesCorrectCnt: " + manyMatchesCorrectCnt);
 	}
 

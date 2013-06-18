@@ -10,7 +10,7 @@ public class SpeculativeScoreRecord {
 	 * 
 	 */
 	public static int LowScore = 10;
-	
+
 	public static enum SpeculativeScoreType {
 		// A low score because of reaching the tail of the program
 		LowScoreTail,
@@ -34,7 +34,8 @@ public class SpeculativeScoreRecord {
 	public final SpeculativeScoreType speculativeScoreType;
 	public final boolean isIndirectSpeculation;
 
-	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType, boolean isIndirectSpeculation) {
+	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
+			boolean isIndirectSpeculation) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 	}
