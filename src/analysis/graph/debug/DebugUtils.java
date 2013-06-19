@@ -26,9 +26,12 @@ public class DebugUtils {
 	public static final int TRACE_HEURISTIC = 0x1 << 5;
 	public static final int IGNORE_CONFLICT = 0x1 << 6;
 	public static final int OUTPUT_SCORE = 0x1 << 7;
+	public static final int DUMP_MODIFIED_HASH = 0x1 << 8;
 
 	public static final String SCORE_FILE_DIR = "./scores/";
 	private static PrintWriter scorePW = null;
+
+	public static final String MODIFIED_HASH_DIR = "./imme-addr/";
 
 	public static PrintWriter getScorePW() {
 		return scorePW;
@@ -69,7 +72,7 @@ public class DebugUtils {
 	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2
 			| IGNORE_CONFLICT | OUTPUT_SCORE;
 
-	public static final boolean debug = true;
+	public static boolean debug = true;
 
 	public static int debug_option(int... options) {
 		int opt = 0;

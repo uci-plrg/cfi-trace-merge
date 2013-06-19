@@ -155,7 +155,7 @@ public class Node implements NodeList {
 	}
 
 	public String toString() {
-		return "0x" + Long.toHexString(hash) + ":" + score + "-" + index;
+		return "0x" + Long.toHexString(hash) + ":" + score + "_" + index;
 	}
 
 	// Not a deep copy, we don't care about edges...

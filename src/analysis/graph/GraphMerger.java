@@ -21,6 +21,7 @@ import analysis.graph.representation.PairNode;
 import analysis.graph.representation.PairNodeEdge;
 import analysis.graph.representation.SpeculativeScoreList;
 import analysis.graph.representation.SpeculativeScoreRecord;
+import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
 import analysis.graph.representation.SpeculativeScoreRecord.SpeculativeScoreType;
 
 public class GraphMerger extends Thread {
@@ -124,6 +125,10 @@ public class GraphMerger extends Thread {
 			MatchedNodes matchedNodes) {
 		if (depth <= 0)
 			return 0;
+
+		if (node2.getIndex() == 20116) {
+			System.out.println();
+		}
 
 		// If node1 or node2
 
@@ -331,6 +336,13 @@ public class GraphMerger extends Thread {
 				}
 			}
 		}
+
+		// Collect the matching score record for pure heuristics
+		// Only in OUTPUT_SCORE debug mode
+		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+			collectScoreRecord(candidates, node2, false);
+		}
+
 		if (candidates.size() > 1) {
 			// Returns the candidate with highest score
 			int pos = 0, score = 0;
@@ -428,18 +440,18 @@ public class GraphMerger extends Thread {
 						// address in some instruction,
 						// some of the block hashcode is different, which they
 						// are supposed to be the same
-						if (DebugUtils
-								.debug_decision(DebugUtils.IGNORE_CONFLICT)) {
-							if (DebugUtils.chageHashLimit > 0) {
-								// if (DebugUtils.commonBitsCnt(e.getToNode()
-								// .getHash(), curNode.getHash()) >=
-								// DebugUtils.commonBitNum) {
-								e.getToNode().setHash(curNode.getHash());
-								DebugUtils.chageHashLimit--;
-								DebugUtils.chageHashCnt++;
-								return e.getToNode();
-							}
-						}
+						// if (DebugUtils
+						// .debug_decision(DebugUtils.IGNORE_CONFLICT)) {
+						// if (DebugUtils.chageHashLimit > 0) {
+						// // if (DebugUtils.commonBitsCnt(e.getToNode()
+						// // .getHash(), curNode.getHash()) >=
+						// // DebugUtils.commonBitNum) {
+						// e.getToNode().setHash(curNode.getHash());
+						// DebugUtils.chageHashLimit--;
+						// DebugUtils.chageHashCnt++;
+						// return e.getToNode();
+						// }
+						// }
 
 						if (DebugUtils.debug_decision(DebugUtils.MERGE_ERROR)) {
 							System.out.println("Direct edge conflict: "
@@ -554,62 +566,92 @@ public class GraphMerger extends Thread {
 				}
 			}
 
-			// Count the different cases for different
-			// speculative matching cases
-			int maxScoreCnt = 0;
-			boolean allLowScore = true;
+			// Collect the matching score record for indirect speculation
+			// Only in OUTPUT_SCORE debug mode
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				for (int i = 0; i < candidates.size(); i++) {
-					int candidateScore = candidates.get(i).getScore();
-					if (candidateScore > 0 && candidateScore == score) {
-						maxScoreCnt++;
-					}
-					if (candidateScore >= SpeculativeScoreRecord.LowScore) {
-						allLowScore = false;
-					}
-				}
-				if (allLowScore) {
-					// Need to figure out what leads the low score
-					// Easier to find if it is the tail case
-					s
-					
-				} else {
-					if (candidates.size() == 0) {
-						speculativeScoreList.add(new SpeculativeScoreRecord(
-								SpeculativeScoreType.OneMatchTrue, true));
-					} else if (candidates.size() == 1) {
-						if (AnalysisUtil.getRelativeTag(graph2,
-								curNode.getTag()) == AnalysisUtil
-								.getRelativeTag(graph1, candidates.get(pos)
-										.getTag())) {
-							speculativeScoreList
-									.add(new SpeculativeScoreRecord(
-											SpeculativeScoreType.OneMatchTrue,
-											true));
-						} else {
-							speculativeScoreList
-									.add(new SpeculativeScoreRecord(
-											SpeculativeScoreType.OneMatchFalse,
-											true));
-						}
-					} else {
-						if (maxScoreCnt <= 1) {
-							speculativeScoreList
-									.add(new SpeculativeScoreRecord(
-											SpeculativeScoreType.ManyMatchesCorrect,
-											true));
-						} else {
-							speculativeScoreList
-									.add(new SpeculativeScoreRecord(
-											SpeculativeScoreType.ManyMatchesAmbiguity,
-											true));
-						}
-					}
-				}
-
+				collectScoreRecord(candidates, curNode, true);
 			}
 
 			return candidates.get(pos);
+		}
+	}
+
+	private void collectScoreRecord(ArrayList<Node> candidates, Node curNode2,
+			boolean isIndirect) {
+		int maxScore = -1;
+		Node maxNode = null;
+		for (int i = 0; i < candidates.size(); i++) {
+			if (candidates.get(i).getScore() > maxScore
+					&& candidates.get(i).getScore() != 0) {
+				maxNode = candidates.get(i);
+				maxScore = maxNode.getScore();
+			}
+		}
+
+		if (curNode2.getIndex() == 44874) {
+			System.out.println();
+		}
+
+		MatchResult matchResult = AnalysisUtil.getMatchResult(graph1, graph2,
+				maxNode, curNode2);
+
+		if (maxNode == null) {
+			speculativeScoreList.add(new SpeculativeScoreRecord(
+					SpeculativeScoreType.NoMatch, isIndirect, -1, matchResult));
+			return;
+		}
+
+		// Count the different cases for different
+		// speculative matching cases
+		int maxScoreCnt = 0;
+		boolean allLowScore = true;
+		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+			for (int i = 0; i < candidates.size(); i++) {
+				int candidateScore = candidates.get(i).getScore();
+				if (candidateScore > 0 && candidateScore == maxScore) {
+					maxScoreCnt++;
+				}
+				if (candidateScore >= SpeculativeScoreRecord.LowScore) {
+					allLowScore = false;
+				}
+			}
+
+			if (allLowScore) {
+				// Need to figure out what leads the low score
+				// Easier to find if it is the tail case
+				if (graph2.isTailNode(curNode2)) {
+					speculativeScoreList.add(new SpeculativeScoreRecord(
+							SpeculativeScoreType.LowScoreTail, isIndirect,
+							maxScore, matchResult));
+				} else {
+					speculativeScoreList.add(new SpeculativeScoreRecord(
+							SpeculativeScoreType.LowScoreDivergence,
+							isIndirect, maxScore, matchResult));
+				}
+			} else {
+				if (candidates.size() == 1) {
+					if (AnalysisUtil.getRelativeTag(graph2, curNode2.getTag()) == AnalysisUtil
+							.getRelativeTag(graph1, maxNode.getTag())) {
+						speculativeScoreList.add(new SpeculativeScoreRecord(
+								SpeculativeScoreType.OneMatchTrue, isIndirect,
+								maxScore, matchResult));
+					} else {
+						speculativeScoreList.add(new SpeculativeScoreRecord(
+								SpeculativeScoreType.OneMatchFalse, isIndirect,
+								maxScore, matchResult));
+					}
+				} else {
+					if (maxScoreCnt <= 1) {
+						speculativeScoreList.add(new SpeculativeScoreRecord(
+								SpeculativeScoreType.ManyMatchesCorrect,
+								isIndirect, maxScore, matchResult));
+					} else {
+						speculativeScoreList.add(new SpeculativeScoreRecord(
+								SpeculativeScoreType.ManyMatchesAmbiguity,
+								isIndirect, maxScore, matchResult));
+					}
+				}
+			}
 		}
 	}
 
@@ -1160,16 +1202,16 @@ public class GraphMerger extends Thread {
 		}
 
 		// In the OUTPUT_SCORE debug mode, close the PrintWriter when merging
-		// finishes
+		// finishes, also print out the score statistics
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 			DebugUtils.getScorePW().flush();
 			DebugUtils.getScorePW().close();
-		}
 
-		// Count and print out the statistical results of each speculative
-		// matching case
-		speculativeScoreList.count();
-		speculativeScoreList.showResult();
+			// Count and print out the statistical results of each speculative
+			// matching case
+			speculativeScoreList.count();
+			speculativeScoreList.showResult();
+		}
 
 		graphMergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
 		if (hasConflict) {
@@ -1195,13 +1237,20 @@ public class GraphMerger extends Thread {
 					"graph-files/" + graph2.getProgName() + graph2.getPid()
 							+ ".dot");
 		}
-		try {
-			if (graph1.getNodes().size() > graph2.getNodes().size()) {
-				mergedGraph = mergeGraph(graph1, graph2);
 
+		try {
+			ExecutionGraph g1, g2;
+			if (graph1.getNodes().size() > graph2.getNodes().size()) {
+				g1 = graph1;
+				g2 = graph2;
 			} else {
-				mergedGraph = mergeGraph(graph2, graph1);
+				g1 = graph2;
+				g2 = graph1;
 			}
+			// Before merging, cheat to filter out all the immediate addresses
+			AnalysisUtil.filteroutImmeAddr(g1, g2);
+			mergedGraph = mergeGraph(g1, g2);
+
 			// System.out.println("Changed hashcode for " +
 			// DebugUtils.chageHashCnt + " times");
 		} catch (WrongEdgeTypeException e) {

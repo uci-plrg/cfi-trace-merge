@@ -28,15 +28,39 @@ public class SpeculativeScoreRecord {
 		ManyMatchesAmbiguity,
 
 		// Many possible matches, but without ambiguous speculation
-		ManyMatchesCorrect
+		ManyMatchesCorrect,
+
+		// No possible candidate match
+		NoMatch
+	}
+
+	public static enum MatchResult {
+		IndirectCorrectMatch, IndirectIncorrectMatch, PureHeuristicsCorrectMatch, PureHeuristicsIncorrectMatch
 	}
 
 	public final SpeculativeScoreType speculativeScoreType;
 	public final boolean isIndirectSpeculation;
 
+	public final int matchingScore;
+
+	// Record if this speculative matching is correct or not
+	public final MatchResult matchResult;
+
+	public String toString() {
+		if (isIndirectSpeculation) {
+			return "Indirect: " + speculativeScoreType + "-" + matchingScore;
+		} else {
+			return "PureHeuristics: " + speculativeScoreType + "-"
+					+ matchingScore;
+		}
+	}
+
 	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
-			boolean isIndirectSpeculation) {
+			boolean isIndirectSpeculation, int matchingScore,
+			MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
+		this.matchingScore = matchingScore;
+		this.matchResult = matchResult;
 	}
 }

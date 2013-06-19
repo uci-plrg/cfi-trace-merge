@@ -21,8 +21,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.ModuleDescriptor;
+import analysis.graph.representation.Node;
+import analysis.graph.representation.NormalizedTag;
+import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -419,6 +423,102 @@ public class AnalysisUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Take advantage of the relative tag to filter out the immediate address
+	 * 
+	 * @param g1
+	 * @param g2
+	 */
+	public static void filteroutImmeAddr(ExecutionGraph g1, ExecutionGraph g2) {
+		int modificationCnt = 0;
+
+		PrintWriter pw = null;
+		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
+			try {
+				String fileName = g1.getProgName() + ".imme-addr."
+						+ g1.getPid() + "-" + g2.getPid() + ".txt";
+				String absolutePath = DebugUtils.MODIFIED_HASH_DIR + "/"
+						+ fileName;
+				File f = new File(DebugUtils.MODIFIED_HASH_DIR);
+				f.mkdirs();
+				pw = new PrintWriter(absolutePath);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
+		for (NormalizedTag t : g1.normalizedTag2Node.keySet()) {
+			Node n1 = g1.normalizedTag2Node.get(t), n2 = g2.normalizedTag2Node
+					.get(t);
+			if (n2 == null) {
+				continue;
+			} else {
+				if (n1.getHash() != n2.getHash()) {
+					n1.setHash(n2.getHash());
+					modificationCnt++;
+					if (DebugUtils
+							.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
+						pw.print("tag1: 0x" + Long.toHexString(n1.getTag()));
+						pw.println("\t" + t.moduleName + "\t0x"
+								+ Long.toHexString(t.relativeTag));
+
+						pw.print("tag2: 0x" + Long.toHexString(n2.getTag()));
+						pw.println("\t" + t.moduleName + "\t0x"
+								+ Long.toHexString(t.relativeTag));
+
+						pw.println();
+					}
+				}
+			}
+		}
+		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
+			pw.flush();
+			pw.close();
+		}
+
+		System.out.println("Total number of hash modification: "
+				+ modificationCnt);
+	}
+
+	/**
+	 * This function is used to cheat when merging two executions from the same
+	 * program. It will use the relative tag to verify if this is a correct
+	 * match. n1 is allowed to be null while n2 is not allowed to.
+	 * 
+	 * @param g1
+	 * @param g2
+	 * @param n1
+	 * @param n2
+	 * @return
+	 */
+	public static MatchResult getMatchResult(ExecutionGraph g1,
+			ExecutionGraph g2, Node n1, Node n2) {
+		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag()), relativeTag1;
+		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag()), modName1;
+		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2), t1;
+
+		if (n1 == null) {
+			// Try to verify that the counterpart of n2 does not exist in graph1
+			Node n = g1.normalizedTag2Node.get(new NormalizedTag(modName2,
+					relativeTag2));
+			if (n == null) {
+				return MatchResult.PureHeuristicsCorrectMatch;
+			} else {
+				return MatchResult.PureHeuristicsIncorrectMatch;
+			}
+		} else {
+			// neither node is null
+			relativeTag1 = AnalysisUtil.getRelativeTag(g1, n1.getTag());
+			modName1 = AnalysisUtil.getModuleName(g1, n1.getTag());
+			t1 = new NormalizedTag(modName1, relativeTag1);
+			if (t1.equals(t2)) {
+				return MatchResult.IndirectCorrectMatch;
+			} else {
+				return MatchResult.IndirectIncorrectMatch;
+			}
+		}
 	}
 
 	public static long getRelativeTag(ExecutionGraph graph, long tag) {

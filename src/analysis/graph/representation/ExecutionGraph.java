@@ -29,6 +29,10 @@ public class ExecutionGraph {
 	// This field is used to normalize the tag in a single graph
 	private ArrayList<ModuleDescriptor> modules;
 
+	// Maps from post-processed relative tag to the node,
+	// only for the sake of debugging and analysis
+	public HashMap<NormalizedTag, Node> normalizedTag2Node;
+
 	private String pairHashFile;
 	private String blockHashFile;
 	private String runDir;
@@ -319,18 +323,23 @@ public class ExecutionGraph {
 	}
 
 	public boolean isTailNode(Node n) {
-		boolean isTailNode = false;
-		if 
-		
-		return isTailNode;
+		return isTailNode(n, 10);
 	}
 
 	public boolean isTailNode(Node n, int level) {
 		if (level == 0) {
-			return true;
+			return false;
 		}
 		ArrayList<Edge> outgoingEdges = n.getOutgoingEdges();
-		for 
+		if (outgoingEdges.size() == 0) {
+			return true;
+		}
+		for (int i = 0; i < outgoingEdges.size(); i++) {
+			if (!isTailNode(outgoingEdges.get(i).getToNode(), level - 1)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void readGraph(ArrayList<String> tagFiles,
@@ -438,7 +447,7 @@ public class ExecutionGraph {
 			}
 		}
 
-		// since the vertices will never change once the graph is created
+		// Since the vertices will never change once the graph is created
 		nodes.trimToSize();
 	}
 
@@ -485,6 +494,19 @@ public class ExecutionGraph {
 
 			// Read the modules from file
 			graph.modules = AnalysisUtil.getModules(pid2ModuleFile.get(pid));
+
+			// Initialize the relativeTag2Node hashtable
+			// This is only used for debugging so far
+			graph.normalizedTag2Node = new HashMap<NormalizedTag, Node>();
+			for (int i = 0; i < graph.nodes.size(); i++) {
+				Node n = graph.nodes.get(i);
+				long relativeTag = AnalysisUtil.getRelativeTag(graph,
+						n.getTag());
+				String moduleName = AnalysisUtil.getModuleName(graph,
+						n.getTag());
+				graph.normalizedTag2Node.put(new NormalizedTag(moduleName,
+						relativeTag), n);
+			}
 
 			// Initialize hash files and hash sets
 			graph.pairHashFile = pid2PairHashFile.get(pid);
