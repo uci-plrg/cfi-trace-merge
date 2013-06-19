@@ -593,7 +593,7 @@ public class GraphMerger extends Thread {
 		}
 
 		MatchResult matchResult = AnalysisUtil.getMatchResult(graph1, graph2,
-				maxNode, curNode2);
+				maxNode, curNode2, isIndirect);
 
 		if (maxNode == null) {
 			speculativeScoreList.add(new SpeculativeScoreRecord(
@@ -1207,9 +1207,8 @@ public class GraphMerger extends Thread {
 			DebugUtils.getScorePW().flush();
 			DebugUtils.getScorePW().close();
 
-			// Count and print out the statistical results of each speculative
-			// matching case
-			speculativeScoreList.count();
+			// Print out the statistical results of each speculative matching
+			// case
 			speculativeScoreList.showResult();
 		}
 

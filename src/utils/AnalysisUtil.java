@@ -494,29 +494,57 @@ public class AnalysisUtil {
 	 * @return
 	 */
 	public static MatchResult getMatchResult(ExecutionGraph g1,
-			ExecutionGraph g2, Node n1, Node n2) {
-		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag()), relativeTag1;
-		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag()), modName1;
-		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2), t1;
+			ExecutionGraph g2, Node n1, Node n2, boolean isIndirect) {
+		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag()), relativeTag1 = n1 == null ? -1
+				: AnalysisUtil.getRelativeTag(g1, n1.getTag());
+		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag()), modName1 = n1 == null ? null
+				: AnalysisUtil.getModuleName(g1, n1.getTag());
+		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2), t1 = n1 == null ? null
+				: new NormalizedTag(modName1, relativeTag1);
 
-		if (n1 == null) {
-			// Try to verify that the counterpart of n2 does not exist in graph1
-			Node n = g1.normalizedTag2Node.get(new NormalizedTag(modName2,
-					relativeTag2));
-			if (n == null) {
-				return MatchResult.PureHeuristicsCorrectMatch;
+		Node correspondingNode = g1.normalizedTag2Node.get(t2);
+		if (correspondingNode == null) {
+			// The corresponding node does not exist in graph1
+			// 1. n1 == null, non-existing correct match
+			// 2. n1 != null, non-existing mismatch
+			if (n1 == null) {
+				if (isIndirect) {
+					return MatchResult.IndirectNonExistingCorrectMatch;
+				} else {
+					return MatchResult.PureHeuristicsNonExistingCorrectMatch;
+				}
 			} else {
-				return MatchResult.PureHeuristicsIncorrectMatch;
+				if (isIndirect) {
+					return MatchResult.IndirectNonExistingMismatch;
+				} else {
+					return MatchResult.PureHeuristicsNonExistingMismatch;
+				}
 			}
 		} else {
-			// neither node is null
-			relativeTag1 = AnalysisUtil.getRelativeTag(g1, n1.getTag());
-			modName1 = AnalysisUtil.getModuleName(g1, n1.getTag());
-			t1 = new NormalizedTag(modName1, relativeTag1);
-			if (t1.equals(t2)) {
-				return MatchResult.IndirectCorrectMatch;
+			// The corresponding node does exist in graph1
+			// 1. n1 == null, existing unfound mismatch
+			// 2. n1 != null && t1.equals(t2), existing match
+			// 3. n1 != null && !t1.equals(t2), existing mismatch
+			if (n1 == null) {
+				if (isIndirect) {
+					return MatchResult.IndirectExistingUnfoundMismatch;
+				} else {
+					return MatchResult.PureHeuristicsExistingUnfoundMismatch;
+				}
 			} else {
-				return MatchResult.IndirectIncorrectMatch;
+				if (t1.equals(t2)) {
+					if (isIndirect) {
+						return MatchResult.IndirectExistingCorrectMatch;
+					} else {
+						return MatchResult.PureHeuristicsExistingCorrectMatch;
+					}
+				} else {
+					if (isIndirect) {
+						return MatchResult.IndirectExistingMismatch;
+					} else {
+						return MatchResult.PureHeuristicsExistingMismatch;
+					}
+				}
 			}
 		}
 	}

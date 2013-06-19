@@ -34,8 +34,26 @@ public class SpeculativeScoreRecord {
 		NoMatch
 	}
 
+	// 1. If both tags exist in both execution:
+	// a. find a correct one ---- correct match
+	// b. find a wrong one ---- mismatch
+	// c. can't find it ---- unfound mismatch
+	// 2. If the corresponding tag does not exist in execution 1:
+	// a. find it ---- non-existing mismatch
+	// b. can't find it ---- correct match
+	// All the above cases include both indirect speculation and pure speculation
 	public static enum MatchResult {
-		IndirectCorrectMatch, IndirectIncorrectMatch, PureHeuristicsCorrectMatch, PureHeuristicsIncorrectMatch
+		IndirectExistingCorrectMatch,
+		IndirectExistingMismatch,
+		IndirectExistingUnfoundMismatch,
+		IndirectNonExistingMismatch,
+		IndirectNonExistingCorrectMatch,
+
+		PureHeuristicsExistingCorrectMatch,
+		PureHeuristicsExistingMismatch,
+		PureHeuristicsExistingUnfoundMismatch,
+		PureHeuristicsNonExistingMismatch,
+		PureHeuristicsNonExistingCorrectMatch,
 	}
 
 	public final SpeculativeScoreType speculativeScoreType;
