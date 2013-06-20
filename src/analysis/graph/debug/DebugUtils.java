@@ -69,8 +69,7 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2
-			| IGNORE_CONFLICT | OUTPUT_SCORE;
+	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | OUTPUT_SCORE;
 
 	public static boolean debug = true;
 

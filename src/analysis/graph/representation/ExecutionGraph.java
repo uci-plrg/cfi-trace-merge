@@ -49,6 +49,10 @@ public class ExecutionGraph {
 	// which also helps to find out the hash collisions
 	private NodeHashMap hash2Nodes;
 
+	public String toString() {
+		return progName + pid;
+	}
+
 	public ArrayList<ModuleDescriptor> getModules() {
 		return modules;
 	}

@@ -41,12 +41,15 @@ public class SpeculativeScoreRecord {
 	// 2. If the corresponding tag does not exist in execution 1:
 	// a. find it ---- non-existing mismatch
 	// b. can't find it ---- correct match
+	// 3. If the module is not known, we record the result as unknown
 	// All the above cases include both indirect speculation and pure
 	// speculation
 	public static enum MatchResult {
 		IndirectExistingCorrectMatch, IndirectExistingMismatch, IndirectExistingUnfoundMismatch, IndirectNonExistingMismatch, IndirectNonExistingCorrectMatch,
 
 		PureHeuristicsExistingCorrectMatch, PureHeuristicsExistingMismatch, PureHeuristicsExistingUnfoundMismatch, PureHeuristicsNonExistingMismatch, PureHeuristicsNonExistingCorrectMatch,
+
+		Unknown
 	}
 
 	public final SpeculativeScoreType speculativeScoreType;
@@ -57,21 +60,32 @@ public class SpeculativeScoreRecord {
 	// Record if this speculative matching is correct or not
 	public final MatchResult matchResult;
 
+	// Record the matched nodes, node1 can be null
+	public final Node node1, node2;
+
 	public String toString() {
+		String node1IdxStr = node1 == null ? "null" : Integer.toString(node1
+				.getIndex());
+
 		if (isIndirectSpeculation) {
-			return "Indirect: " + speculativeScoreType + "-" + matchingScore;
+			return "Indirect: " + speculativeScoreType + " -- ("
+					+ matchingScore + ") " + node1IdxStr + "<=>"
+					+ node2.getIndex() + " -- " + matchResult;
 		} else {
-			return "PureHeuristics: " + speculativeScoreType + "-"
-					+ matchingScore;
+			return "PureHeuristics: " + speculativeScoreType + " -- ("
+					+ matchingScore + ") " + node1IdxStr + "<=>"
+					+ node2.getIndex() + " -- " + matchResult;
 		}
 	}
 
 	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
-			boolean isIndirectSpeculation, int matchingScore,
-			MatchResult matchResult) {
+			boolean isIndirectSpeculation, int matchingScore, Node node1,
+			Node node2, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 		this.matchingScore = matchingScore;
+		this.node1 = node1;
+		this.node2 = node2;
 		this.matchResult = matchResult;
 	}
 }

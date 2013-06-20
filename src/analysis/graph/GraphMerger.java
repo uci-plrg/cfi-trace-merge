@@ -72,8 +72,13 @@ public class GraphMerger extends Thread {
 	}
 
 	public GraphMerger(ExecutionGraph g1, ExecutionGraph g2) {
-		this.graph1 = g1;
-		this.graph2 = g2;
+		if (g1.getNodes().size() > g2.getNodes().size()) {
+			this.graph1 = g1;
+			this.graph2 = g2;
+		} else {
+			this.graph1 = g2;
+			this.graph2 = g1;
+		}
 	}
 
 	private ExecutionGraph graph1, graph2;
@@ -294,11 +299,22 @@ public class GraphMerger extends Thread {
 		return score;
 	}
 
+	// FIXME:
+	// In PureHeuristicsNonExistingMismatch, almost all scores are 1, currently
+	// it deems score of 1 as a lack of information and does not match it
+
+	// Why existing unfound mismatch happens? This case is wired, but it
+	// happens.
+	// The reason is the converging node has an immediate divergence.
 	private Node getCorrespondingNode(ExecutionGraph graph1,
 			ExecutionGraph graph2, Node node2, MatchedNodes matchedNodes) {
 
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			DebugUtils.debug_pureHeuristicCnt++;
+		}
+
+		if (node2.getIndex() == 61915) {
+			System.out.println();
 		}
 
 		// First check if this is a node already merged
@@ -326,8 +342,12 @@ public class GraphMerger extends Thread {
 				DebugUtils.searchDepth = GraphMerger.pureSearchDepth;
 			}
 
+			// If the highest score is 0, we can't believe
+			// that they are the same node
+			// If the highest score is 1, we still don't believe this
+			// is a match
 			if ((score = getContextSimilarity(nodes1.get(i), node2,
-					pureSearchDepth, matchedNodes)) != -1) {
+					pureSearchDepth, matchedNodes)) > 1) {
 				// If the node is already merged, skip it
 				if (!matchedNodes.containsKeyByFirstIndex(nodes1.get(i)
 						.getIndex())) {
@@ -373,23 +393,11 @@ public class GraphMerger extends Thread {
 				DebugUtils.getScorePW().println();
 			}
 
-			// If the highest score is 0, we can't believe
-			// that they are the same node
 			Node mostSimilarNode = candidates.get(pos);
-			if (mostSimilarNode.getScore() > 0) {
-				return mostSimilarNode;
-			} else {
-				return null;
-			}
+			return mostSimilarNode;
 		} else if (candidates.size() == 1) {
-			// If the highest score is 0, we can't believe
-			// that they are the same node
 			Node mostSimilarNode = candidates.get(0);
-			if (mostSimilarNode.getScore() > 0) {
-				return mostSimilarNode;
-			} else {
-				return null;
-			}
+			return mostSimilarNode;
 		} else {
 			return null;
 		}
@@ -588,16 +596,22 @@ public class GraphMerger extends Thread {
 			}
 		}
 
-		if (curNode2.getIndex() == 44874) {
-			System.out.println();
-		}
-
 		MatchResult matchResult = AnalysisUtil.getMatchResult(graph1, graph2,
 				maxNode, curNode2, isIndirect);
 
 		if (maxNode == null) {
-			speculativeScoreList.add(new SpeculativeScoreRecord(
-					SpeculativeScoreType.NoMatch, isIndirect, -1, matchResult));
+			if (matchResult == MatchResult.IndirectExistingUnfoundMismatch
+					|| matchResult == MatchResult.PureHeuristicsExistingUnfoundMismatch) {
+				Node trueNode1 = AnalysisUtil.getTrueMatch(graph1, graph2,
+						curNode2);
+				speculativeScoreList.add(new SpeculativeScoreRecord(
+						SpeculativeScoreType.NoMatch, isIndirect, -1,
+						trueNode1, curNode2, matchResult));
+			} else {
+				speculativeScoreList.add(new SpeculativeScoreRecord(
+						SpeculativeScoreType.NoMatch, isIndirect, -1, null,
+						curNode2, matchResult));
+			}
 			return;
 		}
 
@@ -622,11 +636,12 @@ public class GraphMerger extends Thread {
 				if (graph2.isTailNode(curNode2)) {
 					speculativeScoreList.add(new SpeculativeScoreRecord(
 							SpeculativeScoreType.LowScoreTail, isIndirect,
-							maxScore, matchResult));
+							maxScore, maxNode, curNode2, matchResult));
 				} else {
 					speculativeScoreList.add(new SpeculativeScoreRecord(
 							SpeculativeScoreType.LowScoreDivergence,
-							isIndirect, maxScore, matchResult));
+							isIndirect, maxScore, maxNode, curNode2,
+							matchResult));
 				}
 			} else {
 				if (candidates.size() == 1) {
@@ -634,21 +649,23 @@ public class GraphMerger extends Thread {
 							.getRelativeTag(graph1, maxNode.getTag())) {
 						speculativeScoreList.add(new SpeculativeScoreRecord(
 								SpeculativeScoreType.OneMatchTrue, isIndirect,
-								maxScore, matchResult));
+								maxScore, maxNode, curNode2, matchResult));
 					} else {
 						speculativeScoreList.add(new SpeculativeScoreRecord(
 								SpeculativeScoreType.OneMatchFalse, isIndirect,
-								maxScore, matchResult));
+								maxScore, maxNode, curNode2, matchResult));
 					}
 				} else {
 					if (maxScoreCnt <= 1) {
 						speculativeScoreList.add(new SpeculativeScoreRecord(
 								SpeculativeScoreType.ManyMatchesCorrect,
-								isIndirect, maxScore, matchResult));
+								isIndirect, maxScore, maxNode, curNode2,
+								matchResult));
 					} else {
 						speculativeScoreList.add(new SpeculativeScoreRecord(
 								SpeculativeScoreType.ManyMatchesAmbiguity,
-								isIndirect, maxScore, matchResult));
+								isIndirect, maxScore, maxNode, curNode2,
+								matchResult));
 					}
 				}
 			}
@@ -1207,8 +1224,9 @@ public class GraphMerger extends Thread {
 			DebugUtils.getScorePW().flush();
 			DebugUtils.getScorePW().close();
 
-			// Print out the statistical results of each speculative matching
-			// case
+			// Count and print out the statistical results of each speculative
+			// matching case
+			speculativeScoreList.count();
 			speculativeScoreList.showResult();
 		}
 
@@ -1238,17 +1256,9 @@ public class GraphMerger extends Thread {
 		}
 
 		try {
-			ExecutionGraph g1, g2;
-			if (graph1.getNodes().size() > graph2.getNodes().size()) {
-				g1 = graph1;
-				g2 = graph2;
-			} else {
-				g1 = graph2;
-				g2 = graph1;
-			}
 			// Before merging, cheat to filter out all the immediate addresses
-			AnalysisUtil.filteroutImmeAddr(g1, g2);
-			mergedGraph = mergeGraph(g1, g2);
+			AnalysisUtil.filteroutImmeAddr(graph1, graph2);
+			mergedGraph = mergeGraph(graph1, graph2);
 
 			// System.out.println("Changed hashcode for " +
 			// DebugUtils.chageHashCnt + " times");

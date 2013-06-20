@@ -482,6 +482,14 @@ public class AnalysisUtil {
 				+ modificationCnt);
 	}
 
+	public static Node getTrueMatch(ExecutionGraph g1, ExecutionGraph g2,
+			Node n2) {
+		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag());
+		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag());
+		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2);
+		return g1.normalizedTag2Node.get(t2);
+	}
+
 	/**
 	 * This function is used to cheat when merging two executions from the same
 	 * program. It will use the relative tag to verify if this is a correct
@@ -499,6 +507,10 @@ public class AnalysisUtil {
 				: AnalysisUtil.getRelativeTag(g1, n1.getTag());
 		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag()), modName1 = n1 == null ? null
 				: AnalysisUtil.getModuleName(g1, n1.getTag());
+		// Cannot normalized the tag
+		if (modName2.equals("Unknown")) {
+			return MatchResult.Unknown;
+		}
 		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2), t1 = n1 == null ? null
 				: new NormalizedTag(modName1, relativeTag1);
 

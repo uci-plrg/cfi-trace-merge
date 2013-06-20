@@ -193,6 +193,7 @@ public class Node implements NodeList {
 		this.index = index;
 		this.isVisited = false;
 		this.metaNodeType = metaNodeType;
+		this.containingGraph = containingGraph;
 	}
 
 	public Node(ExecutionGraph containingGraph, long tag) {

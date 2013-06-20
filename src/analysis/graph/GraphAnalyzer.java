@@ -136,6 +136,13 @@ public class GraphAnalyzer {
 						ExecutionGraph g1 = graphs1.get(k), g2 = graphs2.get(l);
 
 						// System.out.println("Current thread: " + threadCnt);
+
+						// if (DebugUtils.debug) {
+						// if (g1.getPid() != 4052 || g2.getPid() != 1992) {
+						// continue;
+						// }
+						// }
+
 						mergers[threadCnt] = new GraphMerger(g1, g2);
 						mergers[threadCnt].start();
 						threadCnt++;

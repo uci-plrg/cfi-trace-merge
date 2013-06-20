@@ -1,7 +1,9 @@
 package analysis.graph.representation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
 import analysis.graph.representation.SpeculativeScoreRecord.SpeculativeScoreType;
 
@@ -12,6 +14,8 @@ public class SpeculativeScoreList {
 	private int[] pureHeuristicsScoreCaseCnts;
 	private int[] matchResultCnts;
 
+	HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>> result2Records;
+
 	public SpeculativeScoreList() {
 		records = new ArrayList<SpeculativeScoreRecord>();
 		indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
@@ -21,6 +25,8 @@ public class SpeculativeScoreList {
 		for (int i = 0; i < matchResultCnts.length; i++) {
 			matchResultCnts[i] = 0;
 		}
+
+		result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
 	}
 
 	public void add(SpeculativeScoreRecord record) {
@@ -35,6 +41,17 @@ public class SpeculativeScoreList {
 		// Update the count of the corresponding case
 		MatchResult res = record.matchResult;
 		matchResultCnts[res.ordinal()]++;
+
+		if (!result2Records.containsKey(res)) {
+			result2Records.put(res, new ArrayList<SpeculativeScoreRecord>());
+		}
+		ArrayList<SpeculativeScoreRecord> records = result2Records.get(res);
+		records.add(record);
+	}
+
+	public void count() {
+		// Can do something here
+
 	}
 
 	public void showResult() {
@@ -55,10 +72,25 @@ public class SpeculativeScoreList {
 		}
 		System.out.println();
 
-		// Output overall number of incorrect matches
+		// Output overall number of incorrect matches and its detailed records
 		for (int i = 0; i < MatchResult.values().length; i++) {
-			System.out.println("Total " + MatchResult.values()[i] + ": "
-					+ matchResultCnts[i]);
+			MatchResult res = MatchResult.values()[i];
+			System.out.println("Total " + res + ": " + matchResultCnts[i]);
+
+			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+				// if (false) {
+				// Only output the details of the mismatches and the unknown
+				if (res.toString().indexOf("Match") == -1) {
+					ArrayList<SpeculativeScoreRecord> records = result2Records
+							.get(res);
+					if (records == null) {
+						continue;
+					}
+					for (int j = 0; j < records.size(); j++) {
+						System.out.println(records.get(j));
+					}
+				}
+			}
 		}
 	}
 }
