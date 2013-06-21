@@ -52,7 +52,7 @@ public class DebugUtils {
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
 
-	public static final String TMP_HASHLOG_DIR = "/scratch/malware/reports-sality/tmp";
+	public static final String TMP_HASHLOG_DIR = "/scratch/hashlogs/tmp_all";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
 	public static final int USEFUL_DEBUG_OPTION1 = debug_option(MERGE_ERROR);

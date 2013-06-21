@@ -11,6 +11,7 @@ import utils.AnalysisUtil;
 
 import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.ExecutionGraph;
+import analysis.graph.representation.SpeculativeScoreList;
 
 public class GraphAnalyzer {
 
@@ -67,6 +68,7 @@ public class GraphAnalyzer {
 			ExecutionGraph bigGraph = mergeOneGraph(runDirs);
 		} else {
 			pairComparison(runDirs, sameProg);
+			SpeculativeScoreList.showGlobalStats();
 		}
 	}
 
