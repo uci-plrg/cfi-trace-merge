@@ -610,4 +610,13 @@ public class ExecutionGraph {
 		return isValidGraph;
 	}
 
+	/**
+	 * This function is used to prune the super graph ---- big merged graph.
+	 * Since our strategy now is to tolerate aliasing of nodes, we then need to
+	 * compress the graph and avoid the graph to increase infinitely.
+	 */
+	public void compress() {
+
+	}
+
 }

@@ -1,10 +1,17 @@
 package analysis.graph.debug;
 
+import gnu.getopt.Getopt;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import utils.AnalysisUtil;
 
 import analysis.graph.GraphMerger;
+import analysis.graph.representation.ExecutionGraph;
+import analysis.graph.representation.Node;
 
 public class DebugUtils {
 	// Some options about whether to throw graph exception or tolerate minor
@@ -27,6 +34,7 @@ public class DebugUtils {
 	public static final int IGNORE_CONFLICT = 0x1 << 6;
 	public static final int OUTPUT_SCORE = 0x1 << 7;
 	public static final int DUMP_MODIFIED_HASH = 0x1 << 8;
+	public static final int FILTER_OUT_IMME_ADDR = 0x1 << 9;
 
 	public static final String SCORE_FILE_DIR = "./scores/";
 	private static PrintWriter scorePW = null;
@@ -52,7 +60,7 @@ public class DebugUtils {
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
 
-	public static final String TMP_HASHLOG_DIR = "/scratch/hashlogs/tmp_all";
+	public static final String TMP_HASHLOG_DIR = "/home/peizhaoo/hashlogs/notepad";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
 	public static final int USEFUL_DEBUG_OPTION1 = debug_option(MERGE_ERROR);
@@ -69,7 +77,8 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static final int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | OUTPUT_SCORE;
+	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | OUTPUT_SCORE
+			| FILTER_OUT_IMME_ADDR | PRINT_MATCHING_HISTORY;
 
 	public static boolean debug = true;
 
@@ -141,5 +150,77 @@ public class DebugUtils {
 
 	public static void debug_stopHere() {
 		// Simply do nothing, just for debugging
+	}
+
+	/**
+	 * Debugging use only!! This is only used to find out the true match of a
+	 * given node2 in a comparison. argvs[0] should be like "run2". argvs[1]
+	 * should be like "run13". argvs[2] is the index of nodes. It prints out the
+	 * index of the true match, which is node1
+	 * 
+	 * @param argvs
+	 */
+	public static void main(String[] argvs) {
+		DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | FILTER_OUT_IMME_ADDR;
+		String run1, run2;
+		if (argvs.length == 3) {
+			// Example: run1 run2 2351
+			// runDirectory1, runDirectory2, node2Index
+			run1 = argvs[0];
+			run2 = argvs[1];
+			ArrayList<String> runDirs = AnalysisUtil
+					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
+			String graphDir1 = runDirs.get(runDirs
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/" + argvs[0])), graphDir2 = runDirs
+					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/"
+							+ argvs[1]));
+			ArrayList<ExecutionGraph> graphs1 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir2);
+			ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2.get(0);
+			GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+
+			int node2Idx = Integer.parseInt(argvs[2]);
+			Node node2 = graph2.getNodes().get(node2Idx), node1 = AnalysisUtil
+					.getTrueMatch(graph1, graph2, node2);
+			if (node1 == null) {
+				System.out.println("null");
+			} else {
+				System.out.println(node1.getIndex());
+			}
+		} else if (argvs.length == 5) {
+			// Example: run1 run2 233 233 15
+			// runDirectory1, runDirectory2, node1Index, node2Index, searchDepth
+			run1 = argvs[0];
+			run2 = argvs[1];
+			ArrayList<String> runDirs = AnalysisUtil
+					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
+			String graphDir1 = runDirs.get(runDirs
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/" + argvs[0])), graphDir2 = runDirs
+					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/"
+							+ argvs[1]));
+			ArrayList<ExecutionGraph> graphs1 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
+					.buildGraphsFromRunDir(graphDir2);
+			ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2.get(0);
+
+			GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+			graphMerger.start();
+
+			int node1Idx = Integer.parseInt(argvs[2]), node2Idx = Integer
+					.parseInt(argvs[3]), searchDepth = Integer
+					.parseInt(argvs[4]);
+			Node node1 = graph1.getNodes().get(node1Idx), node2 = graph2
+					.getNodes().get(node2Idx);
+			try {
+				graphMerger.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			int score = graphMerger.debug_getContextSimilarity(node1, node2,
+					searchDepth);
+			System.out.println(score);
+		}
+
 	}
 }

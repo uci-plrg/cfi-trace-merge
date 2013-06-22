@@ -68,7 +68,9 @@ public class GraphAnalyzer {
 			ExecutionGraph bigGraph = mergeOneGraph(runDirs);
 		} else {
 			pairComparison(runDirs, sameProg);
-			SpeculativeScoreList.showGlobalStats();
+			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+				SpeculativeScoreList.showGlobalStats();
+			}
 		}
 	}
 
@@ -87,7 +89,8 @@ public class GraphAnalyzer {
 			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(
 					runDirs.get(i)).get(0);
 			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
-			ExecutionGraph tmpGraph = graphMerger.mergeGraph();
+			graphMerger.start();
+			ExecutionGraph tmpGraph = graphMerger.getMergedGraph();
 			if (tmpGraph != null) {
 				int newNodeSize = tmpGraph.getNodes().size()
 						- bigGraph.getNodes().size();

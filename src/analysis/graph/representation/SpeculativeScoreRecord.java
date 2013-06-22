@@ -63,29 +63,36 @@ public class SpeculativeScoreRecord {
 	// Record the matched nodes, node1 can be null
 	public final Node node1, node2;
 
+	// The actual chosen node1
+	public final Node actualNode1;
+
 	public String toString() {
 		String node1IdxStr = node1 == null ? "null" : Integer.toString(node1
-				.getIndex());
+				.getIndex()), actualNode1IdxStr = actualNode1 == null ? "null"
+				: Integer.toString(actualNode1.getIndex());
 
 		if (isIndirectSpeculation) {
 			return "Indirect: " + speculativeScoreType + " -- ("
-					+ matchingScore + ") " + node1IdxStr + "<=>"
-					+ node2.getIndex() + " -- " + matchResult;
+					+ matchingScore + ") " + actualNode1IdxStr + "<=>"
+					+ node2.getIndex() + " [" + node1IdxStr + "] -- "
+					+ matchResult;
 		} else {
 			return "PureHeuristics: " + speculativeScoreType + " -- ("
-					+ matchingScore + ") " + node1IdxStr + "<=>"
-					+ node2.getIndex() + " -- " + matchResult;
+					+ matchingScore + ") " + actualNode1IdxStr + "<=>"
+					+ node2.getIndex() + " [" + node1IdxStr + "] -- "
+					+ matchResult;
 		}
 	}
 
 	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
 			boolean isIndirectSpeculation, int matchingScore, Node node1,
-			Node node2, MatchResult matchResult) {
+			Node node2, Node actualNode1, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 		this.matchingScore = matchingScore;
 		this.node1 = node1;
 		this.node2 = node2;
+		this.actualNode1 = actualNode1;
 		this.matchResult = matchResult;
 	}
 }
