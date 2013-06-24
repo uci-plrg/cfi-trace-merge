@@ -3,6 +3,7 @@ package analysis.graph;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -53,7 +54,7 @@ public class GraphMerger extends Thread {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 			String graphDir1 = runDirs.get(runDirs
-					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run13")), graphDir2 = runDirs
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run12")), graphDir2 = runDirs
 					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run14"));
 			ArrayList<ExecutionGraph> graphs1 = ExecutionGraph
 					.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
@@ -62,7 +63,7 @@ public class GraphMerger extends Thread {
 			GraphMerger graphMerger = new GraphMerger(graph1, graph2);
 
 			try {
-				graphMerger.mergeGraph();
+				graphMerger.start();
 				if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 					// SpeculativeScoreList.showGlobalStats();
 				}
@@ -74,6 +75,14 @@ public class GraphMerger extends Thread {
 
 	public GraphMerger() {
 
+	}
+	
+	public ExecutionGraph getGraph1() {
+		return graph1;
+	}
+	
+	public ExecutionGraph getGraph2() {
+		return graph2;
 	}
 
 	public GraphMerger(ExecutionGraph graph1, ExecutionGraph graph2) {
@@ -149,7 +158,8 @@ public class GraphMerger extends Thread {
 	private boolean hasConflict = false;
 
 	/**
-	 * This is used only for debugging to analyze the aliasing problem.
+	 * This is used only for debugging to analyze the aliasing problem. Don't
+	 * ever use it to merge the graph!!!
 	 * 
 	 * @param node1
 	 * @param node2
@@ -159,7 +169,12 @@ public class GraphMerger extends Thread {
 	public int debug_getContextSimilarity(Node node1, Node node2, int depth) {
 		if (depth <= 0)
 			return 0;
-
+		
+		if (comparedNodes.contains(node2)) {
+			return 1;
+		} else {
+			comparedNodes.add(node2);
+		}
 		Node trueNode1 = AnalysisUtil.getTrueMatch(graph1, graph2, node2);
 		if (node1.equals(trueNode1)) {
 			System.out.println(node1.getIndex() + "<=>" + node2.getIndex());
@@ -261,26 +276,31 @@ public class GraphMerger extends Thread {
 		return score;
 	}
 
+	public static final float validScoreLimit = 0.5f;
+	
+	// In case of recursively compute the similarity of cyclic graph, record
+	// the compared nodes every time getContextSimilarity is called
+	public HashSet<Node> comparedNodes = new HashSet<Node>();
+
 	private int getContextSimilarity(Node node1, Node node2, int depth) {
-		if (node2.getIndex() == 66187) {
+		MutableInteger potentialMaxScore = new MutableInteger(0);
+		if ((node1.getIndex() == 45201 || node1.getIndex() == 60019)
+				&& node2.getIndex() == 32309) {
 			System.out.println();
 		}
-		MutableInteger potentialMaxScore = new MutableInteger(0);
+		
 		int score = getContextSimilarity(node1, node2, depth, potentialMaxScore);
-		if ((float) score / potentialMaxScore.getVal() > 0.8f) {
+		if ((float) score / potentialMaxScore.getVal() > validScoreLimit) {
 			return score;
 		} else {
 			return 0;
 		}
 	}
 
-	// FIXME: The way to compute the potentialMaxScore is wrong in case of
-	// divergence
 	private int getContextSimilarity(Node node1, Node node2, int depth,
 			MutableInteger potentialMaxScore) {
 		if (depth <= 0)
 			return 0;
-
 		int score = 0;
 		ArrayList<Edge> edges1 = node1.getOutgoingEdges(), edges2 = node2
 				.getOutgoingEdges();
@@ -295,9 +315,23 @@ public class GraphMerger extends Thread {
 			}
 		}
 
+		// The way to compute the potentialMaxScore is to count the seen
+		// possible divergence in the context.
 		int maxEdgeSize = edges1.size() > edges2.size() ? edges1.size()
 				: edges2.size();
-		potentialMaxScore.setVal(potentialMaxScore.getVal() + maxEdgeSize);
+		int maxOrdinal = 0;
+		for (int i = 0; i < edges1.size(); i++) {
+			if (edges1.get(i).getOrdinal() > maxOrdinal) {
+				maxOrdinal = edges1.get(i).getOrdinal();
+			}
+		}
+		for (int i = 0; i < edges2.size(); i++) {
+			if (edges2.get(i).getOrdinal() > maxOrdinal) {
+				maxOrdinal = edges2.get(i).getOrdinal();
+			}
+		}
+		potentialMaxScore.setVal(potentialMaxScore.getVal() + maxEdgeSize
+				+ maxOrdinal);
 
 		int res = -1;
 		// First consider the CallContinuation edge
@@ -398,7 +432,7 @@ public class GraphMerger extends Thread {
 			DebugUtils.debug_pureHeuristicCnt++;
 		}
 
-		if (node2.getIndex() == 72831) {
+		if (node2.getIndex() == 23067) {
 			System.out.println();
 		}
 
@@ -996,7 +1030,7 @@ public class GraphMerger extends Thread {
 
 		// Initialize the speculativeScoreList, which records the detail of
 		// the scoring of all the possible cases
-		speculativeScoreList = new SpeculativeScoreList();
+		speculativeScoreList = new SpeculativeScoreList(this);
 
 		// Reset isVisited field
 		for (int i = 0; i < graph2.getNodes().size(); i++) {

@@ -60,7 +60,7 @@ public class DebugUtils {
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
 
-	public static final String TMP_HASHLOG_DIR = "/home/peizhaoo/hashlogs/notepad";
+	public static final String TMP_HASHLOG_DIR = "/home/peizhao/hashlogs/notepad";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
 	public static final int USEFUL_DEBUG_OPTION1 = debug_option(MERGE_ERROR);
@@ -78,7 +78,7 @@ public class DebugUtils {
 			MAIN_KNOWN);
 
 	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | OUTPUT_SCORE
-			| FILTER_OUT_IMME_ADDR | PRINT_MATCHING_HISTORY;
+			| FILTER_OUT_IMME_ADDR;
 
 	public static boolean debug = true;
 

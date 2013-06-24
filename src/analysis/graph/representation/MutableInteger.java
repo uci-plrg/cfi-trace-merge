@@ -14,4 +14,8 @@ public class MutableInteger {
 	public int getVal() {
 		return innerVal;
 	}
+
+	public String toString() {
+		return Integer.toString(innerVal);
+	}
 }

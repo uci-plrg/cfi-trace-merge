@@ -3,6 +3,7 @@ package analysis.graph.representation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import analysis.graph.GraphMerger;
 import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
 import analysis.graph.representation.SpeculativeScoreRecord.SpeculativeScoreType;
@@ -12,6 +13,7 @@ public class SpeculativeScoreList {
 	// Every time an instance is created, it should be added to allLists
 	static public ArrayList<SpeculativeScoreList> allLists = new ArrayList<SpeculativeScoreList>();
 
+	private GraphMerger graphMerger;
 	private ArrayList<SpeculativeScoreRecord> records;
 	private boolean hasConflict;
 
@@ -25,7 +27,9 @@ public class SpeculativeScoreList {
 		this.hasConflict = hasConflict;
 	}
 
-	public SpeculativeScoreList() {
+	public SpeculativeScoreList(GraphMerger graphMerger) {
+		this.graphMerger = graphMerger;
+		
 		records = new ArrayList<SpeculativeScoreRecord>();
 		indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
 		pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType.values().length];
@@ -154,7 +158,25 @@ public class SpeculativeScoreList {
 						continue;
 					}
 					for (int j = 0; j < records.size(); j++) {
-						System.out.println(records.get(j));
+						SpeculativeScoreRecord record = records.get(j);
+						System.out.println(record);
+						Node actualNode1 = record.actualNode1,
+								node2 = record.node2;
+						if (actualNode1 != null) {
+							// Just to check if the mismatch will end up conflict
+							int depth = (int) (graphMerger.getGraph1().getNodes().size() * 0.1f);
+//							int depth = 200;
+							
+							if (DebugUtils.debug) {
+								graphMerger.comparedNodes.clear();
+							}
+							
+							int score = graphMerger.debug_getContextSimilarity(actualNode1, node2, depth);
+							if (score == -1) {
+								System.out.println("bad!");
+							}
+							System.out.println("Score: " + score + " -- " + depth);
+						}
 					}
 				}
 			}
