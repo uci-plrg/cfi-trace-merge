@@ -206,7 +206,9 @@ public class Node implements NodeList {
 		this.containingGraph = containingGraph;
 		tag = source.tag;
 		hash = source.hash;
-		outgoingEdges.addAll(source.outgoingEdges);
+		// Should not add the source's edges here because those outgoing edges
+		// are constructed by the nodes of the source
+		// outgoingEdges.addAll(source.outgoingEdges);
 		isVisited = false;
 		metaNodeType = source.metaNodeType;
 	}

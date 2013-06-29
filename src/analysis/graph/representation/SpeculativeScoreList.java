@@ -3,6 +3,8 @@ package analysis.graph.representation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import utils.AnalysisUtil;
+
 import analysis.graph.GraphMerger;
 import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
@@ -29,7 +31,7 @@ public class SpeculativeScoreList {
 
 	public SpeculativeScoreList(GraphMerger graphMerger) {
 		this.graphMerger = graphMerger;
-		
+
 		records = new ArrayList<SpeculativeScoreRecord>();
 		indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
 		pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType.values().length];
@@ -42,7 +44,9 @@ public class SpeculativeScoreList {
 		result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
 
 		// Record all the history info
-		SpeculativeScoreList.allLists.add(this);
+		// Currently don't do this. The graph is too big and it will lead to
+		// out-of-memory error
+		// SpeculativeScoreList.allLists.add(this);
 	}
 
 	public static void showGlobalStats() {
@@ -100,6 +104,11 @@ public class SpeculativeScoreList {
 	}
 
 	public void add(SpeculativeScoreRecord record) {
+		// FIXME: Ad-hoc... Delete it when finishing analyzing.
+		if (record.matchResult.toString().indexOf("found") == -1) {
+			return;
+		}
+
 		records.add(record);
 
 		if (record.isIndirectSpeculation) {
@@ -150,8 +159,7 @@ public class SpeculativeScoreList {
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				// if (false) {
 				// Only output the details of the mismatches and the unknown
-				if (res.toString().indexOf("Match") == -1
-						&& res.toString().indexOf("found") == -1) {
+				if (res.toString().indexOf("found") != -1) {
 					ArrayList<SpeculativeScoreRecord> records = result2Records
 							.get(res);
 					if (records == null) {
@@ -159,23 +167,26 @@ public class SpeculativeScoreList {
 					}
 					for (int j = 0; j < records.size(); j++) {
 						SpeculativeScoreRecord record = records.get(j);
-						System.out.println(record);
-						Node actualNode1 = record.actualNode1,
-								node2 = record.node2;
-						if (actualNode1 != null) {
-							// Just to check if the mismatch will end up conflict
-							int depth = (int) (graphMerger.getGraph1().getNodes().size() * 0.1f);
-//							int depth = 200;
-							
+						Node actualNode1 = record.actualNode1, node2 = record.node2, trueNode1 = AnalysisUtil
+								.getTrueMatch(graphMerger.getGraph1(),
+										graphMerger.getGraph2(), node2);
+						if (trueNode1 != null) {
+							// int depth = (int) (graphMerger.getGraph1()
+							// .getNodes().size() * 0.1f);
+							int depth = 200;
 							if (DebugUtils.debug) {
 								graphMerger.comparedNodes.clear();
 							}
-							
-							int score = graphMerger.debug_getContextSimilarity(actualNode1, node2, depth);
+							int score = graphMerger.debug_getContextSimilarity(
+									trueNode1, node2, depth);
+							System.out.println("Score: " + score + " -- "
+									+ depth);
 							if (score == -1) {
 								System.out.println("bad!");
+							} else if (score == 1) {
+								continue;
 							}
-							System.out.println("Score: " + score + " -- " + depth);
+
 						}
 					}
 				}

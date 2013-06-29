@@ -13,6 +13,8 @@ import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.SpeculativeScoreList;
 
+//import analysis.graph.representation.SpeculativeScoreList;
+
 public class GraphAnalyzer {
 
 	// The number of threads on a single machine, it's configurable
@@ -69,7 +71,7 @@ public class GraphAnalyzer {
 		} else {
 			pairComparison(runDirs, sameProg);
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				SpeculativeScoreList.showGlobalStats();
+				// SpeculativeScoreList.showGlobalStats();
 			}
 		}
 	}
@@ -79,17 +81,19 @@ public class GraphAnalyzer {
 
 		ExecutionGraph bigGraph = ExecutionGraph.buildGraphsFromRunDir(
 				runDirs.get(0)).get(0);
-		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-			GraphMergingInfo.dumpGraph(bigGraph,
-					"graph-files/" + bigGraph.getProgName() + bigGraph.getPid()
-							+ ".dot");
-		}
 		bigGraph.setProgName("bigGraph");
+
 		for (int i = 1; i < runDirs.size(); i++) {
 			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(
 					runDirs.get(i)).get(0);
 			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
 			graphMerger.start();
+			try {
+				graphMerger.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			ExecutionGraph tmpGraph = graphMerger.getMergedGraph();
 			if (tmpGraph != null) {
 				int newNodeSize = tmpGraph.getNodes().size()

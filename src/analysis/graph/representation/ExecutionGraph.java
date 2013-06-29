@@ -17,6 +17,7 @@ import java.util.Queue;
 import utils.AnalysisUtil;
 import analysis.exception.graph.InvalidTagException;
 import analysis.exception.graph.MultipleEdgeException;
+import analysis.exception.graph.OverlapModuleException;
 import analysis.exception.graph.TagNotFoundException;
 import analysis.graph.debug.DebugUtils;
 
@@ -497,7 +498,12 @@ public class ExecutionGraph {
 			ExecutionGraph graph = new ExecutionGraph(tagFiles, lookupFiles);
 
 			// Read the modules from file
-			graph.modules = AnalysisUtil.getModules(pid2ModuleFile.get(pid));
+			try {
+				graph.modules = AnalysisUtil
+						.getModules(pid2ModuleFile.get(pid));
+			} catch (OverlapModuleException e) {
+				e.printStackTrace();
+			}
 
 			// Initialize the relativeTag2Node hashtable
 			// This is only used for debugging so far

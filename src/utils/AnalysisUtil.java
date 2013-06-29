@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import analysis.exception.graph.OverlapModuleException;
 import analysis.graph.debug.DebugUtils;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.ModuleDescriptor;
@@ -384,10 +385,11 @@ public class AnalysisUtil {
 	 * 
 	 * @param fileName
 	 * @return
+	 * @throws OverlapModuleException
 	 */
-	public static ArrayList<ModuleDescriptor> getModules(String fileName) {
+	public static ArrayList<ModuleDescriptor> getModules(String fileName)
+			throws OverlapModuleException {
 		ArrayList<ModuleDescriptor> res = new ArrayList<ModuleDescriptor>();
-		;
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(fileName));
 			try {
@@ -413,6 +415,19 @@ public class AnalysisUtil {
 							beginAddr, endAddr);
 					res.add(mod);
 				}
+				// Check if there is any overlap between different modules
+				for (int i = 0; i < res.size(); i++) {
+					for (int j = i + 1; j < res.size(); j++) {
+						ModuleDescriptor mod1 = res.get(i), mod2 = res.get(j);
+						if ((mod1.beginAddr < mod2.beginAddr && mod1.endAddr > mod2.beginAddr)
+								|| (mod1.beginAddr < mod2.endAddr && mod1.endAddr > mod2.endAddr)) {
+							String msg = "Module overlap happens!\n" + mod1
+									+ " & " + mod2;
+							// throw new OverlapModuleException(msg);
+						}
+					}
+				}
+
 				Collections.sort(res);
 				return res;
 

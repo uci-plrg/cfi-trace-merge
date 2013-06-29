@@ -54,8 +54,8 @@ public class GraphMerger extends Thread {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 			String graphDir1 = runDirs.get(runDirs
-					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run12")), graphDir2 = runDirs
-					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run14"));
+					.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run4")), graphDir2 = runDirs
+					.get(runDirs.indexOf(DebugUtils.TMP_HASHLOG_DIR + "/run5"));
 			ArrayList<ExecutionGraph> graphs1 = ExecutionGraph
 					.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
 					.buildGraphsFromRunDir(graphDir2);
@@ -76,11 +76,11 @@ public class GraphMerger extends Thread {
 	public GraphMerger() {
 
 	}
-	
+
 	public ExecutionGraph getGraph1() {
 		return graph1;
 	}
-	
+
 	public ExecutionGraph getGraph2() {
 		return graph2;
 	}
@@ -96,10 +96,10 @@ public class GraphMerger extends Thread {
 
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
 			GraphMergingInfo.dumpGraph(graph1,
-					"graph-files/" + graph1.getProgName() + graph1.getPid()
+					DebugUtils.GRAPH_DIR + graph1.getProgName() + graph1.getPid()
 							+ ".dot");
 			GraphMergingInfo.dumpGraph(graph2,
-					"graph-files/" + graph2.getProgName() + graph2.getPid()
+					DebugUtils.GRAPH_DIR + graph2.getProgName() + graph2.getPid()
 							+ ".dot");
 		}
 	}
@@ -169,7 +169,7 @@ public class GraphMerger extends Thread {
 	public int debug_getContextSimilarity(Node node1, Node node2, int depth) {
 		if (depth <= 0)
 			return 0;
-		
+
 		if (comparedNodes.contains(node2)) {
 			return 1;
 		} else {
@@ -187,12 +187,13 @@ public class GraphMerger extends Thread {
 		// At least one node has no outgoing edges!!
 		if (edges1.size() == 0 || edges2.size() == 0) {
 			// Just think that they might be similar...
-			if (edges1.size() == 0 && edges2.size() == 0)
+			if (edges1.size() == 0 && edges2.size() == 0) {
 				return 1;
-			else
+			} else {
 				return 0;
+			}
 		}
-
+		System.out.println(node1.getIndex() + "<=>" + node2.getIndex());
 		int res = -1;
 		// First consider the CallContinuation edge
 		Edge e1, e2;
@@ -277,18 +278,19 @@ public class GraphMerger extends Thread {
 	}
 
 	public static final float validScoreLimit = 0.5f;
-	
+
 	// In case of recursively compute the similarity of cyclic graph, record
 	// the compared nodes every time getContextSimilarity is called
 	public HashSet<Node> comparedNodes = new HashSet<Node>();
 
-	private int getContextSimilarity(Node node1, Node node2, int depth) {
+	public int getContextSimilarity(Node node1, Node node2, int depth) {
 		MutableInteger potentialMaxScore = new MutableInteger(0);
 		if ((node1.getIndex() == 45201 || node1.getIndex() == 60019)
 				&& node2.getIndex() == 32309) {
 			System.out.println();
 		}
-		
+
+		comparedNodes.clear();
 		int score = getContextSimilarity(node1, node2, depth, potentialMaxScore);
 		if ((float) score / potentialMaxScore.getVal() > validScoreLimit) {
 			return score;
@@ -301,6 +303,13 @@ public class GraphMerger extends Thread {
 			MutableInteger potentialMaxScore) {
 		if (depth <= 0)
 			return 0;
+		// In order to avoid cyclic graph
+		if (comparedNodes.contains(node2)) {
+			return 1;
+		} else {
+			comparedNodes.add(node2);
+		}
+
 		int score = 0;
 		ArrayList<Edge> edges1 = node1.getOutgoingEdges(), edges2 = node2
 				.getOutgoingEdges();
@@ -738,7 +747,6 @@ public class GraphMerger extends Thread {
 		if (maxNode == null) {
 			if (matchResult == MatchResult.IndirectExistingUnfoundMismatch
 					|| matchResult == MatchResult.PureHeuristicsExistingUnfoundMismatch) {
-
 				speculativeScoreList.add(new SpeculativeScoreRecord(
 						SpeculativeScoreType.NoMatch, isIndirect, -1,
 						trueNode1, curNode2, null, matchResult));
@@ -808,6 +816,8 @@ public class GraphMerger extends Thread {
 	}
 
 	private ExecutionGraph buildMergedGraph() {
+		// Don't have to copy the hash2Nodes explicitly because it will be
+		// automatically added when calling addNode method.
 		ExecutionGraph mergedGraph = new ExecutionGraph();
 		mergedGraph.setProgName(graph1.getProgName());
 		// Copy nodes from G1
@@ -1030,7 +1040,9 @@ public class GraphMerger extends Thread {
 
 		// Initialize the speculativeScoreList, which records the detail of
 		// the scoring of all the possible cases
-		speculativeScoreList = new SpeculativeScoreList(this);
+		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+			speculativeScoreList = new SpeculativeScoreList(this);
+		}
 
 		// Reset isVisited field
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
