@@ -60,7 +60,7 @@ public class DebugUtils {
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
 
-	public static final String TMP_HASHLOG_DIR = "/scratch/SharedFolder/06-24-2013-hashlogs/notepad";
+	public static final String TMP_HASHLOG_DIR = "/scratch/hashlogs/HexEdit.debug-runs";
 	public static final String GRAPH_DIR = "/scratch/cs-analysis-output/graph-files/";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
@@ -78,9 +78,8 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	// public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION2 | OUTPUT_SCORE
-	// | FILTER_OUT_IMME_ADDR;
-	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0;
+	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | FILTER_OUT_IMME_ADDR;
+	// public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0;
 
 	public static boolean debug = true;
 

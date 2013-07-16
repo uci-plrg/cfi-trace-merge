@@ -13,6 +13,7 @@ import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
 import analysis.graph.representation.Node;
+import analysis.graph.representation.NormalizedTag;
 
 public class GraphMergingInfo {
 
@@ -163,7 +164,9 @@ public class GraphMergingInfo {
 		return firstMainHash;
 	}
 
-	public static void dumpGraph(ExecutionGraph graph, String fileName) {
+	public static void dumpGraph(ExecutionGraph graph, String fileName,
+			HashSet<Long> interSet) {
+		System.out.println("Trying to dump the graph for " + graph + ":");
 		File file = new File(fileName);
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdirs();
@@ -201,9 +204,13 @@ public class GraphMergingInfo {
 			pwDotFile.println("# First main block: "
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {
+				Node n = graph.getNodes().get(i);
+				String newStr = "";
+				if (!interSet.contains(n.getHash())) {
+					newStr = "_n";
+				}
 				pwDotFile.println(i + "[label=\""
-						+ Long.toHexString(graph.getNodes().get(i).getHash())
-						+ "\"]");
+						+ Long.toHexString(n.getHash()) + newStr + "\"]");
 
 				ArrayList<Edge> edges = graph.getNodes().get(i)
 						.getOutgoingEdges();

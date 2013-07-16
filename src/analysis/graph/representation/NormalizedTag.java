@@ -1,12 +1,25 @@
 package analysis.graph.representation;
 
+import utils.AnalysisUtil;
+
 public class NormalizedTag {
 	public final String moduleName;
 	public final Long relativeTag;
 
+	public NormalizedTag(Node n) {
+		String modName = AnalysisUtil.getModuleName(n);
+		long relTag = AnalysisUtil.getRelativeTag(n);
+		this.moduleName = modName;
+		this.relativeTag = relTag;
+	}
+	
 	public NormalizedTag(String moduleName, long relativeTag) {
 		this.moduleName = moduleName;
 		this.relativeTag = relativeTag;
+	}
+	
+	public String toString() {
+		return moduleName + "_" + Long.toHexString(relativeTag);
 	}
 
 	public boolean equals(Object o) {

@@ -25,6 +25,10 @@ public class Node implements NodeList {
 
 	// Incomming edges, just in case they might be needed
 	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
+	
+	public ExecutionGraph getContainingGraph() {
+		return containingGraph;
+	}
 
 	@Override
 	public Node get(int index) {
@@ -155,7 +159,7 @@ public class Node implements NodeList {
 	}
 
 	public String toString() {
-		return "0x" + Long.toHexString(hash) + ":" + score + "_" + index;
+		return "0x" + Long.toHexString(hash) + ":" + score + "_" + index + " : " + new NormalizedTag(this) + "_" + Long.toHexString(tag);
 	}
 
 	// Not a deep copy, we don't care about edges...

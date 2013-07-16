@@ -99,11 +99,6 @@ public class GraphAnalyzer {
 				int newNodeSize = tmpGraph.getNodes().size()
 						- bigGraph.getNodes().size();
 				bigGraph = tmpGraph;
-				if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-					GraphMergingInfo.dumpGraph(bigGraph, "graph-files/"
-							+ bigGraph.getProgName() + bigGraph.getPid()
-							+ ".dot");
-				}
 				System.out.println("Added " + newNodeSize
 						+ " nodes to the bigGraph");
 			}

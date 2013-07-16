@@ -586,6 +586,14 @@ public class AnalysisUtil {
 		}
 		return tag;
 	}
+	
+	public static long getRelativeTag(Node n) {
+		return getRelativeTag(n.getContainingGraph(), n.getTag());
+	}
+	
+	public static String getModuleName(Node n) {
+		return getModuleName(n.getContainingGraph(), n.getTag());
+	}
 
 	public static String getModuleName(ExecutionGraph graph, long tag) {
 		ArrayList<ModuleDescriptor> modules = graph.getModules();
