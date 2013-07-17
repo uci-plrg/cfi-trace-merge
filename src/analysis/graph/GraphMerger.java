@@ -55,8 +55,8 @@ public class GraphMerger extends Thread {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
-			for (int i = 10; i <= 12; i++) {
-				for (int j = 10; j <= 12; j++) {
+			for (int i = 0; i <= 0; i++) {
+				for (int j = 10; j <= 10; j++) {
 					if (i == j) {
 						continue;
 					}
@@ -1387,52 +1387,8 @@ public class GraphMerger extends Thread {
 			}
 
 			if (DebugUtils.debug) {
-				System.out.println("New tags comparison for " + graph1 + " & " + graph2);
-				// module HexEdit.exe-6003000020000
-				System.out.println("New tags for graph1: " + graph1);
-				for (int i = 0; i < graph1.getNodes().size(); i++) {
-					Node n = graph1.getNodes().get(i);
-					NormalizedTag t = new NormalizedTag(n);
-					if (!graph2.normalizedTag2Node.containsKey(t)) {
-						if (t.moduleName.indexOf("HexEdit") != -1) {
-							System.out.println(t);
-						}
-					}
-				}
-				System.out.println();
-				// module HexEdit.pack10.exe-6003000020000
-				System.out.println("New tags for graph2: " + graph2);
-				for (int i = 0; i < graph2.getNodes().size(); i++) {
-					Node n = graph2.getNodes().get(i);
-					NormalizedTag t = new NormalizedTag(n);
-					if (!graph1.normalizedTag2Node.containsKey(t)) {
-						if (t.moduleName.indexOf("HexEdit") != -1) {
-							System.out.println(t);
-						}
-
-					}
-				}
-
-				String modName = "module HexEdit.exe-6003100020000";
-				long relTag = Long.valueOf("d3870", 16).longValue();
-				NormalizedTag tag = new NormalizedTag(modName, relTag);
-				Node n = graph1.normalizedTag2Node.get(tag),
-						previous_n = n.getIncomingEdges().get(0).getFromNode();;
-				NormalizedTag previous_tag1 = new NormalizedTag(previous_n);
-				while (!graph2.normalizedTag2Node.containsKey(previous_tag1)) {
-					n = graph1.normalizedTag2Node.get(tag);
-					previous_n = n.getIncomingEdges().get(0).getFromNode();
-					previous_tag1 = new NormalizedTag(previous_n);
-					System.out.println(n);
-					if (graph2.normalizedTag2Node.containsKey(previous_tag1)) {
-						System.out.println("extra info:");
-						System.out.println(previous_n);
-						System.out.println(n);
-					}
-					tag = previous_tag1;
-				}
-
-//				return;
+				AnalysisUtil.outputTagComparisonInfo(graph1, graph2);
+				return;
 			}
 
 			mergedGraph = mergeGraph();
@@ -1445,8 +1401,6 @@ public class GraphMerger extends Thread {
 					System.out.println("Unable to tell difference!");
 				}
 			}
-			// System.out.println("Changed hashcode for " +
-			// DebugUtils.chageHashCnt + " times");
 		} catch (WrongEdgeTypeException e) {
 			e.printStackTrace();
 		}

@@ -14,9 +14,7 @@ public class Edge {
 	}
 
 	public String toString() {
-		return fromNode.getIndex() + "(" + fromNode.getHashHex() + ")" + "("
-				+ edgeType + ")--" + ordinal + "-->" + toNode.getIndex() + "("
-				+ toNode.getHashHex() + ")";
+		return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
 	}
 
 	public Node getToNode() {
