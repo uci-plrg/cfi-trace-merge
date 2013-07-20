@@ -55,8 +55,8 @@ public class GraphMerger extends Thread {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
-			for (int i = 0; i <= 0; i++) {
-				for (int j = 10; j <= 10; j++) {
+			for (int i = 1; i <= 1; i++) {
+				for (int j = 2; j <= 2; j++) {
 					if (i == j) {
 						continue;
 					}
@@ -1387,8 +1387,8 @@ public class GraphMerger extends Thread {
 			}
 
 			if (DebugUtils.debug) {
-				AnalysisUtil.outputTagComparisonInfo(graph1, graph2);
-				return;
+//				AnalysisUtil.outputTagComparisonInfo(graph1, graph2);
+//				return;
 			}
 
 			mergedGraph = mergeGraph();

@@ -401,7 +401,8 @@ public class AnalysisUtil {
 					
 					// Should change the index correspondingly if the
 					// module file format is changed
-					beginIdx = line.indexOf(" ", 7);
+					beginIdx = line.indexOf(" ");
+					beginIdx = line.indexOf(" ", beginIdx + 1);
 					endIdx = line.indexOf(":", 0);
 					name = line.substring(beginIdx + 1, endIdx);
 					name = name.toLowerCase();
