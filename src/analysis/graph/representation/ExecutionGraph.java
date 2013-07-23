@@ -21,13 +21,43 @@ import analysis.exception.graph.OverlapModuleException;
 import analysis.exception.graph.TagNotFoundException;
 import analysis.graph.debug.DebugUtils;
 
+/**
+ * <p>
+ * This class abstracts the binary-level labeled control flow graph of any
+ * execution of a binary executable.
+ * </p>
+ * 
+ * <p>
+ * There are a few assumptions: 1. Within one execution, the tag, which is
+ * address of the block of code in the code cache of DynamoRIO, can uniquely
+ * represents an actual block of code in run-time memory. This might not be true
+ * if the same address has different pieces of code at different time. 2. In
+ * windows, we already have a list of known core utility DLL's, which means we
+ * will match modules according to the module names plus its version number.
+ * This might not be a universally true assumption, but it's still reasonable at
+ * this point. We will treat unknown modules as inline code, which is part of
+ * the main graph.
+ * </p>
+ * 
+ * <p>
+ * This class will have a list of its subclass, ModuleGraph, which is the graph
+ * representation of each run-time module.
+ * </p>
+ * 
+ * @author peizhaoo
+ * 
+ */
+
 public class ExecutionGraph {
 	protected HashSet<Long> pairHashes;
 	protected HashSet<Long> blockHashes;
 	protected ArrayList<Long> pairHashInstances;
 	protected ArrayList<Long> blockHashInstances;
 
-	// This field is used to normalize the tag in a single graph
+	// Represents the list of core modules
+	private HashMap<String, ModuleGraph> moduleGraphs;
+
+	// Used to normalize the tag in a single graph
 	private ArrayList<ModuleDescriptor> modules;
 
 	// Maps from post-processed relative tag to the node,
@@ -64,6 +94,10 @@ public class ExecutionGraph {
 
 	public NodeList getNodesByHash(long l) {
 		return hash2Nodes.get(l);
+	}
+	
+	public HashMap<String, ModuleGraph> getModuleGraphs() {
+		return moduleGraphs;
 	}
 
 	// FIXME: Deep copy of a graph
@@ -139,7 +173,8 @@ public class ExecutionGraph {
 
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public Node addNode(long hash, MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
+	public Node addNode(long hash, MetaNodeType metaNodeType,
+			NormalizedTag normalizedTag) {
 		Node n = new Node(this, hash, nodes.size(), metaNodeType, normalizedTag);
 		nodes.add(n);
 		hash2Nodes.add(n);
@@ -197,6 +232,7 @@ public class ExecutionGraph {
 	public ExecutionGraph(ArrayList<String> intraModuleEdgeFiles,
 			String crossModuleEdgeFile, ArrayList<String> lookupFiles,
 			String moduleFile) {
+		moduleGraphs = new HashMap<String, ModuleGraph>();
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
 		this.progName = AnalysisUtil.getProgName(intraModuleEdgeFiles.get(0));
@@ -279,6 +315,7 @@ public class ExecutionGraph {
 				fileIn = new FileInputStream(lookupFile);
 				channel = fileIn.getChannel();
 				long tag = 0, tagOriginal = 0, hash = 0;
+				String nodeModuleName;
 
 				while (true) {
 					if (channel.read(buffer) < 0)
@@ -291,14 +328,6 @@ public class ExecutionGraph {
 					buffer.flip();
 					hash = buffer.getLong();
 					buffer.compact();
-
-					// the tag and hash here is already a big-endian value
-					// tagOriginal = AnalysisUtil.reverseForLittleEndian(dataIn
-					// .readLong());
-					// hash = AnalysisUtil.reverseForLittleEndian(dataIn
-					// .readLong());
-					// System.out.println(Long.toHexString(tagOriginal));
-					// System.out.println(Long.toHexString(hash));
 
 					tag = getTagEffectiveValue(tagOriginal);
 					int metaNodeVal = getNodeMetaVal(tagOriginal);
@@ -320,13 +349,29 @@ public class ExecutionGraph {
 							}
 						}
 					}
+					nodeModuleName = AnalysisUtil.getModuleName(this, tag);
+
+					// Be careful about the index here!!!
+					// If the node is in a core module, the addModuleNode
+					// function should fix the index.
 					Node node = new Node(this, tag, hash, nodes.size(),
 							metaNodeType);
-					hashLookupTable.put(tag, node);
-					nodes.add(node);
+					if (ModuleDescriptor.coreModuleNames
+							.contains(nodeModuleName)) {
+						if (!moduleGraphs.containsKey(nodeModuleName)) {
+							moduleGraphs.put(nodeModuleName, new ModuleGraph(
+									nodeModuleName));
+						}
+						ModuleGraph moduleGraph = moduleGraphs
+								.get(nodeModuleName);
+						moduleGraph.addModuleNode(node);
+					} else {
+						nodes.add(node);
+						// Add it the the hash2Nodes mapping
+						hash2Nodes.add(node);
+					}
 
-					// Add it the the hash2Nodes mapping
-					hash2Nodes.add(node);
+					hashLookupTable.put(tag, node);
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -388,7 +433,7 @@ public class ExecutionGraph {
 		FileInputStream fileIn = null;
 		ByteBuffer buffer = ByteBuffer.allocate(0x8);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		
+
 		try {
 			fileIn = new FileInputStream(file);
 			FileChannel channel = fileIn.getChannel();
@@ -436,15 +481,31 @@ public class ExecutionGraph {
 
 				Edge existing = node1.getOutgoingEdge(node2);
 				Edge e = new Edge(node1, node2, signitureHash);
-				
+
 				if (existing == null) {
-					// Might have a better way to store the cross-module edges
-					node1.addOutgoingEdge(e);
-					node2.addIncomingEdge(e);
+					// Be careful when dealing with the cross module nodes
+					// Cross-module edges are not added to any node, but the
+					// edge from signature node to real entry node is preserved
+					node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
+					String node2ModuleName = AnalysisUtil.getModuleName(node2);
+					if (ModuleDescriptor.coreModuleNames.contains(node2ModuleName)) {
+						ModuleGraph moduleGraph = moduleGraphs.get(node2ModuleName);
+						Node sigNode = new Node(moduleGraph, signitureHash, -1,
+								MetaNodeType.SIGNATURE_HASH, null);
+						node2.setMetaNodeType(MetaNodeType.NORMAl);
+						Edge sigEntryEdge = new Edge(sigNode, node2, EdgeType.Indirect, 0);
+						sigNode.addOutgoingEdge(sigEntryEdge);
+						node2.addIncomingEdge(sigEntryEdge);
+						moduleGraph.addModuleNode(sigNode);
+						moduleGraph.addModuleNode(node2);
+					} else {
+						node1.addOutgoingEdge(e);
+						node2.addIncomingEdge(e);
+					}
 				} else if (existing.getSignitureHash() != signitureHash) {
 					String msg = "Multiple cross module edges:\n"
-							+ "Existing edge: " + e + "\n" 
-							+ "New edge: " + existing + "\n";
+							+ "Existing edge: " + e + "\n" + "New edge: "
+							+ existing + "\n";
 					if (DebugUtils.ThrowMultipleEdge) {
 						throw new MultipleEdgeException(msg);
 					}

@@ -32,6 +32,14 @@ public class Node implements NodeList {
 	public ExecutionGraph getContainingGraph() {
 		return containingGraph;
 	}
+	
+	public void setContainingGraph(ExecutionGraph containingGraph) {
+		this.containingGraph = containingGraph;
+	}
+	
+	public void setMetaNodeType(MetaNodeType metaNodeType) {
+		this.metaNodeType = metaNodeType;
+	}
 
 	@Override
 	public Node get(int index) {
@@ -144,6 +152,10 @@ public class Node implements NodeList {
 	public int getIndex() {
 		return index;
 	}
+	
+	public void setIndex(int index) {
+		this.index = index;
+	}
 
 	public int getScore() {
 		return score;
@@ -166,7 +178,7 @@ public class Node implements NodeList {
 	}
 
 	public String toString() {
-		if (metaNodeType != MetaNodeType.SIGNITURE_HASH) {
+		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
 			return "0x" + Long.toHexString(hash) + ":" + normalizedTag;
 		} else {
 			return "SIG: 0x" + Long.toHexString(hash);

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import utils.AnalysisUtil;
 
 import analysis.graph.GraphMerger;
+import analysis.graph.GraphMergerThread;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.Node;
 
@@ -205,8 +206,9 @@ public class DebugUtils {
 					.buildGraphsFromRunDir(graphDir2);
 			ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2.get(0);
 
-			GraphMerger graphMerger = new GraphMerger(graph1, graph2);
-			graphMerger.start();
+			GraphMergerThread graphMerger = new GraphMergerThread(graph1, graph2);
+			Thread graphMergerThread = new Thread(graphMerger);
+			graphMergerThread.start();
 
 			int node1Idx = Integer.parseInt(argvs[2]), node2Idx = Integer
 					.parseInt(argvs[3]), searchDepth = Integer
@@ -214,7 +216,7 @@ public class DebugUtils {
 			Node node1 = graph1.getNodes().get(node1Idx), node2 = graph2
 					.getNodes().get(node2Idx);
 			try {
-				graphMerger.join();
+				graphMergerThread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

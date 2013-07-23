@@ -86,10 +86,12 @@ public class GraphAnalyzer {
 		for (int i = 1; i < runDirs.size(); i++) {
 			ExecutionGraph graph = ExecutionGraph.buildGraphsFromRunDir(
 					runDirs.get(i)).get(0);
-			GraphMerger graphMerger = new GraphMerger(bigGraph, graph);
-			graphMerger.start();
+			GraphMergerThread graphMerger = new GraphMergerThread(bigGraph, graph);
+			Thread graphMergerThread = new Thread(graphMerger);
+					
+			graphMergerThread.run();
 			try {
-				graphMerger.join();
+				graphMergerThread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -109,7 +111,8 @@ public class GraphAnalyzer {
 	public static void pairComparison(String dir, boolean runSameProgram) {
 		ArrayList<String> runDirs = AnalysisUtil.getAllRunDirs(dir);
 
-		GraphMerger[] mergers = new GraphMerger[threadGroupSize];
+		GraphMergerThread[] mergers = new GraphMergerThread[threadGroupSize];
+		Thread[] threads = new Thread[threadGroupSize];
 		threadCnt = 0;
 		pairCnt = 0;
 
@@ -140,15 +143,10 @@ public class GraphAnalyzer {
 						ExecutionGraph g1 = graphs1.get(k), g2 = graphs2.get(l);
 
 						// System.out.println("Current thread: " + threadCnt);
-
-						// if (DebugUtils.debug) {
-						// if (g1.getPid() != 4052 || g2.getPid() != 1992) {
-						// continue;
-						// }
-						// }
-
-						mergers[threadCnt] = new GraphMerger(g1, g2);
-						mergers[threadCnt].start();
+						mergers[threadCnt] = new GraphMergerThread(g1, g2);
+						threads[threadCnt] = new Thread(mergers[threadCnt]);
+						
+						mergers[threadCnt].run();
 						threadCnt++;
 						pairCnt++;
 
@@ -158,7 +156,7 @@ public class GraphAnalyzer {
 									+ " pairs have been launched!");
 							for (int m = 0; m < threadGroupSize; m++) {
 								try {
-									mergers[m].join();
+									threads[m].join();
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}

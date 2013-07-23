@@ -16,6 +16,7 @@ import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
+import analysis.graph.representation.ModuleGraph;
 import analysis.graph.representation.MutableInteger;
 import analysis.graph.representation.Node;
 import analysis.graph.representation.NodeList;
@@ -27,26 +28,52 @@ import analysis.graph.representation.SpeculativeScoreRecord;
 import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
 import analysis.graph.representation.SpeculativeScoreRecord.SpeculativeScoreType;
 
-public class GraphMerger extends Thread {
+public class GraphMerger {
 	/**
-	 * try to merge two graphs !!! Seems that every two graphs can be merged, so
-	 * maybe there should be a way to evaluate how much the two graphs conflict
-	 * One case is unmergeable: two direct branch nodes with same hash value but
-	 * have different branch targets (Seems wired!!)
+	 * <p>
+	 * This class abstracts an object that can match two ExecutionGraph. To
+	 * initialize these two graphs, pass two well-constructed ExecutionGraph and
+	 * call the mergeGraph() method. It will merge the two graphs and construct
+	 * a new merged graph, which you can get it by calling the getMergedGraph()
+	 * method.
+	 * </p>
 	 * 
-	 * ####42696542a8bb5822 I am doing a trick here: programs in x86/linux seems
-	 * to enter their main function after a very similar dynamic-loading
-	 * process, at the end of which there is a indirect branch which jumps to
-	 * the real main blocks. In the environment of this machine, the hash value
-	 * of that 'final block' is 0x1d84443b9bf8a6b3. ####
+	 * <p>
+	 * It has been found that both in Linux and Windows, the real entry block of
+	 * code in the main module comes from an indirect branch of some certain C
+	 * library (linux) or system libraries (ntdll.dll in Windows). Our current
+	 * approach treats the indirect edges as half speculation, which in this
+	 * case means all programs will match if we don't know the entry block.
+	 * Therefore, we assume that we will know a list of rarely changed entry
+	 * block and they can be provided as part of the configuration.
+	 * </p>
 	 * 
+	 * <p>
+	 * Programs in x86/linux seems to enter their main function after a very
+	 * similar dynamic-loading process, at the end of which there is a indirect
+	 * branch which jumps to the real main blocks. In the environment of this
+	 * machine, the hash value of that 'final block' is 0x1d84443b9bf8a6b3. ####
+	 * </p>
+	 * 
+	 * <p>
 	 * Date: 4:21pm (PST), 06/20/2013 We are trying new approach, which will set
 	 * up a threshold for the matching up of speculation. Intuitively, the
 	 * threshold for indirect speculation can be less than pure speculation
 	 * because it indeed has more information and confidence.
+	 * </p>
 	 * 
+	 * <p>
 	 * Besides, in any speculation when there is many candidates with the same,
 	 * high score, the current merging just does not match any of them yet.
+	 * </p>
+	 * 
+	 * <p>
+	 * To use the current matching approach for the ModuleGraph, we extends the
+	 * GraphMerger to ModuleGraphMerger, and overrides its mergeGraph() method.
+	 * At the same time, this class contains a ModuleGraphMerger subclass which
+	 * matches the ModuleGraphs.
+	 * </p>
+	 * 
 	 */
 	public static void main(String[] argvs) {
 
@@ -71,12 +98,14 @@ public class GraphMerger extends Thread {
 					ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2
 							.get(0);
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
+					
 					try {
-						graphMerger.start();
+						graphMerger.mergeGraph();
+						graphMerger.mergeModules();
+						
 						if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 							// SpeculativeScoreList.showGlobalStats();
 						}
-						graphMerger.join();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -122,13 +151,19 @@ public class GraphMerger extends Thread {
 		}
 	}
 
-	private ExecutionGraph graph1, graph2;
-	private ExecutionGraph mergedGraph;
+	protected ExecutionGraph graph1, graph2;
+	protected ExecutionGraph mergedGraph;
+	protected HashMap<String, ModuleGraph> mergedModules;
 
 	public static GraphMergingInfo graphMergingInfo;
 
 	// Record matched nodes
-	private MatchedNodes matchedNodes = new MatchedNodes();
+	protected MatchedNodes matchedNodes = new MatchedNodes();
+
+	// BFS on G2
+	Queue<PairNode> matchedQueue, unmatchedQueue;
+	// To record all the unvisited indirect node.
+	Queue<PairNodeEdge> indirectChildren;
 
 	// The static threshold for indirect speculation and pure heuristics
 	// These two values are completely hypothetic and need further verification
@@ -151,16 +186,6 @@ public class GraphMerger extends Thread {
 		return mergedGraph;
 	}
 
-	public void startMerging() {
-		this.run();
-	}
-
-	public void startMerging(ExecutionGraph graph1, ExecutionGraph graph2) {
-		this.graph1 = graph1;
-		this.graph2 = graph2;
-		this.run();
-	}
-
 	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622",
 			16).longValue();
 	private static final long beginHash = 0x5eee92;
@@ -173,7 +198,7 @@ public class GraphMerger extends Thread {
 	public final static int indirectSearchDepth = 10;
 	public final static int pureSearchDepth = 15;
 
-	private boolean hasConflict = false;
+	protected boolean hasConflict = false;
 
 	/**
 	 * This is used only for debugging to analyze the aliasing problem. Don't
@@ -841,7 +866,8 @@ public class GraphMerger extends Thread {
 		// Copy nodes from G1
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
 			Node n1 = graph1.getNodes().get(i);
-			Node n = mergedGraph.addNode(n1.getHash(), n1.getMetaNodeType(), new NormalizedTag(n1));
+			Node n = mergedGraph.addNode(n1.getHash(), n1.getMetaNodeType(),
+					new NormalizedTag(n1));
 
 			if (matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
 				n.setFromWhichGraph(0);
@@ -871,8 +897,8 @@ public class GraphMerger extends Thread {
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node n2 = graph2.getNodes().get(i);
 			if (!matchedNodes.containsKeyBySecondIndex(n2.getIndex())) {
-				Node n = mergedGraph
-						.addNode(n2.getHash(), n2.getMetaNodeType(), new NormalizedTag(n2));
+				Node n = mergedGraph.addNode(n2.getHash(),
+						n2.getMetaNodeType(), new NormalizedTag(n2));
 				nodesFromG2.put(n2.getIndex(), n.getIndex());
 			}
 		}
@@ -1011,17 +1037,57 @@ public class GraphMerger extends Thread {
 	}
 
 	/**
+	 * Setup before matching the two graphs.
+	 */
+	protected boolean preMergeGraph() {
+		// Merge based on the similarity of the first node ---- sanity check!
+		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
+				.getHash()) {
+			System.out.println("In execution " + graph1.getProgName()
+					+ graph1.getPid() + " & " + graph2.getProgName()
+					+ graph2.getPid());
+			System.out
+					.println("First node not the same, so wired and I can't merge...");
+			return false;
+		}
+
+		// Reset isVisited field
+		for (int i = 0; i < graph2.getNodes().size(); i++) {
+			graph2.getNodes().get(i).resetVisited();
+		}
+
+		// Record matched nodes
+		matchedNodes = new MatchedNodes();
+
+		hasConflict = false;
+		Node n1 = graph1.getNodes().get(0), n2 = graph2.getNodes().get(0);
+
+		if (DebugUtils.debug) {
+			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(0,
+					n1.getIndex(), n2.getIndex(), MatchingType.Heuristic, -1));
+		}
+
+		// BFS on G2
+		matchedQueue = new LinkedList<PairNode>();
+		unmatchedQueue = new LinkedList<PairNode>();
+		indirectChildren = new LinkedList<PairNodeEdge>();
+
+		PairNode pairNode = new PairNode(n1, n2, 0);
+
+		matchedQueue.add(pairNode);
+		matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
+
+		return true;
+	}
+
+	/**
 	 * 
 	 * @param graph1
 	 * @param graph2
 	 * @return
 	 * @throws WrongEdgeTypeException
 	 */
-	private ExecutionGraph mergeGraph() throws WrongEdgeTypeException {
-		// Initialize debugging info before merging the graph
-		if (DebugUtils.debug) {
-			DebugUtils.debug_init();
-		}
+	public ExecutionGraph mergeGraph() throws WrongEdgeTypeException {
 
 		// Pre-examination of the graph
 		if (graph1 == null || graph2 == null) {
@@ -1031,6 +1097,16 @@ public class GraphMerger extends Thread {
 			return new ExecutionGraph(graph2);
 		} else if (graph2.getNodes().size() == 0) {
 			return new ExecutionGraph(graph1);
+		}
+
+		// Set up the initial status before actually matching
+		if (!preMergeGraph()) {
+			return null;
+		}
+
+		// Initialize debugging info before merging the graph
+		if (DebugUtils.debug) {
+			DebugUtils.debug_init();
 		}
 
 		// In the OUTPUT_SCORE debug mode, initialize the PrintWriter for this
@@ -1045,68 +1121,13 @@ public class GraphMerger extends Thread {
 			DebugUtils.setScorePW(fileName);
 		}
 
-		// Merge based on the similarity of the first node ---- sanity check!
-		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
-				.getHash()) {
-			System.out.println("In execution " + graph1.getProgName()
-					+ graph1.getPid() + " & " + graph2.getProgName()
-					+ graph2.getPid());
-			System.out
-					.println("First node not the same, so wired and I can't merge...");
-			return null;
-		}
-
 		// Initialize the speculativeScoreList, which records the detail of
 		// the scoring of all the possible cases
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 			speculativeScoreList = new SpeculativeScoreList(this);
 		}
 
-		// Reset isVisited field
-		for (int i = 0; i < graph2.getNodes().size(); i++) {
-			graph2.getNodes().get(i).resetVisited();
-		}
-
-		// Record matched nodes
-		matchedNodes = new MatchedNodes();
-
-		hasConflict = false;
-		Node n_1 = graph1.getNodes().get(0), n_2 = graph2.getNodes().get(0);
-
-		// BFS on G2
-		Queue<PairNode> matchedQueue = new LinkedList<PairNode>(), unmatchedQueue = new LinkedList<PairNode>();
-		PairNode pairNode = new PairNode(n_1, n_2, 0);
-
-		matchedQueue.add(pairNode);
-		matchedNodes.addPair(n_1.getIndex(), n_2.getIndex(), 0);
-
-		Node mainNode1 = null, mainNode2 = null;
-		mainNode1 = getMainBlock(graph1);
-		mainNode2 = getMainBlock(graph2);
-
-		if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN_ADD_MAIN)) {
-			if (mainNode1 != null && mainNode2 != null) {
-				matchedNodes.addPair(mainNode1.getIndex(),
-						mainNode2.getIndex(), 0);
-				matchedQueue.add(new PairNode(mainNode1, mainNode2, 0));
-
-				DebugUtils.debug_matchingTrace
-						.addInstance(new MatchingInstance(0, mainNode1
-								.getIndex(), mainNode2.getIndex(),
-								MatchingType.Heuristic, -1));
-
-			}
-		}
-
-		// This is a queue to record all the unvisited indirect node...
-		Queue<PairNodeEdge> indirectChildren = new LinkedList<PairNodeEdge>();
-
-		if (DebugUtils.debug) {
-			DebugUtils.debug_matchingTrace
-					.addInstance(new MatchingInstance(0, n_1.getIndex(), n_2
-							.getIndex(), MatchingType.Heuristic, -1));
-		}
-
+		PairNode pairNode = null;
 		while ((matchedQueue.size() > 0 || indirectChildren.size() > 0 || unmatchedQueue
 				.size() > 0) && !hasConflict) {
 			if (matchedQueue.size() > 0) {
@@ -1117,19 +1138,6 @@ public class GraphMerger extends Thread {
 				if (n2.isVisited())
 					continue;
 				n2.setVisited();
-
-				if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN)) {
-					// Treat the first main block specially
-					if (n2.getHash() == specialHash) {
-						if (mainNode1 != null && mainNode2 != null) {
-							if (mainNode1.getHash() != mainNode2.getHash()) {
-								System.out.println("Conflict at first block!");
-								hasConflict = true;
-								break;
-							}
-						}
-					}
-				}
 
 				for (int k = 0; k < n2.getOutgoingEdges().size(); k++) {
 					Edge e = n2.getOutgoingEdges().get(k);
@@ -1331,15 +1339,6 @@ public class GraphMerger extends Thread {
 			}
 		}
 
-		if (DebugUtils.debug_decision(DebugUtils.MAIN_KNOWN)) {
-			if (mainNode1 != null && mainNode2 != null) {
-				if (mainNode1.getHash() != mainNode2.getHash()) {
-					System.out.println("Conflict at first block!");
-					hasConflict = true;
-				}
-			}
-		}
-
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			System.out.println("All pure heuristic: "
 					+ DebugUtils.debug_pureHeuristicCnt);
@@ -1379,31 +1378,30 @@ public class GraphMerger extends Thread {
 		}
 	}
 
-	public void run() {
-		try {
-			// Before merging, cheat to filter out all the immediate addresses
-			if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
-				AnalysisUtil.filteroutImmeAddr(graph1, graph2);
-			}
-
-			if (DebugUtils.debug) {
-//				AnalysisUtil.outputTagComparisonInfo(graph1, graph2);
-//				return;
-			}
-
-			mergedGraph = mergeGraph();
-			if (hasConflict) {
-				if (graph1.getProgName().equals(graph2.getProgName())) {
-					System.out.println("Wrong match!");
-				}
-			} else {
-				if (!graph1.getProgName().equals(graph2.getProgName())) {
-					System.out.println("Unable to tell difference!");
-				}
-			}
-		} catch (WrongEdgeTypeException e) {
-			e.printStackTrace();
+	public HashMap<String, ModuleGraph> mergeModules() {
+		HashMap<String, ModuleGraph> modName2Graph = new HashMap<String, ModuleGraph>();
+		HashMap<String, ModuleGraph> modules1 = graph1.getModuleGraphs(),
+				modules2 = graph2.getModuleGraphs();
+		if (modules1 == null || modules2 == null) {
+			return null;
 		}
-
+		for (String name : modules1.keySet()) {
+			if (modules2.containsKey(name)) {
+				ModuleGraph module1 = modules1.get(name),
+						module2 = modules2.get(name);
+				ModuleGraphMerger mGraphMerger = new ModuleGraphMerger(module1, module2);
+				try {
+					ModuleGraph mergedGraph = (ModuleGraph) mGraphMerger.mergeGraph();
+					if (mergedGraph == null) {
+						System.out.println("Conflict occurs when matching module " + name + "!");
+					} else {
+						modName2Graph.put(name, mergedGraph);
+					}
+				} catch (WrongEdgeTypeException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return modName2Graph;
 	}
 }
