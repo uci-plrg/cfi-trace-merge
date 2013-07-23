@@ -5,16 +5,26 @@ public class Edge {
 	private EdgeType edgeType;
 	private int ordinal;
 
+	private Long signitureHash = null;
+
 	// Add this filed for debugging reason, cause it provides
 	// more information when debugging
 	private Node fromNode;
+
+	public long getSignitureHash() {
+		return signitureHash;
+	}
 
 	public Node getFromNode() {
 		return fromNode;
 	}
 
 	public String toString() {
-		return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
+		if (edgeType == EdgeType.CrossModule) {
+			return fromNode + "(" + edgeType + ")--" + Long.toHexString(signitureHash) + "-->" + toNode;
+		} else {
+			return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
+		}
 	}
 
 	public Node getToNode() {
@@ -33,6 +43,14 @@ public class Edge {
 		int ordinal = flags % 256;
 		EdgeType edgeType = EdgeType.values()[flags / 256];
 		return ((this.ordinal == ordinal) && (this.edgeType == edgeType));
+	}
+
+	public Edge(Node fromNode, Node toNode, long signitureHash) {
+		this.fromNode = fromNode;
+		this.toNode = toNode;
+		this.edgeType = EdgeType.CrossModule;
+		this.ordinal = 0;
+		this.signitureHash = signitureHash;
 	}
 
 	public Edge(Node fromNode, Node toNode, EdgeType edgeType, int ordinal) {

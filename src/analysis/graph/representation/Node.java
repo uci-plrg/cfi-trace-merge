@@ -12,6 +12,9 @@ public class Node implements NodeList {
 	private ExecutionGraph containingGraph;
 	private long tag, hash;
 
+	// Record the normalized tag of the node
+	private NormalizedTag normalizedTag;
+
 	private ArrayList<Edge> outgoingEdges = new ArrayList<Edge>();
 	private boolean isVisited;
 	// Index in the ArrayList<Node>
@@ -25,7 +28,7 @@ public class Node implements NodeList {
 
 	// Incomming edges, just in case they might be needed
 	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
-	
+
 	public ExecutionGraph getContainingGraph() {
 		return containingGraph;
 	}
@@ -48,6 +51,10 @@ public class Node implements NodeList {
 	@Override
 	public NodeList copy(ExecutionGraph containingGraph) {
 		return new Node(containingGraph, this, true);
+	}
+
+	public NormalizedTag getNormalizedTag() {
+		return normalizedTag;
 	}
 
 	public void addIncomingEdge(Edge e) {
@@ -75,7 +82,7 @@ public class Node implements NodeList {
 
 	private int getContinuationEdgeIndex() {
 		for (int i = 0; i < outgoingEdges.size(); i++) {
-			if (outgoingEdges.get(i).getEdgeType() == EdgeType.Call_Continuation) {
+			if (outgoingEdges.get(i).getEdgeType() == EdgeType.CallContinuation) {
 				return i;
 			}
 		}
@@ -159,7 +166,11 @@ public class Node implements NodeList {
 	}
 
 	public String toString() {
-		return "0x" + Long.toHexString(hash) + ":" + score + "_" + index + " : " + new NormalizedTag(this) + "_" + Long.toHexString(tag);
+		if (metaNodeType != MetaNodeType.SIGNITURE_HASH) {
+			return "0x" + Long.toHexString(hash) + ":" + normalizedTag;
+		} else {
+			return "SIG: 0x" + Long.toHexString(hash);
+		}
 	}
 
 	// Not a deep copy, we don't care about edges...
@@ -179,15 +190,20 @@ public class Node implements NodeList {
 		this.score = anotherNode.score;
 		this.fromWhichGraph = fromWhichGraph;
 		this.metaNodeType = anotherNode.metaNodeType;
+
+		this.normalizedTag = new NormalizedTag(anotherNode);
 	}
 
 	public Node(ExecutionGraph containingGraph, long hash, int index,
-			MetaNodeType metaNodeType) {
+			MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
 		this.tag = -1;
 		this.hash = hash;
 		this.index = index;
 		this.fromWhichGraph = -1;
 		this.metaNodeType = metaNodeType;
+		this.containingGraph = containingGraph;
+
+		this.normalizedTag = normalizedTag;
 	}
 
 	public Node(ExecutionGraph containingGraph, long tag, long hash, int index,
@@ -198,11 +214,16 @@ public class Node implements NodeList {
 		this.isVisited = false;
 		this.metaNodeType = metaNodeType;
 		this.containingGraph = containingGraph;
+
+		this.normalizedTag = new NormalizedTag(this);
 	}
 
 	public Node(ExecutionGraph containingGraph, long tag) {
+		this.containingGraph = containingGraph;
 		this.tag = tag;
 		isVisited = false;
+
+		this.normalizedTag = new NormalizedTag(this);
 	}
 
 	private Node(ExecutionGraph containingGraph, Node source,
@@ -215,6 +236,8 @@ public class Node implements NodeList {
 		// outgoingEdges.addAll(source.outgoingEdges);
 		isVisited = false;
 		metaNodeType = source.metaNodeType;
+
+		this.normalizedTag = new NormalizedTag(this);
 	}
 
 	/**

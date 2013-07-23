@@ -1,6 +1,37 @@
 package analysis.graph.representation;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashSet;
+
 public class ModuleDescriptor implements Comparable {
+	// The file that contains all the core modules known already
+	public static final String CORE_MODULE_FILE = "./config/core_modules.txt";
+	
+	public static HashSet<String> coreModuleNames;
+	
+	// Initialize the coreModuleNames set
+	static {
+		coreModuleNames = new HashSet<String>();
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(CORE_MODULE_FILE));
+			String line;
+			try {
+				while ((line = br.readLine()) != null) {
+					coreModuleNames.add(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public final String name;
 	public final long beginAddr, endAddr;
 

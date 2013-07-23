@@ -166,7 +166,7 @@ public class GraphMergingInfo {
 
 	public static void dumpGraph(ExecutionGraph graph, String fileName,
 			HashSet<Long> interSet) {
-		System.out.println("Trying to dump the graph for " + graph + ":");
+		System.out.println("Dump the graph for " + graph + " to " + fileName);
 		File file = new File(fileName);
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdirs();
@@ -192,11 +192,16 @@ public class GraphMergingInfo {
 
 		try {
 			pwDotFile = new PrintWriter(fileName);
+			
+			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-
+			HashSet<Node> accessibleNodes = graph.getAccessibleNodes();
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				pwNodeFile.println(Long.toHexString(graph.getNodes().get(i)
-						.getHash()));
+				Node n = graph.getNodes().get(i);
+				if (!accessibleNodes.contains(n)) {
+					pwNodeFile.println(n);
+				}
+				
 			}
 
 			pwDotFile.println("digraph runGraph {");
@@ -205,12 +210,7 @@ public class GraphMergingInfo {
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {
 				Node n = graph.getNodes().get(i);
-				String newStr = "";
-				if (!interSet.contains(n.getHash())) {
-					newStr = "_n";
-				}
-				pwDotFile.println(i + "[label=\""
-						+ Long.toHexString(n.getHash()) + newStr + "\"]");
+				pwDotFile.println(i + "[label=\"" + n + "\"]");
 
 				ArrayList<Edge> edges = graph.getNodes().get(i)
 						.getOutgoingEdges();
@@ -223,20 +223,29 @@ public class GraphMergingInfo {
 					case Direct:
 						branchType = "d";
 						break;
-					case Call_Continuation:
+					case CallContinuation:
 						branchType = "c";
 						break;
-					case Unexpected_Return:
+					case UnexpectedReturn:
 						branchType = "u";
+						break;
+					case CrossModule:
+						branchType = "x";
 						break;
 					default:
 						branchType = "";
 						break;
 					}
-
-					pwDotFile.println(i + "->" + e.getToNode().getIndex()
-							+ "[label=\"" + branchType + "_" + e.getOrdinal()
-							+ "\"]");
+					String edgeLabel = i + "->" + e.getToNode().getIndex()
+							+ "[label=\"" + branchType + "_";
+					if (e.getEdgeType() == EdgeType.CrossModule) {
+						edgeLabel = edgeLabel
+								+ e.getFromNode().getNormalizedTag() + "->"
+								+ e.getToNode().getNormalizedTag() + "\"]";
+					} else {
+						edgeLabel = edgeLabel + e.getOrdinal() + "\"]";
+					}
+					pwDotFile.println(edgeLabel);
 				}
 			}
 
@@ -251,7 +260,7 @@ public class GraphMergingInfo {
 			pwDotFile.close();
 		if (pwNodeFile != null)
 			pwNodeFile.close();
-
+		System.out.println("Finish dumping the graph for " + graph + ".");
 	}
 
 	public static void dumpHashCollision(ExecutionGraph graph) {

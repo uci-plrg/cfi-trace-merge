@@ -55,8 +55,8 @@ public class GraphMerger extends Thread {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
-			for (int i = 1; i <= 1; i++) {
-				for (int j = 2; j <= 2; j++) {
+			for (int i = 0; i <= 0; i++) {
+				for (int j = 10; j <= 10; j++) {
 					if (i == j) {
 						continue;
 					}
@@ -247,7 +247,7 @@ public class GraphMerger extends Thread {
 						continue;
 					}
 					// This case was considered previously
-					if (e1.getEdgeType() == EdgeType.Call_Continuation) {
+					if (e1.getEdgeType() == EdgeType.CallContinuation) {
 						continue;
 					}
 					if (e1.getEdgeType() == EdgeType.Direct) {
@@ -395,7 +395,7 @@ public class GraphMerger extends Thread {
 						continue;
 					}
 					// This case was considered previously
-					if (e1.getEdgeType() == EdgeType.Call_Continuation) {
+					if (e1.getEdgeType() == EdgeType.CallContinuation) {
 						continue;
 					}
 					if (e1.getEdgeType() == EdgeType.Direct) {
@@ -841,7 +841,7 @@ public class GraphMerger extends Thread {
 		// Copy nodes from G1
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
 			Node n1 = graph1.getNodes().get(i);
-			Node n = mergedGraph.addNode(n1.getHash(), n1.getMetaNodeType());
+			Node n = mergedGraph.addNode(n1.getHash(), n1.getMetaNodeType(), new NormalizedTag(n1));
 
 			if (matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
 				n.setFromWhichGraph(0);
@@ -872,7 +872,7 @@ public class GraphMerger extends Thread {
 			Node n2 = graph2.getNodes().get(i);
 			if (!matchedNodes.containsKeyBySecondIndex(n2.getIndex())) {
 				Node n = mergedGraph
-						.addNode(n2.getHash(), n2.getMetaNodeType());
+						.addNode(n2.getHash(), n2.getMetaNodeType(), new NormalizedTag(n2));
 				nodesFromG2.put(n2.getIndex(), n.getIndex());
 			}
 		}
@@ -1139,7 +1139,7 @@ public class GraphMerger extends Thread {
 					// Find out the next matched node
 					// Prioritize direct edge and call continuation edge
 					Node childNode1;
-					if ((e.getEdgeType() == EdgeType.Direct || e.getEdgeType() == EdgeType.Call_Continuation)) {
+					if ((e.getEdgeType() == EdgeType.Direct || e.getEdgeType() == EdgeType.CallContinuation)) {
 						childNode1 = getCorrespondingDirectChildNode(n1, e);
 
 						if (childNode1 != null) {

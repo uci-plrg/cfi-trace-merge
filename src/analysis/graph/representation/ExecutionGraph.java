@@ -22,10 +22,10 @@ import analysis.exception.graph.TagNotFoundException;
 import analysis.graph.debug.DebugUtils;
 
 public class ExecutionGraph {
-	private HashSet<Long> pairHashes;
-	private HashSet<Long> blockHashes;
-	private ArrayList<Long> pairHashInstances;
-	private ArrayList<Long> blockHashInstances;
+	protected HashSet<Long> pairHashes;
+	protected HashSet<Long> blockHashes;
+	protected ArrayList<Long> pairHashInstances;
+	protected ArrayList<Long> blockHashInstances;
 
 	// This field is used to normalize the tag in a single graph
 	private ArrayList<ModuleDescriptor> modules;
@@ -41,14 +41,14 @@ public class ExecutionGraph {
 	private int pid;
 
 	// False means that the file doesn't exist or is in wrong format
-	private boolean isValidGraph = true;
+	protected boolean isValidGraph = true;
 
 	// nodes in an array in the read order from file
-	private ArrayList<Node> nodes;
+	protected ArrayList<Node> nodes;
 
 	// Map from hash to ArrayList<Node>,
 	// which also helps to find out the hash collisions
-	private NodeHashMap hash2Nodes;
+	protected NodeHashMap hash2Nodes;
 
 	public String toString() {
 		return progName + pid;
@@ -139,8 +139,8 @@ public class ExecutionGraph {
 
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public Node addNode(long hash, MetaNodeType metaNodeType) {
-		Node n = new Node(this, hash, nodes.size(), metaNodeType);
+	public Node addNode(long hash, MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
+		Node n = new Node(this, hash, nodes.size(), metaNodeType, normalizedTag);
 		nodes.add(n);
 		hash2Nodes.add(n);
 		return n;
@@ -195,12 +195,20 @@ public class ExecutionGraph {
 	 *            </p>
 	 */
 	public ExecutionGraph(ArrayList<String> intraModuleEdgeFiles,
-			String crossModuleEdgeFile, ArrayList<String> lookupFiles) {
+			String crossModuleEdgeFile, ArrayList<String> lookupFiles,
+			String moduleFile) {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
 		this.progName = AnalysisUtil.getProgName(intraModuleEdgeFiles.get(0));
 		this.runDir = AnalysisUtil.getRunStr(intraModuleEdgeFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(intraModuleEdgeFiles.get(0));
+
+		// Read the modules from file
+		try {
+			modules = AnalysisUtil.getModules(moduleFile);
+		} catch (OverlapModuleException e) {
+			e.printStackTrace();
+		}
 
 		// The edges of the graph comes with an ordinal
 		HashMap<Long, Node> hashLookupTable;
@@ -213,7 +221,7 @@ public class ExecutionGraph {
 
 			// Since the vertices will never change once the graph is created
 			nodes.trimToSize();
-			
+
 		} catch (InvalidTagException e) {
 			System.out.println("This is not a valid graph!!!");
 			isValidGraph = false;
@@ -374,7 +382,8 @@ public class ExecutionGraph {
 	}
 
 	public void readCrossModuleEdges(String crossModuleEdgeFile,
-			HashMap<Long, Node> hashLookupTable) throws MultipleEdgeException, InvalidTagException, TagNotFoundException {
+			HashMap<Long, Node> hashLookupTable) throws MultipleEdgeException,
+			InvalidTagException, TagNotFoundException {
 		File file = new File(crossModuleEdgeFile);
 		FileInputStream fileIn = null;
 		ByteBuffer buffer = ByteBuffer.allocate(0x8);
@@ -390,21 +399,16 @@ public class ExecutionGraph {
 				buffer.flip();
 				long tag1 = buffer.getLong();
 				buffer.compact();
-				int flags = getEdgeFlag(tag1);
-				tag1 = getTagEffectiveValue(tag1);
 
 				channel.read(buffer);
 				buffer.flip();
-				long tag2Original = buffer.getLong();
+				long tag2 = buffer.getLong();
 				buffer.compact();
-				long tag2 = getTagEffectiveValue(tag2Original);
-				if (tag2 != tag2Original) {
-					if (DebugUtils.ThrowInvalidTag) {
-						throw new InvalidTagException("Tag 0x"
-								+ Long.toHexString(tag2Original)
-								+ " has more than 6 bytes");
-					}
-				}
+
+				channel.read(buffer);
+				buffer.flip();
+				long signitureHash = buffer.getLong();
+				buffer.compact();
 
 				Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
 						.get(tag2);
@@ -431,20 +435,18 @@ public class ExecutionGraph {
 				}
 
 				Edge existing = node1.getOutgoingEdge(node2);
+				Edge e = new Edge(node1, node2, signitureHash);
+				
 				if (existing == null) {
-					Edge e = new Edge(node1, node2, flags);
+					// Might have a better way to store the cross-module edges
 					node1.addOutgoingEdge(e);
 					node2.addIncomingEdge(e);
-				} else {
-					if (!existing.hasFlags(flags)) {
-						String msg = "Multiple edges:\n" + "Edge1: "
-								+ node1.getHash() + "->" + node2.getHash()
-								+ ": " + existing.getToNode() + "Edge2: "
-								+ node1.getHash() + "->" + node2.getHash()
-								+ ": " + flags;
-						if (DebugUtils.ThrowMultipleEdge) {
-							throw new MultipleEdgeException(msg);
-						}
+				} else if (existing.getSignitureHash() != signitureHash) {
+					String msg = "Multiple cross module edges:\n"
+							+ "Existing edge: " + e + "\n" 
+							+ "New edge: " + existing + "\n";
+					if (DebugUtils.ThrowMultipleEdge) {
+						throw new MultipleEdgeException(msg);
 					}
 				}
 			}
@@ -608,21 +610,14 @@ public class ExecutionGraph {
 
 			ArrayList<String> lookupFiles = pid2LookupFiles.get(pid), intraModuleEdgeFiles = pid2IntraModuleEdgeFiles
 					.get(pid);
-			String crossModuleEdgeFile = pid2CrossModuleEdgeFile.get(pid);
+			String crossModuleEdgeFile = pid2CrossModuleEdgeFile.get(pid), moduleFile = pid2ModuleFile
+					.get(pid);
 			if (lookupFiles.size() == 0)
 				continue;
 			String possibleProgName = AnalysisUtil.getProgName(lookupFiles
 					.get(0));
 			ExecutionGraph graph = new ExecutionGraph(intraModuleEdgeFiles,
-					crossModuleEdgeFile, lookupFiles);
-
-			// Read the modules from file
-			try {
-				graph.modules = AnalysisUtil
-						.getModules(pid2ModuleFile.get(pid));
-			} catch (OverlapModuleException e) {
-				e.printStackTrace();
-			}
+					crossModuleEdgeFile, lookupFiles, moduleFile);
 
 			// Initialize the relativeTag2Node hashtable
 			// This is only used for debugging so far
@@ -670,8 +665,8 @@ public class ExecutionGraph {
 		return graphs;
 	}
 
-	public ArrayList<Node> getAccessibleNodes() {
-		ArrayList<Node> accessibleNodes = new ArrayList<Node>();
+	public HashSet<Node> getAccessibleNodes() {
+		HashSet<Node> accessibleNodes = new HashSet<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			nodes.get(i).resetVisited();
 		}
