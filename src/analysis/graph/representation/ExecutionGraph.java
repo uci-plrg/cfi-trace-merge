@@ -58,10 +58,7 @@ import analysis.graph.debug.DebugUtils;
  */
 
 public class ExecutionGraph {
-	protected HashSet<Long> pairHashes;
 	protected HashSet<Long> blockHashes;
-	protected ArrayList<Long> pairHashInstances;
-	protected ArrayList<Long> blockHashInstances;
 
 	// Represents the list of core modules
 	private HashMap<String, ModuleGraph> moduleGraphs;
@@ -73,8 +70,6 @@ public class ExecutionGraph {
 	// only for the sake of debugging and analysis
 	public HashMap<NormalizedTag, Node> normalizedTag2Node;
 
-	protected String pairHashFile;
-	protected String blockHashFile;
 	protected String runDir;
 	protected String progName;
 	protected int pid;
@@ -118,13 +113,8 @@ public class ExecutionGraph {
 
 	// FIXME: Deep copy of a graph
 	public ExecutionGraph(ExecutionGraph anotherGraph) {
-		pairHashes = anotherGraph.pairHashes;
 		blockHashes = anotherGraph.blockHashes;
-		pairHashInstances = anotherGraph.pairHashInstances;
-		blockHashInstances = anotherGraph.blockHashInstances;
 
-		pairHashFile = anotherGraph.pairHashFile;
-		blockHashFile = anotherGraph.blockHashFile;
 		runDir = anotherGraph.runDir;
 		progName = anotherGraph.progName;
 		pid = anotherGraph.pid;
@@ -159,37 +149,12 @@ public class ExecutionGraph {
 
 		// Make sure the reachable field is set after being copied, might be
 		// redundant
-		setReachableNodes();
-	}
-
-	/**
-	 * Traverse the graph to decide if each node is reachable from the entry
-	 * node. This method must be called after the graph has been constructed.
-	 */
-	private void setReachableNodes() {
-		for (int i = 0; i < nodes.size(); i++) {
-			nodes.get(i).resetVisited();
-			nodes.get(i).setReachable(false);
-		}
-		Queue<Node> bfsQueue = new LinkedList<Node>();
-		bfsQueue.add(nodes.get(0));
-		nodes.get(0).setVisited();
-		while (bfsQueue.size() > 0) {
-			Node n = bfsQueue.remove();
-			n.setReachable(true);
-			for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
-				Node neighbor = n.getOutgoingEdges().get(i).getToNode();
-				if (!neighbor.isVisited()) {
-					bfsQueue.add(neighbor);
-					neighbor.setVisited();
-				}
-			}
-		}
 	}
 
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public Node addNode(long hash, MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
+	public Node addNode(long hash, MetaNodeType metaNodeType,
+			NormalizedTag normalizedTag) {
 		Node n = new Node(this, hash, nodes.size(), metaNodeType, normalizedTag);
 		nodes.add(n);
 
@@ -223,16 +188,8 @@ public class ExecutionGraph {
 		blockHashes.addAll(anotherGraph.blockHashes);
 	}
 
-	public void addPairHash(ExecutionGraph anotherGraph) {
-		pairHashes.addAll(anotherGraph.pairHashes);
-	}
-
 	public HashSet<Long> getBlockHashes() {
 		return blockHashes;
-	}
-
-	public HashSet<Long> getPairHashes() {
-		return pairHashes;
 	}
 
 	/**
@@ -246,7 +203,6 @@ public class ExecutionGraph {
 		hash2Nodes = new NodeHashMap();
 		signature2Node = new HashMap<Long, Node>();
 		blockHashes = new HashSet<Long>();
-		pairHashes = new HashSet<Long>();
 	}
 
 	/**
@@ -275,6 +231,8 @@ public class ExecutionGraph {
 		moduleGraphs = new HashMap<String, ModuleGraph>();
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
+		blockHashes = new HashSet<Long>();
+		
 		this.progName = AnalysisUtil.getProgName(intraModuleEdgeFiles.get(0));
 		this.runDir = AnalysisUtil.getRunStr(intraModuleEdgeFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(intraModuleEdgeFiles.get(0));
@@ -297,7 +255,6 @@ public class ExecutionGraph {
 
 			// Since the vertices will never change once the graph is created
 			nodes.trimToSize();
-
 		} catch (InvalidTagException e) {
 			System.out.println("This is not a valid graph!!!");
 			isValidGraph = false;
@@ -313,7 +270,6 @@ public class ExecutionGraph {
 		}
 
 		// Some other initialization and sanity checks
-		setReachableNodes();
 		validate();
 		if (!isValidGraph) {
 			System.out.println("Pid " + pid + " is not a valid graph!");
@@ -401,12 +357,14 @@ public class ExecutionGraph {
 							.contains(nodeModuleName)) {
 						if (!moduleGraphs.containsKey(nodeModuleName)) {
 							moduleGraphs.put(nodeModuleName, new ModuleGraph(
-									nodeModuleName));
+									nodeModuleName, pid, modules));
 						}
 						ModuleGraph moduleGraph = moduleGraphs
 								.get(nodeModuleName);
 						moduleGraph.addModuleNode(node);
+						moduleGraph.blockHashes.add(node.getHash());
 					} else {
+						blockHashes.add(node.getHash());
 						nodes.add(node);
 						// Add it the the hash2Nodes mapping
 						hash2Nodes.add(node);
@@ -647,7 +605,7 @@ public class ExecutionGraph {
 
 					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
 							.get(tag2);
-					
+
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
@@ -670,16 +628,19 @@ public class ExecutionGraph {
 							continue;
 						}
 					}
-					
-					if (node1.getHash() == Long.valueOf("1635d6954a", 16)) {
+
+					if (node1.getHash() == Long.valueOf("65d58c0d8d34455a", 16)
+							&& node2.getHash() == Long.valueOf("2013ccd675e", 16)) {
 						System.out.println();
 					}
-					
-					// If one of the node locates in the "unknown" module, simply
+
+					// If one of the node locates in the "unknown" module,
+					// simply
 					// discard those edges
 					String node1ModName = AnalysisUtil.getModuleName(node1), node2ModName = AnalysisUtil
 							.getModuleName(node2);
-					if (node1ModName.equals("Unknown") || node2ModName.equals("Unknown")) {
+					if (node1ModName.equals("Unknown")
+							|| node2ModName.equals("Unknown")) {
 						continue;
 					}
 
@@ -786,16 +747,6 @@ public class ExecutionGraph {
 			}
 
 			// Initialize hash files and hash sets
-			graph.pairHashFile = pid2PairHashFile.get(pid);
-			graph.blockHashFile = pid2BlockHashFile.get(pid);
-			graph.pairHashes = AnalysisUtil.getSetFromPath(graph.pairHashFile);
-			graph.blockHashes = AnalysisUtil
-					.getSetFromPath(graph.blockHashFile);
-			graph.pairHashInstances = AnalysisUtil
-					.getAllHashInstanceFromPath(graph.pairHashFile);
-			graph.blockHashInstances = AnalysisUtil
-					.getAllHashInstanceFromPath(graph.blockHashFile);
-
 			graph.progName = possibleProgName;
 			graph.pid = pid;
 
@@ -818,18 +769,6 @@ public class ExecutionGraph {
 		return graphs;
 	}
 
-	public ArrayList<Node> getUnaccessibleNodes() {
-		HashSet<Node> accessibleNodes = getAccessibleNodes();
-		ArrayList<Node> unaccessibleNodes = new ArrayList<Node>();
-		for (int i = 0; i < nodes.size(); i++) {
-			Node n = nodes.get(i);
-			if (!accessibleNodes.contains(n)) {
-				unaccessibleNodes.add(n);
-			}
-		}
-		return unaccessibleNodes;
-	}
-
 	public HashSet<Node> getAccessibleNodes() {
 		HashSet<Node> accessibleNodes = new HashSet<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
@@ -838,6 +777,12 @@ public class ExecutionGraph {
 		Queue<Node> bfsQueue = new LinkedList<Node>();
 		for (long sigHash : signature2Node.keySet()) {
 			bfsQueue.add(signature2Node.get(sigHash));
+		}
+		if (this instanceof ModuleGraph) {
+			ModuleGraph mGraph = (ModuleGraph) this;
+			if (mGraph.moduleName.startsWith("ntdll.dll-")) {
+				bfsQueue.add(nodes.get(0));
+			}
 		}
 
 		while (bfsQueue.size() > 0) {

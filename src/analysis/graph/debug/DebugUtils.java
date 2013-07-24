@@ -37,7 +37,7 @@ public class DebugUtils {
 	public static final int DUMP_MODIFIED_HASH = 0x1 << 8;
 	public static final int FILTER_OUT_IMME_ADDR = 0x1 << 9;
 
-	public static final String SCORE_FILE_DIR = "./scores/";
+	public static final String SCORE_FILE_DIR = "/scratch/cs-analysis-output/scores/";
 	private static PrintWriter scorePW = null;
 
 	public static final String MODIFIED_HASH_DIR = "./imme-addr/";
@@ -61,7 +61,7 @@ public class DebugUtils {
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
 
-	public static final String TMP_HASHLOG_DIR = "/scratch/hashlogs/cryton-hexedit-cross-module";
+	public static final String TMP_HASHLOG_DIR = "/scratch/hashlogs/cross-module";
 	public static final String GRAPH_DIR = "/scratch/cs-analysis-output/graph-files/";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
@@ -79,7 +79,7 @@ public class DebugUtils {
 	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
 			MAIN_KNOWN);
 
-	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | FILTER_OUT_IMME_ADDR;
+	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0 | FILTER_OUT_IMME_ADDR | OUTPUT_SCORE;
 	// public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0;
 
 	public static boolean debug = true;

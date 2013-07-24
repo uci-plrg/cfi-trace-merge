@@ -15,3 +15,6 @@
 	 
 	 tex -interaction=batchmode -output-directory=/scratch/crowd-safe-test-data/output/development/latex -mltex -ini -jobname=/scratch/crowd-safe-test-data/input/latex/gentle.tex /scratch/crowd-safe-test-data/input/latex/gentle.tex
 
+
+07/24/13
+1. Next step should be to figure out the special entry nodes, e.g., main module entry, dll main, thread entry...

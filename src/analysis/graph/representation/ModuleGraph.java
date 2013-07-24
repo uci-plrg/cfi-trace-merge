@@ -38,10 +38,14 @@ public class ModuleGraph extends ExecutionGraph {
 		this.nodes = new ArrayList<Node>();
 
 		// These fields are all redundant for the purpose of debugging
-		this.pairHashes = new HashSet<Long>();
 		this.blockHashes = new HashSet<Long>();
-		this.pairHashInstances = new ArrayList<Long>();
-		this.blockHashInstances = new ArrayList<Long>();
+		this.normalizedTag2Node = new HashMap<NormalizedTag, Node>();
+	}
+	
+	public ModuleGraph(String moduleName, int pid, ArrayList<ModuleDescriptor> modules) {
+		this(moduleName);
+		this.pid = pid;
+		this.modules = modules;
 	}
 
 	/**
@@ -79,6 +83,7 @@ public class ModuleGraph extends ExecutionGraph {
 	 * @param n
 	 */
 	public void addModuleNode(Node n) {
+		normalizedTag2Node.put(n.getNormalizedTag(), n);
 		MetaNodeType type = n.getMetaNodeType();
 		if (type == MetaNodeType.MODULE_BOUNDARY) {
 			addModuleBoundaryNode(n);
@@ -94,7 +99,6 @@ public class ModuleGraph extends ExecutionGraph {
 		nodes.add(n);
 		hash2Nodes.add(n);
 		blockHashes.add(n.getHash());
-		blockHashInstances.add(n.getHash());
 	}
 
 	private void addModuleBoundaryNode(Node n) {
@@ -104,7 +108,6 @@ public class ModuleGraph extends ExecutionGraph {
 		newNode.setIndex(nodes.size());
 		nodes.add(newNode);
 
-		blockHashInstances.add(newNode.getHash());
 		blockHashes.add(newNode.getHash());
 	}
 

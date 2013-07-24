@@ -109,6 +109,10 @@ public class GraphMergingInfo {
 				+ graph2.getBlockHashes().size() + ":" + interHashSize + "/"
 				+ totalHashSize);
 		System.out.println("Merged nodes: " + matchedNodes.size());
+		System.out.println("Graph1 nodes: " + graph1.getNodes().size());
+		System.out.println("Graph2 nodes: " + graph2.getNodes().size());
+		System.out.println("Total nodes: " + totalNodeSize);
+		
 		System.out.println("Merged nodes / G1 nodes: "
 				+ (float) matchedNodes.size() / graph1.getNodes().size());
 		System.out.println("Merged nodes / G2 nodes: "

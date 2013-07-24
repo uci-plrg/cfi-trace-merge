@@ -179,8 +179,8 @@ public class SpeculativeScoreList {
 							}
 							int score = graphMerger.debug_getContextSimilarity(
 									trueNode1, node2, depth);
-							System.out.println("Score: " + score + " -- "
-									+ depth);
+//							System.out.println("Score: " + score + " -- "
+//									+ depth);
 							if (score == -1) {
 								System.out.println("bad!");
 							} else if (score == 1) {

@@ -145,8 +145,6 @@ public class GraphMerger {
 			this.graph2 = graph1;
 		}
 
-		HashSet<Long> interSet = AnalysisUtil.intersection(
-				graph1.getBlockHashes(), graph2.getBlockHashes());
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
 			GraphMergingInfo.dumpGraph(
 					graph1,
@@ -228,7 +226,6 @@ public class GraphMerger {
 		}
 		Node trueNode1 = AnalysisUtil.getTrueMatch(graph1, graph2, node2);
 		if (node1.equals(trueNode1)) {
-			System.out.println(node1.getIndex() + "<=>" + node2.getIndex());
 			return 1;
 		}
 
@@ -244,7 +241,7 @@ public class GraphMerger {
 				return 0;
 			}
 		}
-		System.out.println(node1.getIndex() + "<=>" + node2.getIndex());
+
 		int res = -1;
 		// First consider the CallContinuation edge
 		Edge e1, e2;
@@ -873,13 +870,11 @@ public class GraphMerger {
 
 		// Get an empty new graph to copy nodes and edges
 		ExecutionGraph mergedGraph;
-		if ((graph1 instanceof ModuleGraph)
-				&& (graph2 instanceof ModuleGraph)) {
+		if ((graph1 instanceof ModuleGraph) && (graph2 instanceof ModuleGraph)) {
 			mergedGraph = new ModuleGraph(((ModuleGraph) graph1).moduleName);
 		} else {
 			mergedGraph = new ExecutionGraph();
 		}
-		
 
 		// The program name does not mean anything essentially
 		// It's only done for convenience
@@ -910,11 +905,12 @@ public class GraphMerger {
 				Edge e1 = n1.getOutgoingEdges().get(j);
 				Node newFromNode = mergedGraph.getNodes().get(
 						e1.getFromNode().getIndex());
-				if (e1.getToNode().getIndex() == 6328) {
-					System.out.println();
+				if (e1.getToNode().getIndex() == 75329) {
+					System.out.println(e1.getFromNode());
+					System.out.println(e1.getToNode());
 				}
-				Node newToNode = mergedGraph
-						.getNodes().get(e1.getToNode().getIndex());
+				Node newToNode = mergedGraph.getNodes().get(
+						e1.getToNode().getIndex());
 				Edge newEdge = new Edge(newFromNode, newToNode,
 						e1.getEdgeType(), e1.getOrdinal());
 				newFromNode.addOutgoingEdge(newEdge);
@@ -942,8 +938,6 @@ public class GraphMerger {
 		// Update block hashes and pair hashes
 		mergedGraph.addBlockHash(graph1);
 		mergedGraph.addBlockHash(graph2);
-		mergedGraph.addPairHash(graph1);
-		mergedGraph.addPairHash(graph2);
 
 		return mergedGraph;
 	}
@@ -1070,17 +1064,6 @@ public class GraphMerger {
 	 * Setup before matching the two graphs.
 	 */
 	protected boolean preMergeGraph() {
-		// Merge based on the similarity of the first node ---- sanity check!
-		if (graph1.getNodes().get(0).getHash() != graph2.getNodes().get(0)
-				.getHash()) {
-			System.out.println("In execution " + graph1.getProgName()
-					+ graph1.getPid() + " & " + graph2.getProgName()
-					+ graph2.getPid());
-			System.out
-					.println("First node not the same, so wired and I can't merge...");
-			return false;
-		}
-
 		// Reset isVisited field
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node n = graph2.getNodes().get(i);
@@ -1113,6 +1096,10 @@ public class GraphMerger {
 				PairNode pairNode = new PairNode(n1, n2, 0);
 				matchedQueue.add(pairNode);
 				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
+				
+				if (DebugUtils.debug) {
+					AnalysisUtil.outputIndirectNodesInfo(n1, n2);
+				}
 
 				if (DebugUtils.debug) {
 					DebugUtils.debug_matchingTrace
@@ -1316,11 +1303,12 @@ public class GraphMerger {
 								.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 							// Print out indirect nodes that must be decided by
 							// heuristic
-							System.out.println("Indirect: "
+							System.out.print("Indirect: "
 									+ childNode1.getIndex() + "<->"
 									+ e.getToNode().getIndex() + "(by "
 									+ parentNode1.getIndex() + "<->"
 									+ parentNode2.getIndex() + ")");
+							System.out.println();
 						}
 					}
 				} else {
@@ -1421,6 +1409,22 @@ public class GraphMerger {
 		}
 	}
 
+	/**
+	 * By cheating (knowing the normalized tags), we can evaluate how good the
+	 * matching is. It considers mismatching (nodes should not be matched have
+	 * been matched) and unmatching (nodes should be matched have not been
+	 * matched).
+	 */
+	protected void evaluateMatching() {
+
+	}
+
+	/**
+	 * This should be called after matching the main modules, and the
+	 * ModuleGraphMerger should not call this function
+	 * 
+	 * @return
+	 */
 	public HashMap<String, ModuleGraph> mergeModules() {
 		HashMap<String, ModuleGraph> modName2Graph = new HashMap<String, ModuleGraph>();
 		HashMap<String, ModuleGraph> modules1 = graph1.getModuleGraphs(), modules2 = graph2

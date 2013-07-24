@@ -408,16 +408,6 @@ public class CompleteExecutionGraph extends ExecutionGraph {
 			}
 
 			// Initialize hash files and hash sets
-			graph.pairHashFile = pid2PairHashFile.get(pid);
-			graph.blockHashFile = pid2BlockHashFile.get(pid);
-			graph.pairHashes = AnalysisUtil.getSetFromPath(graph.pairHashFile);
-			graph.blockHashes = AnalysisUtil
-					.getSetFromPath(graph.blockHashFile);
-			graph.pairHashInstances = AnalysisUtil
-					.getAllHashInstanceFromPath(graph.pairHashFile);
-			graph.blockHashInstances = AnalysisUtil
-					.getAllHashInstanceFromPath(graph.blockHashFile);
-
 			graph.progName = possibleProgName;
 			graph.pid = pid;
 

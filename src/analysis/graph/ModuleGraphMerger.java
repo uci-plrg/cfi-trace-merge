@@ -3,6 +3,8 @@ package analysis.graph;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import utils.AnalysisUtil;
+
 import analysis.graph.debug.DebugUtils;
 import analysis.graph.debug.MatchingInstance;
 import analysis.graph.debug.MatchingType;
@@ -18,6 +20,17 @@ public class ModuleGraphMerger extends GraphMerger {
 	public ModuleGraphMerger(ModuleGraph graph1, ModuleGraph graph2) {
 		this.graph1 = graph1;
 		this.graph2 = graph2;
+
+		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
+			GraphMergingInfo.dumpGraph(
+					graph1,
+					DebugUtils.GRAPH_DIR + graph1.getProgName() + "_"
+							+ graph1.getPid() + ".dot");
+			GraphMergingInfo.dumpGraph(
+					graph2,
+					DebugUtils.GRAPH_DIR + graph2.getProgName() + "_"
+							+ graph2.getPid() + ".dot");
+		}
 	}
 
 	public boolean preMergeGraph() {
@@ -44,6 +57,11 @@ public class ModuleGraphMerger extends GraphMerger {
 		unmatchedQueue = new LinkedList<PairNode>();
 		indirectChildren = new LinkedList<PairNodeEdge>();
 
+		// Initialize debugging info before merging the graph
+		if (DebugUtils.debug) {
+			DebugUtils.debug_init();
+		}
+
 		HashMap<Long, Node> graph1Sig2Node = mGraph1.getSigature2Node(), graph2Sig2Node = mGraph2
 				.getSigature2Node();
 		for (long sigHash : graph1Sig2Node.keySet()) {
@@ -56,9 +74,14 @@ public class ModuleGraphMerger extends GraphMerger {
 				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
 
 				if (DebugUtils.debug) {
+					AnalysisUtil.outputIndirectNodesInfo(n1, n2);
+				}
+
+				if (DebugUtils.debug) {
 					DebugUtils.debug_matchingTrace
 							.addInstance(new MatchingInstance(0, n1.getIndex(),
-									n2.getIndex(), MatchingType.SignatureNode, -1));
+									n2.getIndex(), MatchingType.SignatureNode,
+									-1));
 				}
 			}
 		}

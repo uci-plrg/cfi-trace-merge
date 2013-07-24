@@ -23,6 +23,7 @@ import java.util.HashSet;
 
 import analysis.exception.graph.OverlapModuleException;
 import analysis.graph.debug.DebugUtils;
+import analysis.graph.representation.Edge;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.ModuleDescriptor;
 import analysis.graph.representation.Node;
@@ -399,6 +400,10 @@ public class AnalysisUtil {
 					String name;
 					long beginAddr, endAddr;
 					
+					if (!line.startsWith("Loaded")) {
+						continue;
+					}
+					
 					// Should change the index correspondingly if the
 					// module file format is changed
 					beginIdx = line.indexOf(" ");
@@ -417,7 +422,9 @@ public class AnalysisUtil {
 
 					ModuleDescriptor mod = new ModuleDescriptor(name,
 							beginAddr, endAddr);
-					res.add(mod);
+					if (!res.contains(mod)) {
+						res.add(mod);
+					}
 				}
 				// Check if there is any overlap between different modules
 				for (int i = 0; i < res.size(); i++) {
@@ -578,6 +585,39 @@ public class AnalysisUtil {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Input node n1 and n2 are matched nodes and they have indirect outgoing
+	 * edges. This function analyzes how difficult it is to match its indirect
+	 * outgoing nodes according the hash collision of those nodes.
+	 * @param n1
+	 * @param n2
+	 */
+	public static void outputIndirectNodesInfo(Node n1, Node n2) {
+		System.out.println("Start indirect node pair info output: " + n1 + " & " + n2);
+		HashMap<Long, Integer> hash2CollisionCnt = new HashMap<Long, Integer>();
+		for (int i = 0; i < n1.getOutgoingEdges().size(); i++) {
+			long hash = n1.getOutgoingEdges().get(i).getToNode().getHash();
+			if (!hash2CollisionCnt.containsKey(hash)) {
+				hash2CollisionCnt.put(hash, 0);
+			}
+			hash2CollisionCnt.put(hash, hash2CollisionCnt.get(hash) + 1);
+		}
+		for (int i = 0; i < n2.getOutgoingEdges().size(); i++) {
+			long hash = n2.getOutgoingEdges().get(i).getToNode().getHash();
+			if (!hash2CollisionCnt.containsKey(hash)) {
+				hash2CollisionCnt.put(hash, 0);
+			}
+			hash2CollisionCnt.put(hash, hash2CollisionCnt.get(hash) + 1);
+		}
+		for (long hash : hash2CollisionCnt.keySet()) {
+			int cnt = hash2CollisionCnt.get(hash);
+			if (cnt > 2) {
+				System.out.println(Long.toHexString(hash) + ": " + cnt);
+			}
+		}
+		System.out.println("Finish indirect node pair info output.");
 	}
 
 	public static long getRelativeTag(ExecutionGraph graph, long tag) {
