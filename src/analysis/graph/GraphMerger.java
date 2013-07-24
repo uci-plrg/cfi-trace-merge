@@ -12,6 +12,7 @@ import analysis.exception.graph.WrongEdgeTypeException;
 import analysis.graph.debug.DebugUtils;
 import analysis.graph.debug.MatchingInstance;
 import analysis.graph.debug.MatchingType;
+import analysis.graph.representation.CompleteExecutionGraph;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -98,18 +99,26 @@ public class GraphMerger {
 					ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2
 							.get(0);
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
-					
+
+//					ArrayList<CompleteExecutionGraph> cGraphs1 = CompleteExecutionGraph
+//							.buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 = CompleteExecutionGraph
+//							.buildCompleteGraphsFromRunDir(graphDir2);
+//					if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
+//						GraphMergingInfo.dumpGraph(
+//								cGraphs1.get(0),
+//								DebugUtils.GRAPH_DIR + "complete.dot");
+//					}
+
 					try {
 						graphMerger.mergeGraph();
 						graphMerger.mergeModules();
-						
+
 						if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 							// SpeculativeScoreList.showGlobalStats();
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
 				}
 			}
 
@@ -143,11 +152,11 @@ public class GraphMerger {
 			GraphMergingInfo.dumpGraph(
 					graph1,
 					DebugUtils.GRAPH_DIR + graph1.getProgName()
-							+ graph1.getPid() + ".dot", interSet);
+							+ graph1.getPid() + ".dot");
 			GraphMergingInfo.dumpGraph(
 					graph2,
 					DebugUtils.GRAPH_DIR + graph2.getProgName()
-							+ graph2.getPid() + ".dot", interSet);
+							+ graph2.getPid() + ".dot");
 		}
 	}
 
@@ -1053,30 +1062,45 @@ public class GraphMerger {
 
 		// Reset isVisited field
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
-			graph2.getNodes().get(i).resetVisited();
+			Node n = graph2.getNodes().get(i);
+			n.resetVisited();
 		}
 
 		// Record matched nodes
 		matchedNodes = new MatchedNodes();
 
 		hasConflict = false;
-		Node n1 = graph1.getNodes().get(0), n2 = graph2.getNodes().get(0);
 
+		// Initialize debugging info before merging the graph
 		if (DebugUtils.debug) {
-			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(0,
-					n1.getIndex(), n2.getIndex(), MatchingType.Heuristic, -1));
+			DebugUtils.debug_init();
 		}
 
 		// BFS on G2
 		matchedQueue = new LinkedList<PairNode>();
 		unmatchedQueue = new LinkedList<PairNode>();
 		indirectChildren = new LinkedList<PairNodeEdge>();
+		
+		HashMap<Long, Node> graph1Sig2Node = graph1.getSigature2Node(), graph2Sig2Node = graph2
+				.getSigature2Node();
+				
+		for (long sigHash : graph1Sig2Node.keySet()) {
+			if (graph2Sig2Node.containsKey(sigHash)) {
+				Node n1 = graph1Sig2Node.get(sigHash);
+				Node n2 = graph2Sig2Node.get(sigHash);
 
-		PairNode pairNode = new PairNode(n1, n2, 0);
+				PairNode pairNode = new PairNode(n1, n2, 0);
+				matchedQueue.add(pairNode);
+				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
 
-		matchedQueue.add(pairNode);
-		matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
-
+				if (DebugUtils.debug) {
+					DebugUtils.debug_matchingTrace
+							.addInstance(new MatchingInstance(0, n1.getIndex(),
+									n2.getIndex(), MatchingType.Heuristic, -1));
+				}
+			}
+		}
+		
 		return true;
 	}
 
@@ -1102,11 +1126,6 @@ public class GraphMerger {
 		// Set up the initial status before actually matching
 		if (!preMergeGraph()) {
 			return null;
-		}
-
-		// Initialize debugging info before merging the graph
-		if (DebugUtils.debug) {
-			DebugUtils.debug_init();
 		}
 
 		// In the OUTPUT_SCORE debug mode, initialize the PrintWriter for this
@@ -1380,20 +1399,24 @@ public class GraphMerger {
 
 	public HashMap<String, ModuleGraph> mergeModules() {
 		HashMap<String, ModuleGraph> modName2Graph = new HashMap<String, ModuleGraph>();
-		HashMap<String, ModuleGraph> modules1 = graph1.getModuleGraphs(),
-				modules2 = graph2.getModuleGraphs();
+		HashMap<String, ModuleGraph> modules1 = graph1.getModuleGraphs(), modules2 = graph2
+				.getModuleGraphs();
 		if (modules1 == null || modules2 == null) {
 			return null;
 		}
 		for (String name : modules1.keySet()) {
 			if (modules2.containsKey(name)) {
-				ModuleGraph module1 = modules1.get(name),
-						module2 = modules2.get(name);
-				ModuleGraphMerger mGraphMerger = new ModuleGraphMerger(module1, module2);
+				ModuleGraph module1 = modules1.get(name), module2 = modules2
+						.get(name);
+				ModuleGraphMerger mGraphMerger = new ModuleGraphMerger(module1,
+						module2);
 				try {
-					ModuleGraph mergedGraph = (ModuleGraph) mGraphMerger.mergeGraph();
+					ModuleGraph mergedGraph = (ModuleGraph) mGraphMerger
+							.mergeGraph();
 					if (mergedGraph == null) {
-						System.out.println("Conflict occurs when matching module " + name + "!");
+						System.out
+								.println("Conflict occurs when matching module "
+										+ name + "!");
 					} else {
 						modName2Graph.put(name, mergedGraph);
 					}

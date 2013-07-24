@@ -31,12 +31,6 @@ import java.util.HashSet;
 public class ModuleGraph extends ExecutionGraph {
 	public final String moduleName;
 
-	private HashMap<Long, Node> signature2Node;
-	
-	public HashMap<Long, Node> getSigature2Node() {
-		return signature2Node;
-	}
-
 	public ModuleGraph(String moduleName) {
 		this.moduleName = moduleName;
 		this.signature2Node = new HashMap<Long, Node>();

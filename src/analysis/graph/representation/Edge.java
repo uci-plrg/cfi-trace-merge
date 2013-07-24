@@ -20,7 +20,8 @@ public class Edge {
 	}
 
 	public String toString() {
-		if (edgeType == EdgeType.CrossModule) {
+		if (edgeType == EdgeType.CrossKernelModule
+				|| edgeType == EdgeType.CrossCustomModule) {
 			return fromNode + "(" + edgeType + ")--" + Long.toHexString(signitureHash) + "-->" + toNode;
 		} else {
 			return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
@@ -45,11 +46,8 @@ public class Edge {
 		return ((this.ordinal == ordinal) && (this.edgeType == edgeType));
 	}
 
-	public Edge(Node fromNode, Node toNode, long signitureHash) {
-		this.fromNode = fromNode;
-		this.toNode = toNode;
-		this.edgeType = EdgeType.CrossModule;
-		this.ordinal = 0;
+	public Edge(Node fromNode, Node toNode, int flags, long signitureHash) {
+		this(fromNode, toNode, flags);
 		this.signitureHash = signitureHash;
 	}
 

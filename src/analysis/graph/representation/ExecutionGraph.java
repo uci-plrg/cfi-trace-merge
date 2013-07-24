@@ -44,6 +44,15 @@ import analysis.graph.debug.DebugUtils;
  * representation of each run-time module.
  * </p>
  * 
+ * <p>
+ * This class should have the signature2Node filed which maps the signature hash
+ * to the bogus signature node. The basic matching strategy separates the main
+ * module and all other kernel modules. All these separate graphs have a list of
+ * callbacks or export functions from other modules, which have a corresponding
+ * signature hash. For those nodes, we try to match them according to their
+ * signature hash. 
+ * </p>
+ * 
  * @author peizhaoo
  * 
  */
@@ -58,17 +67,20 @@ public class ExecutionGraph {
 	private HashMap<String, ModuleGraph> moduleGraphs;
 
 	// Used to normalize the tag in a single graph
-	private ArrayList<ModuleDescriptor> modules;
+	protected ArrayList<ModuleDescriptor> modules;
 
 	// Maps from post-processed relative tag to the node,
 	// only for the sake of debugging and analysis
 	public HashMap<NormalizedTag, Node> normalizedTag2Node;
 
-	private String pairHashFile;
-	private String blockHashFile;
-	private String runDir;
-	private String progName;
-	private int pid;
+	protected String pairHashFile;
+	protected String blockHashFile;
+	protected String runDir;
+	protected String progName;
+	protected int pid;
+
+	// Maps from signature hash to bogus signature node
+	protected HashMap<Long, Node> signature2Node;
 
 	// False means that the file doesn't exist or is in wrong format
 	protected boolean isValidGraph = true;
@@ -95,9 +107,13 @@ public class ExecutionGraph {
 	public NodeList getNodesByHash(long l) {
 		return hash2Nodes.get(l);
 	}
-	
+
 	public HashMap<String, ModuleGraph> getModuleGraphs() {
 		return moduleGraphs;
+	}
+	
+	public HashMap<Long, Node> getSigature2Node() {
+		return signature2Node;
 	}
 
 	// FIXME: Deep copy of a graph
@@ -232,6 +248,7 @@ public class ExecutionGraph {
 	public ExecutionGraph(ArrayList<String> intraModuleEdgeFiles,
 			String crossModuleEdgeFile, ArrayList<String> lookupFiles,
 			String moduleFile) {
+		signature2Node = new HashMap<Long, Node>();
 		moduleGraphs = new HashMap<String, ModuleGraph>();
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
@@ -356,6 +373,7 @@ public class ExecutionGraph {
 					// function should fix the index.
 					Node node = new Node(this, tag, hash, nodes.size(),
 							metaNodeType);
+
 					if (ModuleDescriptor.coreModuleNames
 							.contains(nodeModuleName)) {
 						if (!moduleGraphs.containsKey(nodeModuleName)) {
@@ -370,7 +388,6 @@ public class ExecutionGraph {
 						// Add it the the hash2Nodes mapping
 						hash2Nodes.add(node);
 					}
-
 					hashLookupTable.put(tag, node);
 				}
 			} catch (FileNotFoundException e) {
@@ -443,6 +460,9 @@ public class ExecutionGraph {
 					break;
 				buffer.flip();
 				long tag1 = buffer.getLong();
+
+				int flags = getEdgeFlag(tag1);
+				tag1 = getTagEffectiveValue(tag1);
 				buffer.compact();
 
 				channel.read(buffer);
@@ -480,24 +500,48 @@ public class ExecutionGraph {
 				}
 
 				Edge existing = node1.getOutgoingEdge(node2);
-				Edge e = new Edge(node1, node2, signitureHash);
+				Edge e;
 
+				String node1ModName = AnalysisUtil.getModuleName(node1), node2ModName = AnalysisUtil
+						.getModuleName(node2);
+
+				e = new Edge(node1, node2, flags, signitureHash);
+
+				// if
+				// (node2.toString().equals("0x304cb96:hexedit.exe-6003100020000_10bc70"))
+				// {
+				if (node1.toString().equals(
+						"0xc649a08:hexedit.exe-6003100020000_10d638")) {
+					System.out.println();
+				}
 				if (existing == null) {
 					// Be careful when dealing with the cross module nodes
 					// Cross-module edges are not added to any node, but the
 					// edge from signature node to real entry node is preserved
 					node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
-					String node2ModuleName = AnalysisUtil.getModuleName(node2);
-					if (ModuleDescriptor.coreModuleNames.contains(node2ModuleName)) {
-						ModuleGraph moduleGraph = moduleGraphs.get(node2ModuleName);
+					if (ModuleDescriptor.coreModuleNames.contains(node2ModName)) {
+						ModuleGraph moduleGraph = moduleGraphs
+								.get(node2ModName);
 						Node sigNode = new Node(moduleGraph, signitureHash, -1,
 								MetaNodeType.SIGNATURE_HASH, null);
 						node2.setMetaNodeType(MetaNodeType.NORMAl);
-						Edge sigEntryEdge = new Edge(sigNode, node2, EdgeType.Indirect, 0);
+						Edge sigEntryEdge = new Edge(sigNode, node2,
+								EdgeType.Indirect, 0);
 						sigNode.addOutgoingEdge(sigEntryEdge);
 						node2.addIncomingEdge(sigEntryEdge);
 						moduleGraph.addModuleNode(sigNode);
 						moduleGraph.addModuleNode(node2);
+					} else if (ModuleDescriptor.coreModuleNames
+							.contains(node1ModName)) {
+						if (!signature2Node.containsKey(signitureHash)) {
+							Node sigNode = new Node(this, signitureHash, nodes.size(),
+									MetaNodeType.SIGNATURE_HASH, null);
+							signature2Node.put(sigNode.getHash(), sigNode);
+							nodes.add(sigNode);
+							e = new Edge(sigNode, node2, flags);
+							sigNode.addOutgoingEdge(e);
+							node2.addIncomingEdge(e);
+						}
 					} else {
 						node1.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);

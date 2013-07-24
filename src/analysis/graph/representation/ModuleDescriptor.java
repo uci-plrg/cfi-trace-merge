@@ -21,7 +21,7 @@ public class ModuleDescriptor implements Comparable {
 			String line;
 			try {
 				while ((line = br.readLine()) != null) {
-					coreModuleNames.add(line);
+					coreModuleNames.add(line.toLowerCase());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -36,7 +36,7 @@ public class ModuleDescriptor implements Comparable {
 	public final long beginAddr, endAddr;
 
 	public ModuleDescriptor(String name, long beginAddr, long endAddr) {
-		this.name = name;
+		this.name = name.toLowerCase();
 		this.beginAddr = beginAddr;
 		this.endAddr = endAddr;
 	}

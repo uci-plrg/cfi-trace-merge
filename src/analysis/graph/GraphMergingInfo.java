@@ -164,8 +164,7 @@ public class GraphMergingInfo {
 		return firstMainHash;
 	}
 
-	public static void dumpGraph(ExecutionGraph graph, String fileName,
-			HashSet<Long> interSet) {
+	public static void dumpGraph(ExecutionGraph graph, String fileName) {
 		System.out.println("Dump the graph for " + graph + " to " + fileName);
 		File file = new File(fileName);
 		if (!file.getParentFile().exists()) {
@@ -229,8 +228,11 @@ public class GraphMergingInfo {
 					case UnexpectedReturn:
 						branchType = "u";
 						break;
-					case CrossModule:
-						branchType = "x";
+					case CrossKernelModule:
+						branchType = "xk";
+						break;
+					case CrossCustomModule:
+						branchType = "xc";
 						break;
 					default:
 						branchType = "";
@@ -238,7 +240,7 @@ public class GraphMergingInfo {
 					}
 					String edgeLabel = i + "->" + e.getToNode().getIndex()
 							+ "[label=\"" + branchType + "_";
-					if (e.getEdgeType() == EdgeType.CrossModule) {
+					if (e.getEdgeType() == EdgeType.CrossKernelModule) {
 						edgeLabel = edgeLabel
 								+ e.getFromNode().getNormalizedTag() + "->"
 								+ e.getToNode().getNormalizedTag() + "\"]";
