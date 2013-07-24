@@ -32,11 +32,11 @@ public class Node implements NodeList {
 	public ExecutionGraph getContainingGraph() {
 		return containingGraph;
 	}
-	
+
 	public void setContainingGraph(ExecutionGraph containingGraph) {
 		this.containingGraph = containingGraph;
 	}
-	
+
 	public void setMetaNodeType(MetaNodeType metaNodeType) {
 		this.metaNodeType = metaNodeType;
 	}
@@ -152,7 +152,7 @@ public class Node implements NodeList {
 	public int getIndex() {
 		return index;
 	}
-	
+
 	public void setIndex(int index) {
 		this.index = index;
 	}
@@ -215,7 +215,12 @@ public class Node implements NodeList {
 		this.metaNodeType = metaNodeType;
 		this.containingGraph = containingGraph;
 
-		this.normalizedTag = normalizedTag;
+		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
+			this.normalizedTag = null;
+		} else {
+			this.normalizedTag = normalizedTag;
+		}
+
 	}
 
 	public Node(ExecutionGraph containingGraph, long tag, long hash, int index,
@@ -253,9 +258,12 @@ public class Node implements NodeList {
 	}
 
 	/**
-	 * In a single execution, tag is the only identifier for the node This is
-	 * particularly used in the initialization of the graph, where hashtables
-	 * are needed
+	 * In a single execution, tag is the only identifier for the normal nodes.
+	 * This is particularly used in the initialization of the graph, where
+	 * hashtables are needed.
+	 * 
+	 * For signature nodes, the node should be empty if they are both signature
+	 * nodes and they have the same hash signature.
 	 */
 	public boolean equals(Object o) {
 		if (o == null)
@@ -264,6 +272,13 @@ public class Node implements NodeList {
 			return false;
 		}
 		Node node = (Node) o;
+		if (node.metaNodeType == metaNodeType
+				&& metaNodeType == MetaNodeType.SIGNATURE_HASH) {
+			if (node.hash == hash) {
+				return true;
+			}
+		}
+
 		if (node.tag == tag && node.containingGraph == containingGraph)
 			return true;
 		else
@@ -271,6 +286,10 @@ public class Node implements NodeList {
 	}
 
 	public int hashCode() {
+		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
+			return ((Long) hash).hashCode();
+		}
+
 		return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode();
 	}
 

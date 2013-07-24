@@ -189,12 +189,28 @@ public class ExecutionGraph {
 
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public Node addNode(long hash, MetaNodeType metaNodeType,
-			NormalizedTag normalizedTag) {
+	public Node addNode(long hash, MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
 		Node n = new Node(this, hash, nodes.size(), metaNodeType, normalizedTag);
 		nodes.add(n);
-		hash2Nodes.add(n);
+
+		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
+			// hash2Nodes only maps hash of code block to real nodes
+			hash2Nodes.add(n);
+		} else if (!signature2Node.containsKey(hash)) {
+			signature2Node.put(hash, n);
+		}
 		return n;
+	}
+
+	// Add the signature node to the graph
+	public void addSignatureNode(long sigHash) {
+		if (!signature2Node.containsKey(sigHash)) {
+			Node sigNode = new Node(this, sigHash, nodes.size(),
+					MetaNodeType.SIGNATURE_HASH, null);
+			signature2Node.put(sigNode.getHash(), sigNode);
+			sigNode.setIndex(nodes.size());
+			nodes.add(sigNode);
+		}
 	}
 
 	public void addEdge(Node from, Edge e) {
@@ -219,9 +235,16 @@ public class ExecutionGraph {
 		return pairHashes;
 	}
 
+	/**
+	 * This is a blank constructor which should be used when combining two
+	 * matched graph. After calling it, you will get only an empty graph, thus
+	 * be really careful to add nodes and edges to it to avoid any kind of
+	 * inconsistency in the new-built graph.
+	 */
 	public ExecutionGraph() {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
+		signature2Node = new HashMap<Long, Node>();
 		blockHashes = new HashSet<Long>();
 		pairHashes = new HashSet<Long>();
 	}
@@ -443,6 +466,18 @@ public class ExecutionGraph {
 		return true;
 	}
 
+	/**
+	 * Before calling this function, you should have all the normal nodes added
+	 * to the corresponding graph and their indexes fixed. The only thing this
+	 * function should do is to add signature nodes when necessary and build the
+	 * necessary edges between them and real entry nodes.
+	 * 
+	 * @param crossModuleEdgeFile
+	 * @param hashLookupTable
+	 * @throws MultipleEdgeException
+	 * @throws InvalidTagException
+	 * @throws TagNotFoundException
+	 */
 	public void readCrossModuleEdges(String crossModuleEdgeFile,
 			HashMap<Long, Node> hashLookupTable) throws MultipleEdgeException,
 			InvalidTagException, TagNotFoundException {
@@ -507,39 +542,39 @@ public class ExecutionGraph {
 
 				e = new Edge(node1, node2, flags, signatureHash);
 
-				String nodeStr = "0x16a276dc9:hexedit.exe-6003100020000_5b9fb";
-				if (node1.toString().equals(nodeStr)
-						|| node2.toString().equals(nodeStr)) {
+				if (node1.getHash() == Long.valueOf("1635d6954a", 16)) {
+					System.out.println();
+				}
+
+				String nodeStr = "0x62b77f408:ntdll.dll-1db1446a00060001_63658";
+				if (node1.toString().indexOf(nodeStr) != -1
+						|| node2.toString().indexOf(nodeStr) != -1) {
 					System.out.println();
 				}
 				if (existing == null) {
-					// Be careful when dealing with the cross module nodes
+					// Be careful when dealing with the cross module nodes.
 					// Cross-module edges are not added to any node, but the
-					// edge from signature node to real entry node is preserved
+					// edge from signature node to real entry node is preserved.
+					// We onlly need to add the signature nodes to "nodes"
 					node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
 					if (ModuleDescriptor.coreModuleNames.contains(node2ModName)) {
 						ModuleGraph moduleGraph = moduleGraphs
 								.get(node2ModName);
-						Node sigNode = new Node(moduleGraph, signatureHash, -1,
-								MetaNodeType.SIGNATURE_HASH, null);
+						// Make sure the signature node is added
+						moduleGraph.addSignatureNode(signatureHash);
+						Node sigNode = moduleGraph.signature2Node
+								.get(signatureHash);
+
 						node2.setMetaNodeType(MetaNodeType.NORMAl);
-						Edge sigEntryEdge = new Edge(sigNode, node2,
-								EdgeType.Indirect, 0);
+						Edge sigEntryEdge = new Edge(sigNode, node2, flags);
 						sigNode.addOutgoingEdge(sigEntryEdge);
 						node2.addIncomingEdge(sigEntryEdge);
-						moduleGraph.addModuleNode(sigNode);
-						moduleGraph.addModuleNode(node2);
 					} else if (ModuleDescriptor.coreModuleNames
 							.contains(node1ModName)) {
-						Node sigNode;
-						if (!signature2Node.containsKey(signatureHash)) {
-							sigNode = new Node(this, signatureHash,
-									nodes.size(), MetaNodeType.SIGNATURE_HASH,
-									null);
-							signature2Node.put(sigNode.getHash(), sigNode);
-						}
-						sigNode = signature2Node.get(signatureHash);
-						nodes.add(sigNode);
+						// Make sure the signature node is added
+						addSignatureNode(signatureHash);
+						Node sigNode = signature2Node.get(signatureHash);
+
 						e = new Edge(sigNode, node2, flags);
 						sigNode.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);
@@ -612,7 +647,7 @@ public class ExecutionGraph {
 
 					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
 							.get(tag2);
-
+					
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
 						hashesNotInLookup.add(tag1);
@@ -634,6 +669,18 @@ public class ExecutionGraph {
 						if (!DebugUtils.ThrowTagNotFound) {
 							continue;
 						}
+					}
+					
+					if (node1.getHash() == Long.valueOf("1635d6954a", 16)) {
+						System.out.println();
+					}
+					
+					// If one of the node locates in the "unknown" module, simply
+					// discard those edges
+					String node1ModName = AnalysisUtil.getModuleName(node1), node2ModName = AnalysisUtil
+							.getModuleName(node2);
+					if (node1ModName.equals("Unknown") || node2ModName.equals("Unknown")) {
+						continue;
 					}
 
 					Edge existing = node1.getOutgoingEdge(node2);
@@ -827,6 +874,16 @@ public class ExecutionGraph {
 	 * @return true means this is a valid graph, otherwise it's invalid
 	 */
 	public boolean validate() {
+
+		// Check if the index of the node is correct
+		for (int i = 0; i < nodes.size(); i++) {
+			Node n = nodes.get(i);
+			if (n.getIndex() != i) {
+				System.out.println("Wrong index: " + n.getIndex());
+				return false;
+			}
+		}
+
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
 			switch (n.getMetaNodeType()) {

@@ -100,13 +100,13 @@ public class GraphMerger {
 							.get(0);
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
 
-					ArrayList<CompleteExecutionGraph> cGraphs1 = CompleteExecutionGraph
-							.buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 = CompleteExecutionGraph
-							.buildCompleteGraphsFromRunDir(graphDir2);
-					if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-						GraphMergingInfo.dumpGraph(cGraphs1.get(0),
-								DebugUtils.GRAPH_DIR + "complete.dot");
-					}
+//					ArrayList<CompleteExecutionGraph> cGraphs1 = CompleteExecutionGraph
+//							.buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 = CompleteExecutionGraph
+//							.buildCompleteGraphsFromRunDir(graphDir2);
+//					if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
+//						GraphMergingInfo.dumpGraph(cGraphs1.get(0),
+//								DebugUtils.GRAPH_DIR + "complete.dot");
+//					}
 
 					try {
 						graphMerger.mergeGraph();
@@ -866,12 +866,30 @@ public class GraphMerger {
 		}
 	}
 
-	private ExecutionGraph buildMergedGraph() {
+	protected ExecutionGraph buildMergedGraph() {
 		// Don't have to copy the hash2Nodes explicitly because it will be
-		// automatically added when calling addNode method.
-		ExecutionGraph mergedGraph = new ExecutionGraph();
+		// automatically added when calling addNode method, but you should
+		// take care of maintaining the signature2Node by yourself, be careful!!
+
+		// Get an empty new graph to copy nodes and edges
+		ExecutionGraph mergedGraph;
+		if ((graph1 instanceof ModuleGraph)
+				&& (graph2 instanceof ModuleGraph)) {
+			mergedGraph = new ModuleGraph(((ModuleGraph) graph1).moduleName);
+		} else {
+			mergedGraph = new ExecutionGraph();
+		}
+		
+
+		// The program name does not mean anything essentially
+		// It's only done for convenience
 		mergedGraph.setProgName(graph1.getProgName());
-		// Copy nodes from G1
+
+		// The following Node variables with ordinal "1" mean those nodes from
+		// graph1, "2" from graph2, without ordinal for nodes in the new graph
+		// The naming rule is also true for Edge variables
+
+		// Copy nodes from graph1
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
 			Node n1 = graph1.getNodes().get(i);
 			Node n = mergedGraph.addNode(n1.getHash(), n1.getMetaNodeType(),
@@ -884,14 +902,18 @@ public class GraphMerger {
 			}
 		}
 
-		// Copy edges from G1
+		// Copy edges from graph1
 		// Traverse edges by outgoing edges
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
 			Node n1 = graph1.getNodes().get(i);
 			for (int j = 0; j < n1.getOutgoingEdges().size(); j++) {
 				Edge e1 = n1.getOutgoingEdges().get(j);
 				Node newFromNode = mergedGraph.getNodes().get(
-						e1.getFromNode().getIndex()), newToNode = mergedGraph
+						e1.getFromNode().getIndex());
+				if (e1.getToNode().getIndex() == 6328) {
+					System.out.println();
+				}
+				Node newToNode = mergedGraph
 						.getNodes().get(e1.getToNode().getIndex());
 				Edge newEdge = new Edge(newFromNode, newToNode,
 						e1.getEdgeType(), e1.getOrdinal());
@@ -900,7 +922,7 @@ public class GraphMerger {
 			}
 		}
 
-		// Copy nodes from G2
+		// Copy nodes from graph2
 		HashMap<Integer, Integer> nodesFromG2 = new HashMap<Integer, Integer>();
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node n2 = graph2.getNodes().get(i);
@@ -911,7 +933,7 @@ public class GraphMerger {
 			}
 		}
 
-		// Add edges from G2
+		// Add edges from graph2
 		if (!addEdgeFromG2(mergedGraph, graph2, nodesFromG2)) {
 			System.out.println("There are conflicts when merging edges!");
 			return null;
@@ -929,8 +951,8 @@ public class GraphMerger {
 	private boolean addEdgeFromG2(ExecutionGraph mergedGraph,
 			ExecutionGraph graph2, HashMap<Integer, Integer> nodesFromG2) {
 
-		// Merge edges from G2
-		// Traverse edges in G2 by outgoing edges
+		// Merge edges from graph2
+		// Traverse edges in graph2 by outgoing edges
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node fromNodeInG2 = graph2.getNodes().get(i), toNodeInG2;
 			// New fromNode and toNode in the merged graph
@@ -1120,9 +1142,9 @@ public class GraphMerger {
 			return null;
 		}
 		if (graph1.getNodes().size() == 0) {
-			return new ExecutionGraph(graph2);
+			return graph2;
 		} else if (graph2.getNodes().size() == 0) {
-			return new ExecutionGraph(graph1);
+			return graph1;
 		}
 
 		// Set up the initial status before actually matching

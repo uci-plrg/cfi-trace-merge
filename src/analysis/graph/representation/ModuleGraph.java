@@ -59,6 +59,10 @@ public class ModuleGraph extends ExecutionGraph {
 		}
 	}
 	
+	public String getProgName() {
+		return toString();
+	}
+	
 	public String toString() {
 		return "Module_" + moduleName;
 	}
@@ -79,7 +83,7 @@ public class ModuleGraph extends ExecutionGraph {
 		if (type == MetaNodeType.MODULE_BOUNDARY) {
 			addModuleBoundaryNode(n);
 		} else if (type == MetaNodeType.SIGNATURE_HASH) {
-			addSignitureNode(n.getHash());
+			addSignatureNode(n.getHash());
 		} else {
 			addNormalNode(n);
 		}
@@ -102,16 +106,6 @@ public class ModuleGraph extends ExecutionGraph {
 
 		blockHashInstances.add(newNode.getHash());
 		blockHashes.add(newNode.getHash());
-	}
-
-	private void addSignitureNode(long sigHash) {
-		if (!signature2Node.containsKey(sigHash)) {
-			Node sigNode = new Node(this, sigHash, nodes.size(),
-					MetaNodeType.SIGNATURE_HASH, null);
-			signature2Node.put(sigNode.getHash(), sigNode);
-			sigNode.setIndex(nodes.size());
-			nodes.add(sigNode);
-		}
 	}
 
 	/**

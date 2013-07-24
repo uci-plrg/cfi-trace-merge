@@ -7,10 +7,15 @@ public class NormalizedTag {
 	public final Long relativeTag;
 
 	public NormalizedTag(Node n) {
-		String modName = AnalysisUtil.getModuleName(n);
-		long relTag = AnalysisUtil.getRelativeTag(n);
-		this.moduleName = modName;
-		this.relativeTag = relTag;
+		if (n.getMetaNodeType() == MetaNodeType.SIGNATURE_HASH) {
+			this.moduleName = "";
+			this.relativeTag = 0l;
+		} else {
+			String modName = AnalysisUtil.getModuleName(n);
+			long relTag = AnalysisUtil.getRelativeTag(n);
+			this.moduleName = modName;
+			this.relativeTag = relTag;
+		}
 	}
 	
 	public NormalizedTag(String moduleName, long relativeTag) {

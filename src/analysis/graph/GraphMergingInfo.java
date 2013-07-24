@@ -13,6 +13,7 @@ import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
 import analysis.graph.representation.MatchedNodes;
+import analysis.graph.representation.ModuleGraph;
 import analysis.graph.representation.Node;
 import analysis.graph.representation.NormalizedTag;
 
@@ -88,18 +89,21 @@ public class GraphMergingInfo {
 	}
 
 	synchronized public void outputMergedGraphInfo() {
-		System.out.println();
-		System.out.println("Comparison between " + graph1.getProgName()
-				+ graph1.getPid() + " & " + graph2.getProgName()
-				+ graph2.getPid() + ":");
-		System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir()) + " & "
-				+ AnalysisUtil.getRunStr(graph2.getRunDir()));
+		if (graph1 instanceof ModuleGraph) {
+			System.out.println("Comparison for " + graph1.getProgName() + ":");
+		} else {
+			System.out.println("Comparison between " + graph1.getProgName()
+					+ graph1.getPid() + " & " + graph2.getProgName()
+					+ graph2.getPid() + ":");
+			System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir()) + " & "
+					+ AnalysisUtil.getRunStr(graph2.getRunDir()));
 
-		System.out.println("Size of nodes in graph1: "
-				+ graph1.getNodes().size());
-		System.out.println("Size of nodes in graph2: "
-				+ graph2.getNodes().size());
-
+			System.out.println("Size of nodes in graph1: "
+					+ graph1.getNodes().size());
+			System.out.println("Size of nodes in graph2: "
+					+ graph2.getNodes().size());
+		}
+		
 		System.out.println("Intersection ratio of block hashes: "
 				+ setInterRate + "  " + graph1.getBlockHashes().size() + ","
 				+ graph2.getBlockHashes().size() + ":" + interHashSize + "/"
