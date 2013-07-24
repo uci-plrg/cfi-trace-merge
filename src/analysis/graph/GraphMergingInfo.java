@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import utils.AnalysisUtil;
+import analysis.graph.representation.CompleteExecutionGraph;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -191,16 +192,18 @@ public class GraphMergingInfo {
 
 		try {
 			pwDotFile = new PrintWriter(fileName);
-			
+
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			HashSet<Node> accessibleNodes = graph.getAccessibleNodes();
-			for (int i = 0; i < graph.getNodes().size(); i++) {
-				Node n = graph.getNodes().get(i);
-				if (!accessibleNodes.contains(n)) {
-					pwNodeFile.println(n);
+			if (!(graph instanceof CompleteExecutionGraph)) {
+				HashSet<Node> accessibleNodes = graph.getAccessibleNodes();
+				for (int i = 0; i < graph.getNodes().size(); i++) {
+					Node n = graph.getNodes().get(i);
+					if (!accessibleNodes.contains(n)) {
+						pwNodeFile.println(n);
+					}
+
 				}
-				
 			}
 
 			pwDotFile.println("digraph runGraph {");

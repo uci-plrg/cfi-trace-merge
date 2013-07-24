@@ -58,7 +58,7 @@ public class ModuleGraphMerger extends GraphMerger {
 				if (DebugUtils.debug) {
 					DebugUtils.debug_matchingTrace
 							.addInstance(new MatchingInstance(0, n1.getIndex(),
-									n2.getIndex(), MatchingType.Heuristic, -1));
+									n2.getIndex(), MatchingType.SignatureNode, -1));
 				}
 			}
 		}

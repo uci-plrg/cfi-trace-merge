@@ -100,14 +100,13 @@ public class GraphMerger {
 							.get(0);
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
 
-//					ArrayList<CompleteExecutionGraph> cGraphs1 = CompleteExecutionGraph
-//							.buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 = CompleteExecutionGraph
-//							.buildCompleteGraphsFromRunDir(graphDir2);
-//					if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-//						GraphMergingInfo.dumpGraph(
-//								cGraphs1.get(0),
-//								DebugUtils.GRAPH_DIR + "complete.dot");
-//					}
+					ArrayList<CompleteExecutionGraph> cGraphs1 = CompleteExecutionGraph
+							.buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 = CompleteExecutionGraph
+							.buildCompleteGraphsFromRunDir(graphDir2);
+					if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
+						GraphMergingInfo.dumpGraph(cGraphs1.get(0),
+								DebugUtils.GRAPH_DIR + "complete.dot");
+					}
 
 					try {
 						graphMerger.mergeGraph();
@@ -1080,10 +1079,10 @@ public class GraphMerger {
 		matchedQueue = new LinkedList<PairNode>();
 		unmatchedQueue = new LinkedList<PairNode>();
 		indirectChildren = new LinkedList<PairNodeEdge>();
-		
+
 		HashMap<Long, Node> graph1Sig2Node = graph1.getSigature2Node(), graph2Sig2Node = graph2
 				.getSigature2Node();
-				
+
 		for (long sigHash : graph1Sig2Node.keySet()) {
 			if (graph2Sig2Node.containsKey(sigHash)) {
 				Node n1 = graph1Sig2Node.get(sigHash);
@@ -1096,11 +1095,14 @@ public class GraphMerger {
 				if (DebugUtils.debug) {
 					DebugUtils.debug_matchingTrace
 							.addInstance(new MatchingInstance(0, n1.getIndex(),
-									n2.getIndex(), MatchingType.Heuristic, -1));
+									n2.getIndex(), MatchingType.SignatureNode,
+									-1));
+					System.out.println("SignatureNode: " + n1.getIndex()
+							+ "<->" + n2.getIndex() + "(by ...)");
 				}
 			}
 		}
-		
+
 		return true;
 	}
 

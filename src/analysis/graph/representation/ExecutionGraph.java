@@ -50,7 +50,7 @@ import analysis.graph.debug.DebugUtils;
  * module and all other kernel modules. All these separate graphs have a list of
  * callbacks or export functions from other modules, which have a corresponding
  * signature hash. For those nodes, we try to match them according to their
- * signature hash. 
+ * signature hash.
  * </p>
  * 
  * @author peizhaoo
@@ -111,7 +111,7 @@ public class ExecutionGraph {
 	public HashMap<String, ModuleGraph> getModuleGraphs() {
 		return moduleGraphs;
 	}
-	
+
 	public HashMap<Long, Node> getSigature2Node() {
 		return signature2Node;
 	}
@@ -472,7 +472,7 @@ public class ExecutionGraph {
 
 				channel.read(buffer);
 				buffer.flip();
-				long signitureHash = buffer.getLong();
+				long signatureHash = buffer.getLong();
 				buffer.compact();
 
 				Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
@@ -505,13 +505,11 @@ public class ExecutionGraph {
 				String node1ModName = AnalysisUtil.getModuleName(node1), node2ModName = AnalysisUtil
 						.getModuleName(node2);
 
-				e = new Edge(node1, node2, flags, signitureHash);
+				e = new Edge(node1, node2, flags, signatureHash);
 
-				// if
-				// (node2.toString().equals("0x304cb96:hexedit.exe-6003100020000_10bc70"))
-				// {
-				if (node1.toString().equals(
-						"0xc649a08:hexedit.exe-6003100020000_10d638")) {
+				String nodeStr = "0x16a276dc9:hexedit.exe-6003100020000_5b9fb";
+				if (node1.toString().equals(nodeStr)
+						|| node2.toString().equals(nodeStr)) {
 					System.out.println();
 				}
 				if (existing == null) {
@@ -522,7 +520,7 @@ public class ExecutionGraph {
 					if (ModuleDescriptor.coreModuleNames.contains(node2ModName)) {
 						ModuleGraph moduleGraph = moduleGraphs
 								.get(node2ModName);
-						Node sigNode = new Node(moduleGraph, signitureHash, -1,
+						Node sigNode = new Node(moduleGraph, signatureHash, -1,
 								MetaNodeType.SIGNATURE_HASH, null);
 						node2.setMetaNodeType(MetaNodeType.NORMAl);
 						Edge sigEntryEdge = new Edge(sigNode, node2,
@@ -533,20 +531,23 @@ public class ExecutionGraph {
 						moduleGraph.addModuleNode(node2);
 					} else if (ModuleDescriptor.coreModuleNames
 							.contains(node1ModName)) {
-						if (!signature2Node.containsKey(signitureHash)) {
-							Node sigNode = new Node(this, signitureHash, nodes.size(),
-									MetaNodeType.SIGNATURE_HASH, null);
+						Node sigNode;
+						if (!signature2Node.containsKey(signatureHash)) {
+							sigNode = new Node(this, signatureHash,
+									nodes.size(), MetaNodeType.SIGNATURE_HASH,
+									null);
 							signature2Node.put(sigNode.getHash(), sigNode);
-							nodes.add(sigNode);
-							e = new Edge(sigNode, node2, flags);
-							sigNode.addOutgoingEdge(e);
-							node2.addIncomingEdge(e);
 						}
+						sigNode = signature2Node.get(signatureHash);
+						nodes.add(sigNode);
+						e = new Edge(sigNode, node2, flags);
+						sigNode.addOutgoingEdge(e);
+						node2.addIncomingEdge(e);
 					} else {
 						node1.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);
 					}
-				} else if (existing.getSignitureHash() != signitureHash) {
+				} else if (existing.getSignitureHash() != signatureHash) {
 					String msg = "Multiple cross module edges:\n"
 							+ "Existing edge: " + e + "\n" + "New edge: "
 							+ existing + "\n";
@@ -770,16 +771,31 @@ public class ExecutionGraph {
 		return graphs;
 	}
 
+	public ArrayList<Node> getUnaccessibleNodes() {
+		HashSet<Node> accessibleNodes = getAccessibleNodes();
+		ArrayList<Node> unaccessibleNodes = new ArrayList<Node>();
+		for (int i = 0; i < nodes.size(); i++) {
+			Node n = nodes.get(i);
+			if (!accessibleNodes.contains(n)) {
+				unaccessibleNodes.add(n);
+			}
+		}
+		return unaccessibleNodes;
+	}
+
 	public HashSet<Node> getAccessibleNodes() {
 		HashSet<Node> accessibleNodes = new HashSet<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			nodes.get(i).resetVisited();
 		}
 		Queue<Node> bfsQueue = new LinkedList<Node>();
-		bfsQueue.add(nodes.get(0));
-		nodes.get(0).setVisited();
+		for (long sigHash : signature2Node.keySet()) {
+			bfsQueue.add(signature2Node.get(sigHash));
+		}
+
 		while (bfsQueue.size() > 0) {
 			Node n = bfsQueue.remove();
+			n.setVisited();
 			accessibleNodes.add(n);
 			for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
 				Node neighbor = n.getOutgoingEdges().get(i).getToNode();
