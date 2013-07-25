@@ -232,7 +232,7 @@ public class ExecutionGraph {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
 		blockHashes = new HashSet<Long>();
-		
+
 		this.progName = AnalysisUtil.getProgName(intraModuleEdgeFiles.get(0));
 		this.runDir = AnalysisUtil.getRunStr(intraModuleEdgeFiles.get(0));
 		this.pid = AnalysisUtil.getPidFromFileName(intraModuleEdgeFiles.get(0));
@@ -566,6 +566,9 @@ public class ExecutionGraph {
 		}
 	}
 
+	// Count how many wrong intra-module edges there are
+	private int wrongIntraModuleEdgeCnt = 0;
+
 	public void readIntraModuleEdges(ArrayList<String> intraModuleEdgeFiles,
 			HashMap<Long, Node> hashLookupTable) throws InvalidTagException,
 			TagNotFoundException, MultipleEdgeException {
@@ -630,7 +633,8 @@ public class ExecutionGraph {
 					}
 
 					if (node1.getHash() == Long.valueOf("65d58c0d8d34455a", 16)
-							&& node2.getHash() == Long.valueOf("2013ccd675e", 16)) {
+							&& node2.getHash() == Long.valueOf("2013ccd675e",
+									16)) {
 						System.out.println();
 					}
 
@@ -641,6 +645,17 @@ public class ExecutionGraph {
 							.getModuleName(node2);
 					if (node1ModName.equals("Unknown")
 							|| node2ModName.equals("Unknown")) {
+						continue;
+					}
+
+					if ((!node1ModName.equals(node2ModName))
+							&& (ModuleDescriptor.coreModuleNames
+									.contains(node1ModName)
+							|| ModuleDescriptor.coreModuleNames
+									.contains(node2ModName))) {
+						wrongIntraModuleEdgeCnt++;
+						// Ignore those wrong edges at this point
+//						System.out.println(node1 + "=>" + node2);
 						continue;
 					}
 
@@ -665,7 +680,7 @@ public class ExecutionGraph {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (EOFException e) {
-				// System.out.println("Finiish reading the file: " + fileName);
+				// System.out.println("Finish reading the file: " + fileName);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -675,6 +690,9 @@ public class ExecutionGraph {
 				// System.out.println(hashesNotInLookup.size()
 				// + " tag doesn't exist in lookup file -> " + tagFile);
 			}
+
+			System.out.println("There are " + wrongIntraModuleEdgeCnt
+					+ " cross-module edges in the intra-module edge file");
 
 			if (fileIn != null) {
 				try {

@@ -1098,7 +1098,7 @@ public class GraphMerger {
 				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
 				
 				if (DebugUtils.debug) {
-					AnalysisUtil.outputIndirectNodesInfo(n1, n2);
+//					AnalysisUtil.outputIndirectNodesInfo(n1, n2);
 				}
 
 				if (DebugUtils.debug) {
