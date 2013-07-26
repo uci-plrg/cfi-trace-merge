@@ -83,8 +83,8 @@ public class GraphMerger {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
-			for (int i = 0; i <= 0; i++) {
-				for (int j = 30; j <= 30; j++) {
+			for (int i = 1; i <= 1; i++) {
+				for (int j = 2; j <= 2; j++) {
 					if (i == j) {
 						continue;
 					}
@@ -96,7 +96,7 @@ public class GraphMerger {
 							.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
 							.buildGraphsFromRunDir(graphDir2);
 
-					ExecutionGraph graph1 = graphs1.get(0), graph2 = graphs2
+					ExecutionGraph graph1 = graphs1.get(1), graph2 = graphs2
 							.get(0);
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
 

@@ -61,7 +61,7 @@ public class DebugUtils {
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;
 
-	public static final String TMP_HASHLOG_DIR = "/scratch/hashlogs/cross-module";
+	public static final String TMP_HASHLOG_DIR = "/home/peizhao/hashlogs/worm-runs/euaguslb";
 	public static final String GRAPH_DIR = "/scratch/cs-analysis-output/graph-files/";
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);

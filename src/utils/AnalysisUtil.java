@@ -399,11 +399,11 @@ public class AnalysisUtil {
 					int beginIdx, endIdx;
 					String name;
 					long beginAddr, endAddr;
-					
+
 					if (!line.startsWith("Loaded")) {
 						continue;
 					}
-					
+
 					// Should change the index correspondingly if the
 					// module file format is changed
 					beginIdx = line.indexOf(" ");
@@ -586,16 +586,18 @@ public class AnalysisUtil {
 			}
 		}
 	}
-	
+
 	/**
 	 * Input node n1 and n2 are matched nodes and they have indirect outgoing
 	 * edges. This function analyzes how difficult it is to match its indirect
 	 * outgoing nodes according the hash collision of those nodes.
+	 * 
 	 * @param n1
 	 * @param n2
 	 */
 	public static void outputIndirectNodesInfo(Node n1, Node n2) {
-		System.out.println("Start indirect node pair info output: " + n1 + " & " + n2);
+		System.out.println("Start indirect node pair info output: " + n1
+				+ " & " + n2);
 		HashMap<Long, Integer> hash2CollisionCnt = new HashMap<Long, Integer>();
 		for (int i = 0; i < n1.getOutgoingEdges().size(); i++) {
 			long hash = n1.getOutgoingEdges().get(i).getToNode().getHash();
@@ -630,11 +632,11 @@ public class AnalysisUtil {
 		}
 		return tag;
 	}
-	
+
 	public static long getRelativeTag(Node n) {
 		return getRelativeTag(n.getContainingGraph(), n.getTag());
 	}
-	
+
 	public static String getModuleName(Node n) {
 		return getModuleName(n.getContainingGraph(), n.getTag());
 	}
@@ -649,7 +651,8 @@ public class AnalysisUtil {
 		}
 		return "Unknown";
 	}
-	
+
+
 	public static void outputUnknownTags(ExecutionGraph graph) {
 		long minUnknownTag = Long.MAX_VALUE, maxUnknownTag = Long.MIN_VALUE;
 		int unknownTagCnt = 0;
@@ -665,48 +668,55 @@ public class AnalysisUtil {
 					minUnknownTag = n.getTag();
 				}
 				System.out.print(n);
-				int fromIdx = n.getIncomingEdges().size() == 0 ? -1 : n.getIncomingEdges().get(0).getFromNode().getIndex();
-				int toIdx = n.getOutgoingEdges().size() == 0 ? -1 : n.getOutgoingEdges().get(0).getToNode().getIndex();
+				int fromIdx = n.getIncomingEdges().size() == 0 ? -1 : n
+						.getIncomingEdges().get(0).getFromNode().getIndex();
+				int toIdx = n.getOutgoingEdges().size() == 0 ? -1 : n
+						.getOutgoingEdges().get(0).getToNode().getIndex();
 				System.out.println(" _ " + fromIdx + "_" + toIdx);
 			}
 		}
 		System.out.println("Unknown tag count: " + unknownTagCnt);
-		System.out.println("Max unknown tag: " + Long.toHexString(maxUnknownTag));
-		System.out.println("Min unknown tag: " + Long.toHexString(minUnknownTag));
+		System.out.println("Max unknown tag: "
+				+ Long.toHexString(maxUnknownTag));
+		System.out.println("Min unknown tag: "
+				+ Long.toHexString(minUnknownTag));
 	}
-	
-	public static void outputTagComparisonInfo(ExecutionGraph graph1, ExecutionGraph graph2) {
-		System.out.println("New tags comparison for " + graph1 + " & " + graph2);
+
+	public static void outputTagComparisonInfo(ExecutionGraph graph1,
+			ExecutionGraph graph2) {
+		System.out
+				.println("New tags comparison for " + graph1 + " & " + graph2);
 		System.out.println("New tags for graph1: " + graph1);
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
 			Node n = graph1.getNodes().get(i);
 			NormalizedTag t = new NormalizedTag(n);
 			if (!graph2.normalizedTag2Node.containsKey(t)
 					&& t.moduleName.indexOf("Unknown") == -1) {
-//				if (t.moduleName.indexOf("HexEdit") != -1) {
-					System.out.println(t);
-//				}
+				// if (t.moduleName.indexOf("HexEdit") != -1) {
+				System.out.println(t);
+				// }
 			}
 		}
-		
+
 		System.out.println("New tags for graph2: " + graph2);
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node n = graph2.getNodes().get(i);
 			NormalizedTag t = new NormalizedTag(n);
 			if (!graph1.normalizedTag2Node.containsKey(t)
 					&& t.moduleName.indexOf("Unknown") == -1) {
-//				if (t.moduleName.indexOf("HexEdit") != -1) {
-					System.out.println(t);
-//				}
+				// if (t.moduleName.indexOf("HexEdit") != -1) {
+				System.out.println(t);
+				// }
 
 			}
 		}
-		
+
 		String modName = "comctl32.dll-1db1446a0006000a";
 		long relTag = Long.valueOf("2ec55", 16).longValue();
 		NormalizedTag tag = new NormalizedTag(modName, relTag);
-		Node n = graph2.normalizedTag2Node.get(tag),
-				previous_n = n.getIncomingEdges().get(0).getFromNode();;
+		Node n = graph2.normalizedTag2Node.get(tag), previous_n = n
+				.getIncomingEdges().get(0).getFromNode();
+		;
 		NormalizedTag previous_tag2 = new NormalizedTag(previous_n);
 		while (!graph1.normalizedTag2Node.containsKey(previous_tag2)) {
 			n = graph2.normalizedTag2Node.get(tag);

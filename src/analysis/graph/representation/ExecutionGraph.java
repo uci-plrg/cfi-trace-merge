@@ -111,7 +111,8 @@ public class ExecutionGraph {
 		return signature2Node;
 	}
 
-	// FIXME: Deep copy of a graph
+	// FIXME: Deep copy of a graph, but probably we don't need to call this
+	// function
 	public ExecutionGraph(ExecutionGraph anotherGraph) {
 		blockHashes = anotherGraph.blockHashes;
 
@@ -171,7 +172,7 @@ public class ExecutionGraph {
 	public void addSignatureNode(long sigHash) {
 		if (!signature2Node.containsKey(sigHash)) {
 			Node sigNode = new Node(this, sigHash, nodes.size(),
-					MetaNodeType.SIGNATURE_HASH, null);
+					MetaNodeType.SIGNATURE_HASH, NormalizedTag.blankTag);
 			signature2Node.put(sigNode.getHash(), sigNode);
 			sigNode.setIndex(nodes.size());
 			nodes.add(sigNode);
@@ -271,6 +272,8 @@ public class ExecutionGraph {
 
 		// Some other initialization and sanity checks
 		validate();
+		// Produce some analysis result for the graph
+		analyzeGraph();
 		if (!isValidGraph) {
 			System.out.println("Pid " + pid + " is not a valid graph!");
 		}
@@ -294,6 +297,23 @@ public class ExecutionGraph {
 
 	public boolean isValidGraph() {
 		return isValidGraph;
+	}
+
+	/**
+	 * Given a full module name, which is the module name with the version
+	 * number, e.g. comctl32.dll-1db1446a0006000a, this function will check if
+	 * this module is a core module
+	 * 
+	 * @param fullModuleName
+	 * @return
+	 */
+	private boolean isCoreModule(String fullModuleName) {
+		if (fullModuleName.equals("Unknown")) {
+			return false;
+		}
+		int idx = fullModuleName.lastIndexOf('-');
+		String modName = fullModuleName.substring(0, idx);
+		return ModuleDescriptor.coreModuleNames.contains(modName);
 	}
 
 	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles)
@@ -353,8 +373,7 @@ public class ExecutionGraph {
 					Node node = new Node(this, tag, hash, nodes.size(),
 							metaNodeType);
 
-					if (ModuleDescriptor.coreModuleNames
-							.contains(nodeModuleName)) {
+					if (isCoreModule(nodeModuleName)) {
 						if (!moduleGraphs.containsKey(nodeModuleName)) {
 							moduleGraphs.put(nodeModuleName, new ModuleGraph(
 									nodeModuleName, pid, modules));
@@ -515,7 +534,7 @@ public class ExecutionGraph {
 					// edge from signature node to real entry node is preserved.
 					// We onlly need to add the signature nodes to "nodes"
 					node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
-					if (ModuleDescriptor.coreModuleNames.contains(node2ModName)) {
+					if (isCoreModule(node2ModName)) {
 						ModuleGraph moduleGraph = moduleGraphs
 								.get(node2ModName);
 						// Make sure the signature node is added
@@ -527,8 +546,7 @@ public class ExecutionGraph {
 						Edge sigEntryEdge = new Edge(sigNode, node2, flags);
 						sigNode.addOutgoingEdge(sigEntryEdge);
 						node2.addIncomingEdge(sigEntryEdge);
-					} else if (ModuleDescriptor.coreModuleNames
-							.contains(node1ModName)) {
+					} else if (isCoreModule(node1ModName)) {
 						// Make sure the signature node is added
 						addSignatureNode(signatureHash);
 						Node sigNode = signature2Node.get(signatureHash);
@@ -635,7 +653,7 @@ public class ExecutionGraph {
 					if (node1.getHash() == Long.valueOf("65d58c0d8d34455a", 16)
 							&& node2.getHash() == Long.valueOf("2013ccd675e",
 									16)) {
-//						System.out.println();
+						// System.out.println();
 					}
 
 					// If one of the node locates in the "unknown" module,
@@ -649,13 +667,10 @@ public class ExecutionGraph {
 					}
 
 					if ((!node1ModName.equals(node2ModName))
-							&& (ModuleDescriptor.coreModuleNames
-									.contains(node1ModName)
-							|| ModuleDescriptor.coreModuleNames
-									.contains(node2ModName))) {
+							&& (isCoreModule(node1ModName) || isCoreModule(node2ModName))) {
 						wrongIntraModuleEdgeCnt++;
 						// Ignore those wrong edges at this point
-//						System.out.println(node1 + "=>" + node2);
+						// System.out.println(node1 + "=>" + node2);
 						continue;
 					}
 
@@ -827,6 +842,51 @@ public class ExecutionGraph {
 				danglingNodes.add(n);
 		}
 		return danglingNodes;
+	}
+
+	/**
+	 * This function is called when the graph is constructed. It can contain any
+	 * kind of analysis of the current ExecutionGraph and output it the the
+	 * console.
+	 * 
+	 * It could actually contains information like: 1. Number of nodes &
+	 * signature nodes in the main module and in every module. 2. Number of
+	 * non-kernel modules in the main module.
+	 */
+	public void analyzeGraph() {
+		int nodeCnt = nodes.size(), realNodeCnt = nodes.size()
+				- signature2Node.size();
+		System.out.println("Number of nodes in the main module: " + nodeCnt);
+		System.out.println("Number of real nodes in the main module: "
+				+ realNodeCnt);
+		System.out.println("Number of signature nodes in the main module: "
+				+ signature2Node.size());
+		for (String name : moduleGraphs.keySet()) {
+			ModuleGraph mGraph = moduleGraphs.get(name);
+			nodeCnt += mGraph.nodes.size();
+			realNodeCnt += mGraph.nodes.size() - mGraph.signature2Node.size();
+		}
+		System.out.println("Number of nodes in all module: " + nodeCnt);
+		System.out.println("Number of real nodes in the all module: "
+				+ realNodeCnt);
+
+		ArrayList<String> modulesInMain = new ArrayList<String>();
+		for (int i = 0; i < nodes.size(); i++) {
+			Node n = nodes.get(i);
+			String modName = n.getNormalizedTag().moduleName;
+			if (modName.equals("Unknown")
+					|| modName.equals("")) {
+				continue;
+			}
+			if (!modulesInMain.contains(modName)) {
+				modulesInMain.add(modName);
+			}
+		}
+		for (int i = 0; i < modulesInMain.size(); i++) {
+			System.out.print(modulesInMain.get(i) + "  ");
+		}
+		System.out.println();
+		System.out.println("Number of modules in main: " + modulesInMain.size());
 	}
 
 	/**

@@ -5,6 +5,16 @@ import utils.AnalysisUtil;
 public class NormalizedTag {
 	public final String moduleName;
 	public final Long relativeTag;
+	
+	public static final NormalizedTag blankTag = new NormalizedTag();
+	
+	/**
+	 * This is a special constructor that creates a illegal normalized tag
+	 */
+	private NormalizedTag() {
+		moduleName = "";
+		relativeTag = 0l;
+	}
 
 	public NormalizedTag(Node n) {
 		if (n.getMetaNodeType() == MetaNodeType.SIGNATURE_HASH) {
@@ -24,7 +34,12 @@ public class NormalizedTag {
 	}
 	
 	public String toString() {
-		return moduleName + "_" + Long.toHexString(relativeTag);
+		if (moduleName.equals("")) {
+			return "Illegal_Blank_Tag";
+		} else {
+			return moduleName + "_" + Long.toHexString(relativeTag);	
+		}
+		
 	}
 
 	public boolean equals(Object o) {

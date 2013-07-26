@@ -60,6 +60,7 @@ public class Node implements NodeList {
 	public NodeList copy(ExecutionGraph containingGraph) {
 		return new Node(containingGraph, this, true);
 	}
+	
 
 	public NormalizedTag getNormalizedTag() {
 		return normalizedTag;
@@ -185,7 +186,7 @@ public class Node implements NodeList {
 		}
 	}
 
-	// Not a deep copy, we don't care about edges...
+	// !!!Not a deep copy, we don't copy edges...
 	public Node(ExecutionGraph containingGraph, Node anotherNode) {
 		this(containingGraph, anotherNode.tag, anotherNode.hash,
 				anotherNode.index, MetaNodeType.NORMAl);
@@ -208,6 +209,9 @@ public class Node implements NodeList {
 
 	public Node(ExecutionGraph containingGraph, long hash, int index,
 			MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
+		if (normalizedTag == null) {
+			throw new NullPointerException("NormalizedTag should not be null!");
+		}
 		this.tag = -1;
 		this.hash = hash;
 		this.index = index;
@@ -216,7 +220,7 @@ public class Node implements NodeList {
 		this.containingGraph = containingGraph;
 
 		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
-			this.normalizedTag = null;
+			this.normalizedTag = NormalizedTag.blankTag;
 		} else {
 			this.normalizedTag = normalizedTag;
 		}
