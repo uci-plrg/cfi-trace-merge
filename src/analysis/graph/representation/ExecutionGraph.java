@@ -635,7 +635,7 @@ public class ExecutionGraph {
 					if (node1.getHash() == Long.valueOf("65d58c0d8d34455a", 16)
 							&& node2.getHash() == Long.valueOf("2013ccd675e",
 									16)) {
-						System.out.println();
+//						System.out.println();
 					}
 
 					// If one of the node locates in the "unknown" module,

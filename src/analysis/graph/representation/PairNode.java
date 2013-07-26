@@ -23,7 +23,9 @@ public class PairNode {
 	}
 
 	public String toString() {
-		return node1.getIndex() + "<->" + node2.getIndex();
+		String node1Str = node1 == null ? "null" : Integer.toString(node1.getIndex()),
+				node2Str = node2 == null ? "null" : Integer.toString(node2.getIndex());
+		return node1Str + "<->" + node2Str;
 	}
 
 	public Node getNode1() {

@@ -25,7 +25,6 @@ public class GraphMergingInfo {
 	public static final float LowMatchingThreshold = 0.15f;
 
 	private float setInterRate;
-	private float nodeInterRate;
 	private int totalNodeSize;
 	private int totalHashSize;
 	private int interHashSize;
@@ -48,7 +47,6 @@ public class GraphMergingInfo {
 		// totalNodeSize = graph1.getAccessibleNodes().size() +
 		// graph2.getAccessibleNodes().size()
 		// - matchedNodes.size();
-		nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 	}
 
 	public ArrayList<Node> unmatchedGraph1Nodes() {
@@ -74,6 +72,7 @@ public class GraphMergingInfo {
 	}
 
 	public boolean lowMatching() {
+		float nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 		if ((setInterRate - nodeInterRate) > LowMatchingThreshold) {
 			return true;
 		} else {
@@ -90,20 +89,22 @@ public class GraphMergingInfo {
 
 	synchronized public void outputMergedGraphInfo() {
 		if (graph1 instanceof ModuleGraph) {
-			System.out.println("Comparison for " + graph1.getProgName() + ":");
+			System.out.println("Comparison for " + graph1.getProgName() + "_"
+					+ graph1.getPid() + " & " + graph2.getProgName() + "_"
+					+ graph2.getPid() + ":");
 		} else {
 			System.out.println("Comparison between " + graph1.getProgName()
 					+ graph1.getPid() + " & " + graph2.getProgName()
 					+ graph2.getPid() + ":");
-			System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir()) + " & "
-					+ AnalysisUtil.getRunStr(graph2.getRunDir()));
+			System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir())
+					+ " & " + AnalysisUtil.getRunStr(graph2.getRunDir()));
 
 			System.out.println("Size of nodes in graph1: "
 					+ graph1.getNodes().size());
 			System.out.println("Size of nodes in graph2: "
 					+ graph2.getNodes().size());
 		}
-		
+
 		System.out.println("Intersection ratio of block hashes: "
 				+ setInterRate + "  " + graph1.getBlockHashes().size() + ","
 				+ graph2.getBlockHashes().size() + ":" + interHashSize + "/"
@@ -112,11 +113,12 @@ public class GraphMergingInfo {
 		System.out.println("Graph1 nodes: " + graph1.getNodes().size());
 		System.out.println("Graph2 nodes: " + graph2.getNodes().size());
 		System.out.println("Total nodes: " + totalNodeSize);
-		
+
 		System.out.println("Merged nodes / G1 nodes: "
 				+ (float) matchedNodes.size() / graph1.getNodes().size());
 		System.out.println("Merged nodes / G2 nodes: "
 				+ (float) matchedNodes.size() / graph2.getNodes().size());
+		float nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 		System.out.println("Merged nodes / all nodes: " + nodeInterRate);
 		System.out.println();
 	}
@@ -286,9 +288,5 @@ public class GraphMergingInfo {
 
 	public float getSetInterRate() {
 		return setInterRate;
-	}
-
-	public float getNodeInterRate() {
-		return nodeInterRate;
 	}
 }

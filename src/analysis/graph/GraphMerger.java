@@ -84,7 +84,7 @@ public class GraphMerger {
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
 			for (int i = 0; i <= 0; i++) {
-				for (int j = 10; j <= 10; j++) {
+				for (int j = 30; j <= 30; j++) {
 					if (i == j) {
 						continue;
 					}
@@ -100,13 +100,15 @@ public class GraphMerger {
 							.get(0);
 					GraphMerger graphMerger = new GraphMerger(graph1, graph2);
 
-//					ArrayList<CompleteExecutionGraph> cGraphs1 = CompleteExecutionGraph
-//							.buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 = CompleteExecutionGraph
-//							.buildCompleteGraphsFromRunDir(graphDir2);
-//					if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-//						GraphMergingInfo.dumpGraph(cGraphs1.get(0),
-//								DebugUtils.GRAPH_DIR + "complete.dot");
-//					}
+					// ArrayList<CompleteExecutionGraph> cGraphs1 =
+					// CompleteExecutionGraph
+					// .buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 =
+					// CompleteExecutionGraph
+					// .buildCompleteGraphsFromRunDir(graphDir2);
+					// if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
+					// GraphMergingInfo.dumpGraph(cGraphs1.get(0),
+					// DebugUtils.GRAPH_DIR + "complete.dot");
+					// }
 
 					try {
 						graphMerger.mergeGraph();
@@ -161,7 +163,7 @@ public class GraphMerger {
 	protected ExecutionGraph mergedGraph;
 	protected HashMap<String, ModuleGraph> mergedModules;
 
-	public static GraphMergingInfo graphMergingInfo;
+	public GraphMergingInfo graphMergingInfo;
 
 	// Record matched nodes
 	protected MatchedNodes matchedNodes = new MatchedNodes();
@@ -487,10 +489,6 @@ public class GraphMerger {
 	private Node getCorrespondingNode(Node node2) {
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			DebugUtils.debug_pureHeuristicCnt++;
-		}
-
-		if (node2.getIndex() == 23067) {
-			System.out.println();
 		}
 
 		// First check if this is a node already merged
@@ -1060,6 +1058,13 @@ public class GraphMerger {
 		return null;
 	}
 
+	protected void addUnmatchedNode2Queue(Node node2, int level) {
+		if (node2 == null) {
+			throw new NullPointerException("There is a bug here!");
+		}
+		unmatchedQueue.add(new PairNode(null, node2, level));
+	}
+
 	/**
 	 * Setup before matching the two graphs.
 	 */
@@ -1088,17 +1093,17 @@ public class GraphMerger {
 		HashMap<Long, Node> graph1Sig2Node = graph1.getSigature2Node(), graph2Sig2Node = graph2
 				.getSigature2Node();
 
-		for (long sigHash : graph1Sig2Node.keySet()) {
-			if (graph2Sig2Node.containsKey(sigHash)) {
+		for (long sigHash : graph2Sig2Node.keySet()) {
+			if (graph1Sig2Node.containsKey(sigHash)) {
 				Node n1 = graph1Sig2Node.get(sigHash);
 				Node n2 = graph2Sig2Node.get(sigHash);
 
 				PairNode pairNode = new PairNode(n1, n2, 0);
 				matchedQueue.add(pairNode);
 				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
-				
+
 				if (DebugUtils.debug) {
-//					AnalysisUtil.outputIndirectNodesInfo(n1, n2);
+					// AnalysisUtil.outputIndirectNodesInfo(n1, n2);
 				}
 
 				if (DebugUtils.debug) {
@@ -1109,6 +1114,14 @@ public class GraphMerger {
 					System.out.println("SignatureNode: " + n1.getIndex()
 							+ "<->" + n2.getIndex() + "(by ...)");
 				}
+			} else {
+				// Push new signature node to prioritize the speculation to the
+				// beginning of the graph
+				Node n2 = graph2Sig2Node.get(sigHash);
+				if (n2 == null) {
+					System.out.println(0);
+				}
+				addUnmatchedNode2Queue(n2, -1);
 			}
 		}
 
@@ -1155,6 +1168,10 @@ public class GraphMerger {
 		// the scoring of all the possible cases
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 			speculativeScoreList = new SpeculativeScoreList(this);
+		}
+
+		if (graph1.getProgName().equals("Module_shell32.dll-1db1446a00060001")) {
+			System.out.println();
 		}
 
 		PairNode pairNode = null;
@@ -1255,8 +1272,8 @@ public class GraphMerger {
 							// Should mark that this node should never be
 							// matched when
 							// it is popped out of the unmatchedQueue
-							unmatchedQueue.add(new PairNode(null,
-									e.getToNode(), pairNode.level + 1, true));
+							addUnmatchedNode2Queue(e.getToNode(),
+									pairNode.level + 1);
 						}
 					} else {
 						// Add the indirect node to the queue
@@ -1316,8 +1333,7 @@ public class GraphMerger {
 						DebugUtils.debug_indirectHeuristicUnmatchedCnt++;
 					}
 
-					unmatchedQueue.add(new PairNode(null, e.getToNode(),
-							pairNode.level + 1));
+					addUnmatchedNode2Queue(e.getToNode(), pairNode.level + 1);
 				}
 
 			} else {
@@ -1362,8 +1378,8 @@ public class GraphMerger {
 						if (e.getToNode().isVisited())
 							continue;
 
-						unmatchedQueue.add(new PairNode(null, e.getToNode(),
-								pairNode.level + 1));
+						addUnmatchedNode2Queue(e.getToNode(),
+								pairNode.level + 1);
 					}
 					curNode.setVisited();
 				}
@@ -1439,19 +1455,25 @@ public class GraphMerger {
 				ModuleGraphMerger mGraphMerger = new ModuleGraphMerger(module1,
 						module2);
 				try {
-					ModuleGraph mergedGraph = (ModuleGraph) mGraphMerger
+					ModuleGraph mergedModuleGraph = (ModuleGraph) mGraphMerger
 							.mergeGraph();
 					if (mergedGraph == null) {
 						System.out
 								.println("Conflict occurs when matching module "
 										+ name + "!");
+						hasConflict = true;
 					} else {
-						modName2Graph.put(name, mergedGraph);
+						modName2Graph.put(name, mergedModuleGraph);
 					}
 				} catch (WrongEdgeTypeException e) {
 					e.printStackTrace();
 				}
 			}
+		}
+		
+		if (hasConflict) {
+			System.out.println("A conflict happens when matching the grahps!");
+			
 		}
 		return modName2Graph;
 	}

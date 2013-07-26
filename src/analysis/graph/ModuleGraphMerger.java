@@ -18,8 +18,13 @@ import analysis.graph.representation.PairNodeEdge;
 public class ModuleGraphMerger extends GraphMerger {
 
 	public ModuleGraphMerger(ModuleGraph graph1, ModuleGraph graph2) {
-		this.graph1 = graph1;
-		this.graph2 = graph2;
+		if (graph1.getNodes().size() > graph2.getNodes().size()) {
+			this.graph1 = graph1;
+			this.graph2 = graph2;
+		} else {
+			this.graph1 = graph2;
+			this.graph2 = graph1;
+		}
 
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
 			GraphMergingInfo.dumpGraph(
@@ -64,8 +69,8 @@ public class ModuleGraphMerger extends GraphMerger {
 
 		HashMap<Long, Node> graph1Sig2Node = mGraph1.getSigature2Node(), graph2Sig2Node = mGraph2
 				.getSigature2Node();
-		for (long sigHash : graph1Sig2Node.keySet()) {
-			if (graph2Sig2Node.containsKey(sigHash)) {
+		for (long sigHash : graph2Sig2Node.keySet()) {
+			if (graph1Sig2Node.containsKey(sigHash)) {
 				Node n1 = graph1Sig2Node.get(sigHash);
 				Node n2 = graph2Sig2Node.get(sigHash);
 
@@ -83,8 +88,13 @@ public class ModuleGraphMerger extends GraphMerger {
 									n2.getIndex(), MatchingType.SignatureNode,
 									-1));
 				}
+			} else {
+				// Push new signature node to prioritize the speculation to the
+				// beginning of the graph
+				Node n2 = graph2Sig2Node.get(sigHash);
+				addUnmatchedNode2Queue(n2, -1);
 			}
-		}
+		} 
 		return true;
 	}
 }
