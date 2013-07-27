@@ -596,8 +596,7 @@ public class ExecutionGraph {
 			FileInputStream fileIn = null;
 			ByteBuffer buffer = ByteBuffer.allocate(0x8);
 			buffer.order(ByteOrder.LITTLE_ENDIAN);
-			// Track how many tags does not exist in lookup file
-			HashSet<Long> hashesNotInLookup = new HashSet<Long>();
+
 			try {
 				fileIn = new FileInputStream(file);
 				FileChannel channel = fileIn.getChannel();
@@ -629,7 +628,6 @@ public class ExecutionGraph {
 
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
-						hashesNotInLookup.add(tag1);
 						if (DebugUtils.ThrowTagNotFound) {
 							throw new TagNotFoundException("0x"
 									+ Long.toHexString(tag1)
@@ -637,7 +635,6 @@ public class ExecutionGraph {
 						}
 					}
 					if (node2 == null) {
-						hashesNotInLookup.add(tag2);
 						if (DebugUtils.ThrowTagNotFound) {
 							throw new TagNotFoundException("0x"
 									+ Long.toHexString(tag2)
@@ -650,15 +647,8 @@ public class ExecutionGraph {
 						}
 					}
 
-					if (node1.getHash() == Long.valueOf("65d58c0d8d34455a", 16)
-							&& node2.getHash() == Long.valueOf("2013ccd675e",
-									16)) {
-						// System.out.println();
-					}
-
 					// If one of the node locates in the "unknown" module,
-					// simply
-					// discard those edges
+					// simply discard those edges
 					String node1ModName = AnalysisUtil.getModuleName(node1), node2ModName = AnalysisUtil
 							.getModuleName(node2);
 					if (node1ModName.equals("Unknown")
@@ -686,6 +676,7 @@ public class ExecutionGraph {
 									+ ": " + existing.getToNode() + "Edge2: "
 									+ node1.getHash() + "->" + node2.getHash()
 									+ ": " + flags;
+							System.out.println(msg);
 							if (DebugUtils.ThrowMultipleEdge) {
 								throw new MultipleEdgeException(msg);
 							}
@@ -699,15 +690,12 @@ public class ExecutionGraph {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if (hashesNotInLookup.size() != 0) {
-				// For now, the missing lookup entry is small, just skip it
-				// isValidGraph = false;
-				// System.out.println(hashesNotInLookup.size()
-				// + " tag doesn't exist in lookup file -> " + tagFile);
-			}
 
-			System.out.println("There are " + wrongIntraModuleEdgeCnt
-					+ " cross-module edges in the intra-module edge file");
+			// Output the count for wrong edges if there is any
+			if (wrongIntraModuleEdgeCnt > 0) {
+				System.out.println("There are " + wrongIntraModuleEdgeCnt
+						+ " cross-module edges in the intra-module edge file");
+			}
 
 			if (fileIn != null) {
 				try {
@@ -854,6 +842,7 @@ public class ExecutionGraph {
 	 * non-kernel modules in the main module.
 	 */
 	public void analyzeGraph() {
+		// Output basic nodes info 
 		int nodeCnt = nodes.size(), realNodeCnt = nodes.size()
 				- signature2Node.size();
 		System.out.println("Number of nodes in the main module: " + nodeCnt);
@@ -870,12 +859,12 @@ public class ExecutionGraph {
 		System.out.println("Number of real nodes in the all module: "
 				+ realNodeCnt);
 
+		// List how many non-core modules in main
 		ArrayList<String> modulesInMain = new ArrayList<String>();
 		for (int i = 0; i < nodes.size(); i++) {
 			Node n = nodes.get(i);
 			String modName = n.getNormalizedTag().moduleName;
-			if (modName.equals("Unknown")
-					|| modName.equals("")) {
+			if (modName.equals("Unknown") || modName.equals("")) {
 				continue;
 			}
 			if (!modulesInMain.contains(modName)) {
@@ -886,7 +875,44 @@ public class ExecutionGraph {
 			System.out.print(modulesInMain.get(i) + "  ");
 		}
 		System.out.println();
-		System.out.println("Number of modules in main: " + modulesInMain.size());
+		System.out
+				.println("Number of modules in main: " + modulesInMain.size());
+		
+		// Count the subgraph with the most reachable nodes
+		int maxCnt = 0;
+		long maxSigHash = -1;
+		for (long sigHash : signature2Node.keySet()) {
+			Node sigNode = signature2Node.get(sigHash);
+			for (int k = 0; k < sigNode.getOutgoingEdges().size(); k++) {
+				Node realEntryNode = sigNode.getOutgoingEdges().get(k).getToNode();
+				
+				Queue<Node> bfsQueue = new LinkedList<Node>();
+				int cnt = 0;
+				for (int i = 0; i < nodes.size(); i++) {
+					nodes.get(i).resetVisited();
+				}
+				bfsQueue.add(realEntryNode);
+				
+				while (bfsQueue.size() > 0) {
+					Node n = bfsQueue.remove();
+					n.setVisited();
+					cnt++;
+					for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
+						Node neighbor = n.getOutgoingEdges().get(i).getToNode();
+						if (!neighbor.isVisited()) {
+							bfsQueue.add(neighbor);
+							neighbor.setVisited();
+						}
+					}
+				}
+				if (cnt > maxCnt) {
+					maxCnt = cnt;
+					maxSigHash = realEntryNode.getHash();
+				}
+			}
+		}
+		System.out.println(Long.toHexString(maxSigHash) + " has the most reachable nodes (" +
+				maxCnt + ").");
 	}
 
 	/**

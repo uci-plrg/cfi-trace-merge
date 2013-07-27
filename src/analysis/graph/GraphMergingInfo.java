@@ -21,6 +21,13 @@ public class GraphMergingInfo {
 
 	public final ExecutionGraph graph1, graph2;
 	public final MatchedNodes matchedNodes;
+	
+	private int indirectEdgeTrialCnt = 0;
+	private int indirectEdgeMatchCnt = 0;
+	private int pureHeuristicTrialCnt = 0;
+	private int pureHeuristicMatchCnt = 0;
+	private int directMatchCnt = 0;
+	private int callContinuationMatchCnt = 0;
 
 	public static final float LowMatchingThreshold = 0.15f;
 
@@ -42,11 +49,33 @@ public class GraphMergingInfo {
 		interHashSize = interBlockHashes.size();
 		totalHashSize = totalBlockHashes.size();
 		setInterRate = (float) interBlockHashes.size() / totalHashSize;
-		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
-				- matchedNodes.size();
 		// totalNodeSize = graph1.getAccessibleNodes().size() +
 		// graph2.getAccessibleNodes().size()
 		// - matchedNodes.size();
+	}
+	
+	public void tryIndirectMatch() {
+		indirectEdgeTrialCnt++;
+	}
+	
+	public void tryPureHeuristicMatch() {
+		pureHeuristicTrialCnt++;
+	}
+	
+	public void indirectMatch() {
+		indirectEdgeMatchCnt++;
+	}
+	
+	public void pureHeuristicMatch() {
+		pureHeuristicMatchCnt++;
+	}
+	
+	public void directMatch() {
+		directMatchCnt++;
+	}
+	
+	public void callContinuationMatch() {
+		callContinuationMatchCnt++;
 	}
 
 	public ArrayList<Node> unmatchedGraph1Nodes() {
@@ -88,6 +117,8 @@ public class GraphMergingInfo {
 	}
 
 	synchronized public void outputMergedGraphInfo() {
+		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
+				- matchedNodes.size();
 		if (graph1 instanceof ModuleGraph) {
 			System.out.println("Comparison for " + graph1.getProgName() + "_"
 					+ graph1.getPid() + " & " + graph2.getProgName() + "_"
@@ -120,6 +151,14 @@ public class GraphMergingInfo {
 				+ (float) matchedNodes.size() / graph2.getNodes().size());
 		float nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 		System.out.println("Merged nodes / all nodes: " + nodeInterRate);
+		
+		System.out.println("Indirect edge trial: " + indirectEdgeTrialCnt);
+		System.out.println("Indirect edge matched: " + indirectEdgeMatchCnt);
+		System.out.println("Pure Heuristic trial: " + pureHeuristicTrialCnt);
+		System.out.println("Pure Heuristic match: " + pureHeuristicMatchCnt);
+		System.out.println("Direct match: " + directMatchCnt);
+		System.out.println("CallContinuation Match: " + callContinuationMatchCnt);
+		
 		System.out.println();
 	}
 

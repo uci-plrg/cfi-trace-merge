@@ -61,6 +61,8 @@ public class ModuleGraphMerger extends GraphMerger {
 		matchedQueue = new LinkedList<PairNode>();
 		unmatchedQueue = new LinkedList<PairNode>();
 		indirectChildren = new LinkedList<PairNodeEdge>();
+		
+		graphMergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
 
 		// Initialize debugging info before merging the graph
 		if (DebugUtils.debug) {
@@ -77,6 +79,8 @@ public class ModuleGraphMerger extends GraphMerger {
 				PairNode pairNode = new PairNode(n1, n2, 0);
 				matchedQueue.add(pairNode);
 				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
+				
+				graphMergingInfo.directMatch();
 
 				if (DebugUtils.debug) {
 //					AnalysisUtil.outputIndirectNodesInfo(n1, n2);
