@@ -83,7 +83,7 @@ public class GraphMerger {
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
 			for (int i = 0; i <= 2; i++) {
-				for (int j = 0; j <= 2; j++) {
+				for (int j = 10; j <= 12; j++) {
 					if (i == j) {
 						continue;
 					}

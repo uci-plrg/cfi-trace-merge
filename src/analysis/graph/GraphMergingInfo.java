@@ -134,6 +134,11 @@ public class GraphMergingInfo {
 					+ graph1.getNodes().size());
 			System.out.println("Size of nodes in graph2: "
 					+ graph2.getNodes().size());
+			
+			HashSet<Long> totalBlockSet = AnalysisUtil.intersection(graph1.getTotalBlockHashes(), graph2.getTotalBlockHashes());
+			System.out.println("Total block hashes: " + totalBlockSet.size());
+			System.out.println("Total block hashes of graph1: " + graph1.getTotalBlockHashes().size());
+			System.out.println("Total block hashes of graph2: " + graph2.getTotalBlockHashes().size());
 		}
 
 		System.out.println("Intersection ratio of block hashes: "

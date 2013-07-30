@@ -59,6 +59,8 @@ import analysis.graph.debug.DebugUtils;
 
 public class ExecutionGraph {
 	protected HashSet<Long> blockHashes;
+	
+	private HashSet<Long> totalBlockHashes;
 
 	// Represents the list of core modules
 	private HashMap<String, ModuleGraph> moduleGraphs;
@@ -115,6 +117,7 @@ public class ExecutionGraph {
 	// function
 	public ExecutionGraph(ExecutionGraph anotherGraph) {
 		blockHashes = anotherGraph.blockHashes;
+		totalBlockHashes = anotherGraph.totalBlockHashes;
 
 		runDir = anotherGraph.runDir;
 		progName = anotherGraph.progName;
@@ -192,6 +195,10 @@ public class ExecutionGraph {
 	public HashSet<Long> getBlockHashes() {
 		return blockHashes;
 	}
+	
+	public HashSet<Long> getTotalBlockHashes() {
+		return totalBlockHashes;
+	}
 
 	/**
 	 * This is a blank constructor which should be used when combining two
@@ -233,6 +240,7 @@ public class ExecutionGraph {
 		nodes = new ArrayList<Node>();
 		hash2Nodes = new NodeHashMap();
 		blockHashes = new HashSet<Long>();
+		totalBlockHashes = new HashSet<Long>();
 
 		this.progName = AnalysisUtil.getProgName(intraModuleEdgeFiles.get(0));
 		this.runDir = AnalysisUtil.getRunStr(intraModuleEdgeFiles.get(0));
@@ -298,6 +306,7 @@ public class ExecutionGraph {
 	public boolean isValidGraph() {
 		return isValidGraph;
 	}
+	
 
 	/**
 	 * Given a full module name, which is the module name with the version
@@ -405,6 +414,11 @@ public class ExecutionGraph {
 				}
 			}
 		}
+		// Store the total block hash code
+		for (long hash : hashLookupTable.keySet()) {
+			totalBlockHashes.add(hash);
+		}
+		
 		return hashLookupTable;
 	}
 
