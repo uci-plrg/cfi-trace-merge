@@ -9,8 +9,11 @@ import java.util.ArrayList;
  * 
  */
 public class Node implements NodeList {
+	// Added for re-writable code
+	private VersionedTag tag;
+
 	private ExecutionGraph containingGraph;
-	private long tag, hash;
+	private long hash;
 
 	// Record the normalized tag of the node
 	private NormalizedTag normalizedTag;
@@ -60,7 +63,6 @@ public class Node implements NodeList {
 	public NodeList copy(ExecutionGraph containingGraph) {
 		return new Node(containingGraph, this, true);
 	}
-	
 
 	public NormalizedTag getNormalizedTag() {
 		return normalizedTag;
@@ -122,7 +124,7 @@ public class Node implements NodeList {
 		return this.metaNodeType;
 	}
 
-	public long getTag() {
+	public VersionedTag getTag() {
 		return tag;
 	}
 
@@ -180,7 +182,8 @@ public class Node implements NodeList {
 
 	public String toString() {
 		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
-			return "0x" + Long.toHexString(hash) + ":" + normalizedTag;
+			return "0x" + Long.toHexString(hash) + ":" + normalizedTag + "-"
+					+ tag.versionNumber;
 		} else {
 			return "SIG: 0x" + Long.toHexString(hash);
 		}
@@ -197,7 +200,7 @@ public class Node implements NodeList {
 
 	// Copy 'everything' except fromWhichGraph
 	public Node(ExecutionGraph containingGraph, Node anotherNode,
-			int fromWhichGraph) {
+			int fromWhichGraph, int versionNumber) {
 		this(containingGraph, anotherNode.tag, anotherNode.hash,
 				anotherNode.index, MetaNodeType.NORMAl);
 		this.score = anotherNode.score;
@@ -212,7 +215,7 @@ public class Node implements NodeList {
 		if (normalizedTag == null) {
 			throw new NullPointerException("NormalizedTag should not be null!");
 		}
-		this.tag = -1;
+		this.tag = VersionedTag.voidTag;
 		this.hash = hash;
 		this.index = index;
 		this.fromWhichGraph = -1;
@@ -227,8 +230,8 @@ public class Node implements NodeList {
 
 	}
 
-	public Node(ExecutionGraph containingGraph, long tag, long hash, int index,
-			MetaNodeType metaNodeType) {
+	public Node(ExecutionGraph containingGraph, VersionedTag tag, long hash,
+			int index, MetaNodeType metaNodeType) {
 		this.tag = tag;
 		this.hash = hash;
 		this.index = index;
@@ -239,7 +242,7 @@ public class Node implements NodeList {
 		this.normalizedTag = new NormalizedTag(this);
 	}
 
-	public Node(ExecutionGraph containingGraph, long tag) {
+	public Node(ExecutionGraph containingGraph, VersionedTag tag) {
 		this.containingGraph = containingGraph;
 		this.tag = tag;
 		isVisited = false;
@@ -262,9 +265,9 @@ public class Node implements NodeList {
 	}
 
 	/**
-	 * In a single execution, tag is the only identifier for the normal nodes.
-	 * This is particularly used in the initialization of the graph, where
-	 * hashtables are needed.
+	 * In a single execution, tag combined with the version number is the only
+	 * identifier for the normal nodes. This is particularly used in the
+	 * initialization of the graph, where hashtables are needed.
 	 * 
 	 * For signature nodes, the node should be empty if they are both signature
 	 * nodes and they have the same hash signature.
@@ -283,7 +286,7 @@ public class Node implements NodeList {
 			}
 		}
 
-		if (node.tag == tag && node.containingGraph == containingGraph)
+		if (node.tag.equals(tag) && node.containingGraph == containingGraph)
 			return true;
 		else
 			return false;
@@ -293,8 +296,7 @@ public class Node implements NodeList {
 		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
 			return ((Long) hash).hashCode();
 		}
-
-		return ((Long) tag).hashCode() << 5 ^ ((Long) hash).hashCode();
+		return tag.hashCode() << 5 ^ ((Long) hash).hashCode();
 	}
 
 	public boolean isReachable() {

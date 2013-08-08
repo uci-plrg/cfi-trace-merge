@@ -82,9 +82,9 @@ public class GraphMerger {
 			ArrayList<String> runDirs = AnalysisUtil
 					.getAllRunDirs(DebugUtils.TMP_HASHLOG_DIR);
 
-			for (int i = 0; i <= 2; i++) {
-				for (int j = 10; j <= 12; j++) {
-					if (i == j) {
+			for (int i = 11; i <= 11; i++) {
+				for (int j = 12; j <= 12; j++) {
+					if (i >= j) {
 						continue;
 					}
 					System.out.println("### --------------- ###");
@@ -96,27 +96,40 @@ public class GraphMerger {
 							.buildGraphsFromRunDir(graphDir1), graphs2 = ExecutionGraph
 							.buildGraphsFromRunDir(graphDir2);
 
-					GraphMerger graphMerger = new GraphMerger(graphs1.get(0), graphs2.get(0));
+					for (int k = 0; k < graphs1.size(); k++) {
+						for (int l = 0; l < graphs2.size(); l++) {
+							ExecutionGraph g1 = graphs1.get(k), g2 = graphs2
+									.get(l);
+							if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
+								AnalysisUtil.filteroutImmeAddr(g1, g2);
+							}
+							GraphMerger graphMerger = new GraphMerger(g1, g2);
 
-					// ArrayList<CompleteExecutionGraph> cGraphs1 =
-					// CompleteExecutionGraph
-					// .buildCompleteGraphsFromRunDir(graphDir1), cGraphs2 =
-					// CompleteExecutionGraph
-					// .buildCompleteGraphsFromRunDir(graphDir2);
-					// if (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH)) {
-					// GraphMergingInfo.dumpGraph(cGraphs1.get(0),
-					// DebugUtils.GRAPH_DIR + "complete.dot");
-					// }
+							// ArrayList<CompleteExecutionGraph> cGraphs1 =
+							// CompleteExecutionGraph
+							// .buildCompleteGraphsFromRunDir(graphDir1),
+							// cGraphs2 =
+							// CompleteExecutionGraph
+							// .buildCompleteGraphsFromRunDir(graphDir2);
+							// if
+							// (DebugUtils.debug_decision(DebugUtils.DUMP_GRAPH))
+							// {
+							// GraphMergingInfo.dumpGraph(cGraphs1.get(0),
+							// DebugUtils.GRAPH_DIR + "complete.dot");
+							// }
 
-					try {
-						graphMerger.mergeGraph();
-						graphMerger.mergeModules();
+							try {
+								graphMerger.mergeGraph();
+								graphMerger.mergeModules();
 
-						if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-							// SpeculativeScoreList.showGlobalStats();
+								if (DebugUtils
+										.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+									// SpeculativeScoreList.showGlobalStats();
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			}
@@ -547,13 +560,13 @@ public class GraphMerger {
 			// matching score to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				String moduleName = AnalysisUtil.getModuleName(graph2,
-						node2.getTag());
+						node2.getTag().tag);
 				long relativeTag = AnalysisUtil.getRelativeTag(graph2,
-						node2.getTag());
+						node2.getTag().tag);
 				DebugUtils.getScorePW().print(
 						"PureHeuristic_" + moduleName + "_0x"
 								+ Long.toHexString(relativeTag) + "_0x"
-								+ Long.toHexString(node2.getTag()) + ":\t");
+								+ Long.toHexString(node2.getTag().tag) + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
 					if (n.getScore() > 0) {
@@ -579,8 +592,14 @@ public class GraphMerger {
 	}
 
 	/**
+	 * <p>
 	 * Search for corresponding direct child node, including direct edge and
 	 * call continuation edges
+	 * </p>
+	 * <p>
+	 * For direct edges with the same ordinal, we just treat them as indirect
+	 * edges because they might've already been re-written.
+	 * </p>
 	 * 
 	 * @param parentNode1
 	 * @param curNodeEdge
@@ -614,7 +633,7 @@ public class GraphMerger {
 							System.out
 									.println("Call continuation has different targets!");
 						}
-						
+
 						if (DebugUtils.debug_decision(DebugUtils.MERGE_ERROR)) {
 							System.out.println("Direct edge conflict: "
 									+ e.getToNode().getIndex() + "<->"
@@ -657,7 +676,7 @@ public class GraphMerger {
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			DebugUtils.debug_indirectHeuristicCnt++;
 		}
-		
+
 		graphMergingInfo.tryIndirectMatch();
 
 		Node curNode = curNodeEdge.getToNode();
@@ -707,13 +726,13 @@ public class GraphMerger {
 			// matching score of indirect edges to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				String moduleName = AnalysisUtil.getModuleName(graph2,
-						curNode.getTag());
+						curNode.getTag().tag);
 				long relativeTag = AnalysisUtil.getRelativeTag(graph2,
-						curNode.getTag());
+						curNode.getTag().tag);
 				DebugUtils.getScorePW().print(
 						"Indirect_" + moduleName + "_0x"
 								+ Long.toHexString(relativeTag) + "_0x"
-								+ Long.toHexString(curNode.getTag()) + ":\t");
+								+ Long.toHexString(curNode.getTag().tag) + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
 
@@ -746,7 +765,7 @@ public class GraphMerger {
 			if (highestScoreCnt > 1) {
 				return null;
 			}
-			
+
 			graphMergingInfo.indirectMatch();
 			return candidates.get(pos);
 		}
@@ -815,8 +834,8 @@ public class GraphMerger {
 				}
 			} else {
 				if (candidates.size() == 1) {
-					if (AnalysisUtil.getRelativeTag(graph2, curNode2.getTag()) == AnalysisUtil
-							.getRelativeTag(graph1, maxNode.getTag())) {
+					if (AnalysisUtil.getRelativeTag(graph2, curNode2.getTag().tag) == AnalysisUtil
+							.getRelativeTag(graph1, maxNode.getTag().tag)) {
 						speculativeScoreList.add(new SpeculativeScoreRecord(
 								SpeculativeScoreType.OneMatchTrue, isIndirect,
 								maxScore, trueNode1, curNode2, maxNode,
@@ -1052,9 +1071,9 @@ public class GraphMerger {
 	 * Setup before matching the two graphs.
 	 */
 	protected boolean preMergeGraph() {
-		
+
 		System.out.println("### Start to merge the main module ###");
-		
+
 		// Reset isVisited field
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node n = graph2.getNodes().get(i);
@@ -1075,7 +1094,7 @@ public class GraphMerger {
 		matchedQueue = new LinkedList<PairNode>();
 		unmatchedQueue = new LinkedList<PairNode>();
 		indirectChildren = new LinkedList<PairNodeEdge>();
-		
+
 		graphMergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
 
 		HashMap<Long, Node> graph1Sig2Node = graph1.getSigature2Node(), graph2Sig2Node = graph2
@@ -1089,7 +1108,7 @@ public class GraphMerger {
 				PairNode pairNode = new PairNode(n1, n2, 0);
 				matchedQueue.add(pairNode);
 				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
-				
+
 				graphMergingInfo.directMatch();
 
 				if (DebugUtils.debug) {
@@ -1454,10 +1473,10 @@ public class GraphMerger {
 				}
 			}
 		}
-		
+
 		if (hasConflict) {
 			System.out.println("A conflict happens when matching the grahps!");
-			
+
 		}
 		return modName2Graph;
 	}

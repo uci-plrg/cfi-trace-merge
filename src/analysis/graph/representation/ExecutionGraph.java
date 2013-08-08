@@ -59,7 +59,7 @@ import analysis.graph.debug.DebugUtils;
 
 public class ExecutionGraph {
 	protected HashSet<Long> blockHashes;
-	
+
 	private HashSet<Long> totalBlockHashes;
 
 	// Represents the list of core modules
@@ -88,6 +88,10 @@ public class ExecutionGraph {
 	// Map from hash to ArrayList<Node>,
 	// which also helps to find out the hash collisions
 	protected NodeHashMap hash2Nodes;
+
+	public void setRunDir(String runDir) {
+		this.runDir = runDir;
+	}
 
 	public String toString() {
 		return progName + pid;
@@ -195,7 +199,7 @@ public class ExecutionGraph {
 	public HashSet<Long> getBlockHashes() {
 		return blockHashes;
 	}
-	
+
 	public HashSet<Long> getTotalBlockHashes() {
 		return totalBlockHashes;
 	}
@@ -254,7 +258,7 @@ public class ExecutionGraph {
 		}
 
 		// The edges of the graph comes with an ordinal
-		HashMap<Long, Node> hashLookupTable;
+		HashMap<VersionedTag, Node> hashLookupTable;
 		try {
 			// Construct the tag--hash lookup table
 			hashLookupTable = readGraphLookup(lookupFiles);
@@ -306,7 +310,6 @@ public class ExecutionGraph {
 	public boolean isValidGraph() {
 		return isValidGraph;
 	}
-	
 
 	/**
 	 * Given a full module name, which is the module name with the version
@@ -325,9 +328,28 @@ public class ExecutionGraph {
 		return ModuleDescriptor.coreModuleNames.contains(modName);
 	}
 
-	private HashMap<Long, Node> readGraphLookup(ArrayList<String> lookupFiles)
-			throws InvalidTagException {
-		HashMap<Long, Node> hashLookupTable = new HashMap<Long, Node>();
+	/**
+	 * <p>
+	 * The format of the lookup file is as the following:
+	 * </p>
+	 * <p>
+	 * Each entry consists of 8-byte tag + 8-byte hash.
+	 * </p>
+	 * <p>
+	 * 8-byte tag: 1-byte version number | 1-byte node type | 6-byte tag
+	 * </p>
+	 * 
+	 * 
+	 * @param lookupFiles
+	 * @return
+	 * @throws InvalidTagException
+	 */
+	private HashMap<VersionedTag, Node> readGraphLookup(
+			ArrayList<String> lookupFiles) throws InvalidTagException {
+		HashMap<VersionedTag, Node> hashLookupTable = new HashMap<VersionedTag, Node>();
+
+		// Just a ad-hoc patch for the bug in the graph lookup file
+		HashMap<Long, Integer> tag2CurrentVersion_ = new HashMap<Long, Integer>();
 
 		FileInputStream fileIn = null;
 		FileChannel channel = null;
@@ -355,22 +377,40 @@ public class ExecutionGraph {
 					buffer.compact();
 
 					tag = getTagEffectiveValue(tagOriginal);
-					int metaNodeVal = getNodeMetaVal(tagOriginal);
+					int versionNumber = getNodeVersionNumber(tagOriginal), metaNodeVal = getNodeMetaVal(tagOriginal);
+					VersionedTag versionedTag = new VersionedTag(tag,
+							versionNumber);
+					// Only for the ad-hoc fix of graph lookup file
+					if (!tag2CurrentVersion_.containsKey(tag)) {
+						tag2CurrentVersion_.put(tag, 0);
+					} else if (tag2CurrentVersion_.get(tag) < versionNumber) {
+						tag2CurrentVersion_.put(tag, versionNumber);
+					}
+
 					MetaNodeType metaNodeType = MetaNodeType.values()[metaNodeVal];
 
 					// Tags don't duplicate in lookup file
-					if (hashLookupTable.containsKey(tag)) {
-						if (hashLookupTable.get(tag).getHash() != hash) {
-							isValidGraph = false;
-							String msg = "Duplicate tags: "
-									+ Long.toHexString(tag)
-									+ " -> "
-									+ Long.toHexString(hashLookupTable.get(tag)
-											.getHash()) + ":"
-									+ Long.toHexString(hash) + "  "
-									+ lookupFile;
-							if (DebugUtils.ThrowInvalidTag) {
-								throw new InvalidTagException(msg);
+					if (hashLookupTable.containsKey(versionedTag)) {
+						Node existingNode = hashLookupTable.get(versionedTag);
+						if (existingNode.getHash() != hash) {
+							// Patch the buggy tag version manually
+							if (versionedTag.versionNumber == 0
+									&& tag2CurrentVersion_.get(tag) > 0) {
+								versionNumber = tag2CurrentVersion_.get(tag);
+								versionedTag = new VersionedTag(tag,
+										versionNumber);
+							} else {
+								isValidGraph = false;
+								String msg = "Duplicate tags: "
+										+ versionedTag
+										+ " -> "
+										+ Long.toHexString(hashLookupTable.get(
+												versionedTag).getHash()) + ":"
+										+ Long.toHexString(hash) + "  "
+										+ lookupFile;
+								if (DebugUtils.ThrowInvalidTag) {
+									throw new InvalidTagException(msg);
+								}
 							}
 						}
 					}
@@ -379,25 +419,33 @@ public class ExecutionGraph {
 					// Be careful about the index here!!!
 					// If the node is in a core module, the addModuleNode
 					// function should fix the index.
-					Node node = new Node(this, tag, hash, nodes.size(),
-							metaNodeType);
+					Node node = new Node(this, versionedTag, hash,
+							nodes.size(), metaNodeType);
 
 					if (isCoreModule(nodeModuleName)) {
+						ModuleGraph moduleGraph;
 						if (!moduleGraphs.containsKey(nodeModuleName)) {
-							moduleGraphs.put(nodeModuleName, new ModuleGraph(
-									nodeModuleName, pid, modules));
+							moduleGraph = new ModuleGraph(nodeModuleName, pid,
+									modules);
+							moduleGraph.setRunDir(runDir);
+							moduleGraphs.put(nodeModuleName, moduleGraph);
 						}
-						ModuleGraph moduleGraph = moduleGraphs
-								.get(nodeModuleName);
+						moduleGraph = moduleGraphs.get(nodeModuleName);
 						moduleGraph.addModuleNode(node);
-						moduleGraph.blockHashes.add(node.getHash());
+						if (!node.getNormalizedTag().moduleName
+								.equals("Unknown")) {
+							moduleGraph.blockHashes.add(node.getHash());
+						}
 					} else {
-						blockHashes.add(node.getHash());
+						if (!node.getNormalizedTag().moduleName
+								.equals("Unknown")) {
+							blockHashes.add(node.getHash());
+						}
 						nodes.add(node);
 						// Add it the the hash2Nodes mapping
 						hash2Nodes.add(node);
 					}
-					hashLookupTable.put(tag, node);
+					hashLookupTable.put(versionedTag, node);
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -415,26 +463,42 @@ public class ExecutionGraph {
 			}
 		}
 		// Store the total block hash code
-		for (long hash : hashLookupTable.keySet()) {
-			totalBlockHashes.add(hash);
+		for (VersionedTag versionedTag : hashLookupTable.keySet()) {
+			totalBlockHashes.add(hashLookupTable.get(versionedTag).getHash());
 		}
-		
+
 		return hashLookupTable;
 	}
 
-	// Return the highest two bytes
-	public static int getEdgeFlag(long tag) {
-		return new Long(tag >>> 48).intValue();
+	// Return ordinal of the edge by passing the from tag
+	public static int getEdgeOrdinal(long tag) {
+		return new Long(tag << 16 >>> 56).intValue();
 	}
 
-	public static int getNodeMetaVal(long tag) {
+	// Return type of the edge by passing the from tag
+	public static EdgeType getTagEdgeType(long tag) {
+		int ordinal = new Long(tag << 8 >>> 56).intValue();
+		return EdgeType.values()[ordinal];
+	}
+
+	// Return the effective address of the tag
+	public static long getTagEffectiveValue(long tag) {
+		return new Long(tag << 24 >>> 24).intValue();
+	}
+
+	public static int getNodeVersionNumber(long tag) {
 		return new Long(tag >>> 56).intValue();
 	}
 
+	public static int getNodeMetaVal(long tag) {
+		return new Long(tag << 8 >>> 56).intValue();
+	}
+
 	// get the lower 6 byte of the tag, which is a long integer
-	public static long getTagEffectiveValue(long tag) {
-		Long res = tag << 16 >>> 16;
-		return res;
+	public static VersionedTag getVersionedTag(long tag) {
+		long tagLong = tag << 24 >>> 24;
+		int versionNumber = (new Long(tag >>> 56)).intValue();
+		return new VersionedTag(tagLong, versionNumber);
 	}
 
 	public boolean isTailNode(Node n) {
@@ -470,8 +534,9 @@ public class ExecutionGraph {
 	 * @throws TagNotFoundException
 	 */
 	public void readCrossModuleEdges(String crossModuleEdgeFile,
-			HashMap<Long, Node> hashLookupTable) throws MultipleEdgeException,
-			InvalidTagException, TagNotFoundException {
+			HashMap<VersionedTag, Node> hashLookupTable)
+			throws MultipleEdgeException, InvalidTagException,
+			TagNotFoundException {
 		File file = new File(crossModuleEdgeFile);
 		FileInputStream fileIn = null;
 		ByteBuffer buffer = ByteBuffer.allocate(0x8);
@@ -486,9 +551,6 @@ public class ExecutionGraph {
 					break;
 				buffer.flip();
 				long tag1 = buffer.getLong();
-
-				int flags = getEdgeFlag(tag1);
-				tag1 = getTagEffectiveValue(tag1);
 				buffer.compact();
 
 				channel.read(buffer);
@@ -501,8 +563,12 @@ public class ExecutionGraph {
 				long signatureHash = buffer.getLong();
 				buffer.compact();
 
-				Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
-						.get(tag2);
+				VersionedTag versionedTag1 = getVersionedTag(tag1), versionedTag2 = getVersionedTag(tag2);
+				EdgeType edgeType = getTagEdgeType(tag1);
+				int edgeOrdinal = getEdgeOrdinal(tag1);
+
+				Node node1 = hashLookupTable.get(versionedTag1), node2 = hashLookupTable
+						.get(versionedTag2);
 
 				// Double check if tag1 and tag2 exist in the lookup file
 				if (node1 == null) {
@@ -531,17 +597,8 @@ public class ExecutionGraph {
 				String node1ModName = AnalysisUtil.getModuleName(node1), node2ModName = AnalysisUtil
 						.getModuleName(node2);
 
-				e = new Edge(node1, node2, flags, signatureHash);
+				e = new Edge(node1, node2, edgeType, edgeOrdinal);
 
-				if (node1.getHash() == Long.valueOf("1635d6954a", 16)) {
-					System.out.println();
-				}
-
-				String nodeStr = "0x62b77f408:ntdll.dll-1db1446a00060001_63658";
-				if (node1.toString().indexOf(nodeStr) != -1
-						|| node2.toString().indexOf(nodeStr) != -1) {
-					System.out.println();
-				}
 				if (existing == null) {
 					// Be careful when dealing with the cross module nodes.
 					// Cross-module edges are not added to any node, but the
@@ -557,7 +614,8 @@ public class ExecutionGraph {
 								.get(signatureHash);
 
 						node2.setMetaNodeType(MetaNodeType.NORMAl);
-						Edge sigEntryEdge = new Edge(sigNode, node2, flags);
+						Edge sigEntryEdge = new Edge(sigNode, node2,
+								EdgeType.CrossKernelModule, 0);
 						sigNode.addOutgoingEdge(sigEntryEdge);
 						node2.addIncomingEdge(sigEntryEdge);
 					} else if (isCoreModule(node1ModName)) {
@@ -565,19 +623,13 @@ public class ExecutionGraph {
 						addSignatureNode(signatureHash);
 						Node sigNode = signature2Node.get(signatureHash);
 
-						e = new Edge(sigNode, node2, flags);
+						e = new Edge(sigNode, node2,
+								EdgeType.CrossKernelModule, 0);
 						sigNode.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);
 					} else {
 						node1.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);
-					}
-				} else if (existing.getSignitureHash() != signatureHash) {
-					String msg = "Multiple cross module edges:\n"
-							+ "Existing edge: " + e + "\n" + "New edge: "
-							+ existing + "\n";
-					if (DebugUtils.ThrowMultipleEdge) {
-						throw new MultipleEdgeException(msg);
 					}
 				}
 			}
@@ -602,8 +654,9 @@ public class ExecutionGraph {
 	private int wrongIntraModuleEdgeCnt = 0;
 
 	public void readIntraModuleEdges(ArrayList<String> intraModuleEdgeFiles,
-			HashMap<Long, Node> hashLookupTable) throws InvalidTagException,
-			TagNotFoundException, MultipleEdgeException {
+			HashMap<VersionedTag, Node> hashLookupTable)
+			throws InvalidTagException, TagNotFoundException,
+			MultipleEdgeException {
 		for (int i = 0; i < intraModuleEdgeFiles.size(); i++) {
 			String intraModuleEdgeFile = intraModuleEdgeFiles.get(i);
 			File file = new File(intraModuleEdgeFile);
@@ -621,24 +674,18 @@ public class ExecutionGraph {
 					buffer.flip();
 					long tag1 = buffer.getLong();
 					buffer.compact();
-					int flags = getEdgeFlag(tag1);
-					tag1 = getTagEffectiveValue(tag1);
 
 					channel.read(buffer);
 					buffer.flip();
-					long tag2Original = buffer.getLong();
+					long tag2 = buffer.getLong();
 					buffer.compact();
-					long tag2 = getTagEffectiveValue(tag2Original);
-					if (tag2 != tag2Original) {
-						if (DebugUtils.ThrowInvalidTag) {
-							throw new InvalidTagException("Tag 0x"
-									+ Long.toHexString(tag2Original)
-									+ " has more than 6 bytes");
-						}
-					}
 
-					Node node1 = hashLookupTable.get(tag1), node2 = hashLookupTable
-							.get(tag2);
+					VersionedTag versionedTag1 = getVersionedTag(tag1), versionedTag2 = getVersionedTag(tag2);
+					EdgeType edgeType = getTagEdgeType(tag1);
+					int edgeOrdinal = getEdgeOrdinal(tag1);
+
+					Node node1 = hashLookupTable.get(versionedTag1), node2 = hashLookupTable
+							.get(versionedTag2);
 
 					// Double check if tag1 and tag2 exist in the lookup file
 					if (node1 == null) {
@@ -679,20 +726,25 @@ public class ExecutionGraph {
 					}
 
 					Edge existing = node1.getOutgoingEdge(node2);
+					Edge e = new Edge(node1, node2, edgeType, edgeOrdinal);
 					if (existing == null) {
-						Edge e = new Edge(node1, node2, flags);
 						node1.addOutgoingEdge(e);
 						node2.addIncomingEdge(e);
 					} else {
-						if (!existing.hasFlags(flags)) {
-							String msg = "Multiple edges:\n" + "Edge1: "
-									+ node1.getHash() + "->" + node2.getHash()
-									+ ": " + existing.getToNode() + "Edge2: "
-									+ node1.getHash() + "->" + node2.getHash()
-									+ ": " + flags;
-							System.out.println(msg);
-							if (DebugUtils.ThrowMultipleEdge) {
-								throw new MultipleEdgeException(msg);
+						if (!existing.equals(e)) {
+							// One wired case to deal with here:
+							// A call edge (direct) and a continuation edge can
+							// point to the same block
+							if ((existing.getEdgeType() == EdgeType.Direct && e.getEdgeType() == EdgeType.CallContinuation)
+									|| (existing.getEdgeType() == EdgeType.CallContinuation && e.getEdgeType() == EdgeType.Direct)) {
+								existing.setEdgeType(EdgeType.Direct);
+							} else {
+								String msg = "Multiple edges:\n" + "Edge1: "
+										+ existing + "\n" + "Edge2: " + e;
+								System.out.println(msg);
+								if (DebugUtils.ThrowMultipleEdge) {
+									throw new MultipleEdgeException(msg);
+								}	
 							}
 						}
 					}
@@ -767,6 +819,7 @@ public class ExecutionGraph {
 					.get(0));
 			ExecutionGraph graph = new ExecutionGraph(intraModuleEdgeFiles,
 					crossModuleEdgeFile, lookupFiles, moduleFile);
+			graph.setRunDir(dir);
 
 			// Initialize the relativeTag2Node hashtable
 			// This is only used for debugging so far
@@ -774,9 +827,9 @@ public class ExecutionGraph {
 			for (int i = 0; i < graph.nodes.size(); i++) {
 				Node n = graph.nodes.get(i);
 				long relativeTag = AnalysisUtil.getRelativeTag(graph,
-						n.getTag());
+						n.getTag().tag);
 				String moduleName = AnalysisUtil.getModuleName(graph,
-						n.getTag());
+						n.getTag().tag);
 				graph.normalizedTag2Node.put(new NormalizedTag(moduleName,
 						relativeTag), n);
 			}
@@ -856,7 +909,7 @@ public class ExecutionGraph {
 	 * non-kernel modules in the main module.
 	 */
 	public void analyzeGraph() {
-		// Output basic nodes info 
+		// Output basic nodes info
 		int nodeCnt = nodes.size(), realNodeCnt = nodes.size()
 				- signature2Node.size();
 		System.out.println("Number of nodes in the main module: " + nodeCnt);
@@ -870,8 +923,8 @@ public class ExecutionGraph {
 			realNodeCnt += mGraph.nodes.size() - mGraph.signature2Node.size();
 		}
 		System.out.println("Number of nodes in all module: " + nodeCnt);
-		System.out.println("Number of real nodes in the all module: "
-				+ realNodeCnt);
+		System.out
+				.println("Number of real nodes in all module: " + realNodeCnt);
 
 		// List how many non-core modules in main
 		ArrayList<String> modulesInMain = new ArrayList<String>();
@@ -891,22 +944,23 @@ public class ExecutionGraph {
 		System.out.println();
 		System.out
 				.println("Number of modules in main: " + modulesInMain.size());
-		
+
 		// Count the subgraph with the most reachable nodes
 		int maxCnt = 0;
 		long maxSigHash = -1;
 		for (long sigHash : signature2Node.keySet()) {
 			Node sigNode = signature2Node.get(sigHash);
 			for (int k = 0; k < sigNode.getOutgoingEdges().size(); k++) {
-				Node realEntryNode = sigNode.getOutgoingEdges().get(k).getToNode();
-				
+				Node realEntryNode = sigNode.getOutgoingEdges().get(k)
+						.getToNode();
+
 				Queue<Node> bfsQueue = new LinkedList<Node>();
 				int cnt = 0;
 				for (int i = 0; i < nodes.size(); i++) {
 					nodes.get(i).resetVisited();
 				}
 				bfsQueue.add(realEntryNode);
-				
+
 				while (bfsQueue.size() > 0) {
 					Node n = bfsQueue.remove();
 					n.setVisited();
@@ -925,8 +979,18 @@ public class ExecutionGraph {
 				}
 			}
 		}
-		System.out.println(Long.toHexString(maxSigHash) + " has the most reachable nodes (" +
-				maxCnt + ").");
+		System.out.println(Long.toHexString(maxSigHash)
+				+ " has the most reachable nodes (" + maxCnt + ").");
+		HashSet<Node> accessibleNodes = getAccessibleNodes();
+		System.out.println("Total reachable nodes: " + accessibleNodes.size());
+		
+		for (int i = 0; i < nodes.size(); i++) {
+			Node n = nodes.get(i);
+			if (!accessibleNodes.contains(n)) {
+				System.out.println(n);
+			}
+		}
+		
 	}
 
 	/**

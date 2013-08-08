@@ -486,11 +486,11 @@ public class AnalysisUtil {
 					modificationCnt++;
 					if (DebugUtils
 							.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
-						pw.print("tag1: 0x" + Long.toHexString(n1.getTag()));
+						pw.print("tag1: 0x" + Long.toHexString(n1.getTag().tag));
 						pw.println("\t" + t.moduleName + "\t0x"
 								+ Long.toHexString(t.relativeTag));
 
-						pw.print("tag2: 0x" + Long.toHexString(n2.getTag()));
+						pw.print("tag2: 0x" + Long.toHexString(n2.getTag().tag));
 						pw.println("\t" + t.moduleName + "\t0x"
 								+ Long.toHexString(t.relativeTag));
 
@@ -510,8 +510,8 @@ public class AnalysisUtil {
 
 	public static Node getTrueMatch(ExecutionGraph g1, ExecutionGraph g2,
 			Node n2) {
-		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag());
-		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag());
+		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag);
+		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag().tag);
 		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2);
 		return g1.normalizedTag2Node.get(t2);
 	}
@@ -529,10 +529,10 @@ public class AnalysisUtil {
 	 */
 	public static MatchResult getMatchResult(ExecutionGraph g1,
 			ExecutionGraph g2, Node n1, Node n2, boolean isIndirect) {
-		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag()), relativeTag1 = n1 == null ? -1
-				: AnalysisUtil.getRelativeTag(g1, n1.getTag());
-		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag()), modName1 = n1 == null ? null
-				: AnalysisUtil.getModuleName(g1, n1.getTag());
+		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag), relativeTag1 = n1 == null ? -1
+				: AnalysisUtil.getRelativeTag(g1, n1.getTag().tag);
+		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag().tag), modName1 = n1 == null ? null
+				: AnalysisUtil.getModuleName(g1, n1.getTag().tag);
 		// Cannot normalized the tag
 		if (modName2.equals("Unknown")) {
 			return MatchResult.Unknown;
@@ -634,11 +634,11 @@ public class AnalysisUtil {
 	}
 
 	public static long getRelativeTag(Node n) {
-		return getRelativeTag(n.getContainingGraph(), n.getTag());
+		return getRelativeTag(n.getContainingGraph(), n.getTag().tag);
 	}
 
 	public static String getModuleName(Node n) {
-		return getModuleName(n.getContainingGraph(), n.getTag());
+		return getModuleName(n.getContainingGraph(), n.getTag().tag);
 	}
 
 	public static String getModuleName(ExecutionGraph graph, long tag) {
@@ -661,11 +661,11 @@ public class AnalysisUtil {
 			NormalizedTag t = new NormalizedTag(n);
 			if (t.moduleName.equals("Unknown")) {
 				unknownTagCnt++;
-				if (n.getTag() > maxUnknownTag) {
-					maxUnknownTag = n.getTag();
+				if (n.getTag().tag > maxUnknownTag) {
+					maxUnknownTag = n.getTag().tag;
 				}
-				if (n.getTag() < minUnknownTag) {
-					minUnknownTag = n.getTag();
+				if (n.getTag().tag < minUnknownTag) {
+					minUnknownTag = n.getTag().tag;
 				}
 				System.out.print(n);
 				int fromIdx = n.getIncomingEdges().size() == 0 ? -1 : n

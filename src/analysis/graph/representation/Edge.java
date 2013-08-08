@@ -5,27 +5,20 @@ public class Edge {
 	private EdgeType edgeType;
 	private int ordinal;
 
-	private Long signitureHash = null;
-
 	// Add this filed for debugging reason, cause it provides
 	// more information when debugging
 	private Node fromNode;
 
-	public long getSignitureHash() {
-		return signitureHash;
+	public void setEdgeType(EdgeType edgeType) {
+		this.edgeType = edgeType;
 	}
-
+	
 	public Node getFromNode() {
 		return fromNode;
 	}
 
 	public String toString() {
-		if (edgeType == EdgeType.CrossKernelModule
-				|| edgeType == EdgeType.CrossCustomModule) {
-			return fromNode + "(" + edgeType + ")--" + Long.toHexString(signitureHash) + "-->" + toNode;
-		} else {
-			return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
-		}
+		return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
 	}
 
 	public Node getToNode() {
@@ -40,29 +33,11 @@ public class Edge {
 		return ordinal;
 	}
 
-	public boolean hasFlags(int flags) {
-		int ordinal = flags % 256;
-		EdgeType edgeType = EdgeType.values()[flags / 256];
-		return ((this.ordinal == ordinal) && (this.edgeType == edgeType));
-	}
-
-	public Edge(Node fromNode, Node toNode, int flags, long signitureHash) {
-		this(fromNode, toNode, flags);
-		this.signitureHash = signitureHash;
-	}
-
 	public Edge(Node fromNode, Node toNode, EdgeType edgeType, int ordinal) {
 		this.fromNode = fromNode;
 		this.toNode = toNode;
 		this.edgeType = edgeType;
 		this.ordinal = ordinal;
-	}
-
-	public Edge(Node fromNode, Node toNode, int flags) {
-		this.fromNode = fromNode;
-		this.toNode = toNode;
-		this.ordinal = flags % 256;
-		edgeType = EdgeType.values()[flags / 256];
 	}
 
 	public boolean equals(Object o) {
