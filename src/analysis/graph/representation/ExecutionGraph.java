@@ -984,12 +984,13 @@ public class ExecutionGraph {
 		HashSet<Node> accessibleNodes = getAccessibleNodes();
 		System.out.println("Total reachable nodes: " + accessibleNodes.size());
 		
-		for (int i = 0; i < nodes.size(); i++) {
-			Node n = nodes.get(i);
-			if (!accessibleNodes.contains(n)) {
-				System.out.println(n);
-			}
-		}
+		// Output the inaccessible nodes in the graph
+//		for (int i = 0; i < nodes.size(); i++) {
+//			Node n = nodes.get(i);
+//			if (!accessibleNodes.contains(n)) {
+//				System.out.println(n);
+//			}
+//		}
 		
 	}
 

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import utils.AnalysisUtil;
-import analysis.graph.representation.CompleteExecutionGraph;
 import analysis.graph.representation.Edge;
 import analysis.graph.representation.EdgeType;
 import analysis.graph.representation.ExecutionGraph;
@@ -21,7 +20,8 @@ public class GraphMergingInfo {
 
 	public final ExecutionGraph graph1, graph2;
 	public final MatchedNodes matchedNodes;
-	
+
+	private int directEdgeTrialCnt = 0;
 	private int indirectEdgeTrialCnt = 0;
 	private int indirectEdgeMatchCnt = 0;
 	private int pureHeuristicTrialCnt = 0;
@@ -53,27 +53,31 @@ public class GraphMergingInfo {
 		// graph2.getAccessibleNodes().size()
 		// - matchedNodes.size();
 	}
-	
+
+	public void tryDirectMatch() {
+		directEdgeTrialCnt++;
+	}
+
 	public void tryIndirectMatch() {
 		indirectEdgeTrialCnt++;
 	}
-	
+
 	public void tryPureHeuristicMatch() {
 		pureHeuristicTrialCnt++;
 	}
-	
+
 	public void indirectMatch() {
 		indirectEdgeMatchCnt++;
 	}
-	
+
 	public void pureHeuristicMatch() {
 		pureHeuristicMatchCnt++;
 	}
-	
+
 	public void directMatch() {
 		directMatchCnt++;
 	}
-	
+
 	public void callContinuationMatch() {
 		callContinuationMatchCnt++;
 	}
@@ -129,16 +133,27 @@ public class GraphMergingInfo {
 					+ graph2.getPid() + ":");
 			System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir())
 					+ " & " + AnalysisUtil.getRunStr(graph2.getRunDir()));
+			System.out.println("Total block hashes of the whole graph1: "
+					+ graph1.getTotalBlockHashes().size());
+			System.out.println("Total block hashes of the whole graph2: "
+					+ graph2.getTotalBlockHashes().size());
+			HashSet<Long> totalBlockSet = AnalysisUtil.intersection(
+					graph1.getTotalBlockHashes(), graph2.getTotalBlockHashes());
+			System.out.println("Total block hashes: " + totalBlockSet.size());
 
 			System.out.println("Size of nodes in graph1: "
 					+ graph1.getNodes().size());
 			System.out.println("Size of nodes in graph2: "
 					+ graph2.getNodes().size());
-			
-			HashSet<Long> totalBlockSet = AnalysisUtil.intersection(graph1.getTotalBlockHashes(), graph2.getTotalBlockHashes());
-			System.out.println("Total block hashes: " + totalBlockSet.size());
-			System.out.println("Total block hashes of graph1: " + graph1.getTotalBlockHashes().size());
-			System.out.println("Total block hashes of graph2: " + graph2.getTotalBlockHashes().size());
+
+			HashSet<Long> totalBlockInMain = AnalysisUtil.intersection(
+					graph1.getBlockHashes(), graph2.getBlockHashes());
+			System.out.println("Total block hashes of main: "
+					+ totalBlockInMain.size());
+			System.out.println("Total block hashes of main in graph1: "
+					+ graph1.getBlockHashes().size());
+			System.out.println("Total block hashes of main in graph2: "
+					+ graph2.getBlockHashes().size());
 		}
 
 		System.out.println("Intersection ratio of block hashes: "
@@ -156,14 +171,15 @@ public class GraphMergingInfo {
 				+ (float) matchedNodes.size() / graph2.getNodes().size());
 		float nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
 		System.out.println("Merged nodes / all nodes: " + nodeInterRate);
-		
+
 		System.out.println("Indirect edge trial: " + indirectEdgeTrialCnt);
 		System.out.println("Indirect edge matched: " + indirectEdgeMatchCnt);
 		System.out.println("Pure Heuristic trial: " + pureHeuristicTrialCnt);
 		System.out.println("Pure Heuristic match: " + pureHeuristicMatchCnt);
 		System.out.println("Direct match: " + directMatchCnt);
-		System.out.println("CallContinuation Match: " + callContinuationMatchCnt);
-		
+		System.out.println("CallContinuation Match: "
+				+ callContinuationMatchCnt);
+
 		System.out.println();
 	}
 
@@ -249,15 +265,13 @@ public class GraphMergingInfo {
 
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			if (!(graph instanceof CompleteExecutionGraph)) {
-				HashSet<Node> accessibleNodes = graph.getAccessibleNodes();
-				for (int i = 0; i < graph.getNodes().size(); i++) {
-					Node n = graph.getNodes().get(i);
-					if (!accessibleNodes.contains(n)) {
-						pwNodeFile.println(n);
-					}
-
+			HashSet<Node> accessibleNodes = graph.getAccessibleNodes();
+			for (int i = 0; i < graph.getNodes().size(); i++) {
+				Node n = graph.getNodes().get(i);
+				if (!accessibleNodes.contains(n)) {
+					pwNodeFile.println(n);
 				}
+
 			}
 
 			pwDotFile.println("digraph runGraph {");

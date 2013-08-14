@@ -100,7 +100,8 @@ public class GraphMerger {
 						for (int l = 0; l < graphs2.size(); l++) {
 							ExecutionGraph g1 = graphs1.get(k), g2 = graphs2
 									.get(l);
-							if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
+							if (DebugUtils
+									.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
 								AnalysisUtil.filteroutImmeAddr(g1, g2);
 							}
 							GraphMerger graphMerger = new GraphMerger(g1, g2);
@@ -187,6 +188,7 @@ public class GraphMerger {
 	// The static threshold for indirect speculation and pure heuristics
 	// These two values are completely hypothetic and need further verification
 	private static final int IndirectSpeculationThreshold = 10;
+	private static final int DirectSpeculationThreshold = 0;
 	private static final int PureHeuristicsSpeculationThreshold = 15;
 
 	// The speculativeScoreList, which records the detail of the scoring of
@@ -214,6 +216,7 @@ public class GraphMerger {
 	// Depth is how deep the query should try, by default depth == 5
 	// Return value: the score of the similarity, -1 means definitely
 	// not the same, 0 means might be
+	public final static int directSearchDepth = 10;
 	public final static int indirectSearchDepth = 10;
 	public final static int pureSearchDepth = 15;
 
@@ -610,6 +613,11 @@ public class GraphMerger {
 			Edge curNodeEdge) throws WrongEdgeTypeException {
 		Node curNode = curNodeEdge.getToNode();
 
+		// Direct edges will also have multiple possible match because of the
+		// existence of code re-writing
+		ArrayList<Node> candidates = new ArrayList<Node>();
+		int score;
+
 		for (int i = 0; i < parentNode1.getOutgoingEdges().size(); i++) {
 			Edge e = parentNode1.getOutgoingEdges().get(i);
 			if (e.getOrdinal() == curNodeEdge.getOrdinal()) {
@@ -621,7 +629,8 @@ public class GraphMerger {
 					if (e.getToNode().getHash() != curNode.getHash()) {
 						if (e.getEdgeType() == EdgeType.Direct) {
 							System.out
-									.println("Direct branch has different targets!");
+									.println("Direct branch has different targets, "
+											+ "but it may be caused by code re-writing!");
 							if (parentNode1.getContinuationEdge() != null) {
 								System.out
 										.println("This is likely to be a function call!");
@@ -631,32 +640,87 @@ public class GraphMerger {
 							}
 						} else {
 							System.out
-									.println("Call continuation has different targets!");
+									.println("Call continuation has different targets, "
+											+ "but it may be caused by code re-writing!");
 						}
-
-						if (DebugUtils.debug_decision(DebugUtils.MERGE_ERROR)) {
-							System.out.println("Direct edge conflict: "
-									+ e.getToNode().getIndex() + "<->"
-									+ curNode.getIndex() + "(By "
-									+ parentNode1.getIndex() + "<->"
-									+ curNodeEdge.getFromNode().getIndex()
-									+ ")");
-						}
-
+						// No enough information anymore, just keep going
+						// But we will pretend nothing happens now
+//						continue;
+						System.out.println("Code re-written!");
 						hasConflict = true;
-						break;
 					} else {
 						if (e.getEdgeType() == EdgeType.Direct) {
 							graphMergingInfo.directMatch();
 						} else {
 							graphMergingInfo.callContinuationMatch();
 						}
+
+						if ((score = getContextSimilarity(e.getToNode(),
+								curNode, GraphMerger.directSearchDepth)) > DirectSpeculationThreshold) {
+							if (!matchedNodes.containsKeyByFirstIndex(e
+									.getToNode().getIndex())) {
+								e.getToNode().setScore(score);
+								candidates.add(e.getToNode());
+							}
+						}
+						// Just return the node now
 						return e.getToNode();
 					}
 				}
 			}
 		}
-		return null;
+		
+		if (candidates.size() == 0) {
+			return null;
+		} else {
+			// In the OUTPUT_SCORE debug mode, output the speculative
+			// matching score of indirect edges to a file
+			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+				String moduleName = AnalysisUtil.getModuleName(graph2,
+						curNode.getTag().tag);
+				long relativeTag = AnalysisUtil.getRelativeTag(graph2,
+						curNode.getTag().tag);
+				DebugUtils.getScorePW().print(
+						"Direct_" + moduleName + "_0x"
+								+ Long.toHexString(relativeTag) + "_0x"
+								+ Long.toHexString(curNode.getTag().tag) + ":\t");
+				for (int i = 0; i < candidates.size(); i++) {
+					Node n = candidates.get(i);
+
+					if (n.getScore() > 0) {
+						DebugUtils.getScorePW().print(n.getScore() + "\t");
+					}
+
+				}
+				DebugUtils.getScorePW().println();
+			}
+
+			int pos = 0, highestScoreCnt = 0;
+			score = -1;
+			for (int i = 0; i < candidates.size(); i++) {
+				if (candidates.get(i).getScore() > score) {
+					score = candidates.get(i).getScore();
+					pos = i;
+					highestScoreCnt = 1;
+				} else if (candidates.get(i).getScore() == score) {
+					highestScoreCnt++;
+				}
+			}
+
+			// Collect the matching score record for indirect speculation
+			// Only in OUTPUT_SCORE debug mode
+			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+				collectScoreRecord(candidates, curNode, true);
+			}
+
+			// Ambiguous high score, cannot make any decision
+			if (highestScoreCnt > 1) {
+				return null;
+			}
+
+			graphMergingInfo.directMatch();
+			return candidates.get(pos);
+		}
 	}
 
 	/**
@@ -732,7 +796,8 @@ public class GraphMerger {
 				DebugUtils.getScorePW().print(
 						"Indirect_" + moduleName + "_0x"
 								+ Long.toHexString(relativeTag) + "_0x"
-								+ Long.toHexString(curNode.getTag().tag) + ":\t");
+								+ Long.toHexString(curNode.getTag().tag)
+								+ ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
 					Node n = candidates.get(i);
 
@@ -834,7 +899,8 @@ public class GraphMerger {
 				}
 			} else {
 				if (candidates.size() == 1) {
-					if (AnalysisUtil.getRelativeTag(graph2, curNode2.getTag().tag) == AnalysisUtil
+					if (AnalysisUtil.getRelativeTag(graph2,
+							curNode2.getTag().tag) == AnalysisUtil
 							.getRelativeTag(graph1, maxNode.getTag().tag)) {
 						speculativeScoreList.add(new SpeculativeScoreRecord(
 								SpeculativeScoreType.OneMatchTrue, isIndirect,
@@ -1200,6 +1266,8 @@ public class GraphMerger {
 					// Prioritize direct edge and call continuation edge
 					Node childNode1;
 					if ((e.getEdgeType() == EdgeType.Direct || e.getEdgeType() == EdgeType.CallContinuation)) {
+						graphMergingInfo.tryDirectMatch();
+						
 						childNode1 = getCorrespondingDirectChildNode(n1, e);
 
 						if (childNode1 != null) {
