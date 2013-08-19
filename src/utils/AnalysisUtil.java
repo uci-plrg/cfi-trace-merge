@@ -21,17 +21,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.analysis.datasource.ExecutionTraceDataSource;
-import edu.uci.eecs.crowdsafe.analysis.datasource.ExecutionTraceStreamType;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleDescriptor;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.NormalizedTag;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.VersionedTag;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
+import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
-import edu.uci.eecs.crowdsafe.analysis.graph.debug.DebugUtils;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.EdgeType;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.ModuleDescriptor;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.Node;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.NormalizedTag;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.VersionedTag;
-import edu.uci.eecs.crowdsafe.analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -428,7 +428,7 @@ public class AnalysisUtil {
 		ArrayList<ModuleDescriptor> modules = graph.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			ModuleDescriptor mod = modules.get(i);
-			if (mod.compareTo(tag) == 0) {
+			if (mod.containsTag(tag) == 0) {
 				return tag - mod.beginAddr;
 			}
 		}
@@ -437,21 +437,6 @@ public class AnalysisUtil {
 
 	public static long getRelativeTag(Node n) {
 		return getRelativeTag(n.getContainingGraph(), n.getTag().tag);
-	}
-
-	public static String getModuleName(Node n) {
-		return getModuleName(n.getContainingGraph(), n.getTag().tag);
-	}
-
-	public static String getModuleName(ProcessExecutionGraph graph, long tag) {
-		ArrayList<ModuleDescriptor> modules = graph.getModules();
-		for (int i = 0; i < modules.size(); i++) {
-			ModuleDescriptor mod = modules.get(i);
-			if (mod.compareTo(tag) == 0) {
-				return mod.name;
-			}
-		}
-		return "Unknown";
 	}
 
 	public static void outputUnknownTags(ProcessExecutionGraph graph) {

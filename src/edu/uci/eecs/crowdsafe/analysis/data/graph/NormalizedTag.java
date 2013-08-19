@@ -1,0 +1,64 @@
+package edu.uci.eecs.crowdsafe.analysis.data.graph;
+
+import utils.AnalysisUtil;
+
+public class NormalizedTag {
+	public final String moduleName;
+	public final Long relativeTag;
+	
+	public static final NormalizedTag blankTag = new NormalizedTag();
+	
+	/**
+	 * This is a special constructor that creates a illegal normalized tag
+	 */
+	private NormalizedTag() {
+		moduleName = "";
+		relativeTag = 0l;
+	}
+
+	public NormalizedTag(Node n) {
+		if (n.getMetaNodeType() == MetaNodeType.SIGNATURE_HASH) {
+			this.moduleName = "";
+			this.relativeTag = 0l;
+		} else {
+			String modName = AnalysisUtil.getSoftwareUnit(n);
+			long relTag = AnalysisUtil.getRelativeTag(n);
+			this.moduleName = modName;
+			this.relativeTag = relTag;
+		}
+	}
+	
+	public NormalizedTag(String moduleName, long relativeTag) {
+		this.moduleName = moduleName;
+		this.relativeTag = relativeTag;
+	}
+	
+	public String toString() {
+		if (moduleName.equals("")) {
+			return "Illegal_Blank_Tag";
+		} else {
+			return moduleName + "_" + Long.toHexString(relativeTag);	
+		}
+		
+	}
+
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o.getClass() != NormalizedTag.class) {
+			return false;
+		}
+		NormalizedTag another = (NormalizedTag) o;
+		if (another.moduleName.equals(moduleName)
+				&& another.relativeTag.equals(relativeTag)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public int hashCode() {
+		return moduleName.hashCode() << 5 ^ relativeTag.hashCode();
+	}
+}
