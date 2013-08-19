@@ -1,7 +1,6 @@
 package utils;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -10,8 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -20,42 +18,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import analysis.exception.graph.OverlapModuleException;
-import analysis.graph.debug.DebugUtils;
-import analysis.graph.representation.Edge;
-import analysis.graph.representation.ExecutionGraph;
-import analysis.graph.representation.ModuleDescriptor;
-import analysis.graph.representation.Node;
-import analysis.graph.representation.NormalizedTag;
-import analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.analysis.datasource.ExecutionTraceDataSource;
+import edu.uci.eecs.crowdsafe.analysis.datasource.ExecutionTraceStreamType;
+import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
+import edu.uci.eecs.crowdsafe.analysis.graph.debug.DebugUtils;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.EdgeType;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.ModuleDescriptor;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.Node;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.NormalizedTag;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.VersionedTag;
+import edu.uci.eecs.crowdsafe.analysis.graph.representation.SpeculativeScoreRecord.MatchResult;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
 
 	// In format of "tar.bb-graph-hash.2013-03-06.06-44-36.4947-4947.dat"
-	public static int getPidFromFileName(String fileName) {
-		int secondLastDotPos = 0, lastDashPos = fileName.lastIndexOf('-');
-		// int count = 0;
-		// for (; count < 4 && secondLastDotPos != -1; count++) {
-		// secondLastDotPos = fileName.indexOf('.', secondLastDotPos + 1);
-		// }
-		secondLastDotPos = fileName.length();
-		secondLastDotPos = fileName.lastIndexOf('.', secondLastDotPos);
-		secondLastDotPos = fileName.lastIndexOf('.', secondLastDotPos - 1);
-		String pidStr = null;
-		try {
-			pidStr = fileName.substring(secondLastDotPos + 1, lastDashPos);
-		} catch (StringIndexOutOfBoundsException e) {
-			return 0;
-		}
-		int pid;
-		try {
-			pid = Integer.parseInt(pidStr);
-		} catch (NumberFormatException e) {
-			pid = 0;
-		}
-		return pid;
+	public static int getPidFromFile(File file) {
+		String filename = file.getName();
+		int lastDashPos = filename.lastIndexOf('-');
+		int lastDotPos = filename.lastIndexOf('.');
+		return Integer
+				.parseInt(filename.substring(lastDashPos + 1, lastDotPos));
 	}
 
 	private static void findHashFiles(File dir, ArrayList<String> lists) {
@@ -92,12 +79,6 @@ public class AnalysisUtil {
 		return runDirs;
 	}
 
-	public static HashSet<Long> getSetFromRunDir(String runDir) {
-		ArrayList<String> fileList = getAllHashFiles(runDir);
-		String[] strArray = fileList.toArray(new String[fileList.size()]);
-		return mergeSet(strArray);
-	}
-
 	public static ArrayList<String> getStringPerline(String filename) {
 		ArrayList<String> list = new ArrayList<String>();
 		try {
@@ -131,152 +112,47 @@ public class AnalysisUtil {
 		}
 	}
 
-	public static String getProgNameFromPath(String path) {
-		File f = new File(path);
-		String progName;
-		if (f.isDirectory()) {
-			if (f.getName().indexOf("run") != -1) {
-				progName = f.getParentFile().getName();
-				return progName;
-			} else {
-				return null;
-			}
-		} else {
-			if (f.getName().indexOf("pair-hash") != -1) {
-				progName = f.getName();
-				return getProgName(progName);
-			} else {
-				return null;
-			}
-		}
-	}
-
-	public static HashSet<Long> minus(HashSet<Long> s1, HashSet<Long> s2) {
-		HashSet<Long> res = new HashSet<Long>(s1);
+	public static Set<Long> minus(Set<Long> s1, Set<Long> s2) {
+		Set<Long> res = new HashSet<Long>(s1);
 		for (Long elem : s2)
 			if (res.contains(elem))
 				res.remove(elem);
 		return res;
 	}
 
-	public static HashSet<Long> union(HashSet<Long> s1, HashSet<Long> s2) {
-		HashSet<Long> res = new HashSet<Long>(s1);
+	public static Set<Long> union(Set<Long> s1, Set<Long> s2) {
+		Set<Long> res = new HashSet<Long>(s1);
 		res.addAll(s2);
 		return res;
 	}
 
-	public static HashSet<Long> intersection(HashSet<Long> s1, HashSet<Long> s2) {
-		HashSet<Long> res = new HashSet<Long>(s1);
+	public static Set<Long> intersection(Set<Long> s1, Set<Long> s2) {
+		Set<Long> res = new HashSet<Long>(s1);
 		res.retainAll(s2);
 		return res;
 	}
 
-	public static String getRunStr(String path) {
-		if (path == null) {
-			return null;
-		}
-		int runIdx = path.indexOf("run");
-		int endIdx = path.indexOf('/', runIdx);
-		endIdx = endIdx == -1 ? path.length() : endIdx;
-		return path.substring(runIdx, endIdx);
-	}
-
-	public static String getRunPath(String path) {
-		int runIdx = path.indexOf("run");
-		int endIdx = path.indexOf('/', runIdx);
-		endIdx = endIdx == -1 ? path.length() : endIdx;
-		return path.substring(0, endIdx);
-	}
-
-	public static String getBaseNameFromPath(String path, String separator) {
-		int lastIndex = path.lastIndexOf(separator);
-		if (lastIndex == -1) {
-			return null;
-		} else {
-			return path.substring(lastIndex + 1);
-		}
-	}
-
-	public static String getBaseName(String dirName, String separator) {
-		File f = new File(dirName);
-		dirName = f.getName();
-		if (dirName.startsWith(separator))
-			return null;
-		if (dirName.indexOf(separator) == -1)
-			return null;
-		int endIndex = dirName.indexOf(separator);
-		return dirName.substring(0, endIndex);
-	}
-
-	public static String getProgName(String dirName) {
-		File f = new File(dirName);
-		dirName = f.getName();
-		if (dirName.startsWith("."))
-			return null;
-		if (dirName.indexOf('.') == -1)
-			return null;
-		int endIndex = dirName.indexOf('-');
-		if (endIndex > dirName.indexOf('_') && dirName.indexOf('_') != -1) {
-			endIndex = dirName.indexOf('_');
-		}
-		if (endIndex > dirName.indexOf('.') && dirName.indexOf('.') != -1) {
-			endIndex = dirName.indexOf('.');
-		}
-		// try {
-		// dirName.substring(0, endIndex);
-		// } catch (Exception e) {
-		// System.out.println(dirName);
-		// }
-		return dirName.substring(0, endIndex);
-	}
-
-	public static ArrayList<Long> getAllHashInstanceFromPath(String path) {
-		File f = new File(path);
-		if (!f.exists())
-			return null;
-		if (f.isDirectory()) {
-			return null;
-		} else {
-			return initAllHashInstanceFromFile(path);
-		}
-	}
-
-	public static HashSet<Long> getSetFromPath(String path) {
-		File f = new File(path);
-		if (!f.exists())
-			return null;
-		if (f.isDirectory()) {
-			return getSetFromRunDir(path);
-		} else {
-			return initSetFromFile(path);
-		}
-	}
-
-	public static HashSet<Long> mergeSet(HashSet<Long>... sets) {
-		HashSet<Long> resSet = new HashSet<Long>();
+	public static Set<Long> mergeSet(Set<Long>... sets) {
+		Set<Long> resSet = new HashSet<Long>();
 		for (int i = 0; i < sets.length; i++) {
 			resSet.addAll(sets[i]);
 		}
 		return resSet;
 	}
 
-	public static HashSet<Long> mergeSet(String... hashFiles) {
-		HashSet<Long> resSet = new HashSet<Long>();
+	public static Set<Long> mergeSet(File... hashFiles) {
+		Set<Long> resSet = new HashSet<Long>();
 		for (int i = 0; i < hashFiles.length; i++) {
-			resSet.addAll(initSetFromFile(hashFiles[i]));
+			resSet.addAll(loadHashFile(hashFiles[i]));
 		}
 		return resSet;
 	}
 
-	public static HashSet<Long> initSetFromFile(File hashFile) {
-		return initSetFromFile(hashFile.getAbsolutePath());
-	}
-
-	public static ArrayList<Long> initAllHashInstanceFromFile(String fileName) {
+	public static List<Long> loadHashFile(File hashFile) {
 		FileInputStream in = null;
 		FileChannel channel = null;
 		try {
-			in = new FileInputStream(fileName);
+			in = new FileInputStream(hashFile);
 			channel = in.getChannel();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -311,11 +187,11 @@ public class AnalysisUtil {
 		return allInstances;
 	}
 
-	public static HashSet<Long> initSetFromFile(String fileName) {
+	public static Set<Long> loadHashSet(File hashFile) {
 		FileInputStream in = null;
 		FileChannel channel = null;
 		try {
-			in = new FileInputStream(fileName);
+			in = new FileInputStream(hashFile);
 			channel = in.getChannel();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -350,26 +226,25 @@ public class AnalysisUtil {
 		return set;
 	}
 
-	public static void writeSetToFile(String outputFileName,
-			HashSet<Long> hashset) {
+	public static void writeSetToFile(File outputFile, Set<Long> hashset) {
 		try {
-			File f = new File(outputFileName);
-			if (!f.exists()) {
-				f.createNewFile();
+			if (!outputFile.exists()) {
+				outputFile.createNewFile();
 			}
 
-			FileOutputStream outputStream = new FileOutputStream(f, false);
+			FileOutputStream outputStream = new FileOutputStream(outputFile,
+					false);
 			DataOutputStream dataOutput = new DataOutputStream(outputStream);
 
-			System.out.println("Start outputting hash set to " + outputFileName
-					+ " file.");
+			System.out.println("Start outputting hash set to "
+					+ outputFile.getAbsolutePath() + " file.");
 
 			for (Long l : hashset) {
 				// dataOutput.writeLong(reverseForLittleEndian(l)); // FIXME
 			}
 
 			System.out.println("Finish outputting hash set to "
-					+ outputFileName + " file.");
+					+ outputFile.getAbsolutePath() + " file.");
 			outputStream.close();
 			dataOutput.close();
 
@@ -381,83 +256,12 @@ public class AnalysisUtil {
 	}
 
 	/**
-	 * Assume the module file is organized in the follwoing way: Module
-	 * USERENV.dll: 0x722a0000 - 0x722b7000
-	 * 
-	 * @param fileName
-	 * @return
-	 * @throws OverlapModuleException
-	 */
-	public static ArrayList<ModuleDescriptor> getModules(String fileName)
-			throws OverlapModuleException {
-		ArrayList<ModuleDescriptor> res = new ArrayList<ModuleDescriptor>();
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(fileName));
-			try {
-				String line;
-				while ((line = br.readLine()) != null) {
-					int beginIdx, endIdx;
-					String name;
-					long beginAddr, endAddr;
-
-					if (!line.startsWith("Loaded")) {
-						continue;
-					}
-
-					// Should change the index correspondingly if the
-					// module file format is changed
-					beginIdx = line.indexOf(" ");
-					beginIdx = line.indexOf(" ", beginIdx + 1);
-					endIdx = line.indexOf(":", 0);
-					name = line.substring(beginIdx + 1, endIdx);
-					name = name.toLowerCase();
-
-					beginIdx = line.indexOf("x", endIdx);
-					endIdx = line.indexOf(" ", beginIdx);
-					beginAddr = Long.parseLong(
-							line.substring(beginIdx + 1, endIdx), 16);
-
-					beginIdx = line.indexOf("x", endIdx);
-					endAddr = Long.parseLong(line.substring(beginIdx + 1), 16);
-
-					ModuleDescriptor mod = new ModuleDescriptor(name,
-							beginAddr, endAddr);
-					if (!res.contains(mod)) {
-						res.add(mod);
-					}
-				}
-				// Check if there is any overlap between different modules
-				for (int i = 0; i < res.size(); i++) {
-					for (int j = i + 1; j < res.size(); j++) {
-						ModuleDescriptor mod1 = res.get(i), mod2 = res.get(j);
-						if ((mod1.beginAddr < mod2.beginAddr && mod1.endAddr > mod2.beginAddr)
-								|| (mod1.beginAddr < mod2.endAddr && mod1.endAddr > mod2.endAddr)) {
-							String msg = "Module overlap happens!\n" + mod1
-									+ " & " + mod2;
-							// throw new OverlapModuleException(msg);
-						}
-					}
-				}
-
-				Collections.sort(res);
-				return res;
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
 	 * Take advantage of the relative tag to filter out the immediate address
 	 * 
 	 * @param g1
 	 * @param g2
 	 */
-	public static void filteroutImmeAddr(ExecutionGraph g1, ExecutionGraph g2) {
+	public static void filteroutImmeAddr(ProcessExecutionGraph g1, ProcessExecutionGraph g2) {
 		int modificationCnt = 0;
 
 		PrintWriter pw = null;
@@ -508,7 +312,7 @@ public class AnalysisUtil {
 				+ modificationCnt);
 	}
 
-	public static Node getTrueMatch(ExecutionGraph g1, ExecutionGraph g2,
+	public static Node getTrueMatch(ProcessExecutionGraph g1, ProcessExecutionGraph g2,
 			Node n2) {
 		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag);
 		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag().tag);
@@ -517,9 +321,8 @@ public class AnalysisUtil {
 	}
 
 	/**
-	 * This function is used to cheat when merging two executions from the same
-	 * program. It will use the relative tag to verify if this is a correct
-	 * match. n1 is allowed to be null while n2 is not allowed to.
+	 * This function is used to cheat when merging two executions from the same program. It will use the relative tag to
+	 * verify if this is a correct match. n1 is allowed to be null while n2 is not allowed to.
 	 * 
 	 * @param g1
 	 * @param g2
@@ -527,8 +330,8 @@ public class AnalysisUtil {
 	 * @param n2
 	 * @return
 	 */
-	public static MatchResult getMatchResult(ExecutionGraph g1,
-			ExecutionGraph g2, Node n1, Node n2, boolean isIndirect) {
+	public static MatchResult getMatchResult(ProcessExecutionGraph g1,
+			ProcessExecutionGraph g2, Node n1, Node n2, boolean isIndirect) {
 		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag), relativeTag1 = n1 == null ? -1
 				: AnalysisUtil.getRelativeTag(g1, n1.getTag().tag);
 		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag().tag), modName1 = n1 == null ? null
@@ -588,9 +391,8 @@ public class AnalysisUtil {
 	}
 
 	/**
-	 * Input node n1 and n2 are matched nodes and they have indirect outgoing
-	 * edges. This function analyzes how difficult it is to match its indirect
-	 * outgoing nodes according the hash collision of those nodes.
+	 * Input node n1 and n2 are matched nodes and they have indirect outgoing edges. This function analyzes how
+	 * difficult it is to match its indirect outgoing nodes according the hash collision of those nodes.
 	 * 
 	 * @param n1
 	 * @param n2
@@ -622,7 +424,7 @@ public class AnalysisUtil {
 		System.out.println("Finish indirect node pair info output.");
 	}
 
-	public static long getRelativeTag(ExecutionGraph graph, long tag) {
+	public static long getRelativeTag(ProcessExecutionGraph graph, long tag) {
 		ArrayList<ModuleDescriptor> modules = graph.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			ModuleDescriptor mod = modules.get(i);
@@ -641,7 +443,7 @@ public class AnalysisUtil {
 		return getModuleName(n.getContainingGraph(), n.getTag().tag);
 	}
 
-	public static String getModuleName(ExecutionGraph graph, long tag) {
+	public static String getModuleName(ProcessExecutionGraph graph, long tag) {
 		ArrayList<ModuleDescriptor> modules = graph.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			ModuleDescriptor mod = modules.get(i);
@@ -652,8 +454,7 @@ public class AnalysisUtil {
 		return "Unknown";
 	}
 
-
-	public static void outputUnknownTags(ExecutionGraph graph) {
+	public static void outputUnknownTags(ProcessExecutionGraph graph) {
 		long minUnknownTag = Long.MAX_VALUE, maxUnknownTag = Long.MIN_VALUE;
 		int unknownTagCnt = 0;
 		for (int i = 0; i < graph.getNodes().size(); i++) {
@@ -682,8 +483,8 @@ public class AnalysisUtil {
 				+ Long.toHexString(minUnknownTag));
 	}
 
-	public static void outputTagComparisonInfo(ExecutionGraph graph1,
-			ExecutionGraph graph2) {
+	public static void outputTagComparisonInfo(ProcessExecutionGraph graph1,
+			ProcessExecutionGraph graph2) {
 		System.out
 				.println("New tags comparison for " + graph1 + " & " + graph2);
 		System.out.println("New tags for graph1: " + graph1);
@@ -731,5 +532,36 @@ public class AnalysisUtil {
 			tag = previous_tag2;
 		}
 		System.out.println(previous_n);
+	}
+
+	// Return ordinal of the edge by passing the from tag
+	public static int getEdgeOrdinal(long tag) {
+		return new Long(tag << 16 >>> 56).intValue();
+	}
+
+	// Return type of the edge by passing the from tag
+	public static EdgeType getTagEdgeType(long tag) {
+		int ordinal = new Long(tag << 8 >>> 56).intValue();
+		return EdgeType.values()[ordinal];
+	}
+
+	// Return the effective address of the tag
+	public static long getTagEffectiveValue(long tag) {
+		return new Long(tag << 24 >>> 24).intValue();
+	}
+
+	public static int getNodeVersionNumber(long tag) {
+		return new Long(tag >>> 56).intValue();
+	}
+
+	public static int getNodeMetaVal(long tag) {
+		return new Long(tag << 8 >>> 56).intValue();
+	}
+
+	// get the lower 6 byte of the tag, which is a long integer
+	public static VersionedTag getVersionedTag(long tag) {
+		long tagLong = tag << 24 >>> 24;
+		int versionNumber = (new Long(tag >>> 56)).intValue();
+		return new VersionedTag(tagLong, versionNumber);
 	}
 }
