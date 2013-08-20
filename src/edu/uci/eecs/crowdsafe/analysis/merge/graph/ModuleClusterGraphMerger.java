@@ -13,20 +13,25 @@ import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
 
 public class ModuleClusterGraphMerger {
 
-	private final ModuleGraphCluster graph1, graph2;
+	private final ModuleGraphCluster left, right;
 
-	public ModuleClusterGraphMerger(ModuleGraphCluster graph1,
-			ModuleGraphCluster graph2) {
-		if (graph1.calculateTotalNodeCount() > graph2.calculateTotalNodeCount()) {
-			this.graph1 = graph1;
-			this.graph2 = graph2;
-		} else {
-			this.graph1 = graph2;
-			this.graph2 = graph1;
+	public ModuleClusterGraphMerger(ModuleGraphCluster left,
+			ModuleGraphCluster right) {
+		if (left.distribution != right.distribution) {
+			throw new IllegalArgumentException(
+					"Module graph matching requires the same clusters!");
 		}
 
-		System.out.println("\n    ==== " + graph1.distribution.name + " & "
-				+ graph2.distribution.name + " ====");
+		if (left.calculateTotalNodeCount() > right.calculateTotalNodeCount()) {
+			this.left = left;
+			this.right = right;
+		} else {
+			this.left = right;
+			this.right = left;
+		}
+
+		System.out.println("\n    ==== " + left.distribution.name + " & "
+				+ right.distribution.name + " ====");
 
 		/**
 		 * <pre>
@@ -41,68 +46,16 @@ public class ModuleClusterGraphMerger {
 		 */
 	}
 
-	public boolean preMergeGraph() {
-		ModuleGraph mGraph1 = (ModuleGraph) graph1, mGraph2 = (ModuleGraph) graph2;
+	public void merge() {
+		GraphMergeSession session = new GraphMergeSession();
 
-		if (!mGraph1.equals(mGraph2)) {
-			System.out
-					.println("Module graph matching requires the same modules!");
-			return false;
+		for (ModuleGraph leftModule : left.getGraphs()) {
+			session.left.addModule(leftModule);
+		}
+		for (ModuleGraph rightModule : right.getGraphs()) {
+			session.right.addModule(rightModule);
 		}
 
-		// Reset isVisited field
-		for (int i = 0; i < graph2.getNodes().size(); i++) {
-			graph2.getNodes().get(i).resetVisited();
-		}
-
-		// Record matched nodes
-		matchedNodes = new MatchedNodes();
-
-		hasConflict = false;
-
-		// BFS on G2
-		matchedQueue = new LinkedList<PairNode>();
-		unmatchedQueue = new LinkedList<PairNode>();
-		indirectChildren = new LinkedList<PairNodeEdge>();
-
-		graphMergingInfo = new GraphMergingInfo(graph1, graph2, matchedNodes);
-
-		// Initialize debugging info before merging the graph
-		if (DebugUtils.debug) {
-			DebugUtils.debug_init();
-		}
-
-		HashMap<Long, ExecutionNode> graph1Sig2Node = mGraph1
-				.getSigature2Node(), graph2Sig2Node = mGraph2
-				.getSigature2Node();
-		for (long sigHash : graph2Sig2Node.keySet()) {
-			if (graph1Sig2Node.containsKey(sigHash)) {
-				ExecutionNode n1 = graph1Sig2Node.get(sigHash);
-				ExecutionNode n2 = graph2Sig2Node.get(sigHash);
-
-				PairNode pairNode = new PairNode(n1, n2, 0);
-				matchedQueue.add(pairNode);
-				matchedNodes.addPair(n1.getIndex(), n2.getIndex(), 0);
-
-				graphMergingInfo.directMatch();
-
-				if (DebugUtils.debug) {
-					// AnalysisUtil.outputIndirectNodesInfo(n1, n2);
-				}
-
-				if (DebugUtils.debug) {
-					DebugUtils.debug_matchingTrace
-							.addInstance(new MatchingInstance(0, n1.getIndex(),
-									n2.getIndex(), MatchingType.SignatureNode,
-									-1));
-				}
-			} else {
-				// Push new signature node to prioritize the speculation to the
-				// beginning of the graph
-				ExecutionNode n2 = graph2Sig2Node.get(sigHash);
-				addUnmatchedNode2Queue(n2, -1);
-			}
-		}
-		return true;
+		session.merge();
 	}
 }

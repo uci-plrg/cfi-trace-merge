@@ -58,8 +58,6 @@ public class ModuleGraph {
 		return signature2Node.size();
 	}
 
-	// Add a node with hashcode hash and return the newly
-	// created node
 	public void addNode(ExecutionNode node) {
 		graphData.nodes.add(node);
 		graphData.hash2Nodes.add(node);
@@ -157,17 +155,6 @@ public class ModuleGraph {
 				danglingNodes.add(n);
 		}
 		return danglingNodes;
-	}
-
-	/**
-	 * Only according to the name of the module graph
-	 */
-	public boolean equals(Object o) {
-		if (o == null || o.getClass() != ModuleGraph.class) {
-			return false;
-		}
-		ModuleGraph anotherGraph = (ModuleGraph) o;
-		return (anotherGraph.softwareUnit == softwareUnit);
 	}
 
 	public String toString() {

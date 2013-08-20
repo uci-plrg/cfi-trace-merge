@@ -18,30 +18,22 @@ public class ExecutionGraphData {
 	// TODO: would prefer to keep the nodes only by hash, or also by key if that is necessary
 	protected List<ExecutionNode> nodes;
 
-	protected final NodeHashMap hash2Nodes = new NodeHashMap();
+	public final NodeHashMap nodesByHash = new NodeHashMap();
 
-	protected Map<ExecutionNode.Key, ExecutionNode> nodesByKey;
+	public final Map<ExecutionNode.Key, ExecutionNode> nodesByKey;
 
 	public ExecutionGraphData(ProcessExecutionGraph process) {
 		this.process = process;
 	}
 
-	public int getNodeCount() {
-		return nodes.size();
-	}
-
-	public NodeList getNodesByHash(long hash) {
-		return hash2Nodes.get(hash);
-	}
-
 	public Collection<Long> getBlockHashes() {
-		return hash2Nodes.keySet();
+		return nodesByHash.keySet();
 	}
 
 	public ExecutionNode getNode(ExecutionNode.Key key) {
 		return nodesByKey.get(key);
 	}
-
+	
 	/**
 	 * To validate the correctness of the graph. Basically it checks if entry points have no incoming edges, exit points
 	 * have no outgoing edges. It might include more validation stuff later...
