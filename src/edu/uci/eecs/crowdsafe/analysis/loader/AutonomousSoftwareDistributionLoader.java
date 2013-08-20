@@ -12,6 +12,7 @@ import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 
 public class AutonomousSoftwareDistributionLoader {
 
+	// TODO: should all the windows dlls really be in a single dist?
 	public static AutonomousSoftwareDistribution loadDistribution(
 			File configFile) throws IOException {
 		Set<SoftwareDistributionUnit> distUnits = new HashSet<SoftwareDistributionUnit>();
@@ -20,6 +21,8 @@ public class AutonomousSoftwareDistributionLoader {
 		while ((line = reader.readLine()) != null) {
 			distUnits.add(new SoftwareDistributionUnit(line.toLowerCase()));
 		}
-		return new AutonomousSoftwareDistribution(distUnits);
+		String distName = configFile.getName().substring(0,
+				configFile.getName().lastIndexOf('.'));
+		return new AutonomousSoftwareDistribution(distName, distUnits);
 	}
 }

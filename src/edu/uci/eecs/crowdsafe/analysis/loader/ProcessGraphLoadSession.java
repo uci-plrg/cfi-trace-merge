@@ -1,10 +1,8 @@
 package edu.uci.eecs.crowdsafe.analysis.loader;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,13 +14,11 @@ import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleDescriptor;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionModuleSet;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.VersionedTag;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
@@ -30,19 +26,23 @@ import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidTagException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.MultipleEdgeException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.TagNotFoundException;
+import edu.uci.eecs.crowdsafe.analysis.log.graph.ProcessExecutionGraphSummary;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 public class ProcessGraphLoadSession {
 	private final ProcessTraceDataSource dataSource;
 
 	private ProcessExecutionGraph graph;
-	private Map<VersionedTag, Node> hashLookupTable;
+	private Map<Node.Key, Node> hashLookupTable;
+
+	// Count how many wrong intra-module edges there are
+	private int wrongIntraModuleEdgeCnt = 0;
 
 	ProcessGraphLoadSession(ProcessTraceDataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
-	ProcessExecutionGraph loadGraph() {
+	ProcessExecutionGraph loadGraph() throws IOException {
 		ProcessExecutionModuleSet modules = ProcessModuleLoader
 				.loadModules(dataSource);
 		graph = new ProcessExecutionGraph(dataSource, modules);
@@ -63,11 +63,15 @@ public class ProcessGraphLoadSession {
 
 		// TODO: these occur on each ExecutionGraphData
 		// Some other initialization and sanity checks
-		validate();
-		// Produce some analysis result for the graph
-		analyzeGraph();
+		for (ModuleGraphCluster cluster : graph.getAutonomousClusters()) {
+			for (ModuleGraph module : cluster.getGraphs()) {
+				module.getGraphData().validate();
+			}
+		}
 
-		graph.normalizeTags();
+		// Produce some analysis result for the graph
+		ProcessExecutionGraphSummary.summarizeGraph(graph);
+
 		return graph;
 	}
 
@@ -87,19 +91,15 @@ public class ProcessGraphLoadSession {
 	 * @return
 	 * @throws InvalidTagException
 	 */
-	private Map<VersionedTag, Node> loadGraphNodes() throws InvalidTagException {
-		Map<VersionedTag, Node> hashLookupTable = new HashMap<VersionedTag, Node>();
-
-		// Just a ad-hoc patch for the bug in the graph lookup file
-		Map<Long, Integer> tag2CurrentVersion_ = new HashMap<Long, Integer>();
+	private Map<Node.Key, Node> loadGraphNodes() throws InvalidTagException {
+		Map<Node.Key, Node> hashLookupTable = new HashMap<Node.Key, Node>();
 
 		try {
-			// TODO: close all these files when finished
+			// TODO: close file when finished (all LEDIS instances)
 			LittleEndianDataInputStream input = new LittleEndianDataInputStream(
 					dataSource
 							.getDataInputStream(ProcessTraceStreamType.GRAPH_HASH));
 			long tag = 0, tagOriginal = 0, hash = 0;
-			String nodeModuleName;
 
 			while (true) {
 				tagOriginal = input.readLong();
@@ -109,13 +109,7 @@ public class ProcessGraphLoadSession {
 				int versionNumber = AnalysisUtil
 						.getNodeVersionNumber(tagOriginal);
 				int metaNodeVal = AnalysisUtil.getNodeMetaVal(tagOriginal);
-				VersionedTag versionedTag = new VersionedTag(tag, versionNumber);
-				// Only for the ad-hoc fix of graph lookup file
-				if (!tag2CurrentVersion_.containsKey(tag)) {
-					tag2CurrentVersion_.put(tag, 0);
-				} else if (tag2CurrentVersion_.get(tag) < versionNumber) {
-					tag2CurrentVersion_.put(tag, versionNumber);
-				}
+				Node.Key versionedTag = new Node.Key(tag, versionNumber);
 
 				MetaNodeType metaNodeType = MetaNodeType.values()[metaNodeVal];
 
@@ -123,41 +117,31 @@ public class ProcessGraphLoadSession {
 				if (hashLookupTable.containsKey(versionedTag)) {
 					Node existingNode = hashLookupTable.get(versionedTag);
 					if (existingNode.getHash() != hash) {
-						// Patch the buggy tag version manually
-						if (versionedTag.versionNumber == 0
-								&& tag2CurrentVersion_.get(tag) > 0) {
-							versionNumber = tag2CurrentVersion_.get(tag);
-							versionedTag = new VersionedTag(tag, versionNumber);
-						} else {
-							String msg = "Duplicate tags: "
-									+ versionedTag
-									+ " -> "
-									+ Long.toHexString(hashLookupTable.get(
-											versionedTag).getHash()) + ":"
-									+ Long.toHexString(hash) + "  "
-									+ dataSource.toString();
-							throw new InvalidTagException(msg);
-						}
+						String msg = "Duplicate tags: "
+								+ versionedTag
+								+ " -> "
+								+ Long.toHexString(hashLookupTable.get(
+										versionedTag).getHash()) + ":"
+								+ Long.toHexString(hash) + "  "
+								+ dataSource.toString();
+						throw new InvalidTagException(msg);
 					}
 				}
 				SoftwareDistributionUnit nodeSoftwareUnit = graph.getModules()
-						.getSoftwareUnit(tag);
+						.getModule(tag).unit;
 
-				// TODO: identify the index
-				Node node = new Node(graph, versionedTag, hash, metaNodeType);
+				Node node = new Node(graph, metaNodeType, tag, versionNumber,
+						hash);
 
 				ModuleGraphCluster moduleCluster = graph
 						.getModuleGraphCluster(nodeSoftwareUnit);
 				ModuleGraph moduleGraph = moduleCluster
 						.getModuleGraph(nodeSoftwareUnit);
 				if (moduleGraph == null) {
-					moduleGraph = new ModuleGraph(nodeSoftwareUnit);
+					moduleGraph = new ModuleGraph(graph, nodeSoftwareUnit);
 					moduleCluster.addModule(moduleGraph);
 				}
 				moduleGraph.addModuleNode(node);
-				if (nodeSoftwareUnit != SoftwareDistributionUnit.UNKNOWN) {
-					moduleGraph.getGraphData().addBlockHash(node.getHash());
-				}
 				hashLookupTable.put(versionedTag, node);
 				graph.addBlockHash(hashLookupTable.get(versionedTag).getHash());
 			}
@@ -183,100 +167,93 @@ public class ProcessGraphLoadSession {
 	 * @throws InvalidTagException
 	 * @throws TagNotFoundException
 	 */
-	public void readCrossModuleEdges()
-			throws MultipleEdgeException, InvalidTagException,
-			TagNotFoundException {
-		try {
-			LittleEndianDataInputStream input = new LittleEndianDataInputStream(
-					dataSource
-							.getDataInputStream(ProcessTraceStreamType.CROSS_MODULE_GRAPH));
+	public void readCrossModuleEdges() throws IOException {
+		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
+				dataSource
+						.getDataInputStream(ProcessTraceStreamType.CROSS_MODULE_GRAPH));
 
-			while (true) {
-				long tag1 = input.readLong();
-				long tag2 = input.readLong();
-				long signatureHash = input.readLong();
+		while (true) {
+			long tag1 = input.readLong();
+			long tag2 = input.readLong();
+			long signatureHash = input.readLong();
 
-				VersionedTag versionedTag1 = getVersionedTag(tag1), versionedTag2 = getVersionedTag(tag2);
-				EdgeType edgeType = getTagEdgeType(tag1);
-				int edgeOrdinal = getEdgeOrdinal(tag1);
+			Node.Key nodekey1 = AnalysisUtil.getNodeKey(tag1);
+			Node.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
+			EdgeType edgeType = AnalysisUtil.getTagEdgeType(tag1);
+			int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(tag1);
 
-				Node node1 = hashLookupTable.get(versionedTag1), node2 = hashLookupTable
-						.get(versionedTag2);
+			Node node1 = hashLookupTable.get(nodekey1);
+			Node node2 = hashLookupTable.get(nodeKey2);
 
-				// Double check if tag1 and tag2 exist in the lookup file
-				if (node1 == null) {
-					if (DebugUtils.ThrowTagNotFound) {
-						throw new TagNotFoundException("0x"
-								+ Long.toHexString(tag1)
-								+ " is missed in graph lookup file!");
-					}
-				}
-				if (node2 == null) {
-					if (DebugUtils.ThrowTagNotFound) {
-						throw new TagNotFoundException("0x"
-								+ Long.toHexString(tag2)
-								+ " is missed in graph lookup file!");
-					}
-				}
-				if (node1 == null || node2 == null) {
-					if (!DebugUtils.ThrowTagNotFound) {
-						continue;
-					}
-				}
-
-				Edge existing = node1.getOutgoingEdge(node2);
-				Edge e;
-
-				String node1ModName = AnalysisUtil.getSoftwareUnit(node1), node2ModName = AnalysisUtil
-						.getSoftwareUnit(node2);
-
-				e = new Edge(node1, node2, edgeType, edgeOrdinal);
-
-				if (existing == null) {
-					// Be careful when dealing with the cross module nodes.
-					// Cross-module edges are not added to any node, but the
-					// edge from signature node to real entry node is preserved.
-					// We onlly need to add the signature nodes to "nodes"
-					node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
-					if (isCoreModule(node2ModName)) {
-						ModuleGraph moduleGraph = moduleGraphs
-								.get(node2ModName);
-						// Make sure the signature node is added
-						moduleGraph.addSignatureNode(signatureHash);
-						Node sigNode = moduleGraph.signature2Node
-								.get(signatureHash);
-
-						node2.setMetaNodeType(MetaNodeType.NORMAl);
-						Edge sigEntryEdge = new Edge(sigNode, node2,
-								EdgeType.CrossKernelModule, 0);
-						sigNode.addOutgoingEdge(sigEntryEdge);
-						node2.addIncomingEdge(sigEntryEdge);
-					} else if (isCoreModule(node1ModName)) {
-						// Make sure the signature node is added
-						addSignatureNode(signatureHash);
-						Node sigNode = signature2Node.get(signatureHash);
-
-						e = new Edge(sigNode, node2,
-								EdgeType.CrossKernelModule, 0);
-						sigNode.addOutgoingEdge(e);
-						node2.addIncomingEdge(e);
-					} else {
-						node1.addOutgoingEdge(e);
-						node2.addIncomingEdge(e);
-					}
+			// Double check if tag1 and tag2 exist in the lookup file
+			if (node1 == null) {
+				if (DebugUtils.ThrowTagNotFound) {
+					throw new TagNotFoundException("0x"
+							+ Long.toHexString(tag1)
+							+ " is missed in graph lookup file!");
 				}
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (EOFException e) {
-			// System.out.println("Finiish reading the file: " + fileName);
-		} catch (IOException e) {
-			e.printStackTrace();
+			if (node2 == null) {
+				if (DebugUtils.ThrowTagNotFound) {
+					throw new TagNotFoundException("0x"
+							+ Long.toHexString(tag2)
+							+ " is missed in graph lookup file!");
+				}
+			}
+			if (node1 == null || node2 == null) {
+				if (!DebugUtils.ThrowTagNotFound) {
+					continue;
+				}
+			}
+
+			Edge existing = node1.getOutgoingEdge(node2);
+			Edge e;
+
+			SoftwareDistributionUnit node1Unit = graph.getModules().getModule(
+					node1.getTag()).unit;
+			SoftwareDistributionUnit node2Unit = graph.getModules().getModule(
+					node2.getTag()).unit;
+
+			e = new Edge(node1, node2, edgeType, edgeOrdinal);
+
+			if (existing == null) {
+				// Be careful when dealing with the cross module nodes.
+				// Cross-module edges are not added to any node, but the
+				// edge from signature node to real entry node is preserved.
+				// We only need to add the signature nodes to "nodes"
+				node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
+				ModuleGraphCluster moduleCluster1 = graph
+						.getModuleGraphCluster(node1Unit);
+
+				ModuleGraphCluster moduleCluster2 = graph
+						.getModuleGraphCluster(node2Unit);
+
+				if (moduleCluster1 == moduleCluster2) {
+					node1.addOutgoingEdge(e);
+					node2.addIncomingEdge(e);
+				} else {
+					ModuleGraph moduleGraph1 = moduleCluster1
+							.getModuleGraph(node1Unit);
+					Node sigNode = moduleGraph1.addSignatureNode(signatureHash);
+					node1.setMetaNodeType(MetaNodeType.NORMAL);
+					Edge sigEntryEdge = new Edge(sigNode, node1,
+							EdgeType.CROSS_MODULE, 0);
+					sigNode.addOutgoingEdge(sigEntryEdge);
+					node1.addIncomingEdge(sigEntryEdge);
+
+					ModuleGraph moduleGraph2 = moduleCluster2
+							.getModuleGraph(node2Unit);
+					sigNode = moduleGraph2.addSignatureNode(signatureHash);
+					node2.setMetaNodeType(MetaNodeType.NORMAL);
+					sigEntryEdge = new Edge(sigNode, node2,
+							EdgeType.CROSS_MODULE, 0);
+					sigNode.addOutgoingEdge(sigEntryEdge);
+					node2.addIncomingEdge(sigEntryEdge);
+
+				}
+			}
 		}
 	}
-
-	// Count how many wrong intra-module edges there are
-	private int wrongIntraModuleEdgeCnt = 0;
 
 	public void readIntraModuleEdges()
 			throws InvalidTagException, TagNotFoundException,
@@ -290,12 +267,13 @@ public class ProcessGraphLoadSession {
 				long tag1 = input.readLong();
 				long tag2 = input.readLong();
 
-				VersionedTag versionedTag1 = getVersionedTag(tag1), versionedTag2 = getVersionedTag(tag2);
-				EdgeType edgeType = getTagEdgeType(tag1);
-				int edgeOrdinal = getEdgeOrdinal(tag1);
+				Node.Key nodeKey1 = AnalysisUtil.getNodeKey(tag1);
+				Node.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
+				EdgeType edgeType = AnalysisUtil.getTagEdgeType(tag1);
+				int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(tag1);
 
-				Node node1 = hashLookupTable.get(versionedTag1), node2 = hashLookupTable
-						.get(versionedTag2);
+				Node node1 = hashLookupTable.get(nodeKey1), node2 = hashLookupTable
+						.get(nodeKey2);
 
 				// Double check if tag1 and tag2 exist in the lookup file
 				if (node1 == null) {
@@ -320,19 +298,25 @@ public class ProcessGraphLoadSession {
 
 				// If one of the node locates in the "unknown" module,
 				// simply discard those edges
-				String node1ModName = AnalysisUtil.getSoftwareUnit(node1), node2ModName = AnalysisUtil
-						.getSoftwareUnit(node2);
-				if (node1ModName.equals("Unknown")
-						|| node2ModName.equals("Unknown")) {
+				SoftwareDistributionUnit node1Unit = graph.getModules()
+						.getModule(node1.getTag()).unit;
+				SoftwareDistributionUnit node2Unit = graph.getModules()
+						.getModule(node2.getTag()).unit;
+				if (node1Unit == SoftwareDistributionUnit.UNKNOWN
+						|| node2Unit == SoftwareDistributionUnit.UNKNOWN) {
 					continue;
 				}
 
-				if ((!node1ModName.equals(node2ModName))
-						&& (isCoreModule(node1ModName) || isCoreModule(node2ModName))) {
-					wrongIntraModuleEdgeCnt++;
-					// Ignore those wrong edges at this point
-					// System.out.println(node1 + "=>" + node2);
-					continue;
+				if ((node1Unit != node2Unit)
+						&& (graph.getModuleGraphCluster(node1Unit) != graph
+								.getModuleGraphCluster(node2Unit))) {
+					throw new InvalidGraphException(
+							String.format(
+									"Error: a normal edge [0x%x - 0x%x] crosses between module %s and %s",
+									node1.getTag(),
+									node2.getTag(),
+									graph.getModuleGraphCluster(node1Unit).distribution.name,
+									graph.getModuleGraphCluster(node2Unit).distribution.name));
 				}
 
 				Edge existing = node1.getOutgoingEdge(node2);

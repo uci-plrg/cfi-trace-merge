@@ -301,7 +301,7 @@ public class GraphMergingInfo {
 						case UnexpectedReturn:
 							branchType = "u";
 							break;
-						case CrossKernelModule:
+						case CROSS_MODULE:
 							branchType = "xk";
 							break;
 						case CrossCustomModule:
@@ -313,7 +313,7 @@ public class GraphMergingInfo {
 					}
 					String edgeLabel = i + "->" + e.getToNode().getIndex()
 							+ "[label=\"" + branchType + "_";
-					if (e.getEdgeType() == EdgeType.CrossKernelModule) {
+					if (e.getEdgeType() == EdgeType.CROSS_MODULE) {
 						edgeLabel = edgeLabel
 								+ e.getFromNode().getNormalizedTag() + "->"
 								+ e.getToNode().getNormalizedTag() + "\"]";

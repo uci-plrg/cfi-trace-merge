@@ -34,48 +34,43 @@ public class ModuleGraph {
 	// Maps from signature hash to bogus signature node
 	protected Map<Long, Node> signature2Node;
 
+	protected final ProcessExecutionGraph containingGraph;
 	protected final ExecutionGraphData graphData;
 
-	public ModuleGraph(SoftwareDistributionUnit softwareUnit) {
+	public ModuleGraph(ProcessExecutionGraph containingGraph,
+			SoftwareDistributionUnit softwareUnit) {
+		this.containingGraph = containingGraph;
 		this.softwareUnit = softwareUnit;
 		this.signature2Node = new HashMap<Long, Node>();
-		this.graphData = new ExecutionGraphData();
-	}
-
-	public Map<Long, Node> getSigature2Node() {
-		return signature2Node;
+		this.graphData = new ExecutionGraphData(containingGraph);
 	}
 
 	public ExecutionGraphData getGraphData() {
 		return graphData;
 	}
 
+	public int getCrossModuleSignatureCount() {
+		return signature2Node.size();
+	}
+
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public Node addNode(long hash, MetaNodeType metaNodeType,
-			NormalizedTag normalizedTag) {
-		Node n = new Node(this, hash, graphData.nodes.size(), metaNodeType,
-				normalizedTag);
-		graphData.nodes.add(n);
-
-		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
-			// hash2Nodes only maps hash of code block to real nodes
-			graphData.hash2Nodes.add(n);
-		} else if (!signature2Node.containsKey(hash)) {
-			signature2Node.put(hash, n);
-		}
-		return n;
+	public void addNode(Node node) {
+		graphData.nodes.add(node);
+		graphData.hash2Nodes.add(node);
 	}
 
 	// Add the signature node to the graph
-	public void addSignatureNode(long sigHash) {
-		if (!signature2Node.containsKey(sigHash)) {
-			Node sigNode = new Node(this, sigHash, graphData.nodes.size(),
-					MetaNodeType.SIGNATURE_HASH, NormalizedTag.blankTag);
+	public Node addSignatureNode(long sigHash) {
+		Node sigNode = signature2Node.get(sigHash);
+		if (sigNode == null) {
+			sigNode = new Node(containingGraph, MetaNodeType.SIGNATURE_HASH,
+					0L, 0, sigHash);
 			signature2Node.put(sigNode.getHash(), sigNode);
 			sigNode.setIndex(graphData.nodes.size());
 			graphData.nodes.add(sigNode);
 		}
+		return sigNode;
 	}
 
 	/**
@@ -88,10 +83,9 @@ public class ModuleGraph {
 	 * @param n
 	 */
 	public void addModuleNode(Node n) {
-		graphData.normalizedTag2Node.put(n.getNormalizedTag(), n);
 		MetaNodeType type = n.getMetaNodeType();
 		if (type == MetaNodeType.MODULE_BOUNDARY) {
-			addModuleBoundaryNode(n);
+			// addModuleBoundaryNode(n); // TODO: do we need module boundary nodes?
 		} else if (type == MetaNodeType.SIGNATURE_HASH) {
 			addSignatureNode(n.getHash());
 		} else {
@@ -106,8 +100,10 @@ public class ModuleGraph {
 		graphData.blockHashes.add(n.getHash());
 	}
 
+	/**
+	 * <pre>
 	private void addModuleBoundaryNode(Node n) {
-		Node newNode = new Node(this, n);
+		Node newNode = new Node(containingGraph, n);
 		newNode.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
 		graphData.hash2Nodes.add(newNode);
 		newNode.setIndex(graphData.nodes.size());
@@ -115,11 +111,12 @@ public class ModuleGraph {
 
 		graphData.blockHashes.add(newNode.getHash());
 	}
+	 */
 
 	public HashSet<Node> getAccessibleNodes() {
 		HashSet<Node> accessibleNodes = new HashSet<Node>();
-		for (int i = 0; i < nodes.size(); i++) {
-			nodes.get(i).resetVisited();
+		for (int i = 0; i < graphData.nodes.size(); i++) {
+			graphData.nodes.get(i).resetVisited();
 		}
 		Queue<Node> bfsQueue = new LinkedList<Node>();
 		for (long sigHash : signature2Node.keySet()) {
@@ -127,8 +124,8 @@ public class ModuleGraph {
 		}
 		if (this instanceof ModuleGraph) {
 			ModuleGraph mGraph = (ModuleGraph) this;
-			if (mGraph.moduleName.startsWith("ntdll.dll-")) {
-				bfsQueue.add(nodes.get(0));
+			if (mGraph.softwareUnit.name.startsWith("ntdll.dll-")) {
+				bfsQueue.add(graphData.nodes.get(0));
 			}
 		}
 
@@ -149,23 +146,13 @@ public class ModuleGraph {
 
 	public ArrayList<Node> getDanglingNodes() {
 		ArrayList<Node> danglingNodes = new ArrayList<Node>();
-		for (int i = 0; i < nodes.size(); i++) {
-			Node n = nodes.get(i);
+		for (int i = 0; i < graphData.nodes.size(); i++) {
+			Node n = graphData.nodes.get(i);
 			if (n.getIncomingEdges().size() == 0
 					&& n.getOutgoingEdges().size() == 0)
 				danglingNodes.add(n);
 		}
 		return danglingNodes;
-	}
-
-	/**
-	 * When completing adding all nodes of the graph, set the containing graph of all nodes.
-	 */
-	public void setAllContainingGraph() {
-		for (int i = 0; i < graphData.nodes.size(); i++) {
-			Node n = graphData.nodes.get(i);
-			n.setContainingGraph(this);
-		}
 	}
 
 	/**
@@ -176,14 +163,10 @@ public class ModuleGraph {
 			return false;
 		}
 		ModuleGraph anotherGraph = (ModuleGraph) o;
-		if (anotherGraph.moduleName.equals(moduleName)) {
-			return true;
-		} else {
-			return false;
-		}
+		return (anotherGraph.softwareUnit == softwareUnit);
 	}
 
 	public String toString() {
-		return "Module_" + moduleName;
+		return "Module_" + softwareUnit.name;
 	}
 }

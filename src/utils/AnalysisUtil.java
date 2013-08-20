@@ -9,29 +9,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleDescriptor;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.NormalizedTag;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.VersionedTag;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.MatchResult;
-import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
-import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -239,10 +228,6 @@ public class AnalysisUtil {
 			System.out.println("Start outputting hash set to "
 					+ outputFile.getAbsolutePath() + " file.");
 
-			for (Long l : hashset) {
-				// dataOutput.writeLong(reverseForLittleEndian(l)); // FIXME
-			}
-
 			System.out.println("Finish outputting hash set to "
 					+ outputFile.getAbsolutePath() + " file.");
 			outputStream.close();
@@ -261,14 +246,18 @@ public class AnalysisUtil {
 	 * @param g1
 	 * @param g2
 	 */
-	public static void filteroutImmeAddr(ProcessExecutionGraph g1, ProcessExecutionGraph g2) {
+	/**
+	 * <pre>
+	public static void filteroutImmeAddr(ProcessExecutionGraph g1,
+			ProcessExecutionGraph g2) {
 		int modificationCnt = 0;
 
 		PrintWriter pw = null;
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
 			try {
-				String fileName = g1.getProgName() + ".imme-addr."
-						+ g1.getPid() + "-" + g2.getPid() + ".txt";
+				String fileName = g1.dataSource.getProcessName()
+						+ ".imme-addr." + g1.dataSource.getProcessId() + "-"
+						+ g2.dataSource.getProcessId() + ".txt";
 				String absolutePath = DebugUtils.MODIFIED_HASH_DIR + "/"
 						+ fileName;
 				File f = new File(DebugUtils.MODIFIED_HASH_DIR);
@@ -312,11 +301,11 @@ public class AnalysisUtil {
 				+ modificationCnt);
 	}
 
-	public static Node getTrueMatch(ProcessExecutionGraph g1, ProcessExecutionGraph g2,
-			Node n2) {
+	public static Node getTrueMatch(ProcessExecutionGraph g1,
+			ProcessExecutionGraph g2, Node n2) {
 		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag);
-		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag().tag);
-		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2);
+		String modUnit2 = g2.getModules().getSoftwareUnit(n2.getTag().tag);
+		NormalizedTag t2 = new NormalizedTag(modUnit2, relativeTag2);
 		return g1.normalizedTag2Node.get(t2);
 	}
 
@@ -329,19 +318,22 @@ public class AnalysisUtil {
 	 * @param n1
 	 * @param n2
 	 * @return
-	 */
+	 * /
 	public static MatchResult getMatchResult(ProcessExecutionGraph g1,
 			ProcessExecutionGraph g2, Node n1, Node n2, boolean isIndirect) {
 		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag), relativeTag1 = n1 == null ? -1
 				: AnalysisUtil.getRelativeTag(g1, n1.getTag().tag);
-		String modName2 = AnalysisUtil.getModuleName(g2, n2.getTag().tag), modName1 = n1 == null ? null
-				: AnalysisUtil.getModuleName(g1, n1.getTag().tag);
+		SoftwareDistributionUnit modUnit2 = g2.getModules().getSoftwareUnit(
+				n2.getTag().tag);
+		SoftwareDistributionUnit modUnit1 = n1 == null ? null : g1.getModules()
+				.getSoftwareUnit(n1.getTag().tag);
 		// Cannot normalized the tag
-		if (modName2.equals("Unknown")) {
+		if (modUnit2 == SoftwareDistributionUnit.UNKNOWN) {
 			return MatchResult.Unknown;
 		}
-		NormalizedTag t2 = new NormalizedTag(modName2, relativeTag2), t1 = n1 == null ? null
-				: new NormalizedTag(modName1, relativeTag1);
+		NormalizedTag t2 = new NormalizedTag(modUnit2, relativeTag2);
+		NormalizedTag t1 = n1 == null ? null : new NormalizedTag(modUnit1,
+				relativeTag1);
 
 		Node correspondingNode = g1.normalizedTag2Node.get(t2);
 		if (correspondingNode == null) {
@@ -389,6 +381,7 @@ public class AnalysisUtil {
 			}
 		}
 	}
+	 */
 
 	/**
 	 * Input node n1 and n2 are matched nodes and they have indirect outgoing edges. This function analyzes how
@@ -424,21 +417,8 @@ public class AnalysisUtil {
 		System.out.println("Finish indirect node pair info output.");
 	}
 
-	public static long getRelativeTag(ProcessExecutionGraph graph, long tag) {
-		ArrayList<ModuleDescriptor> modules = graph.getModules();
-		for (int i = 0; i < modules.size(); i++) {
-			ModuleDescriptor mod = modules.get(i);
-			if (mod.containsTag(tag) == 0) {
-				return tag - mod.beginAddr;
-			}
-		}
-		return tag;
-	}
-
-	public static long getRelativeTag(Node n) {
-		return getRelativeTag(n.getContainingGraph(), n.getTag().tag);
-	}
-
+	/**
+	 * <pre>
 	public static void outputUnknownTags(ProcessExecutionGraph graph) {
 		long minUnknownTag = Long.MAX_VALUE, maxUnknownTag = Long.MIN_VALUE;
 		int unknownTagCnt = 0;
@@ -518,6 +498,7 @@ public class AnalysisUtil {
 		}
 		System.out.println(previous_n);
 	}
+	 */
 
 	// Return ordinal of the edge by passing the from tag
 	public static int getEdgeOrdinal(long tag) {
@@ -544,9 +525,9 @@ public class AnalysisUtil {
 	}
 
 	// get the lower 6 byte of the tag, which is a long integer
-	public static VersionedTag getVersionedTag(long tag) {
+	public static Node.Key getNodeKey(long tag) {
 		long tagLong = tag << 24 >>> 24;
 		int versionNumber = (new Long(tag >>> 56)).intValue();
-		return new VersionedTag(tagLong, versionNumber);
+		return new Node.Key(tagLong, versionNumber);
 	}
 }

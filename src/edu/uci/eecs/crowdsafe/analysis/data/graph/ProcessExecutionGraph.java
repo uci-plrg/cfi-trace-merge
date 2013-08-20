@@ -1,38 +1,15 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph;
 
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-
-import utils.AnalysisUtil;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
-import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDirectory;
-import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidTagException;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.MultipleEdgeException;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.TagNotFoundException;
-import edu.uci.eecs.crowdsafe.analysis.loader.ProcessGraphDataLoader;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 /**
  * <p>
@@ -74,7 +51,7 @@ public class ProcessExecutionGraph {
 	protected final ProcessExecutionModuleSet modules;
 
 	public final ProcessTraceDataSource dataSource;
-	public final AutonomousSoftwareDistribution processMain = new AutonomousSoftwareDistribution();
+	public final AutonomousSoftwareDistribution processMain = new AutonomousSoftwareDistribution("<main-process>");
 
 	/**
 	 * The construction constructs the ExecutionGraph from a variety of files located in the run directory
@@ -93,7 +70,8 @@ public class ProcessExecutionGraph {
 	 *            which takes 24 bytes
 	 *            </p>
 	 */
-	public ProcessExecutionGraph(ProcessTraceDataSource dataSource, ProcessExecutionModuleSet modules) {
+	public ProcessExecutionGraph(ProcessTraceDataSource dataSource,
+			ProcessExecutionModuleSet modules) {
 		this.dataSource = dataSource;
 		this.modules = modules;
 	}
@@ -102,14 +80,20 @@ public class ProcessExecutionGraph {
 		return modules;
 	}
 
-	public ModuleGraphCluster getModuleGraphCluster(AutonomousSoftwareDistribution distribution) {
+	public ModuleGraphCluster getModuleGraphCluster(
+			AutonomousSoftwareDistribution distribution) {
 		return moduleGraphs.get(distribution);
 	}
 
-	public ModuleGraphCluster getModuleGraphCluster(SoftwareDistributionUnit softwareUnit) {
-		return moduleGraphsBySoftwareUnit.get(moduleName);
+	public ModuleGraphCluster getModuleGraphCluster(
+			SoftwareDistributionUnit softwareUnit) {
+		return moduleGraphsBySoftwareUnit.get(softwareUnit);
 	}
 	
+	public Collection<ModuleGraphCluster> getAutonomousClusters() {
+		return moduleGraphs.values();
+	}
+
 	public void addBlockHash(long hashcode) {
 		totalBlockHashes.add(hashcode);
 	}
@@ -120,12 +104,6 @@ public class ProcessExecutionGraph {
 
 	public Set<Long> getTotalBlockHashes() {
 		return totalBlockHashes;
-	}
-	
-	public void normalizeTags() {
-		for (ModuleGraph module : moduleGraphs.values()) {
-			module.getGraphData().normalizeTags();
-		}
 	}
 
 	public boolean isTailNode(Node n) {
@@ -146,15 +124,6 @@ public class ProcessExecutionGraph {
 			}
 		}
 		return true;
-	}
-
-	public static ProcessExecutionGraph buildGraphFromRunDir(File dir) {
-		ProcessTraceDirectory traceDirectory = new ProcessTraceDirectory(
-				dir);
-		ProcessExecutionGraph graph = new ProcessExecutionGraph(traceDirectory);
-
-
-		return graph;
 	}
 
 	public String toString() {

@@ -9,111 +9,90 @@ import java.util.ArrayList;
  * 
  */
 public class Node implements NodeList {
-	// Added for re-writable code
-	private VersionedTag tag;
+	
+	public static class Key {
+		public final long tag;
 
-	// TODO: what's this for? Try to normalize this.
-	private ProcessExecutionGraph containingGraph;
-	private long hash;
+		public final int version;
 
-	// Record the normalized tag of the node
-	private NormalizedTag normalizedTag;
+		public Key(long tag, int tagVersion) {
+			this.tag = tag;
+			this.version = tagVersion;
+		}
 
-	private ArrayList<Edge> outgoingEdges = new ArrayList<Edge>();
-	private boolean isVisited;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (int) (tag ^ (tag >>> 32));
+			result = prime * result + version;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Key other = (Key) obj;
+			if (tag != other.tag)
+				return false;
+			if (version != other.version)
+				return false;
+			return true;
+		}
+	}
+
 	// Index in the ArrayList<Node>
 	private int index;
-	// Divide the node into 3 groups
-	private int fromWhichGraph = -1;
-	// Meta data of the node
+
+	private final ModuleDescriptor module;
+
+	private final Key key;
+
+	private final long hash;
+
 	private MetaNodeType metaNodeType;
+
+	private ArrayList<Edge> outgoingEdges = new ArrayList<Edge>();
+
+	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
+
+	// TODO: what's this for? Try to normalize this.
+	private final ProcessExecutionGraph containingGraph;
+
+	// TODO: is processing state necessary on a Node?
+	private boolean isVisited = false;
 	// Indicate if this node is reachable from the entry point
 	private boolean reachable = false;
 
-	// Incomming edges, just in case they might be needed
-	private ArrayList<Edge> incomingEdges = new ArrayList<Edge>();
-
 	// !!!Not a deep copy, we don't copy edges...
+	// TODO: only for MODULE_BOUNDARY nodes--is this value used now?
+	/**
+	 * <pre>
 	public Node(ProcessExecutionGraph containingGraph, Node anotherNode) {
 		this(containingGraph, anotherNode.tag, anotherNode.hash,
-				MetaNodeType.NORMAl);
+				MetaNodeType.NORMAL);
 		this.index = anotherNode.index;
 		this.score = anotherNode.score;
-		this.fromWhichGraph = anotherNode.fromWhichGraph;
 		this.metaNodeType = anotherNode.metaNodeType;
 	}
+	 */
 
-	// Copy 'everything' except fromWhichGraph
-	public Node(ProcessExecutionGraph containingGraph, Node anotherNode,
-			int fromWhichGraph, int versionNumber) {
-		this(containingGraph, anotherNode.tag, anotherNode.hash,
-				MetaNodeType.NORMAl);
-		this.index = anotherNode.index;
-		this.score = anotherNode.score;
-		this.fromWhichGraph = fromWhichGraph;
-		this.metaNodeType = anotherNode.metaNodeType;
-
-		this.normalizedTag = new NormalizedTag(anotherNode);
-	}
-
-	public Node(ProcessExecutionGraph containingGraph, long hash,
-			MetaNodeType metaNodeType, NormalizedTag normalizedTag) {
-		if (normalizedTag == null) {
-			throw new NullPointerException("NormalizedTag should not be null!");
-		}
-		this.tag = VersionedTag.voidTag;
-		this.hash = hash;
-		this.fromWhichGraph = -1;
+	public Node(ProcessExecutionGraph containingGraph,
+			MetaNodeType metaNodeType, long tag, int tagVersion, long hash) {
+		this.containingGraph = containingGraph;
+		this.module = containingGraph.getModules().getModule(tag);
 		this.metaNodeType = metaNodeType;
-		this.containingGraph = containingGraph;
-
-		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
-			this.normalizedTag = NormalizedTag.blankTag;
-		} else {
-			this.normalizedTag = normalizedTag;
-		}
-
-	}
-
-	public Node(ProcessExecutionGraph containingGraph, VersionedTag tag,
-			long hash, MetaNodeType metaNodeType) {
-		this.tag = tag;
+		this.key = new Key(tag, tagVersion);
 		this.hash = hash;
-		this.isVisited = false;
-		this.metaNodeType = metaNodeType;
-		this.containingGraph = containingGraph;
-
-		this.normalizedTag = new NormalizedTag(this);
-	}
-
-	public Node(ProcessExecutionGraph containingGraph, VersionedTag tag) {
-		this.containingGraph = containingGraph;
-		this.tag = tag;
-		isVisited = false;
-
-		this.normalizedTag = new NormalizedTag(this);
-	}
-
-	private Node(ProcessExecutionGraph containingGraph, Node source,
-			boolean _deep_implied_) {
-		this.containingGraph = containingGraph;
-		tag = source.tag;
-		hash = source.hash;
-		// Should not add the source's edges here because those outgoing edges
-		// are constructed by the nodes of the source
-		// outgoingEdges.addAll(source.outgoingEdges);
-		isVisited = false;
-		metaNodeType = source.metaNodeType;
-
-		this.normalizedTag = new NormalizedTag(this);
 	}
 
 	public ProcessExecutionGraph getContainingGraph() {
 		return containingGraph;
-	}
-
-	public void setContainingGraph(ProcessExecutionGraph containingGraph) {
-		this.containingGraph = containingGraph;
 	}
 
 	public void setMetaNodeType(MetaNodeType metaNodeType) {
@@ -137,11 +116,27 @@ public class Node implements NodeList {
 
 	@Override
 	public NodeList copy(ProcessExecutionGraph containingGraph) {
-		return new Node(containingGraph, this, true);
+		// TODO: won't this be the wrong tag for the new graph?
+		return new Node(containingGraph, metaNodeType, key.tag, key.version,
+				hash);
 	}
 
-	public NormalizedTag getNormalizedTag() {
-		return normalizedTag;
+	public long getTag() {
+		return key.tag;
+	}
+
+	public long getRelativeTag() {
+		if (module == null)
+			return key.tag;
+		return key.tag - module.beginAddr;
+	}
+	
+	public int getTagVersion() {
+		return key.version;
+	}
+	
+	public ModuleDescriptor getModule() {
+		return module;
 	}
 
 	public void addIncomingEdge(Edge e) {
@@ -199,19 +194,8 @@ public class Node implements NodeList {
 		return this.metaNodeType;
 	}
 
-	public VersionedTag getTag() {
-		return tag;
-	}
-
 	public long getHash() {
 		return hash;
-	}
-
-	/**
-	 * This is added purely for the purpose of debugging We should never expose this to the outside world
-	 */
-	public void setHash(long hash) {
-		this.hash = hash;
 	}
 
 	public void resetVisited() {
@@ -242,25 +226,16 @@ public class Node implements NodeList {
 		this.score = score;
 	}
 
-	public int getFromWhichGraph() {
-		return fromWhichGraph;
-	}
-
-	public void setFromWhichGraph(int fromWhichGraph) {
-		this.fromWhichGraph = fromWhichGraph;
-	}
-
 	public String getHashHex() {
 		return "0x" + Long.toHexString(hash);
 	}
 
-	public String toString() {
-		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
-			return "0x" + Long.toHexString(hash) + ":" + normalizedTag + "-"
-					+ tag.versionNumber;
-		} else {
-			return "SIG: 0x" + Long.toHexString(hash);
-		}
+	public boolean isReachable() {
+		return reachable;
+	}
+
+	public void setReachable(boolean reachable) {
+		this.reachable = reachable;
 	}
 
 	/**
@@ -279,29 +254,25 @@ public class Node implements NodeList {
 		Node node = (Node) o;
 		if (node.metaNodeType == metaNodeType
 				&& metaNodeType == MetaNodeType.SIGNATURE_HASH) {
-			if (node.hash == hash) {
-				return true;
-			}
+			return (node.hash == hash);
 		}
 
-		if (node.tag.equals(tag) && node.containingGraph == containingGraph)
-			return true;
-		else
-			return false;
+		return (node.key.equals(key) && node.containingGraph == containingGraph);
 	}
 
 	public int hashCode() {
 		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
 			return ((Long) hash).hashCode();
 		}
-		return tag.hashCode() << 5 ^ ((Long) hash).hashCode();
+		return new Long(key.tag).hashCode() << 5 ^ new Long(hash).hashCode();
 	}
 
-	public boolean isReachable() {
-		return reachable;
-	}
-
-	public void setReachable(boolean reachable) {
-		this.reachable = reachable;
+	public String toString() {
+		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
+			return "0x" + Long.toHexString(hash) + ":" + key.tag + "v"
+					+ key.version;
+		} else {
+			return "SIG: 0x" + Long.toHexString(hash);
+		}
 	}
 }

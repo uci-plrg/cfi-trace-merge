@@ -3,13 +3,13 @@ package edu.uci.eecs.crowdsafe.analysis.data.graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.MatchResult;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.SpeculativeScoreType;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMerger;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 import utils.AnalysisUtil;
-
 
 public class SpeculativeScoreList {
 	// This is a global filed to record all the statistics during the comparison
@@ -168,9 +168,19 @@ public class SpeculativeScoreList {
 					}
 					for (int j = 0; j < records.size(); j++) {
 						SpeculativeScoreRecord record = records.get(j);
-						Node actualNode1 = record.actualNode1, node2 = record.node2, trueNode1 = AnalysisUtil
-								.getTrueMatch(graphMerger.getGraph1(),
-										graphMerger.getGraph2(), node2);
+						Node selectedNode1 = record.selectedNode1;
+						Node node2 = record.node2;
+						long node2RelativeTag = node2.getRelativeTag();
+						int node2Version = node2.getTagVersion();
+						SoftwareDistributionUnit node2Unit = node2.getModule().unit;
+						ModuleDescriptor node1Module = graphMerger.getGraph1()
+								.getModules().getModule(node2Unit);
+						long node1Tag = node1Module.beginAddr
+								+ node2RelativeTag;
+						Node trueNode1 = graphMerger.getGraph1()
+								.getModuleGraphCluster(node2Unit)
+								.getModuleGraph(node2Unit).getGraphData()
+								.getNode(new Node.Key(node1Tag, node2Version));
 						if (trueNode1 != null) {
 							// int depth = (int) (graphMerger.getGraph1()
 							// .getNodes().size() * 0.1f);
@@ -180,8 +190,8 @@ public class SpeculativeScoreList {
 							}
 							int score = graphMerger.debug_getContextSimilarity(
 									trueNode1, node2, depth);
-//							System.out.println("Score: " + score + " -- "
-//									+ depth);
+							// System.out.println("Score: " + score + " -- "
+							// + depth);
 							if (score == -1) {
 								System.out.println("bad!");
 							} else if (score == 1) {

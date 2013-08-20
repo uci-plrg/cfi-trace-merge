@@ -9,10 +9,10 @@ import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 
 public class ProcessExecutionModuleSet {
 
-	private final Map<String, ModuleDescriptor> descriptors = new HashMap<String, ModuleDescriptor>();
+	private final Map<SoftwareDistributionUnit, ModuleDescriptor> descriptors = new HashMap<SoftwareDistributionUnit, ModuleDescriptor>();
 
 	public void add(ModuleDescriptor module) {
-		descriptors.put(module.name, module);
+		descriptors.put(module.unit, module);
 	}
 
 	public boolean hashOverlap() {
@@ -29,12 +29,16 @@ public class ProcessExecutionModuleSet {
 		return false;
 	}
 
-	public SoftwareDistributionUnit getSoftwareUnit(long tag) {
+	public ModuleDescriptor getModule(long tag) {
 		for (ModuleDescriptor descriptor : descriptors.values()) {
 			if (descriptor.containsTag(tag)) {
 				return descriptor;
 			}
 		}
-		return SoftwareDistributionUnit.UNKNOWN;
+		return ModuleDescriptor.UNKNOWN;
+	}
+
+	public ModuleDescriptor getModule(SoftwareDistributionUnit unit) {
+		return descriptors.get(unit);
 	}
 }
