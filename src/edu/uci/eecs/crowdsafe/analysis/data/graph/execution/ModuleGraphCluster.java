@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,5 +25,13 @@ public class ModuleGraphCluster {
 	
 	public Collection<ModuleGraph> getGraphs() {
 		return graphs.values();
+	}
+	
+	public int calculateTotalNodeCount() {
+		int count = 0;
+		for (ModuleGraph module : graphs.values()) {
+			count += module.getGraphData().getNodeCount();
+		}
+		return count;
 	}
 }

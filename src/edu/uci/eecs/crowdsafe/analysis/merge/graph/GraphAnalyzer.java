@@ -1,7 +1,7 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreList;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import gnu.getopt.Getopt;
 

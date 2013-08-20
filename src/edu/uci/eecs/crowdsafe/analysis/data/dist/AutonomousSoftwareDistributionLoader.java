@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.analysis.loader;
+package edu.uci.eecs.crowdsafe.analysis.data.dist;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 
 public class AutonomousSoftwareDistributionLoader {
 

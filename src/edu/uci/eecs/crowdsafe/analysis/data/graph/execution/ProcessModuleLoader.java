@@ -1,11 +1,12 @@
-package edu.uci.eecs.crowdsafe.analysis.loader;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleDescriptor;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionModuleSet;
+import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.analysis.data.dist.ConfiguredSoftwareDistributions;
+import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
@@ -18,7 +19,8 @@ public class ProcessModuleLoader {
 	 * @return
 	 * @throws OverlapModuleException
 	 */
-	public static ProcessExecutionModuleSet loadModules(ProcessTraceDataSource dataSource)
+	public static ProcessExecutionModuleSet loadModules(
+			ProcessTraceDataSource dataSource)
 			throws IOException, OverlapModuleException {
 		ProcessExecutionModuleSet modules = new ProcessExecutionModuleSet();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -39,7 +41,8 @@ public class ProcessModuleLoader {
 			beginIdx = line.indexOf(" ", beginIdx + 1);
 			endIdx = line.indexOf(":", 0);
 			name = line.substring(beginIdx + 1, endIdx);
-			name = name.toLowerCase();
+			SoftwareDistributionUnit unit = ConfiguredSoftwareDistributions
+					.getInstance().establishUnit(name.toLowerCase());
 
 			beginIdx = line.indexOf("x", endIdx);
 			endIdx = line.indexOf(" ", beginIdx);
@@ -49,7 +52,7 @@ public class ProcessModuleLoader {
 			beginIdx = line.indexOf("x", endIdx);
 			endAddr = Long.parseLong(line.substring(beginIdx + 1), 16);
 
-			ModuleDescriptor module = new ModuleDescriptor(name, beginAddr,
+			ModuleDescriptor module = new ModuleDescriptor(unit, beginAddr,
 					endAddr);
 			modules.add(module);
 		}

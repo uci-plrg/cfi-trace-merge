@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.analysis.loader;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -14,11 +14,6 @@ import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraph;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionModuleSet;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
@@ -33,7 +28,7 @@ public class ProcessGraphLoadSession {
 	private final ProcessTraceDataSource dataSource;
 
 	private ProcessExecutionGraph graph;
-	private Map<Node.Key, Node> hashLookupTable;
+	private Map<ExecutionNode.Key, ExecutionNode> hashLookupTable;
 
 	// Count how many wrong intra-module edges there are
 	private int wrongIntraModuleEdgeCnt = 0;
@@ -91,8 +86,8 @@ public class ProcessGraphLoadSession {
 	 * @return
 	 * @throws InvalidTagException
 	 */
-	private Map<Node.Key, Node> loadGraphNodes() throws InvalidTagException {
-		Map<Node.Key, Node> hashLookupTable = new HashMap<Node.Key, Node>();
+	private Map<ExecutionNode.Key, ExecutionNode> loadGraphNodes() throws InvalidTagException {
+		Map<ExecutionNode.Key, ExecutionNode> hashLookupTable = new HashMap<ExecutionNode.Key, ExecutionNode>();
 
 		try {
 			// TODO: close file when finished (all LEDIS instances)
@@ -109,13 +104,13 @@ public class ProcessGraphLoadSession {
 				int versionNumber = AnalysisUtil
 						.getNodeVersionNumber(tagOriginal);
 				int metaNodeVal = AnalysisUtil.getNodeMetaVal(tagOriginal);
-				Node.Key versionedTag = new Node.Key(tag, versionNumber);
+				ExecutionNode.Key versionedTag = new ExecutionNode.Key(tag, versionNumber);
 
 				MetaNodeType metaNodeType = MetaNodeType.values()[metaNodeVal];
 
 				// Tags don't duplicate in lookup file
 				if (hashLookupTable.containsKey(versionedTag)) {
-					Node existingNode = hashLookupTable.get(versionedTag);
+					ExecutionNode existingNode = hashLookupTable.get(versionedTag);
 					if (existingNode.getHash() != hash) {
 						String msg = "Duplicate tags: "
 								+ versionedTag
@@ -130,7 +125,7 @@ public class ProcessGraphLoadSession {
 				SoftwareDistributionUnit nodeSoftwareUnit = graph.getModules()
 						.getModule(tag).unit;
 
-				Node node = new Node(graph, metaNodeType, tag, versionNumber,
+				ExecutionNode node = new ExecutionNode(graph, metaNodeType, tag, versionNumber,
 						hash);
 
 				ModuleGraphCluster moduleCluster = graph
@@ -177,13 +172,13 @@ public class ProcessGraphLoadSession {
 			long tag2 = input.readLong();
 			long signatureHash = input.readLong();
 
-			Node.Key nodekey1 = AnalysisUtil.getNodeKey(tag1);
-			Node.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
+			ExecutionNode.Key nodekey1 = AnalysisUtil.getNodeKey(tag1);
+			ExecutionNode.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
 			EdgeType edgeType = AnalysisUtil.getTagEdgeType(tag1);
 			int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(tag1);
 
-			Node node1 = hashLookupTable.get(nodekey1);
-			Node node2 = hashLookupTable.get(nodeKey2);
+			ExecutionNode node1 = hashLookupTable.get(nodekey1);
+			ExecutionNode node2 = hashLookupTable.get(nodeKey2);
 
 			// Double check if tag1 and tag2 exist in the lookup file
 			if (node1 == null) {
@@ -234,7 +229,7 @@ public class ProcessGraphLoadSession {
 				} else {
 					ModuleGraph moduleGraph1 = moduleCluster1
 							.getModuleGraph(node1Unit);
-					Node sigNode = moduleGraph1.addSignatureNode(signatureHash);
+					ExecutionNode sigNode = moduleGraph1.addSignatureNode(signatureHash);
 					node1.setMetaNodeType(MetaNodeType.NORMAL);
 					Edge sigEntryEdge = new Edge(sigNode, node1,
 							EdgeType.CROSS_MODULE, 0);
@@ -267,12 +262,12 @@ public class ProcessGraphLoadSession {
 				long tag1 = input.readLong();
 				long tag2 = input.readLong();
 
-				Node.Key nodeKey1 = AnalysisUtil.getNodeKey(tag1);
-				Node.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
+				ExecutionNode.Key nodeKey1 = AnalysisUtil.getNodeKey(tag1);
+				ExecutionNode.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
 				EdgeType edgeType = AnalysisUtil.getTagEdgeType(tag1);
 				int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(tag1);
 
-				Node node1 = hashLookupTable.get(nodeKey1), node2 = hashLookupTable
+				ExecutionNode node1 = hashLookupTable.get(nodeKey1), node2 = hashLookupTable
 						.get(nodeKey2);
 
 				// Double check if tag1 and tag2 exist in the lookup file
@@ -329,11 +324,11 @@ public class ProcessGraphLoadSession {
 						// One wired case to deal with here:
 						// A call edge (direct) and a continuation edge can
 						// point to the same block
-						if ((existing.getEdgeType() == EdgeType.Direct && e
-								.getEdgeType() == EdgeType.CallContinuation)
-								|| (existing.getEdgeType() == EdgeType.CallContinuation && e
-										.getEdgeType() == EdgeType.Direct)) {
-							existing.setEdgeType(EdgeType.Direct);
+						if ((existing.getEdgeType() == EdgeType.DIRECT && e
+								.getEdgeType() == EdgeType.CALL_CONTINUATION)
+								|| (existing.getEdgeType() == EdgeType.CALL_CONTINUATION && e
+										.getEdgeType() == EdgeType.DIRECT)) {
+							existing.setEdgeType(EdgeType.DIRECT);
 						} else {
 							String msg = "Multiple edges:\n" + "Edge1: "
 									+ existing + "\n" + "Edge2: " + e;

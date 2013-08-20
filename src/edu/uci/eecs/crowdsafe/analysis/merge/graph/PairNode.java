@@ -1,21 +1,24 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.merge.graph;
+
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+
 
 public class PairNode {
-	private Node node1, node2;
+	private ExecutionNode node1, node2;
 	// The level of the BFS traverse
 	public final int level;
 	// Marker for whether this node should be matched anymore
 	// It's only used in unmatched queue
 	public final boolean neverMatched;
 
-	public PairNode(Node node1, Node node2, int level) {
+	public PairNode(ExecutionNode node1, ExecutionNode node2, int level) {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.level = level;
 		this.neverMatched = false;
 	}
 
-	public PairNode(Node node1, Node node2, int level, boolean neverMatched) {
+	public PairNode(ExecutionNode node1, ExecutionNode node2, int level, boolean neverMatched) {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.level = level;
@@ -28,11 +31,11 @@ public class PairNode {
 		return node1Str + "<->" + node2Str;
 	}
 
-	public Node getNode1() {
+	public ExecutionNode getNode1() {
 		return node1;
 	}
 
-	public Node getNode2() {
+	public ExecutionNode getNode2() {
 		return node2;
 	}
 

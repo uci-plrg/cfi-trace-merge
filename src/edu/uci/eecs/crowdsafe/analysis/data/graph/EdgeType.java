@@ -1,5 +1,10 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph;
 
 public enum EdgeType {
-	Indirect, Direct, CallContinuation, UnexpectedReturn, CROSS_MODULE, CrossCustomModule
+	INDIRECT,
+	DIRECT,
+	CALL_CONTINUATION,
+	UNEXPECTED_RETURN,
+	CROSS_MODULE,
+	CROSS_CUSTOM_MODULE
 }

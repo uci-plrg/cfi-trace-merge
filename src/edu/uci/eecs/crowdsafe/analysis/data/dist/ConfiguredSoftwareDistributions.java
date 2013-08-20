@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.analysis.config.CrowdSafeAnalysisConfiguration;
-import edu.uci.eecs.crowdsafe.analysis.loader.AutonomousSoftwareDistributionLoader;
 
 public class ConfiguredSoftwareDistributions {
 
@@ -20,12 +19,17 @@ public class ConfiguredSoftwareDistributions {
 
 	private static ConfiguredSoftwareDistributions INSTANCE;
 
+	private static final String MAIN_PROGRAM = "<main-program>";
+
 	private final File configDir;
 	private final Map<String, AutonomousSoftwareDistribution> distributions = new HashMap<String, AutonomousSoftwareDistribution>();
 
 	private ConfiguredSoftwareDistributions() {
 		configDir = new File(CrowdSafeAnalysisConfiguration.getInstance()
 				.getAnalysisHome(), "config");
+
+		distributions.put(MAIN_PROGRAM, new AutonomousSoftwareDistribution(
+				MAIN_PROGRAM));
 	}
 
 	private void initialize() {
@@ -45,5 +49,17 @@ public class ConfiguredSoftwareDistributions {
 							"Error reading the autonomous software distribution configuration from %s!",
 							configDir.getAbsolutePath()));
 		}
+	}
+
+	public SoftwareDistributionUnit establishUnit(String name) {
+		for (AutonomousSoftwareDistribution dist : distributions.values()) {
+			for (SoftwareDistributionUnit unit : dist.distributionUnits) {
+				if (unit.name.equals(name))
+					return unit;
+			}
+		}
+		SoftwareDistributionUnit unit = new SoftwareDistributionUnit(name);
+		distributions.get(MAIN_PROGRAM).distributionUnits.add(unit);
+		return unit;
 	}
 }

@@ -6,7 +6,7 @@ public class SoftwareDistributionUnit {
 	
 	public final String name;
 
-	public SoftwareDistributionUnit(String name) {
+	SoftwareDistributionUnit(String name) {
 		this.name = name;
 	}
 }

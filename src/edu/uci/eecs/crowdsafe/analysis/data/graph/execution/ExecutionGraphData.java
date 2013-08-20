@@ -1,9 +1,11 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import edu.uci.eecs.crowdsafe.analysis.data.graph.NodeHashMap;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
 
 public class ExecutionGraphData {
@@ -13,13 +15,12 @@ public class ExecutionGraphData {
 	protected boolean isValidGraph = true;
 
 	// nodes in an array in the read order from file
-	protected List<Node> nodes;
+	// TODO: would prefer to keep the nodes only by hash, or also by key if that is necessary
+	protected List<ExecutionNode> nodes;
 
-	// Map from hash to ArrayList<Node>,
-	// which also helps to find out the hash collisions
-	protected NodeHashMap hash2Nodes;
+	protected final NodeHashMap hash2Nodes = new NodeHashMap();
 
-	protected Map<Node.Key, Node> nodesByKey;
+	protected Map<ExecutionNode.Key, ExecutionNode> nodesByKey;
 
 	public ExecutionGraphData(ProcessExecutionGraph process) {
 		this.process = process;
@@ -36,8 +37,8 @@ public class ExecutionGraphData {
 	public Collection<Long> getBlockHashes() {
 		return hash2Nodes.keySet();
 	}
-	
-	public Node getNode(Node.Key key) {
+
+	public ExecutionNode getNode(ExecutionNode.Key key) {
 		return nodesByKey.get(key);
 	}
 
@@ -50,7 +51,7 @@ public class ExecutionGraphData {
 	public boolean validate() {
 		// Check if the index of the node is correct
 		for (int i = 0; i < nodes.size(); i++) {
-			Node n = nodes.get(i);
+			ExecutionNode n = nodes.get(i);
 			if (n.getIndex() != i) {
 				System.out.println("Wrong index: " + n.getIndex());
 				return false;
@@ -58,7 +59,7 @@ public class ExecutionGraphData {
 		}
 
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
-			Node n = nodes.get(i);
+			ExecutionNode n = nodes.get(i);
 			switch (n.getMetaNodeType()) {
 				case ENTRY:
 					if (n.getIncomingEdges().size() != 0) {

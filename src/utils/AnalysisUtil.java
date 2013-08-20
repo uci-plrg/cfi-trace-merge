@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -390,7 +390,7 @@ public class AnalysisUtil {
 	 * @param n1
 	 * @param n2
 	 */
-	public static void outputIndirectNodesInfo(Node n1, Node n2) {
+	public static void outputIndirectNodesInfo(ExecutionNode n1, ExecutionNode n2) {
 		System.out.println("Start indirect node pair info output: " + n1
 				+ " & " + n2);
 		HashMap<Long, Integer> hash2CollisionCnt = new HashMap<Long, Integer>();
@@ -525,9 +525,9 @@ public class AnalysisUtil {
 	}
 
 	// get the lower 6 byte of the tag, which is a long integer
-	public static Node.Key getNodeKey(long tag) {
+	public static ExecutionNode.Key getNodeKey(long tag) {
 		long tagLong = tag << 24 >>> 24;
 		int versionNumber = (new Long(tag >>> 56)).intValue();
-		return new Node.Key(tagLong, versionNumber);
+		return new ExecutionNode.Key(tagLong, versionNumber);
 	}
 }

@@ -6,7 +6,9 @@ import java.util.HashMap;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.MatchResult;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.SpeculativeScoreType;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMerger;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleDescriptor;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.ModuleGraphMerger;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 import utils.AnalysisUtil;
@@ -16,7 +18,7 @@ public class SpeculativeScoreList {
 	// Every time an instance is created, it should be added to allLists
 	static public ArrayList<SpeculativeScoreList> allLists = new ArrayList<SpeculativeScoreList>();
 
-	private GraphMerger graphMerger;
+	private ModuleGraphMerger graphMerger;
 	private ArrayList<SpeculativeScoreRecord> records;
 	private boolean hasConflict;
 
@@ -30,7 +32,7 @@ public class SpeculativeScoreList {
 		this.hasConflict = hasConflict;
 	}
 
-	public SpeculativeScoreList(GraphMerger graphMerger) {
+	public SpeculativeScoreList(ModuleGraphMerger graphMerger) {
 		this.graphMerger = graphMerger;
 
 		records = new ArrayList<SpeculativeScoreRecord>();
@@ -168,8 +170,8 @@ public class SpeculativeScoreList {
 					}
 					for (int j = 0; j < records.size(); j++) {
 						SpeculativeScoreRecord record = records.get(j);
-						Node selectedNode1 = record.selectedNode1;
-						Node node2 = record.node2;
+						ExecutionNode selectedNode1 = record.selectedNode1;
+						ExecutionNode node2 = record.node2;
 						long node2RelativeTag = node2.getRelativeTag();
 						int node2Version = node2.getTagVersion();
 						SoftwareDistributionUnit node2Unit = node2.getModule().unit;
@@ -177,10 +179,10 @@ public class SpeculativeScoreList {
 								.getModules().getModule(node2Unit);
 						long node1Tag = node1Module.beginAddr
 								+ node2RelativeTag;
-						Node trueNode1 = graphMerger.getGraph1()
+						ExecutionNode trueNode1 = graphMerger.getGraph1()
 								.getModuleGraphCluster(node2Unit)
 								.getModuleGraph(node2Unit).getGraphData()
-								.getNode(new Node.Key(node1Tag, node2Version));
+								.getNode(new ExecutionNode.Key(node1Tag, node2Version));
 						if (trueNode1 != null) {
 							// int depth = (int) (graphMerger.getGraph1()
 							// .getNodes().size() * 0.1f);

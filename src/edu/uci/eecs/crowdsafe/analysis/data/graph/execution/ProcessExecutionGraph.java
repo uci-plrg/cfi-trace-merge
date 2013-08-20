@@ -1,14 +1,15 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
 
 /**
@@ -51,7 +52,6 @@ public class ProcessExecutionGraph {
 	protected final ProcessExecutionModuleSet modules;
 
 	public final ProcessTraceDataSource dataSource;
-	public final AutonomousSoftwareDistribution processMain = new AutonomousSoftwareDistribution("<main-process>");
 
 	/**
 	 * The construction constructs the ExecutionGraph from a variety of files located in the run directory
@@ -93,28 +93,32 @@ public class ProcessExecutionGraph {
 	public Collection<ModuleGraphCluster> getAutonomousClusters() {
 		return moduleGraphs.values();
 	}
+	
+	public int calculateTotalNodeCount() {
+		int count = 0;
+		for (ModuleGraphCluster cluster : moduleGraphs.values()) {
+			count += cluster.calculateTotalNodeCount();
+		}
+		return count;
+	}
 
 	public void addBlockHash(long hashcode) {
 		totalBlockHashes.add(hashcode);
-	}
-
-	public void addEdge(Node from, Edge e) {
-		from.addOutgoingEdge(e);
 	}
 
 	public Set<Long> getTotalBlockHashes() {
 		return totalBlockHashes;
 	}
 
-	public boolean isTailNode(Node n) {
+	public boolean isTailNode(ExecutionNode n) {
 		return isTailNode(n, 10);
 	}
 
-	public boolean isTailNode(Node n, int level) {
+	public boolean isTailNode(ExecutionNode n, int level) {
 		if (level == 0) {
 			return false;
 		}
-		ArrayList<Edge> outgoingEdges = n.getOutgoingEdges();
+		List<Edge<ExecutionNode>> outgoingEdges = n.getOutgoingEdges();
 		if (outgoingEdges.size() == 0) {
 			return true;
 		}

@@ -1,6 +1,6 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import utils.AnalysisUtil;
@@ -14,7 +14,7 @@ import utils.AnalysisUtil;
  * getMergedGraph() method.
  * </p>
  */
-public class GraphMergerThread extends GraphMerger implements Runnable {
+public class GraphMergerThread extends ModuleGraphMerger implements Runnable {
 	
 	public GraphMergerThread(ProcessExecutionGraph graph1, ProcessExecutionGraph graph2) {
 		super(graph1, graph2);

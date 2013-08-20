@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.util.HashSet;
 

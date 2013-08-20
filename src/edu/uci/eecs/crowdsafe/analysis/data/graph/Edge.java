@@ -1,15 +1,16 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph;
 
-public class Edge {
-	private Node toNode;
+
+public class Edge<NodeType extends Node> {
+	private NodeType toNode;
 	private EdgeType edgeType;
 	private int ordinal;
 
 	// Add this filed for debugging reason, cause it provides
 	// more information when debugging
-	private Node fromNode;
+	private NodeType fromNode;
 
-	public Edge(Node fromNode, Node toNode, EdgeType edgeType, int ordinal) {
+	public Edge(NodeType fromNode, NodeType toNode, EdgeType edgeType, int ordinal) {
 		this.fromNode = fromNode;
 		this.toNode = toNode;
 		this.edgeType = edgeType;
@@ -20,7 +21,7 @@ public class Edge {
 		this.edgeType = edgeType;
 	}
 	
-	public Node getFromNode() {
+	public NodeType getFromNode() {
 		return fromNode;
 	}
 
@@ -28,7 +29,7 @@ public class Edge {
 		return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
 	}
 
-	public Node getToNode() {
+	public NodeType getToNode() {
 		return toNode;
 	}
 

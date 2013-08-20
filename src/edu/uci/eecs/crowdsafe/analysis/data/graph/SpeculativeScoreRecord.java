@@ -1,5 +1,7 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph;
 
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+
 public class SpeculativeScoreRecord {
 	/**
 	 * SpeculativeMatchingType enumerates the possible cases where speculative
@@ -61,10 +63,10 @@ public class SpeculativeScoreRecord {
 	public final MatchResult matchResult;
 
 	// Record the matched nodes, node1 can be null
-	public final Node node1, node2;
+	public final ExecutionNode node1, node2;
 
 	// The actual chosen node1
-	public final Node selectedNode1;
+	public final ExecutionNode selectedNode1;
 
 	public String toString() {
 		String node1IdxStr = node1 == null ? "null" : Integer.toString(node1
@@ -85,8 +87,8 @@ public class SpeculativeScoreRecord {
 	}
 
 	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
-			boolean isIndirectSpeculation, int matchingScore, Node node1,
-			Node node2, Node selectedNode1, MatchResult matchResult) {
+			boolean isIndirectSpeculation, int matchingScore, ExecutionNode node1,
+			ExecutionNode node2, ExecutionNode selectedNode1, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 		this.matchingScore = matchingScore;

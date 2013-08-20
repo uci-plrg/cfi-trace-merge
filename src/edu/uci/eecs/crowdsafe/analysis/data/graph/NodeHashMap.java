@@ -4,17 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+
 public class NodeHashMap {
 	private final Map<Long, NodeList> map = new HashMap<Long, NodeList>();
 
-	public void add(Node node) {
+	public void add(ExecutionNode node) {
 		NodeList existing = map.get(node.getHash());
 		if (existing == null) {
 			map.put(node.getHash(), node);
 		} else {
 			if (existing.isSingleton()) {
 				NodeArrayList list = new NodeArrayList();
-				list.add((Node) existing);
+				list.add((ExecutionNode) existing);
 				list.add(node);
 				map.put(node.getHash(), list);
 			} else {

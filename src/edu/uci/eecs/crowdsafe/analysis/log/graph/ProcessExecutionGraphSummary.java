@@ -1,8 +1,8 @@
 package edu.uci.eecs.crowdsafe.analysis.log.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraph;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 
 public class ProcessExecutionGraphSummary {
 	/**

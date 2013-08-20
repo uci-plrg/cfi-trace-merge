@@ -8,12 +8,12 @@ public class AutonomousSoftwareDistribution {
 	public final String name;
 	public final Set<SoftwareDistributionUnit> distributionUnits;
 
-	public AutonomousSoftwareDistribution(String name) {
+	AutonomousSoftwareDistribution(String name) {
 		this.name = name;
 		distributionUnits = new HashSet<SoftwareDistributionUnit>();
 	}
 
-	public AutonomousSoftwareDistribution(String name,
+	AutonomousSoftwareDistribution(String name,
 			Set<SoftwareDistributionUnit> distributionUnits) {
 		this.name = name;
 		this.distributionUnits = Collections.unmodifiableSet(distributionUnits);

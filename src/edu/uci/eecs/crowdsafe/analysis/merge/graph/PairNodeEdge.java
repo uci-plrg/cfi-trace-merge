@@ -1,4 +1,7 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.merge.graph;
+
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 
 /**
  * In this class, parentNode1 is from the graph1, which is fixed; and
@@ -11,18 +14,18 @@ package edu.uci.eecs.crowdsafe.analysis.data.graph;
  * 
  */
 public class PairNodeEdge {
-	private Node parentNode1;
+	private ExecutionNode parentNode1;
 	private Edge curNodeEdge2;
 
-	private Node parentNode2;
+	private ExecutionNode parentNode2;
 
-	public PairNodeEdge(Node parentNode1, Edge curNodeEdge2, Node parentNode2) {
+	public PairNodeEdge(ExecutionNode parentNode1, Edge curNodeEdge2, ExecutionNode parentNode2) {
 		this.parentNode1 = parentNode1;
 		this.curNodeEdge2 = curNodeEdge2;
 		this.parentNode2 = parentNode2;
 	}
 
-	public Node getParentNode1() {
+	public ExecutionNode getParentNode1() {
 		return parentNode1;
 	}
 
@@ -30,7 +33,7 @@ public class PairNodeEdge {
 		return curNodeEdge2;
 	}
 
-	public Node getParentNode2() {
+	public ExecutionNode getParentNode2() {
 		return parentNode2;
 	}
 

@@ -1,8 +1,8 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph.debug;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMerger;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.ModuleGraphMerger;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergerThread;
 import gnu.getopt.Getopt;
 
@@ -136,7 +136,7 @@ public class DebugUtils {
 	public static MatchingTrace debug_matchingTrace;
 	public static ContextSimilarityTrace debug_contextSimilarityTrace;
 
-	public static int searchDepth = GraphMerger.pureSearchDepth;
+	public static int searchDepth = ModuleGraphMerger.pureSearchDepth;
 
 	public static void debug_init() {
 		debug_pureHeuristicCnt = 0;

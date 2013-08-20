@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.MetaNodeType;
 
 /**
  * <p>
@@ -32,7 +33,7 @@ public class ModuleGraph {
 	public final SoftwareDistributionUnit softwareUnit;
 
 	// Maps from signature hash to bogus signature node
-	protected Map<Long, Node> signature2Node;
+	protected Map<Long, ExecutionNode> signature2Node;
 
 	protected final ProcessExecutionGraph containingGraph;
 	protected final ExecutionGraphData graphData;
@@ -41,12 +42,16 @@ public class ModuleGraph {
 			SoftwareDistributionUnit softwareUnit) {
 		this.containingGraph = containingGraph;
 		this.softwareUnit = softwareUnit;
-		this.signature2Node = new HashMap<Long, Node>();
+		this.signature2Node = new HashMap<Long, ExecutionNode>();
 		this.graphData = new ExecutionGraphData(containingGraph);
 	}
 
 	public ExecutionGraphData getGraphData() {
 		return graphData;
+	}
+	
+	public ProcessExecutionGraph getContainingGraph() {
+		return containingGraph;
 	}
 
 	public int getCrossModuleSignatureCount() {
@@ -55,16 +60,16 @@ public class ModuleGraph {
 
 	// Add a node with hashcode hash and return the newly
 	// created node
-	public void addNode(Node node) {
+	public void addNode(ExecutionNode node) {
 		graphData.nodes.add(node);
 		graphData.hash2Nodes.add(node);
 	}
 
 	// Add the signature node to the graph
-	public Node addSignatureNode(long sigHash) {
-		Node sigNode = signature2Node.get(sigHash);
+	public ExecutionNode addSignatureNode(long sigHash) {
+		ExecutionNode sigNode = signature2Node.get(sigHash);
 		if (sigNode == null) {
-			sigNode = new Node(containingGraph, MetaNodeType.SIGNATURE_HASH,
+			sigNode = new ExecutionNode(containingGraph, MetaNodeType.SIGNATURE_HASH,
 					0L, 0, sigHash);
 			signature2Node.put(sigNode.getHash(), sigNode);
 			sigNode.setIndex(graphData.nodes.size());
@@ -82,7 +87,7 @@ public class ModuleGraph {
 	 * 
 	 * @param n
 	 */
-	public void addModuleNode(Node n) {
+	public void addModuleNode(ExecutionNode n) {
 		MetaNodeType type = n.getMetaNodeType();
 		if (type == MetaNodeType.MODULE_BOUNDARY) {
 			// addModuleBoundaryNode(n); // TODO: do we need module boundary nodes?
@@ -93,11 +98,10 @@ public class ModuleGraph {
 		}
 	}
 
-	private void addNormalNode(Node n) {
+	private void addNormalNode(ExecutionNode n) {
 		n.setIndex(graphData.nodes.size());
 		graphData.nodes.add(n);
 		graphData.hash2Nodes.add(n);
-		graphData.blockHashes.add(n.getHash());
 	}
 
 	/**
@@ -113,12 +117,12 @@ public class ModuleGraph {
 	}
 	 */
 
-	public HashSet<Node> getAccessibleNodes() {
-		HashSet<Node> accessibleNodes = new HashSet<Node>();
+	public HashSet<ExecutionNode> getAccessibleNodes() {
+		HashSet<ExecutionNode> accessibleNodes = new HashSet<ExecutionNode>();
 		for (int i = 0; i < graphData.nodes.size(); i++) {
 			graphData.nodes.get(i).resetVisited();
 		}
-		Queue<Node> bfsQueue = new LinkedList<Node>();
+		Queue<ExecutionNode> bfsQueue = new LinkedList<ExecutionNode>();
 		for (long sigHash : signature2Node.keySet()) {
 			bfsQueue.add(signature2Node.get(sigHash));
 		}
@@ -130,11 +134,11 @@ public class ModuleGraph {
 		}
 
 		while (bfsQueue.size() > 0) {
-			Node n = bfsQueue.remove();
+			ExecutionNode n = bfsQueue.remove();
 			n.setVisited();
 			accessibleNodes.add(n);
 			for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
-				Node neighbor = n.getOutgoingEdges().get(i).getToNode();
+				ExecutionNode neighbor = n.getOutgoingEdges().get(i).getToNode();
 				if (!neighbor.isVisited()) {
 					bfsQueue.add(neighbor);
 					neighbor.setVisited();
@@ -144,10 +148,10 @@ public class ModuleGraph {
 		return accessibleNodes;
 	}
 
-	public ArrayList<Node> getDanglingNodes() {
-		ArrayList<Node> danglingNodes = new ArrayList<Node>();
+	public ArrayList<ExecutionNode> getDanglingNodes() {
+		ArrayList<ExecutionNode> danglingNodes = new ArrayList<ExecutionNode>();
 		for (int i = 0; i < graphData.nodes.size(); i++) {
-			Node n = graphData.nodes.get(i);
+			ExecutionNode n = graphData.nodes.get(i);
 			if (n.getIncomingEdges().size() == 0
 					&& n.getOutgoingEdges().size() == 0)
 				danglingNodes.add(n);

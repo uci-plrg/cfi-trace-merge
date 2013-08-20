@@ -11,9 +11,9 @@ import java.util.Set;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.MatchedNodes;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ModuleGraph;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 
 import utils.AnalysisUtil;
 
@@ -83,10 +83,10 @@ public class GraphMergingInfo {
 		callContinuationMatchCnt++;
 	}
 
-	public ArrayList<Node> unmatchedGraph1Nodes() {
-		ArrayList<Node> unmatchedNodes = new ArrayList<Node>();
+	public ArrayList<ExecutionNode> unmatchedGraph1Nodes() {
+		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
-			Node n = graph1.getNodes().get(i);
+			ExecutionNode n = graph1.getNodes().get(i);
 			if (!matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
 				unmatchedNodes.add(n);
 			}
@@ -94,10 +94,10 @@ public class GraphMergingInfo {
 		return unmatchedNodes;
 	}
 
-	public ArrayList<Node> unmatchedGraph2Nodes() {
-		ArrayList<Node> unmatchedNodes = new ArrayList<Node>();
+	public ArrayList<ExecutionNode> unmatchedGraph2Nodes() {
+		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
-			Node n = graph2.getNodes().get(i);
+			ExecutionNode n = graph2.getNodes().get(i);
 			if (!matchedNodes.containsKeyBySecondIndex(n.getIndex())) {
 				unmatchedNodes.add(n);
 			}
@@ -213,14 +213,14 @@ public class GraphMergingInfo {
 	}
 
 	public static long outputFirstMain(ProcessExecutionGraph graph) {
-		Node n = null;
+		ExecutionNode n = null;
 		long firstMainHash = -1;
 		for (int i = 0; i < graph.getNodes().size(); i++) {
-			if (graph.getNodes().get(i).getHash() == GraphMerger.specialHash) {
+			if (graph.getNodes().get(i).getHash() == ModuleGraphMerger.specialHash) {
 				n = graph.getNodes().get(i);
 				if (n.getOutgoingEdges().size() > 1) {
 					for (int j = 0; j < n.getOutgoingEdges().size(); j++) {
-						if (n.getOutgoingEdges().get(j).getEdgeType() == EdgeType.Indirect) {
+						if (n.getOutgoingEdges().get(j).getEdgeType() == EdgeType.INDIRECT) {
 							return n.getOutgoingEdges().get(j).getToNode()
 									.getHash();
 						}
@@ -267,9 +267,9 @@ public class GraphMergingInfo {
 
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			HashSet<Node> accessibleNodes = graph.getAccessibleNodes();
+			HashSet<ExecutionNode> accessibleNodes = graph.getAccessibleNodes();
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				Node n = graph.getNodes().get(i);
+				ExecutionNode n = graph.getNodes().get(i);
 				if (!accessibleNodes.contains(n)) {
 					pwNodeFile.println(n);
 				}
@@ -281,7 +281,7 @@ public class GraphMergingInfo {
 			pwDotFile.println("# First main block: "
 					+ Long.toHexString(firstMainBlock));
 			for (int i = 0; i < graph.getNodes().size(); i++) {
-				Node n = graph.getNodes().get(i);
+				ExecutionNode n = graph.getNodes().get(i);
 				pwDotFile.println(i + "[label=\"" + n + "\"]");
 
 				ArrayList<Edge> edges = graph.getNodes().get(i)
@@ -289,22 +289,22 @@ public class GraphMergingInfo {
 				for (Edge e : edges) {
 					String branchType;
 					switch (e.getEdgeType()) {
-						case Indirect:
+						case INDIRECT:
 							branchType = "i";
 							break;
-						case Direct:
+						case DIRECT:
 							branchType = "d";
 							break;
-						case CallContinuation:
+						case CALL_CONTINUATION:
 							branchType = "c";
 							break;
-						case UnexpectedReturn:
+						case UNEXPECTED_RETURN:
 							branchType = "u";
 							break;
 						case CROSS_MODULE:
 							branchType = "xk";
 							break;
-						case CrossCustomModule:
+						case CROSS_CUSTOM_MODULE:
 							branchType = "xc";
 							break;
 						default:
