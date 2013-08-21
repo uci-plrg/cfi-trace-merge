@@ -44,11 +44,11 @@ public class GraphMergeSession {
 	// the compared nodes every time getContextSimilarity is called
 	Set<Node> comparedNodes = new HashSet<Node>();
 
-	Map<Node, Integer> scoresByLeftNode = new HashMap<Node, Integer>();
+	private final Map<Node, Integer> scoresByLeftNode = new HashMap<Node, Integer>();
 
 	boolean hasConflict;
 
-	final ModuleGraphMerger engine = new ModuleGraphMerger(this);
+	final GraphMergeEngine engine = new GraphMergeEngine(this);
 
 	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right) {
 		this.left = new GraphMergeTarget(this, left);
@@ -109,7 +109,14 @@ public class GraphMergeSession {
 		return true;
 	}
 
-	void merge() {
+	void setScore(Node leftNode, int score) {
+		scoresByLeftNode.put(leftNode, score);
+	}
 
+	int getScore(Node leftNode) {
+		Integer score = scoresByLeftNode.get(leftNode);
+		if (score != null)
+			return score;
+		return 0;
 	}
 }

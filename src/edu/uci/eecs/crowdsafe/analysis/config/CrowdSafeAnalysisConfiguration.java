@@ -18,7 +18,7 @@ public class CrowdSafeAnalysisConfiguration {
 	private File ANALYSIS_HOME;
 
 	private void initialize() {
-		String homeDir = System.getProperty("CROWD_SAFE_ANALYSIS_DIR");
+		String homeDir = System.getenv("CROWD_SAFE_ANALYSIS_DIR");
 		if (homeDir == null)
 			throw new IllegalStateException(
 					String.format(

@@ -50,7 +50,7 @@ public class ModuleGraphCluster {
 	public int getEntryNodeCount() {
 		return entryNodesBySignatureHash.size();
 	}
-	
+
 	public Map<Long, ExecutionNode> getEntryPoints() {
 		return entryNodesBySignatureHash;
 	}
@@ -58,6 +58,7 @@ public class ModuleGraphCluster {
 	public void addNode(ExecutionNode node) {
 		graphData.nodes.add(node);
 		graphData.nodesByHash.add(node);
+		graphData.nodesByKey.put(node.getKey(), node);
 	}
 
 	// Add the signature node to the graph
@@ -82,16 +83,17 @@ public class ModuleGraphCluster {
 	 * cross-module edges, it assumes that the indirect edge between the signature node to the real entry node has
 	 * already been established.
 	 * 
-	 * @param n
+	 * @param node
 	 */
-	public void addModuleNode(ExecutionNode n) {
-		MetaNodeType type = n.getType();
+	public void addModuleNode(ExecutionNode node) {
+		MetaNodeType type = node.getType();
 		if (type == MetaNodeType.MODULE_BOUNDARY) {
 			// addModuleBoundaryNode(n); // TODO: do we need module boundary nodes?
 		} else {
-			n.setIndex(graphData.nodes.size());
-			graphData.nodes.add(n);
-			graphData.nodesByHash.add(n);
+			node.setIndex(graphData.nodes.size());
+			graphData.nodes.add(node);
+			graphData.nodesByHash.add(node);
+			graphData.nodesByKey.put(node.getKey(), node);
 		}
 	}
 

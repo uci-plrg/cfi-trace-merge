@@ -28,7 +28,7 @@ import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
 import edu.uci.eecs.crowdsafe.analysis.util.MutableInteger;
 
-public class ModuleGraphMerger {
+public class GraphMergeEngine {
 
 	// The static threshold for indirect speculation and pure heuristics
 	// These two values are completely hypothetic and need further verification
@@ -40,7 +40,7 @@ public class ModuleGraphMerger {
 
 	private final GraphMergeSession session;
 
-	public ModuleGraphMerger(GraphMergeSession session) {
+	public GraphMergeEngine(GraphMergeSession session) {
 		this.session = session;
 	}
 
@@ -134,7 +134,8 @@ public class ModuleGraphMerger {
 		Edge<ExecutionNode> leftEdge, rightEdge;
 		if ((rightEdge = rightNode.getContinuationEdge()) != null
 				&& (leftEdge = leftNode.getContinuationEdge()) != null) {
-			if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
+			if (leftEdge.getToNode().getHash() != rightEdge.getToNode()
+					.getHash()) {
 				return -1;
 			} else {
 				// Check if e1.toNode was already matched to another node; if
@@ -168,8 +169,8 @@ public class ModuleGraphMerger {
 						continue;
 					}
 					if (leftEdge.getEdgeType() == EdgeType.DIRECT) {
-						if (leftEdge.getToNode().getHash() != rightEdge.getToNode()
-								.getHash()) {
+						if (leftEdge.getToNode().getHash() != rightEdge
+								.getToNode().getHash()) {
 							return -1;
 						} else {
 							// Check if e1.toNode was already matched to another
@@ -183,7 +184,8 @@ public class ModuleGraphMerger {
 								return -1;
 							}
 
-							res = debug_getContextSimilarity(leftEdge.getToNode(),
+							res = debug_getContextSimilarity(
+									leftEdge.getToNode(),
 									rightEdge.getToNode(), depth - 1);
 							if (res == -1) {
 								return -1;
@@ -195,9 +197,10 @@ public class ModuleGraphMerger {
 						// Either indirect or unexpected edges, keep tracing
 						// down. If the pair of node does not match, that does
 						// not mean the context is different.
-						if (leftEdge.getToNode().getHash() == rightEdge.getToNode()
-								.getHash()) {
-							res = debug_getContextSimilarity(leftEdge.getToNode(),
+						if (leftEdge.getToNode().getHash() == rightEdge
+								.getToNode().getHash()) {
+							res = debug_getContextSimilarity(
+									leftEdge.getToNode(),
 									rightEdge.getToNode(), depth - 1);
 							// In the case of res == -1, just leave it alone
 							// because of lack of information
@@ -216,7 +219,8 @@ public class ModuleGraphMerger {
 		MutableInteger potentialMaxScore = new MutableInteger(0);
 
 		session.comparedNodes.clear();
-		int score = getContextSimilarity(leftNode, rightNode, depth, potentialMaxScore);
+		int score = getContextSimilarity(leftNode, rightNode, depth,
+				potentialMaxScore);
 		if ((float) score / potentialMaxScore.getVal() > VALID_SCORE_LIMIT) {
 			return score;
 		} else {
@@ -275,7 +279,8 @@ public class ModuleGraphMerger {
 		Edge<? extends Node> rightEdge;
 		if ((rightEdge = node2.getContinuationEdge()) != null
 				&& (leftEdge = leftNode.getContinuationEdge()) != null) {
-			if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
+			if (leftEdge.getToNode().getHash() != rightEdge.getToNode()
+					.getHash()) {
 				return -1;
 			} else {
 				// Check if leftEdge.toNode was already matched to another node; if
@@ -286,8 +291,8 @@ public class ModuleGraphMerger {
 								.getKey(), rightEdge.getToNode().getKey())) {
 					return -1;
 				}
-				score = getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(),
-						depth - 1, potentialMaxScore);
+				score = getContextSimilarity(leftEdge.getToNode(),
+						rightEdge.getToNode(), depth - 1, potentialMaxScore);
 				if (score == -1)
 					return -1;
 			}
@@ -309,8 +314,8 @@ public class ModuleGraphMerger {
 						continue;
 					}
 					if (leftEdge.getEdgeType() == EdgeType.DIRECT) {
-						if (leftEdge.getToNode().getHash() != rightEdge.getToNode()
-								.getHash()) {
+						if (leftEdge.getToNode().getHash() != rightEdge
+								.getToNode().getHash()) {
 							return -1;
 						} else {
 							// Check if leftEdge.toNode was already matched to another
@@ -337,8 +342,8 @@ public class ModuleGraphMerger {
 						// Either indirect or unexpected edges, keep tracing
 						// down. If the pair of node does not match, that does
 						// not mean the context is different.
-						if (leftEdge.getToNode().getHash() == rightEdge.getToNode()
-								.getHash()) {
+						if (leftEdge.getToNode().getHash() == rightEdge
+								.getToNode().getHash()) {
 							res = getContextSimilarity(leftEdge.getToNode(),
 									rightEdge.getToNode(), depth - 1,
 									potentialMaxScore);
@@ -394,7 +399,7 @@ public class ModuleGraphMerger {
 			int score = 0;
 
 			if (DebugUtils.debug) {
-				DebugUtils.searchDepth = ModuleGraphMerger.pureSearchDepth;
+				DebugUtils.searchDepth = GraphMergeEngine.pureSearchDepth;
 			}
 
 			// If the score is below the threshold, we just don't think it is
@@ -403,7 +408,7 @@ public class ModuleGraphMerger {
 					pureSearchDepth)) > PURE_HEURISTIC_SPECULATION_THRESHOLD) {
 				// If the node is already merged, skip it
 				if (!session.matchedNodes.containsLeftKey(leftNode.getKey())) {
-					session.scoresByLeftNode.put(leftNode, score);
+					session.setScore(leftNode, score);
 					leftCandidates.add(leftNode);
 				}
 			}
@@ -419,8 +424,7 @@ public class ModuleGraphMerger {
 			// Returns the candidate with highest score
 			int pos = 0, score = 0, highestScoreCnt = 0;
 			for (int i = 0; i < leftCandidates.size(); i++) {
-				int candidateScore = session.scoresByLeftNode
-						.get(leftCandidates.get(i));
+				int candidateScore = session.getScore(leftCandidates.get(i));
 				if (candidateScore > score) {
 					pos = i;
 					score = candidateScore;
@@ -439,8 +443,8 @@ public class ModuleGraphMerger {
 								+ Long.toHexString(r.getRelativeTag()) + "_0x"
 								+ Long.toHexString(r.getTag()) + ":\t");
 				for (int i = 0; i < leftCandidates.size(); i++) {
-					int candidateScore = session.scoresByLeftNode
-							.get(leftCandidates.get(i));
+					int candidateScore = session
+							.getScore(leftCandidates.get(i));
 					if (candidateScore > 0) {
 						DebugUtils.getScorePW().print(candidateScore + "\t");
 					}
@@ -525,12 +529,10 @@ public class ModuleGraphMerger {
 						}
 
 						if ((score = getContextSimilarity(leftEdge.getToNode(),
-								rightToNode,
-								ModuleGraphMerger.directSearchDepth)) > DIRECT_SPECULATION_THRESHOLD) {
+								rightToNode, GraphMergeEngine.directSearchDepth)) > DIRECT_SPECULATION_THRESHOLD) {
 							if (!session.matchedNodes.containsLeftKey(leftEdge
 									.getToNode().getKey())) {
-								session.scoresByLeftNode.put(
-										leftEdge.getToNode(), score);
+								session.setScore(leftEdge.getToNode(), score);
 								candidates.add(leftEdge.getToNode());
 							}
 						}
@@ -556,8 +558,7 @@ public class ModuleGraphMerger {
 								+ Long.toHexString(r.getTag()) + "v"
 								+ r.getTagVersion() + ":\t");
 				for (int i = 0; i < candidates.size(); i++) {
-					int candidateScore = session.scoresByLeftNode
-							.get(candidates.get(i));
+					int candidateScore = session.getScore(candidates.get(i));
 					if (candidateScore > 0) {
 						DebugUtils.getScorePW().print(candidateScore + "\t");
 					}
@@ -569,8 +570,7 @@ public class ModuleGraphMerger {
 			int pos = 0, highestScoreCnt = 0;
 			score = -1;
 			for (int i = 0; i < candidates.size(); i++) {
-				int candidateScore = session.scoresByLeftNode.get(candidates
-						.get(i));
+				int candidateScore = session.getScore(candidates.get(i));
 				if (candidateScore > score) {
 					score = candidateScore;
 					pos = i;
@@ -646,16 +646,15 @@ public class ModuleGraphMerger {
 					int score = -1;
 
 					if (DebugUtils.debug) {
-						DebugUtils.searchDepth = ModuleGraphMerger.indirectSearchDepth;
+						DebugUtils.searchDepth = GraphMergeEngine.indirectSearchDepth;
 					}
 					if ((score = getContextSimilarity(
 							leftParentEdge.getToNode(), rightToNode,
-							ModuleGraphMerger.indirectSearchDepth)) > INDIRECT_SPECULATION_THRESHOLD) {
+							GraphMergeEngine.indirectSearchDepth)) > INDIRECT_SPECULATION_THRESHOLD) {
 						if (!session.matchedNodes
 								.containsLeftKey(leftParentEdge.getToNode()
 										.getKey())) {
-							session.scoresByLeftNode.put(
-									leftParentEdge.getToNode(), score);
+							session.setScore(leftParentEdge.getToNode(), score);
 							leftCandidates.add(leftParentEdge.getToNode());
 						}
 					}
@@ -677,8 +676,8 @@ public class ModuleGraphMerger {
 								+ Long.toHexString(relativeTag) + "_0x"
 								+ Long.toHexString(r.getTag()) + ":\t");
 				for (int i = 0; i < leftCandidates.size(); i++) {
-					int candidateScore = session.scoresByLeftNode
-							.get(leftCandidates.get(i));
+					int candidateScore = session
+							.getScore(leftCandidates.get(i));
 
 					if (candidateScore > 0) {
 						DebugUtils.getScorePW().print(candidateScore + "\t");
@@ -689,8 +688,7 @@ public class ModuleGraphMerger {
 
 			int pos = 0, score = -1, highestScoreCnt = 0;
 			for (int i = 0; i < leftCandidates.size(); i++) {
-				int candidateScore = session.scoresByLeftNode
-						.get(leftCandidates.get(i));
+				int candidateScore = session.getScore(leftCandidates.get(i));
 				if (candidateScore > score) {
 					score = candidateScore;
 					pos = i;
@@ -721,8 +719,7 @@ public class ModuleGraphMerger {
 		int maxScore = -1, maxScoreCnt = 0;
 		Node maxNode = null;
 		for (int i = 0; i < leftCandidates.size(); i++) {
-			int candidateScore = session.scoresByLeftNode.get(leftCandidates
-					.get(i));
+			int candidateScore = session.getScore(leftCandidates.get(i));
 			if (candidateScore > maxScore && candidateScore != 0) {
 				maxNode = leftCandidates.get(i);
 				maxScore = candidateScore;
@@ -759,8 +756,7 @@ public class ModuleGraphMerger {
 		boolean allLowScore = true;
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 			for (int i = 0; i < leftCandidates.size(); i++) {
-				int candidateScore = session.scoresByLeftNode
-						.get(leftCandidates.get(i));
+				int candidateScore = session.getScore(leftCandidates.get(i));
 				if (candidateScore >= SpeculativeScoreRecord.LowScore) {
 					allLowScore = false;
 				}
@@ -773,14 +769,14 @@ public class ModuleGraphMerger {
 					session.speculativeScoreList
 							.add(new SpeculativeScoreRecord(
 									SpeculativeScoreType.LowScoreTail,
-									isIndirect, maxScore, trueLeftNode, rightNode,
-									maxNode, matchResult));
+									isIndirect, maxScore, trueLeftNode,
+									rightNode, maxNode, matchResult));
 				} else {
 					session.speculativeScoreList
 							.add(new SpeculativeScoreRecord(
 									SpeculativeScoreType.LowScoreDivergence,
-									isIndirect, maxScore, trueLeftNode, rightNode,
-									maxNode, matchResult));
+									isIndirect, maxScore, trueLeftNode,
+									rightNode, maxNode, matchResult));
 				}
 			} else {
 				if (leftCandidates.size() == 1) {
@@ -886,18 +882,23 @@ public class ModuleGraphMerger {
 		// Merge edges from right
 		// Traverse edges in right by outgoing edges
 		for (Node rightFromNode : right.getGraphData().nodesByKey.values()) {
-			Node rightToNode;
 			// New fromNode and toNode in the merged graph
 			Edge<MergedNode> mergedEdge = null;
 
 			for (int j = 0; j < rightFromNode.getOutgoingEdges().size(); j++) {
-				Edge<? extends Node> e = rightFromNode.getOutgoingEdges()
-						.get(j);
-				rightToNode = e.getToNode();
+				Edge<? extends Node> rightEdge = rightFromNode
+						.getOutgoingEdges().get(j);
+				Node rightToNode = rightEdge.getToNode();
 				MergedNode mergedFromNode = leftNode2MergedNode
-						.get(rightFromNode.getKey());
-				MergedNode mergedToNode = leftNode2MergedNode.get(rightToNode
-						.getKey());
+						.get(session.left.cluster.getGraphData().nodesByKey
+								.get(session.matchedNodes
+										.getMatchByRightKey(rightFromNode
+												.getKey())));
+				MergedNode mergedToNode = leftNode2MergedNode
+						.get(session.left.cluster.getGraphData().nodesByKey
+								.get(session.matchedNodes
+										.getMatchByRightKey(rightToNode
+												.getKey())));
 				// rightNode2MergedNode.get(rightToNode .getKey());
 				if ((mergedFromNode != null) && (mergedToNode != null)) {
 					// Both are shared nodes, need to check if there are
@@ -905,7 +906,7 @@ public class ModuleGraphMerger {
 					Edge<MergedNode> sharedEdge = null;
 					for (Edge<MergedNode> mergedFromEdge : mergedFromNode
 							.getOutgoingEdges()) {
-						if (mergedEdge.getToNode().getKey()
+						if (mergedFromEdge.getToNode().getKey()
 								.equals(mergedToNode.getKey())) {
 							sharedEdge = mergedFromEdge;
 							break;
@@ -913,37 +914,60 @@ public class ModuleGraphMerger {
 					}
 					if (sharedEdge == null) {
 						mergedEdge = new Edge<MergedNode>(mergedFromNode,
-								mergedToNode, e.getEdgeType(), e.getOrdinal());
+								mergedToNode, rightEdge.getEdgeType(),
+								rightEdge.getOrdinal());
 					} else {
-						if (sharedEdge.getEdgeType() != e.getEdgeType()
-								|| sharedEdge.getOrdinal() != e.getOrdinal()) {
-							System.out
-									.println("There are still some conflicts!");
-							return false;
+						if (sharedEdge.getEdgeType() != rightEdge.getEdgeType()
+								|| sharedEdge.getOrdinal() != rightEdge
+										.getOrdinal()) {
+							System.err
+									.println(String
+											.format("Edge from 0x%x to 0x%x was merged with type %s and ordinal %d, but has type %s and ordinal %d in the right graph",
+													((ExecutionNode) rightEdge
+															.getFromNode())
+															.getTag(),
+													((ExecutionNode) rightEdge
+															.getToNode())
+															.getTag(),
+													sharedEdge.getEdgeType(),
+													sharedEdge.getOrdinal(),
+													rightEdge.getEdgeType(),
+													rightEdge.getOrdinal()));
 						}
+						continue;
 					}
 				} else if (mergedFromNode != null) {
 					// First node is a shared node
-					mergedToNode = rightNode2MergedNode.get(rightToNode
-							.getKey());
+					mergedToNode = rightNode2MergedNode.get(rightToNode);
 					mergedEdge = new Edge<MergedNode>(mergedFromNode,
-							mergedToNode, e.getEdgeType(), e.getOrdinal());
+							mergedToNode, rightEdge.getEdgeType(),
+							rightEdge.getOrdinal());
 				} else if (mergedToNode != null) {
 					// Second node is a shared node
-					mergedFromNode = rightNode2MergedNode.get(rightFromNode
-							.getKey());
+					mergedFromNode = rightNode2MergedNode.get(rightFromNode);
 					mergedEdge = new Edge<MergedNode>(mergedFromNode,
-							mergedToNode, e.getEdgeType(), e.getOrdinal());
+							mergedToNode, rightEdge.getEdgeType(),
+							rightEdge.getOrdinal());
 				} else {
 					// Both are new nodes from G2
-					mergedFromNode = rightNode2MergedNode.get(rightFromNode
-							.getKey());
-					mergedToNode = rightNode2MergedNode.get(rightToNode
-							.getKey());
+					mergedFromNode = rightNode2MergedNode.get(rightFromNode);
+					mergedToNode = rightNode2MergedNode.get(rightToNode);
 					mergedEdge = new Edge<MergedNode>(mergedFromNode,
-							mergedToNode, e.getEdgeType(), e.getOrdinal());
+							mergedToNode, rightEdge.getEdgeType(),
+							rightEdge.getOrdinal());
 				}
 				mergedFromNode.addOutgoingEdge(mergedEdge);
+
+				if (mergedToNode == null) {
+					System.err
+							.println(String
+									.format("Error: merged node with tag 0x%x-v%d cannot be found",
+											((ExecutionNode) rightToNode)
+													.getTag(),
+											((ExecutionNode) rightToNode)
+													.getTagVersion()));
+					continue;
+				}
 				mergedToNode.addIncomingEdge(mergedEdge);
 			}
 		}
@@ -1056,15 +1080,15 @@ public class ModuleGraphMerger {
 									.getKey(), rightEdge.getToNode().getKey())) {
 								if (!session.matchedNodes.addPair(leftChild
 										.getKey(), rightEdge.getToNode()
-										.getKey(), session.scoresByLeftNode
-										.get(leftChild))) {
+										.getKey(), session.getScore(leftChild))) {
 									System.out.println("In execution "
 											+ session.left.getProcessId()
 											+ " & "
 											+ session.right.getProcessId());
-									System.out.println("Node "
-											+ leftChild.getKey()
-											+ " of the left graph is already matched!");
+									System.out
+											.println("Node "
+													+ leftChild.getKey()
+													+ " of the left graph is already matched!");
 									System.out
 											.println("Node pair need to be matched: "
 													+ leftChild.getKey()
@@ -1156,7 +1180,7 @@ public class ModuleGraphMerger {
 							rightEdge.getToNode().getKey())) {
 						if (!session.matchedNodes.addPair(leftChild.getKey(),
 								rightEdge.getToNode().getKey(),
-								session.scoresByLeftNode.get(leftChild))) {
+								session.getScore(leftChild))) {
 							System.out.println("Node " + leftChild.getKey()
 									+ " of the left graph is already matched!");
 							return null;
@@ -1218,9 +1242,9 @@ public class ModuleGraphMerger {
 							.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
 						// Print out indirect nodes that must be decided by
 						// heuristic
-						System.out.println("PureHeuristic: " + leftNode.getKey()
-								+ "<->" + rightNode.getKey()
-								+ "(by pure heuristic)");
+						System.out.println("PureHeuristic: "
+								+ leftNode.getKey() + "<->"
+								+ rightNode.getKey() + "(by pure heuristic)");
 					}
 
 					session.matchedQueue.add(new PairNode(leftNode, rightNode,
@@ -1338,12 +1362,14 @@ public class ModuleGraphMerger {
 			File rightRun = new File(args[1]);
 
 			if (!(leftRun.exists() && leftRun.isDirectory())) {
-				System.out.println("Illegal argument " + args[0]
-						+ "; no such directory.");
+				System.out.println("Illegal argument '" + args[0]
+						+ "'; no such directory.");
+				System.exit(1);
 			}
 			if (!(rightRun.exists() && rightRun.isDirectory())) {
-				System.out.println("Illegal argument " + args[1]
-						+ "; no such directory.");
+				System.out.println("Illegal argument '" + args[1]
+						+ "'; no such directory.");
+				System.exit(1);
 			}
 
 			System.out.println("### --------------- ###");
@@ -1362,7 +1388,7 @@ public class ModuleGraphMerger {
 
 				GraphMergeSession session = new GraphMergeSession(leftCluster,
 						rightCluster);
-				ModuleGraphMerger graphMerger = new ModuleGraphMerger(session);
+				GraphMergeEngine graphMerger = new GraphMergeEngine(session);
 
 				try {
 					graphMerger.mergeGraph();

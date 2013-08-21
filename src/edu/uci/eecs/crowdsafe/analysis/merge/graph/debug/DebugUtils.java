@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.ModuleGraphMerger;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergeEngine;
 
 
 public class DebugUtils {
@@ -129,7 +129,7 @@ public class DebugUtils {
 	public static MatchingTrace debug_matchingTrace;
 	public static ContextSimilarityTrace debug_contextSimilarityTrace;
 
-	public static int searchDepth = ModuleGraphMerger.pureSearchDepth;
+	public static int searchDepth = GraphMergeEngine.pureSearchDepth;
 
 	public static void debug_init() {
 		debug_pureHeuristicCnt = 0;

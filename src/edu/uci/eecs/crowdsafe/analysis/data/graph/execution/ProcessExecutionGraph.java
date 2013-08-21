@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.analysis.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
@@ -74,6 +75,17 @@ public class ProcessExecutionGraph {
 			ProcessExecutionModuleSet modules) {
 		this.dataSource = dataSource;
 		this.modules = modules;
+
+		for (AutonomousSoftwareDistribution dist : ConfiguredSoftwareDistributions
+				.getInstance().distributions.values()) {
+			ModuleGraphCluster moduleCluster = new ModuleGraphCluster(dist,
+					this);
+			moduleGraphs.put(dist, moduleCluster);
+
+			for (SoftwareDistributionUnit unit : dist.distributionUnits) {
+				moduleGraphsBySoftwareUnit.put(unit, moduleCluster);
+			}
+		}
 	}
 
 	public ProcessExecutionModuleSet getModules() {
@@ -87,7 +99,13 @@ public class ProcessExecutionGraph {
 
 	public ModuleGraphCluster getModuleGraphCluster(
 			SoftwareDistributionUnit softwareUnit) {
-		return moduleGraphsBySoftwareUnit.get(softwareUnit);
+		ModuleGraphCluster cluster = moduleGraphsBySoftwareUnit
+				.get(softwareUnit);
+		if (cluster != null)
+			return cluster;
+		return moduleGraphs
+				.get(ConfiguredSoftwareDistributions.getInstance().distributions
+						.get(ConfiguredSoftwareDistributions.MAIN_PROGRAM));
 	}
 
 	public Collection<ModuleGraphCluster> getAutonomousClusters() {

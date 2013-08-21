@@ -55,7 +55,6 @@ public class ProcessGraphLoadSession {
 			throw new InvalidGraphException(e);
 		}
 
-		// TODO: these occur on each ExecutionGraphData
 		// Some other initialization and sanity checks
 		for (ModuleGraphCluster cluster : graph.getAutonomousClusters()) {
 			cluster.getGraphData().validate();
@@ -84,17 +83,16 @@ public class ProcessGraphLoadSession {
 	 * @throws InvalidTagException
 	 */
 	private Map<ExecutionNode.Key, ExecutionNode> loadGraphNodes()
-			throws InvalidTagException {
+			throws IOException {
 		Map<ExecutionNode.Key, ExecutionNode> hashLookupTable = new HashMap<ExecutionNode.Key, ExecutionNode>();
 
+		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
+				dataSource
+						.getDataInputStream(ProcessTraceStreamType.GRAPH_HASH));
 		try {
-			// TODO: close file when finished (all LEDIS instances)
-			LittleEndianDataInputStream input = new LittleEndianDataInputStream(
-					dataSource
-							.getDataInputStream(ProcessTraceStreamType.GRAPH_HASH));
 			long tag = 0, tagOriginal = 0, hash = 0;
 
-			while (true) {
+			while (input.available() > 0) {
 				tagOriginal = input.readLong();
 				hash = input.readLong();
 
@@ -140,12 +138,8 @@ public class ProcessGraphLoadSession {
 				hashLookupTable.put(versionedTag, node);
 				graph.addBlockHash(hashLookupTable.get(versionedTag).getHash());
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (EOFException e) {
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		} finally {
+			input.close();
 		}
 
 		return hashLookupTable;
@@ -166,94 +160,96 @@ public class ProcessGraphLoadSession {
 		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
 				dataSource
 						.getDataInputStream(ProcessTraceStreamType.CROSS_MODULE_GRAPH));
+		try {
+			while (input.available() > 0) {
+				long fromTag = input.readLong();
+				long toTag = input.readLong();
+				long signatureHash = input.readLong();
 
-		while (true) {
-			long fromTag = input.readLong();
-			long toTag = input.readLong();
-			long signatureHash = input.readLong();
+				ExecutionNode.Key fromKey = AnalysisUtil.getNodeKey(fromTag);
+				ExecutionNode.Key toKey = AnalysisUtil.getNodeKey(toTag);
+				EdgeType edgeType = AnalysisUtil.getTagEdgeType(fromTag);
+				int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(fromTag);
 
-			ExecutionNode.Key fromKey = AnalysisUtil.getNodeKey(fromTag);
-			ExecutionNode.Key toKey = AnalysisUtil.getNodeKey(toTag);
-			EdgeType edgeType = AnalysisUtil.getTagEdgeType(fromTag);
-			int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(fromTag);
+				ExecutionNode fromNode = hashLookupTable.get(fromKey);
+				ExecutionNode toNode = hashLookupTable.get(toKey);
 
-			ExecutionNode fromNode = hashLookupTable.get(fromKey);
-			ExecutionNode toNode = hashLookupTable.get(toKey);
+				// Double check if tag1 and tag2 exist in the lookup file
+				if (fromNode == null) {
+					if (DebugUtils.ThrowTagNotFound) {
+						throw new TagNotFoundException("0x"
+								+ Long.toHexString(fromTag)
+								+ " is missed in graph lookup file!");
+					}
+				}
+				if (toNode == null) {
+					if (DebugUtils.ThrowTagNotFound) {
+						throw new TagNotFoundException("0x"
+								+ Long.toHexString(toTag)
+								+ " is missed in graph lookup file!");
+					}
+				}
+				if (fromNode == null || toNode == null) {
+					if (!DebugUtils.ThrowTagNotFound) {
+						continue;
+					}
+				}
 
-			// Double check if tag1 and tag2 exist in the lookup file
-			if (fromNode == null) {
-				if (DebugUtils.ThrowTagNotFound) {
-					throw new TagNotFoundException("0x"
-							+ Long.toHexString(fromTag)
-							+ " is missed in graph lookup file!");
+				Edge<ExecutionNode> existing = fromNode.getOutgoingEdge(toNode);
+				if (existing == null) {
+					SoftwareDistributionUnit fromUnit = graph.getModules()
+							.getModule(fromNode.getTag()).unit;
+					SoftwareDistributionUnit toUnit = graph.getModules()
+							.getModule(toNode.getTag()).unit;
+					// Be careful when dealing with the cross module nodes.
+					// Cross-module edges are not added to any node, but the
+					// edge from signature node to real entry node is preserved.
+					// We only need to add the signature nodes to "nodes"
+					fromNode.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
+					ModuleGraphCluster fromCluster = graph
+							.getModuleGraphCluster(fromUnit);
+
+					ModuleGraphCluster toCluster = graph
+							.getModuleGraphCluster(toUnit);
+
+					Edge<ExecutionNode> e = new Edge<ExecutionNode>(fromNode,
+							toNode, edgeType, edgeOrdinal);
+					if (fromCluster == toCluster) {
+						fromNode.addOutgoingEdge(e);
+						toNode.addIncomingEdge(e);
+					} else {
+						ExecutionNode exitNode = new ExecutionNode(graph,
+								MetaNodeType.CLUSTER_EXIT, signatureHash, 0,
+								signatureHash);
+						fromCluster.addNode(exitNode);
+						fromNode.setMetaNodeType(MetaNodeType.NORMAL);
+						Edge<ExecutionNode> clusterExitEdge = new Edge<ExecutionNode>(
+								fromNode, exitNode, EdgeType.CROSS_MODULE, 0);
+						fromNode.addOutgoingEdge(clusterExitEdge);
+						exitNode.addIncomingEdge(clusterExitEdge);
+
+						ExecutionNode entryNode = toCluster
+								.addClusterEntryNode(signatureHash);
+						toNode.setMetaNodeType(MetaNodeType.NORMAL);
+						Edge<ExecutionNode> clusterEntryEdge = new Edge<ExecutionNode>(
+								entryNode, toNode, EdgeType.CROSS_MODULE, 0);
+						entryNode.addOutgoingEdge(clusterEntryEdge);
+						toNode.addIncomingEdge(clusterEntryEdge);
+					}
 				}
 			}
-			if (toNode == null) {
-				if (DebugUtils.ThrowTagNotFound) {
-					throw new TagNotFoundException("0x"
-							+ Long.toHexString(toTag)
-							+ " is missed in graph lookup file!");
-				}
-			}
-			if (fromNode == null || toNode == null) {
-				if (!DebugUtils.ThrowTagNotFound) {
-					continue;
-				}
-			}
-
-			Edge<ExecutionNode> existing = fromNode.getOutgoingEdge(toNode);
-			if (existing == null) {
-				SoftwareDistributionUnit fromUnit = graph.getModules()
-						.getModule(fromNode.getTag()).unit;
-				SoftwareDistributionUnit toUnit = graph.getModules().getModule(
-						toNode.getTag()).unit;
-				// Be careful when dealing with the cross module nodes.
-				// Cross-module edges are not added to any node, but the
-				// edge from signature node to real entry node is preserved.
-				// We only need to add the signature nodes to "nodes"
-				fromNode.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
-				ModuleGraphCluster fromCluster = graph
-						.getModuleGraphCluster(fromUnit);
-
-				ModuleGraphCluster toCluster = graph
-						.getModuleGraphCluster(toUnit);
-
-				Edge<ExecutionNode> e = new Edge<ExecutionNode>(fromNode,
-						toNode, edgeType, edgeOrdinal);
-				if (fromCluster == toCluster) {
-					fromNode.addOutgoingEdge(e);
-					toNode.addIncomingEdge(e);
-				} else {
-					ExecutionNode exitNode = new ExecutionNode(graph,
-							MetaNodeType.CLUSTER_EXIT, 0L, 0, signatureHash);
-					fromCluster.addNode(exitNode);
-					fromNode.setMetaNodeType(MetaNodeType.NORMAL);
-					Edge<ExecutionNode> clusterExitEdge = new Edge<ExecutionNode>(
-							fromNode, exitNode, EdgeType.CROSS_MODULE, 0);
-					fromNode.addOutgoingEdge(clusterExitEdge);
-					exitNode.addIncomingEdge(clusterExitEdge);
-
-					ExecutionNode entryNode = toCluster
-							.addClusterEntryNode(signatureHash);
-					toNode.setMetaNodeType(MetaNodeType.NORMAL);
-					Edge<ExecutionNode> clusterEntryEdge = new Edge<ExecutionNode>(
-							entryNode, toNode, EdgeType.CROSS_MODULE, 0);
-					entryNode.addOutgoingEdge(clusterEntryEdge);
-					toNode.addIncomingEdge(clusterEntryEdge);
-				}
-			}
+		} finally {
+			input.close();
 		}
 	}
 
-	public void readIntraModuleEdges()
-			throws InvalidTagException, TagNotFoundException,
-			MultipleEdgeException {
-		try {
-			LittleEndianDataInputStream input = new LittleEndianDataInputStream(
-					dataSource
-							.getDataInputStream(ProcessTraceStreamType.MODULE_GRAPH));
+	public void readIntraModuleEdges() throws IOException {
+		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
+				dataSource
+						.getDataInputStream(ProcessTraceStreamType.MODULE_GRAPH));
 
-			while (true) {
+		try {
+			while (input.available() > 0) {
 				long tag1 = input.readLong();
 				long tag2 = input.readLong();
 
@@ -336,12 +332,8 @@ public class ProcessGraphLoadSession {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (EOFException e) {
-			// System.out.println("Finish reading the file: " + fileName);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} finally {
+			input.close();
 		}
 
 		// Output the count for wrong edges if there is any

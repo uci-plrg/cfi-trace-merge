@@ -233,8 +233,8 @@ public class ExecutionNode extends Node {
 
 	public String toString() {
 		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
-			return "0x" + Long.toHexString(hash) + ":" + key.tag + "v"
-					+ key.version;
+			return "0x" + Long.toHexString(hash) + ":0x"
+					+ Long.toHexString(key.tag) + "-v" + key.version;
 		} else {
 			return "SIG: 0x" + Long.toHexString(hash);
 		}

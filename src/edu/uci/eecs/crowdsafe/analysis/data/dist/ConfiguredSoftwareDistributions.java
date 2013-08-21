@@ -17,12 +17,19 @@ public class ConfiguredSoftwareDistributions {
 		return INSTANCE;
 	}
 
+	private static String getFilename(String unitName) {
+		int dashIndex = unitName.lastIndexOf('-');
+		if (dashIndex < 0)
+			return unitName;
+		return unitName.substring(0, dashIndex);
+	}
+
 	private static ConfiguredSoftwareDistributions INSTANCE;
 
-	private static final String MAIN_PROGRAM = "<main-program>";
+	public static final String MAIN_PROGRAM = "<main-program>";
 
 	private final File configDir;
-	private final Map<String, AutonomousSoftwareDistribution> distributions = new HashMap<String, AutonomousSoftwareDistribution>();
+	public final Map<String, AutonomousSoftwareDistribution> distributions = new HashMap<String, AutonomousSoftwareDistribution>();
 
 	private ConfiguredSoftwareDistributions() {
 		configDir = new File(CrowdSafeAnalysisConfiguration.getInstance()
@@ -54,7 +61,8 @@ public class ConfiguredSoftwareDistributions {
 	public SoftwareDistributionUnit establishUnit(String name) {
 		for (AutonomousSoftwareDistribution dist : distributions.values()) {
 			for (SoftwareDistributionUnit unit : dist.distributionUnits) {
-				if (unit.name.equals(name))
+				if (unit.name.equals(name)
+						|| unit.name.equals(getFilename(name)))
 					return unit;
 			}
 		}
