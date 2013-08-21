@@ -110,26 +110,6 @@ public class ProcessExecutionGraph {
 		return totalBlockHashes;
 	}
 
-	public boolean isTailNode(ExecutionNode n) {
-		return isTailNode(n, 10);
-	}
-
-	public boolean isTailNode(ExecutionNode n, int level) {
-		if (level == 0) {
-			return false;
-		}
-		List<Edge<ExecutionNode>> outgoingEdges = n.getOutgoingEdges();
-		if (outgoingEdges.size() == 0) {
-			return true;
-		}
-		for (int i = 0; i < outgoingEdges.size(); i++) {
-			if (!isTailNode(outgoingEdges.get(i).getToNode(), level - 1)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public String toString() {
 		return dataSource.getProcessName() + "-" + dataSource.getProcessId();
 	}

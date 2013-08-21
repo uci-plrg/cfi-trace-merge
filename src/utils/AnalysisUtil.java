@@ -19,8 +19,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -243,21 +249,25 @@ public class AnalysisUtil {
 	/**
 	 * Take advantage of the relative tag to filter out the immediate address
 	 * 
-	 * @param g1
-	 * @param g2
+	 * @param left
+	 * @param right
 	 */
-	/**
-	 * <pre>
-	public static void filteroutImmeAddr(ProcessExecutionGraph g1,
-			ProcessExecutionGraph g2) {
+
+	public static void filteroutImmeAddr(ModuleGraphCluster left,
+			ModuleGraphCluster right) {
 		int modificationCnt = 0;
 
 		PrintWriter pw = null;
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
 			try {
-				String fileName = g1.dataSource.getProcessName()
-						+ ".imme-addr." + g1.dataSource.getProcessId() + "-"
-						+ g2.dataSource.getProcessId() + ".txt";
+				String fileName = left.getGraphData().containingGraph.dataSource
+						.getProcessName()
+						+ ".imme-addr."
+						+ left.getGraphData().containingGraph.dataSource
+								.getProcessId()
+						+ "-"
+						+ right.getGraphData().containingGraph.dataSource
+								.getProcessId() + ".txt";
 				String absolutePath = DebugUtils.MODIFIED_HASH_DIR + "/"
 						+ fileName;
 				File f = new File(DebugUtils.MODIFIED_HASH_DIR);
@@ -268,27 +278,30 @@ public class AnalysisUtil {
 			}
 		}
 
-		for (NormalizedTag t : g1.normalizedTag2Node.keySet()) {
-			Node n1 = g1.normalizedTag2Node.get(t), n2 = g2.normalizedTag2Node
-					.get(t);
-			if (n2 == null) {
+		for (ExecutionNode leftNode : left.getGraphData().nodesByKey.values()) {
+			if (leftNode.getTagVersion() > 0)
+				continue; // can't be sure about these re-written things
+			ExecutionNode rightNode = right.getGraphData().nodesByKey
+					.get(leftNode.getKey());
+			if (rightNode == null) {
 				continue;
-			} else {
-				if (n1.getHash() != n2.getHash()) {
-					n1.setHash(n2.getHash());
-					modificationCnt++;
-					if (DebugUtils
-							.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
-						pw.print("tag1: 0x" + Long.toHexString(n1.getTag().tag));
-						pw.println("\t" + t.moduleName + "\t0x"
-								+ Long.toHexString(t.relativeTag));
+			}
+			if (leftNode.getHash() != rightNode.getHash()) {
+				// replace the right node with a copy having the left node's hash
+				right.getGraphData().nodesByKey.put(rightNode.getKey(),
+						new ExecutionNode(rightNode.getContainingGraph(),
+								rightNode.getType(), rightNode.getTag(),
+								rightNode.getTagVersion(), leftNode.getHash()));
+				modificationCnt++;
+				if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
+					pw.print("tag1: 0x" + Long.toHexString(leftNode.getTag()));
+					pw.println("\t" + leftNode.getModule().unit.name + "\t0x"
+							+ Long.toHexString(leftNode.getRelativeTag()));
 
-						pw.print("tag2: 0x" + Long.toHexString(n2.getTag().tag));
-						pw.println("\t" + t.moduleName + "\t0x"
-								+ Long.toHexString(t.relativeTag));
-
-						pw.println();
-					}
+					pw.print("tag2: 0x" + Long.toHexString(rightNode.getTag()));
+					pw.println("\t" + rightNode.getModule().unit.name + "\t0x"
+							+ Long.toHexString(rightNode.getRelativeTag()));
+					pw.println();
 				}
 			}
 		}
@@ -301,14 +314,6 @@ public class AnalysisUtil {
 				+ modificationCnt);
 	}
 
-	public static Node getTrueMatch(ProcessExecutionGraph g1,
-			ProcessExecutionGraph g2, Node n2) {
-		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag);
-		String modUnit2 = g2.getModules().getSoftwareUnit(n2.getTag().tag);
-		NormalizedTag t2 = new NormalizedTag(modUnit2, relativeTag2);
-		return g1.normalizedTag2Node.get(t2);
-	}
-
 	/**
 	 * This function is used to cheat when merging two executions from the same program. It will use the relative tag to
 	 * verify if this is a correct match. n1 is allowed to be null while n2 is not allowed to.
@@ -318,29 +323,24 @@ public class AnalysisUtil {
 	 * @param n1
 	 * @param n2
 	 * @return
-	 * /
-	public static MatchResult getMatchResult(ProcessExecutionGraph g1,
-			ProcessExecutionGraph g2, Node n1, Node n2, boolean isIndirect) {
-		long relativeTag2 = AnalysisUtil.getRelativeTag(g2, n2.getTag().tag), relativeTag1 = n1 == null ? -1
-				: AnalysisUtil.getRelativeTag(g1, n1.getTag().tag);
-		SoftwareDistributionUnit modUnit2 = g2.getModules().getSoftwareUnit(
-				n2.getTag().tag);
-		SoftwareDistributionUnit modUnit1 = n1 == null ? null : g1.getModules()
-				.getSoftwareUnit(n1.getTag().tag);
-		// Cannot normalized the tag
-		if (modUnit2 == SoftwareDistributionUnit.UNKNOWN) {
+	 */
+	public static MatchResult getMatchResult(ModuleGraphCluster left,
+			ModuleGraphCluster right, Node leftNode, ExecutionNode rightNode,
+			boolean isIndirect) {
+		SoftwareDistributionUnit rightUnit = rightNode.getModule().unit;
+
+		// Cannot normalized tags from unknown modules
+		if (rightUnit == SoftwareDistributionUnit.UNKNOWN) {
 			return MatchResult.Unknown;
 		}
-		NormalizedTag t2 = new NormalizedTag(modUnit2, relativeTag2);
-		NormalizedTag t1 = n1 == null ? null : new NormalizedTag(modUnit1,
-				relativeTag1);
 
-		Node correspondingNode = g1.normalizedTag2Node.get(t2);
-		if (correspondingNode == null) {
+		Node leftCorrespondingToRight = left.getGraphData()
+				.HACK_relativeTagLookup(rightNode);
+		if (leftCorrespondingToRight == null) {
 			// The corresponding node does not exist in graph1
 			// 1. n1 == null, non-existing correct match
 			// 2. n1 != null, non-existing mismatch
-			if (n1 == null) {
+			if (leftNode == null) {
 				if (isIndirect) {
 					return MatchResult.IndirectNonExistingCorrectMatch;
 				} else {
@@ -358,14 +358,15 @@ public class AnalysisUtil {
 			// 1. n1 == null, existing unfound mismatch
 			// 2. n1 != null && t1.equals(t2), existing match
 			// 3. n1 != null && !t1.equals(t2), existing mismatch
-			if (n1 == null) {
+			if (leftNode == null) {
 				if (isIndirect) {
 					return MatchResult.IndirectExistingUnfoundMismatch;
 				} else {
 					return MatchResult.PureHeuristicsExistingUnfoundMismatch;
 				}
 			} else {
-				if (t1.equals(t2)) {
+				if (leftCorrespondingToRight.getKey()
+						.equals(rightNode.getKey())) {
 					if (isIndirect) {
 						return MatchResult.IndirectExistingCorrectMatch;
 					} else {
@@ -381,7 +382,6 @@ public class AnalysisUtil {
 			}
 		}
 	}
-	 */
 
 	/**
 	 * Input node n1 and n2 are matched nodes and they have indirect outgoing edges. This function analyzes how
@@ -390,7 +390,8 @@ public class AnalysisUtil {
 	 * @param n1
 	 * @param n2
 	 */
-	public static void outputIndirectNodesInfo(ExecutionNode n1, ExecutionNode n2) {
+	public static void outputIndirectNodesInfo(ExecutionNode n1,
+			ExecutionNode n2) {
 		System.out.println("Start indirect node pair info output: " + n1
 				+ " & " + n2);
 		HashMap<Long, Integer> hash2CollisionCnt = new HashMap<Long, Integer>();
@@ -529,5 +530,25 @@ public class AnalysisUtil {
 		long tagLong = tag << 24 >>> 24;
 		int versionNumber = (new Long(tag >>> 56)).intValue();
 		return new ExecutionNode.Key(tagLong, versionNumber);
+	}
+
+	public static boolean isTailNode(Node node) {
+		return isTailNode(node, 10);
+	}
+
+	public static boolean isTailNode(Node node, int level) {
+		if (level == 0) {
+			return false;
+		}
+		List<? extends Edge<? extends Node>> outgoingEdges = node.getOutgoingEdges();
+		if (outgoingEdges.size() == 0) {
+			return true;
+		}
+		for (int i = 0; i < outgoingEdges.size(); i++) {
+			if (!isTailNode(outgoingEdges.get(i).getToNode(), level - 1)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

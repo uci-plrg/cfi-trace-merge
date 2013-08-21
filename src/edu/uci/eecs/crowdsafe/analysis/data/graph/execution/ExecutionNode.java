@@ -85,7 +85,7 @@ public class ExecutionNode extends Node {
 	}
 
 	@Override
-	public Node.Key getKey() {
+	public ExecutionNode.Key getKey() {
 		return key;
 	}
 
