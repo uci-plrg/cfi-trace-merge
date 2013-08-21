@@ -13,25 +13,25 @@ public class CrowdSafeAnalysisConfiguration {
 	}
 
 	private static CrowdSafeAnalysisConfiguration INSTANCE;
-	private static final String CROWD_SAFE_ANALYSIS_DIR = "CROWD_SAFE_ANALYSIS_DIR";
+	private static final String CROWD_SAFE_MERGE_DIR = "CROWD_SAFE_MERGE_DIR";
 
 	private File ANALYSIS_HOME;
 
 	private void initialize() {
-		String homeDir = System.getenv("CROWD_SAFE_ANALYSIS_DIR");
+		String homeDir = System.getenv(CROWD_SAFE_MERGE_DIR);
 		if (homeDir == null)
 			throw new IllegalStateException(
 					String.format(
 							"Please configure the environment variable %s with the home directory of the analysis program.",
-							CROWD_SAFE_ANALYSIS_DIR));
+							CROWD_SAFE_MERGE_DIR));
 
 		ANALYSIS_HOME = new File(homeDir);
 		if (!ANALYSIS_HOME.exists())
 			throw new IllegalStateException(String.format(
 					"The configured %s cannot be found: %s",
-					CROWD_SAFE_ANALYSIS_DIR, homeDir));
+					CROWD_SAFE_MERGE_DIR, homeDir));
 	}
-	
+
 	public File getAnalysisHome() {
 		return ANALYSIS_HOME;
 	}

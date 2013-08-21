@@ -1,0 +1,5 @@
+#!/bin/bash
+
+java -cp $CROWD_SAFE_MERGE_DIR/bin:$CROWD_SAFE_MERGE_DIR/lib/guava-14.0.1.jar \
+  edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergeSession $1 $2
+  

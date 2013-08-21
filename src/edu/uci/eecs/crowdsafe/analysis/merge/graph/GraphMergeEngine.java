@@ -28,7 +28,45 @@ import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
 import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
 import edu.uci.eecs.crowdsafe.analysis.util.MutableInteger;
 
-public class GraphMergeEngine {
+/**
+ * <p>
+ * This class abstracts an object that can match two ExecutionGraph. To initialize these two graphs, pass two
+ * well-constructed ExecutionGraph and call the mergeGraph() method. It will merge the two graphs and construct a
+ * new merged graph, which you can get it by calling the getMergedGraph() method.
+ * </p>
+ * 
+ * <p>
+ * It has been found that both in Linux and Windows, the real entry block of code in the main module comes from an
+ * indirect branch of some certain C library (linux) or system libraries (ntdll.dll in Windows). Our current
+ * approach treats the indirect edges as half speculation, which in this case means all programs will match if we
+ * don't know the entry block. Therefore, we assume that we will know a list of rarely changed entry block and they
+ * can be provided as part of the configuration.
+ * </p>
+ * 
+ * <p>
+ * Programs in x86/linux seems to enter their main function after a very similar dynamic-loading process, at the end
+ * of which there is a indirect branch which jumps to the real main blocks. In the environment of this machine, the
+ * hash value of that 'final block' is 0x1d84443b9bf8a6b3. ####
+ * </p>
+ * 
+ * <p>
+ * Date: 4:21pm (PST), 06/20/2013 We are trying new approach, which will set up a threshold for the matching up of
+ * speculation. Intuitively, the threshold for indirect speculation can be less than pure speculation because it
+ * indeed has more information and confidence.
+ * </p>
+ * 
+ * <p>
+ * Besides, in any speculation when there is many candidates with the same, high score, the current merging just
+ * does not match any of them yet.
+ * </p>
+ * 
+ * <p>
+ * To use the current matching approach for the ModuleGraph, we extends the GraphMerger to ModuleGraphMerger, and
+ * overrides its mergeGraph() method. At the same time, this class contains a ModuleGraphMerger subclass which
+ * matches the ModuleGraphs.
+ * </p>
+ * 
+ */public class GraphMergeEngine {
 
 	// The static threshold for indirect speculation and pure heuristics
 	// These two values are completely hypothetic and need further verification
@@ -1309,95 +1347,5 @@ public class GraphMergeEngine {
 	 */
 	protected void evaluateMatching() {
 
-	}
-
-	/**
-	 * <p>
-	 * This class abstracts an object that can match two ExecutionGraph. To initialize these two graphs, pass two
-	 * well-constructed ExecutionGraph and call the mergeGraph() method. It will merge the two graphs and construct a
-	 * new merged graph, which you can get it by calling the getMergedGraph() method.
-	 * </p>
-	 * 
-	 * <p>
-	 * It has been found that both in Linux and Windows, the real entry block of code in the main module comes from an
-	 * indirect branch of some certain C library (linux) or system libraries (ntdll.dll in Windows). Our current
-	 * approach treats the indirect edges as half speculation, which in this case means all programs will match if we
-	 * don't know the entry block. Therefore, we assume that we will know a list of rarely changed entry block and they
-	 * can be provided as part of the configuration.
-	 * </p>
-	 * 
-	 * <p>
-	 * Programs in x86/linux seems to enter their main function after a very similar dynamic-loading process, at the end
-	 * of which there is a indirect branch which jumps to the real main blocks. In the environment of this machine, the
-	 * hash value of that 'final block' is 0x1d84443b9bf8a6b3. ####
-	 * </p>
-	 * 
-	 * <p>
-	 * Date: 4:21pm (PST), 06/20/2013 We are trying new approach, which will set up a threshold for the matching up of
-	 * speculation. Intuitively, the threshold for indirect speculation can be less than pure speculation because it
-	 * indeed has more information and confidence.
-	 * </p>
-	 * 
-	 * <p>
-	 * Besides, in any speculation when there is many candidates with the same, high score, the current merging just
-	 * does not match any of them yet.
-	 * </p>
-	 * 
-	 * <p>
-	 * To use the current matching approach for the ModuleGraph, we extends the GraphMerger to ModuleGraphMerger, and
-	 * overrides its mergeGraph() method. At the same time, this class contains a ModuleGraphMerger subclass which
-	 * matches the ModuleGraphs.
-	 * </p>
-	 * 
-	 */
-	public static void main(String[] args) {
-		try {
-			if (args.length != 2) {
-				System.out
-						.println("Illegal arguments: please specify the two run directories as relative or absolute paths.");
-				System.exit(1);
-			}
-
-			File leftRun = new File(args[0]);
-			File rightRun = new File(args[1]);
-
-			if (!(leftRun.exists() && leftRun.isDirectory())) {
-				System.out.println("Illegal argument '" + args[0]
-						+ "'; no such directory.");
-				System.exit(1);
-			}
-			if (!(rightRun.exists() && rightRun.isDirectory())) {
-				System.out.println("Illegal argument '" + args[1]
-						+ "'; no such directory.");
-				System.exit(1);
-			}
-
-			System.out.println("### --------------- ###");
-			ProcessExecutionGraph left = ProcessGraphDataLoader
-					.loadProcessGraph(leftRun);
-			ProcessExecutionGraph right = ProcessGraphDataLoader
-					.loadProcessGraph(rightRun);
-
-			for (ModuleGraphCluster leftCluster : left.getAutonomousClusters()) {
-				ModuleGraphCluster rightCluster = right
-						.getModuleGraphCluster(leftCluster.distribution);
-
-				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
-					AnalysisUtil.filteroutImmeAddr(leftCluster, rightCluster);
-				}
-
-				GraphMergeSession session = new GraphMergeSession(leftCluster,
-						rightCluster);
-				GraphMergeEngine graphMerger = new GraphMergeEngine(session);
-
-				try {
-					graphMerger.mergeGraph();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

@@ -1,5 +1,7 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,9 +11,12 @@ import java.util.Set;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessGraphDataLoader;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
 
 public class GraphMergeSession {
 
@@ -118,5 +123,56 @@ public class GraphMergeSession {
 		if (score != null)
 			return score;
 		return 0;
+	}
+
+	public static void main(String[] args) {
+		try {
+			if (args.length != 2) {
+				System.out
+						.println("Illegal arguments: please specify the two run directories as relative or absolute paths.");
+				System.exit(1);
+			}
+
+			File leftRun = new File(args[0]);
+			File rightRun = new File(args[1]);
+
+			if (!(leftRun.exists() && leftRun.isDirectory())) {
+				System.out.println("Illegal argument '" + args[0]
+						+ "'; no such directory.");
+				System.exit(1);
+			}
+			if (!(rightRun.exists() && rightRun.isDirectory())) {
+				System.out.println("Illegal argument '" + args[1]
+						+ "'; no such directory.");
+				System.exit(1);
+			}
+
+			System.out.println("### --------------- ###");
+			ProcessExecutionGraph left = ProcessGraphDataLoader
+					.loadProcessGraph(leftRun);
+			ProcessExecutionGraph right = ProcessGraphDataLoader
+					.loadProcessGraph(rightRun);
+
+			for (ModuleGraphCluster leftCluster : left.getAutonomousClusters()) {
+				ModuleGraphCluster rightCluster = right
+						.getModuleGraphCluster(leftCluster.distribution);
+
+				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
+					AnalysisUtil.filteroutImmeAddr(leftCluster, rightCluster);
+				}
+
+				GraphMergeSession session = new GraphMergeSession(leftCluster,
+						rightCluster);
+				GraphMergeEngine engine = new GraphMergeEngine(session);
+
+				try {
+					engine.mergeGraph();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
