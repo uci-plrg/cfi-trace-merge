@@ -1,4 +1,4 @@
-package utils;
+package edu.uci.eecs.crowdsafe.analysis.util;
 
 import java.io.File;
 

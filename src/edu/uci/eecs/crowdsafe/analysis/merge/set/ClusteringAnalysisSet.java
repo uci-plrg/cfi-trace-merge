@@ -1,5 +1,8 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.set;
 
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.DistancePair;
+import edu.uci.eecs.crowdsafe.analysis.util.Heap;
 import gnu.getopt.Getopt;
 
 import java.io.File;
@@ -16,9 +19,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import utils.AnalysisUtil;
-import utils.DistancePair;
-import utils.Heap;
 
 /**
  * 

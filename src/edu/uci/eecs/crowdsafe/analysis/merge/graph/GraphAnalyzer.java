@@ -2,6 +2,7 @@ package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
 import gnu.getopt.Getopt;
 
 import java.io.File;
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import utils.AnalysisUtil;
 
 
 //import analysis.graph.representation.SpeculativeScoreList;

@@ -1,14 +1,8 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
-import java.io.EOFException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import utils.AnalysisUtil;
-
-import com.google.common.io.LittleEndianDataInputStream;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
@@ -22,6 +16,8 @@ import edu.uci.eecs.crowdsafe.analysis.exception.graph.MultipleEdgeException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.TagNotFoundException;
 import edu.uci.eecs.crowdsafe.analysis.log.graph.ProcessExecutionGraphSummary;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.LittleEndianInputStream;
 
 public class ProcessGraphLoadSession {
 	private final ProcessTraceDataSource dataSource;
@@ -86,13 +82,13 @@ public class ProcessGraphLoadSession {
 			throws IOException {
 		Map<ExecutionNode.Key, ExecutionNode> hashLookupTable = new HashMap<ExecutionNode.Key, ExecutionNode>();
 
-		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
+		LittleEndianInputStream input = new LittleEndianInputStream(
 				dataSource
 						.getDataInputStream(ProcessTraceStreamType.GRAPH_HASH));
 		try {
 			long tag = 0, tagOriginal = 0, hash = 0;
 
-			while (input.available() > 0) {
+			while (input.ready()) {
 				tagOriginal = input.readLong();
 				hash = input.readLong();
 
@@ -157,11 +153,11 @@ public class ProcessGraphLoadSession {
 	 * @throws TagNotFoundException
 	 */
 	public void readCrossModuleEdges() throws IOException {
-		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
+		LittleEndianInputStream input = new LittleEndianInputStream(
 				dataSource
 						.getDataInputStream(ProcessTraceStreamType.CROSS_MODULE_GRAPH));
 		try {
-			while (input.available() > 0) {
+			while (input.ready()) {
 				long fromTag = input.readLong();
 				long toTag = input.readLong();
 				long signatureHash = input.readLong();
@@ -244,12 +240,12 @@ public class ProcessGraphLoadSession {
 	}
 
 	public void readIntraModuleEdges() throws IOException {
-		LittleEndianDataInputStream input = new LittleEndianDataInputStream(
+		LittleEndianInputStream input = new LittleEndianInputStream(
 				dataSource
 						.getDataInputStream(ProcessTraceStreamType.MODULE_GRAPH));
 
 		try {
-			while (input.available() > 0) {
+			while (input.ready()) {
 				long tag1 = input.readLong();
 				long tag2 = input.readLong();
 

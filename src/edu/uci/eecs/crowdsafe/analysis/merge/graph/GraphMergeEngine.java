@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import utils.AnalysisUtil;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
@@ -26,6 +25,7 @@ import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.Specul
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
 import edu.uci.eecs.crowdsafe.analysis.util.MutableInteger;
 
 public class GraphMergeEngine {

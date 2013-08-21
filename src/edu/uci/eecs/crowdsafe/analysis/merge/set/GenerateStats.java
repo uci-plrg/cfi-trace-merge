@@ -5,7 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.nio.*;
 
-import utils.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+
 
 public class GenerateStats {
 

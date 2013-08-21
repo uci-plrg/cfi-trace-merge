@@ -14,7 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import utils.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+
 
 public class DRLauncherUtils {
 

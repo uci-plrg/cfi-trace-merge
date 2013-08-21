@@ -4,7 +4,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import utils.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+
 
 public class Diff {
 

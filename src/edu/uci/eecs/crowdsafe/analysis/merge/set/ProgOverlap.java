@@ -6,7 +6,8 @@ import java.lang.Math;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import utils.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+
 
 public class ProgOverlap {
 
