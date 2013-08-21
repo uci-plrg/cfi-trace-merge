@@ -1,6 +1,5 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph;
 
-
 public class Edge<NodeType extends Node> {
 	private NodeType toNode;
 	private EdgeType edgeType;
@@ -10,7 +9,8 @@ public class Edge<NodeType extends Node> {
 	// more information when debugging
 	private NodeType fromNode;
 
-	public Edge(NodeType fromNode, NodeType toNode, EdgeType edgeType, int ordinal) {
+	public Edge(NodeType fromNode, NodeType toNode, EdgeType edgeType,
+			int ordinal) {
 		this.fromNode = fromNode;
 		this.toNode = toNode;
 		this.edgeType = edgeType;
@@ -20,13 +20,9 @@ public class Edge<NodeType extends Node> {
 	public void setEdgeType(EdgeType edgeType) {
 		this.edgeType = edgeType;
 	}
-	
+
 	public NodeType getFromNode() {
 		return fromNode;
-	}
-
-	public String toString() {
-		return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
 	}
 
 	public NodeType getToNode() {
@@ -41,12 +37,13 @@ public class Edge<NodeType extends Node> {
 		return ordinal;
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
 		if (o.getClass() != Edge.class)
 			return false;
-		Edge e = (Edge) o;
+		Edge<NodeType> e = (Edge<NodeType>) o;
 		if (e.fromNode.equals(fromNode) && e.toNode.equals(toNode)
 				&& e.edgeType == edgeType && e.ordinal == ordinal)
 			return true;
@@ -56,5 +53,9 @@ public class Edge<NodeType extends Node> {
 
 	public int hashCode() {
 		return fromNode.hashCode() << 5 ^ toNode.hashCode();
+	}
+
+	public String toString() {
+		return fromNode + "(" + edgeType + ")--" + ordinal + "-->" + toNode;
 	}
 }

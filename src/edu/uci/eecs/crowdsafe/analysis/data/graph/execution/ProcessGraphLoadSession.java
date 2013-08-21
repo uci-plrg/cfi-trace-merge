@@ -19,7 +19,6 @@ import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidTagException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.MultipleEdgeException;
-import edu.uci.eecs.crowdsafe.analysis.exception.graph.OverlapModuleException;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.TagNotFoundException;
 import edu.uci.eecs.crowdsafe.analysis.log.graph.ProcessExecutionGraphSummary;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
@@ -59,9 +58,7 @@ public class ProcessGraphLoadSession {
 		// TODO: these occur on each ExecutionGraphData
 		// Some other initialization and sanity checks
 		for (ModuleGraphCluster cluster : graph.getAutonomousClusters()) {
-			for (ModuleGraph module : cluster.getGraphs()) {
-				module.getGraphData().validate();
-			}
+			cluster.getGraphData().validate();
 		}
 
 		// Produce some analysis result for the graph
@@ -86,7 +83,8 @@ public class ProcessGraphLoadSession {
 	 * @return
 	 * @throws InvalidTagException
 	 */
-	private Map<ExecutionNode.Key, ExecutionNode> loadGraphNodes() throws InvalidTagException {
+	private Map<ExecutionNode.Key, ExecutionNode> loadGraphNodes()
+			throws InvalidTagException {
 		Map<ExecutionNode.Key, ExecutionNode> hashLookupTable = new HashMap<ExecutionNode.Key, ExecutionNode>();
 
 		try {
@@ -104,13 +102,15 @@ public class ProcessGraphLoadSession {
 				int versionNumber = AnalysisUtil
 						.getNodeVersionNumber(tagOriginal);
 				int metaNodeVal = AnalysisUtil.getNodeMetaVal(tagOriginal);
-				ExecutionNode.Key versionedTag = new ExecutionNode.Key(tag, versionNumber);
+				ExecutionNode.Key versionedTag = new ExecutionNode.Key(tag,
+						versionNumber);
 
 				MetaNodeType metaNodeType = MetaNodeType.values()[metaNodeVal];
 
 				// Tags don't duplicate in lookup file
 				if (hashLookupTable.containsKey(versionedTag)) {
-					ExecutionNode existingNode = hashLookupTable.get(versionedTag);
+					ExecutionNode existingNode = hashLookupTable
+							.get(versionedTag);
 					if (existingNode.getHash() != hash) {
 						String msg = "Duplicate tags: "
 								+ versionedTag
@@ -125,8 +125,8 @@ public class ProcessGraphLoadSession {
 				SoftwareDistributionUnit nodeSoftwareUnit = graph.getModules()
 						.getModule(tag).unit;
 
-				ExecutionNode node = new ExecutionNode(graph, metaNodeType, tag, versionNumber,
-						hash);
+				ExecutionNode node = new ExecutionNode(graph, metaNodeType,
+						tag, versionNumber, hash);
 
 				ModuleGraphCluster moduleCluster = graph
 						.getModuleGraphCluster(nodeSoftwareUnit);
@@ -136,7 +136,7 @@ public class ProcessGraphLoadSession {
 					moduleGraph = new ModuleGraph(graph, nodeSoftwareUnit);
 					moduleCluster.addModule(moduleGraph);
 				}
-				moduleGraph.addModuleNode(node);
+				moduleCluster.addModuleNode(node);
 				hashLookupTable.put(versionedTag, node);
 				graph.addBlockHash(hashLookupTable.get(versionedTag).getHash());
 			}
@@ -168,83 +168,78 @@ public class ProcessGraphLoadSession {
 						.getDataInputStream(ProcessTraceStreamType.CROSS_MODULE_GRAPH));
 
 		while (true) {
-			long tag1 = input.readLong();
-			long tag2 = input.readLong();
+			long fromTag = input.readLong();
+			long toTag = input.readLong();
 			long signatureHash = input.readLong();
 
-			ExecutionNode.Key nodekey1 = AnalysisUtil.getNodeKey(tag1);
-			ExecutionNode.Key nodeKey2 = AnalysisUtil.getNodeKey(tag2);
-			EdgeType edgeType = AnalysisUtil.getTagEdgeType(tag1);
-			int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(tag1);
+			ExecutionNode.Key fromKey = AnalysisUtil.getNodeKey(fromTag);
+			ExecutionNode.Key toKey = AnalysisUtil.getNodeKey(toTag);
+			EdgeType edgeType = AnalysisUtil.getTagEdgeType(fromTag);
+			int edgeOrdinal = AnalysisUtil.getEdgeOrdinal(fromTag);
 
-			ExecutionNode node1 = hashLookupTable.get(nodekey1);
-			ExecutionNode node2 = hashLookupTable.get(nodeKey2);
+			ExecutionNode fromNode = hashLookupTable.get(fromKey);
+			ExecutionNode toNode = hashLookupTable.get(toKey);
 
 			// Double check if tag1 and tag2 exist in the lookup file
-			if (node1 == null) {
+			if (fromNode == null) {
 				if (DebugUtils.ThrowTagNotFound) {
 					throw new TagNotFoundException("0x"
-							+ Long.toHexString(tag1)
+							+ Long.toHexString(fromTag)
 							+ " is missed in graph lookup file!");
 				}
 			}
-			if (node2 == null) {
+			if (toNode == null) {
 				if (DebugUtils.ThrowTagNotFound) {
 					throw new TagNotFoundException("0x"
-							+ Long.toHexString(tag2)
+							+ Long.toHexString(toTag)
 							+ " is missed in graph lookup file!");
 				}
 			}
-			if (node1 == null || node2 == null) {
+			if (fromNode == null || toNode == null) {
 				if (!DebugUtils.ThrowTagNotFound) {
 					continue;
 				}
 			}
 
-			Edge existing = node1.getOutgoingEdge(node2);
-			Edge e;
-
-			SoftwareDistributionUnit node1Unit = graph.getModules().getModule(
-					node1.getTag()).unit;
-			SoftwareDistributionUnit node2Unit = graph.getModules().getModule(
-					node2.getTag()).unit;
-
-			e = new Edge(node1, node2, edgeType, edgeOrdinal);
-
+			Edge<ExecutionNode> existing = fromNode.getOutgoingEdge(toNode);
 			if (existing == null) {
+				SoftwareDistributionUnit fromUnit = graph.getModules()
+						.getModule(fromNode.getTag()).unit;
+				SoftwareDistributionUnit toUnit = graph.getModules().getModule(
+						toNode.getTag()).unit;
 				// Be careful when dealing with the cross module nodes.
 				// Cross-module edges are not added to any node, but the
 				// edge from signature node to real entry node is preserved.
 				// We only need to add the signature nodes to "nodes"
-				node1.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
-				ModuleGraphCluster moduleCluster1 = graph
-						.getModuleGraphCluster(node1Unit);
+				fromNode.setMetaNodeType(MetaNodeType.MODULE_BOUNDARY);
+				ModuleGraphCluster fromCluster = graph
+						.getModuleGraphCluster(fromUnit);
 
-				ModuleGraphCluster moduleCluster2 = graph
-						.getModuleGraphCluster(node2Unit);
+				ModuleGraphCluster toCluster = graph
+						.getModuleGraphCluster(toUnit);
 
-				if (moduleCluster1 == moduleCluster2) {
-					node1.addOutgoingEdge(e);
-					node2.addIncomingEdge(e);
+				Edge<ExecutionNode> e = new Edge<ExecutionNode>(fromNode,
+						toNode, edgeType, edgeOrdinal);
+				if (fromCluster == toCluster) {
+					fromNode.addOutgoingEdge(e);
+					toNode.addIncomingEdge(e);
 				} else {
-					ModuleGraph moduleGraph1 = moduleCluster1
-							.getModuleGraph(node1Unit);
-					ExecutionNode sigNode = moduleGraph1.addSignatureNode(signatureHash);
-					node1.setMetaNodeType(MetaNodeType.NORMAL);
-					Edge sigEntryEdge = new Edge(sigNode, node1,
-							EdgeType.CROSS_MODULE, 0);
-					sigNode.addOutgoingEdge(sigEntryEdge);
-					node1.addIncomingEdge(sigEntryEdge);
+					ExecutionNode exitNode = new ExecutionNode(graph,
+							MetaNodeType.CLUSTER_EXIT, 0L, 0, signatureHash);
+					fromCluster.addNode(exitNode);
+					fromNode.setMetaNodeType(MetaNodeType.NORMAL);
+					Edge<ExecutionNode> clusterExitEdge = new Edge<ExecutionNode>(
+							fromNode, exitNode, EdgeType.CROSS_MODULE, 0);
+					fromNode.addOutgoingEdge(clusterExitEdge);
+					exitNode.addIncomingEdge(clusterExitEdge);
 
-					ModuleGraph moduleGraph2 = moduleCluster2
-							.getModuleGraph(node2Unit);
-					sigNode = moduleGraph2.addSignatureNode(signatureHash);
-					node2.setMetaNodeType(MetaNodeType.NORMAL);
-					sigEntryEdge = new Edge(sigNode, node2,
-							EdgeType.CROSS_MODULE, 0);
-					sigNode.addOutgoingEdge(sigEntryEdge);
-					node2.addIncomingEdge(sigEntryEdge);
-
+					ExecutionNode entryNode = toCluster
+							.addClusterEntryNode(signatureHash);
+					toNode.setMetaNodeType(MetaNodeType.NORMAL);
+					Edge<ExecutionNode> clusterEntryEdge = new Edge<ExecutionNode>(
+							entryNode, toNode, EdgeType.CROSS_MODULE, 0);
+					entryNode.addOutgoingEdge(clusterEntryEdge);
+					toNode.addIncomingEdge(clusterEntryEdge);
 				}
 			}
 		}
@@ -314,8 +309,9 @@ public class ProcessGraphLoadSession {
 									graph.getModuleGraphCluster(node2Unit).distribution.name));
 				}
 
-				Edge existing = node1.getOutgoingEdge(node2);
-				Edge e = new Edge(node1, node2, edgeType, edgeOrdinal);
+				Edge<ExecutionNode> existing = node1.getOutgoingEdge(node2);
+				Edge<ExecutionNode> e = new Edge<ExecutionNode>(node1, node2,
+						edgeType, edgeOrdinal);
 				if (existing == null) {
 					node1.addOutgoingEdge(e);
 					node2.addIncomingEdge(e);

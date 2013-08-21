@@ -1,39 +1,43 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.NodeHashMap;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
 
 public class ExecutionGraphData {
-	private final ProcessExecutionGraph process;
+	public final ProcessExecutionGraph containingGraph;
 
 	// False means that the file doesn't exist or is in wrong format
 	protected boolean isValidGraph = true;
 
 	// nodes in an array in the read order from file
 	// TODO: would prefer to keep the nodes only by hash, or also by key if that is necessary
-	protected List<ExecutionNode> nodes;
+	public final List<ExecutionNode> nodes = new ArrayList<ExecutionNode>();
 
 	public final NodeHashMap nodesByHash = new NodeHashMap();
 
-	public final Map<ExecutionNode.Key, ExecutionNode> nodesByKey;
+	public final Map<ExecutionNode.Key, ExecutionNode> nodesByKey = new HashMap<ExecutionNode.Key, ExecutionNode>();
 
-	public ExecutionGraphData(ProcessExecutionGraph process) {
-		this.process = process;
+	public ExecutionGraphData(ProcessExecutionGraph containingGraph) {
+		this.containingGraph = containingGraph;
 	}
 
-	public Collection<Long> getBlockHashes() {
-		return nodesByHash.keySet();
+	public ExecutionNode HACK_relativeTagLookup(ExecutionNode foreignNode) {
+		if (foreignNode.getTagVersion() > 0)
+			return null; // no way to find it across versions
+
+		SoftwareDistributionUnit foreignUnit = foreignNode.getModule().unit;
+		ModuleDescriptor module = containingGraph.getModules().getModule(foreignUnit);
+		long mappedTag = module.beginAddr + foreignNode.getRelativeTag();
+		return nodesByKey.get(new ExecutionNode.Key(mappedTag, 0));
 	}
 
-	public ExecutionNode getNode(ExecutionNode.Key key) {
-		return nodesByKey.get(key);
-	}
-	
 	/**
 	 * To validate the correctness of the graph. Basically it checks if entry points have no incoming edges, exit points
 	 * have no outgoing edges. It might include more validation stuff later...
@@ -52,14 +56,14 @@ public class ExecutionGraphData {
 
 		outerLoop: for (int i = 0; i < nodes.size(); i++) {
 			ExecutionNode n = nodes.get(i);
-			switch (n.getMetaNodeType()) {
-				case ENTRY:
+			switch (n.getType()) {
+				case PROCESS_ENTRY:
 					if (n.getIncomingEdges().size() != 0) {
 						throw new InvalidGraphException(
 								"Exit point has outgoing edges!");
 					}
 					break;
-				case EXIT:
+				case PROCESS_EXIT:
 					if (n.getOutgoingEdges().size() != 0) {
 						System.out.println("");
 						throw new InvalidGraphException(

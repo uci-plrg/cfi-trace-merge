@@ -1,5 +1,7 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph.debug;
 
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
+
 /**
  * This represents a matching instance of nodes, which is used in debug mode
  * 
@@ -8,16 +10,16 @@ package edu.uci.eecs.crowdsafe.analysis.merge.graph.debug;
  */
 public class MatchingInstance {
 	public final int level;
-	public final int index1, index2;
+	public final Node.Key leftKey, rightKey;
 	public final MatchingType matchingType;
-	public final int parentIndex;
+	public final Node.Key parentKey;
 
-	public MatchingInstance(int level, int index1, int index2,
-			MatchingType matchingType, int parentIndex) {
+	public MatchingInstance(int level, Node.Key leftKey, Node.Key rightKey,
+			MatchingType matchingType, Node.Key parentKey) {
 		this.level = level;
-		this.index1 = index1;
-		this.index2 = index2;
+		this.leftKey = leftKey;
+		this.rightKey = rightKey;
 		this.matchingType = matchingType;
-		this.parentIndex = parentIndex;
+		this.parentKey = parentKey;
 	}
 }

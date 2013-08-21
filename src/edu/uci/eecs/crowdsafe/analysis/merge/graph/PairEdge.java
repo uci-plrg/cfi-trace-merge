@@ -1,18 +1,17 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 
 public class PairEdge {
-	private ExecutionNode parent, child;
+	private Node parent, child;
 	private boolean isDirect;
 	private int ordinal;
 
-	public ExecutionNode getParent() {
+	public Node getParent() {
 		return parent;
 	}
 
-	public ExecutionNode getChild() {
+	public Node getChild() {
 		return child;
 	}
 
@@ -24,7 +23,8 @@ public class PairEdge {
 		return ordinal;
 	}
 
-	public PairEdge(ExecutionNode parent, ExecutionNode child, boolean isDirect, int ordinal) {
+	public PairEdge(Node parent, Node child, boolean isDirect,
+			int ordinal) {
 		this.parent = parent;
 		this.child = child;
 		this.isDirect = isDirect;

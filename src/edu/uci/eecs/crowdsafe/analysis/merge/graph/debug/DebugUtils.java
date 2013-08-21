@@ -1,17 +1,10 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph.debug;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.ModuleGraphMerger;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergerThread;
-import gnu.getopt.Getopt;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
-import utils.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.ModuleGraphMerger;
 
 
 public class DebugUtils {

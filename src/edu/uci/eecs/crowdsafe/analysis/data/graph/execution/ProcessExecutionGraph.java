@@ -89,15 +89,15 @@ public class ProcessExecutionGraph {
 			SoftwareDistributionUnit softwareUnit) {
 		return moduleGraphsBySoftwareUnit.get(softwareUnit);
 	}
-	
+
 	public Collection<ModuleGraphCluster> getAutonomousClusters() {
 		return moduleGraphs.values();
 	}
-	
+
 	public int calculateTotalNodeCount() {
 		int count = 0;
 		for (ModuleGraphCluster cluster : moduleGraphs.values()) {
-			count += cluster.calculateTotalNodeCount();
+			count += cluster.graphData.nodesByKey.size();
 		}
 		return count;
 	}

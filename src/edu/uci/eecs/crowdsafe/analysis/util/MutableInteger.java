@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.util;
 
 public class MutableInteger {
 	private int innerVal;

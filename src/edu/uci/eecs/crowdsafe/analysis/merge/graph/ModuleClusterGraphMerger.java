@@ -1,15 +1,6 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import edu.uci.eecs.crowdsafe.analysis.data.graph.MatchedNodes;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraph;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingInstance;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
 
 public class ModuleClusterGraphMerger {
 
@@ -22,7 +13,8 @@ public class ModuleClusterGraphMerger {
 					"Module graph matching requires the same clusters!");
 		}
 
-		if (left.calculateTotalNodeCount() > right.calculateTotalNodeCount()) {
+		if (left.getGraphData().nodesByKey.size() > right.getGraphData().nodesByKey
+				.size()) {
 			this.left = left;
 			this.right = right;
 		} else {
@@ -47,15 +39,7 @@ public class ModuleClusterGraphMerger {
 	}
 
 	public void merge() {
-		GraphMergeSession session = new GraphMergeSession();
-
-		for (ModuleGraph leftModule : left.getGraphs()) {
-			session.left.addModule(leftModule);
-		}
-		for (ModuleGraph rightModule : right.getGraphs()) {
-			session.right.addModule(rightModule);
-		}
-
+		GraphMergeSession session = new GraphMergeSession(left, right);
 		session.merge();
 	}
 }

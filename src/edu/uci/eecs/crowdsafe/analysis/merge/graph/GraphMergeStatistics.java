@@ -5,22 +5,22 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import utils.AnalysisUtil;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.MatchedNodes;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 
-import utils.AnalysisUtil;
+public class GraphMergeStatistics {
 
-public class GraphMergingInfo {
+	public static final float LOW_MATCHING_TRHESHOLD = 0.15f;
 
-	public final ProcessExecutionGraph graph1, graph2;
-	public final MatchedNodes matchedNodes;
+	private final GraphMergeSession session;
 
 	private int directEdgeTrialCnt = 0;
 	private int indirectEdgeTrialCnt = 0;
@@ -30,29 +30,38 @@ public class GraphMergingInfo {
 	private int directMatchCnt = 0;
 	private int callContinuationMatchCnt = 0;
 
-	public static final float LowMatchingThreshold = 0.15f;
+	private float setInterRate = 0f;
+	private int totalNodeSize = 0;
+	private int totalHashSize = 0;
+	private int interHashSize = 0;
 
-	private float setInterRate;
-	private int totalNodeSize;
-	private int totalHashSize;
-	private int interHashSize;
-
-	public GraphMergingInfo(ProcessExecutionGraph graph1, ProcessExecutionGraph graph2,
-			MatchedNodes matchedNodes) {
-		this.graph1 = graph1;
-		this.graph2 = graph2;
-		this.matchedNodes = matchedNodes;
+	public GraphMergeStatistics(GraphMergeSession session) {
+		this.session = session;
 
 		Set<Long> interBlockHashes = AnalysisUtil.intersection(
-				graph1.getBlockHashes(), graph2.getBlockHashes());
+				session.left.cluster.getGraphData().nodesByHash.keySet(),
+				session.right.cluster.getGraphData().nodesByHash.keySet());
 		Set<Long> totalBlockHashes = AnalysisUtil.union(
-				graph1.getBlockHashes(), graph2.getBlockHashes());
+				session.left.cluster.getGraphData().nodesByHash.keySet(),
+				session.right.cluster.getGraphData().nodesByHash.keySet());
 		interHashSize = interBlockHashes.size();
 		totalHashSize = totalBlockHashes.size();
 		setInterRate = (float) interBlockHashes.size() / totalHashSize;
-		// totalNodeSize = graph1.getAccessibleNodes().size() +
-		// graph2.getAccessibleNodes().size()
-		// - matchedNodes.size();
+	}
+
+	public void reset() {
+		directEdgeTrialCnt = 0;
+		indirectEdgeTrialCnt = 0;
+		indirectEdgeMatchCnt = 0;
+		pureHeuristicTrialCnt = 0;
+		pureHeuristicMatchCnt = 0;
+		directMatchCnt = 0;
+		callContinuationMatchCnt = 0;
+
+		setInterRate = 0f;
+		totalNodeSize = 0;
+		totalHashSize = 0;
+		interHashSize = 0;
 	}
 
 	public void tryDirectMatch() {
@@ -85,9 +94,9 @@ public class GraphMergingInfo {
 
 	public ArrayList<ExecutionNode> unmatchedGraph1Nodes() {
 		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (int i = 0; i < graph1.getNodes().size(); i++) {
-			ExecutionNode n = graph1.getNodes().get(i);
-			if (!matchedNodes.containsKeyByFirstIndex(n.getIndex())) {
+		for (int i = 0; i < session.left.cluster.getGraphData().nodes.size(); i++) {
+			ExecutionNode n = session.left.cluster.getGraphData().nodes.get(i);
+			if (!session.matchedNodes.containsLeftKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
 		}
@@ -96,9 +105,9 @@ public class GraphMergingInfo {
 
 	public ArrayList<ExecutionNode> unmatchedGraph2Nodes() {
 		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (int i = 0; i < graph2.getNodes().size(); i++) {
-			ExecutionNode n = graph2.getNodes().get(i);
-			if (!matchedNodes.containsKeyBySecondIndex(n.getIndex())) {
+		for (int i = 0; i < session.right.cluster.getGraphData().nodes.size(); i++) {
+			ExecutionNode n = session.right.cluster.getGraphData().nodes.get(i);
+			if (!session.matchedNodes.containsRightKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
 		}
@@ -106,8 +115,9 @@ public class GraphMergingInfo {
 	}
 
 	public boolean lowMatching() {
-		float nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
-		if ((setInterRate - nodeInterRate) > LowMatchingThreshold) {
+		float nodeInterRate = (float) session.matchedNodes.size()
+				/ totalNodeSize;
+		if ((setInterRate - nodeInterRate) > LOW_MATCHING_TRHESHOLD) {
 			return true;
 		} else {
 			return false;
@@ -115,63 +125,69 @@ public class GraphMergingInfo {
 	}
 
 	public void dumpMatchedNodes() {
-		for (int index1 : matchedNodes) {
-			int index2 = matchedNodes.getByFirstIndex(index1);
-			System.out.println(index1 + "<-->" + index2);
+		for (Node.Key leftKey : session.matchedNodes.getLeftKeySet()) {
+			Node.Key rightKey = session.matchedNodes.getMatchByLeftKey(leftKey);
+			System.out.println(leftKey + "<-->" + rightKey);
 		}
 	}
 
 	synchronized public void outputMergedGraphInfo() {
-		totalNodeSize = graph1.getNodes().size() + graph2.getNodes().size()
-				- matchedNodes.size();
-		if (graph1 instanceof ModuleGraph) {
-			System.out.println("\n ==== Comparison for " + graph1.getProgName() + "_"
-					+ graph1.getPid() + " & " + graph2.getProgName() + "_"
-					+ graph2.getPid() + " ====");
-		} else {
-			System.out.println("Comparison between " + graph1.getProgName()
-					+ graph1.getPid() + " & " + graph2.getProgName()
-					+ graph2.getPid() + ":");
-			// TODO: print a comparison header
-			// System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir())
-			// + " & " + AnalysisUtil.getRunStr(graph2.getRunDir()));
-			System.out.println("Total block hashes of the whole graph1: "
-					+ graph1.getTotalBlockHashes().size());
-			System.out.println("Total block hashes of the whole graph2: "
-					+ graph2.getTotalBlockHashes().size());
-			Set<Long> totalBlockSet = AnalysisUtil.intersection(
-					graph1.getTotalBlockHashes(), graph2.getTotalBlockHashes());
-			System.out.println("Total block hashes: " + totalBlockSet.size());
+		totalNodeSize = session.left.cluster.getGraphData().nodes.size()
+				+ session.right.cluster.getGraphData().nodes.size()
+				- session.matchedNodes.size();
+		System.out
+				.println("Comparison between "
+						+ session.left.cluster.getGraphData().containingGraph.dataSource
+								.getProcessName()
+						+ session.left.cluster.getGraphData().containingGraph.dataSource
+								.getProcessId()
+						+ " & "
+						+ session.right.cluster.getGraphData().containingGraph.dataSource
+								.getProcessName()
+						+ session.right.cluster.getGraphData().containingGraph.dataSource
+								.getProcessId() + ":");
+		// TODO: print a comparison header
+		// System.out.println(AnalysisUtil.getRunStr(graph1.getRunDir())
+		// + " & " + AnalysisUtil.getRunStr(graph2.getRunDir()));
+		System.out.println("Total block hashes of the whole graph1: "
+				+ session.left.cluster.getGraphData().nodesByHash.keySet()
+						.size());
+		System.out.println("Total block hashes of the whole graph2: "
+				+ session.right.cluster.getGraphData().nodesByHash.keySet()
+						.size());
+		Set<Long> totalBlockSet = AnalysisUtil.intersection(
+				session.left.cluster.getGraphData().nodesByHash.keySet(),
+				session.right.cluster.getGraphData().nodesByHash.keySet());
+		System.out.println("Total block hashes: " + totalBlockSet.size());
 
-			System.out.println("Size of nodes in graph1: "
-					+ graph1.getNodes().size());
-			System.out.println("Size of nodes in graph2: "
-					+ graph2.getNodes().size());
-
-			Set<Long> totalBlockInMain = AnalysisUtil.intersection(
-					graph1.getBlockHashes(), graph2.getBlockHashes());
-			System.out.println("Total block hashes of main: "
-					+ totalBlockInMain.size());
-			System.out.println("Total block hashes of main in graph1: "
-					+ graph1.getBlockHashes().size());
-			System.out.println("Total block hashes of main in graph2: "
-					+ graph2.getBlockHashes().size());
-		}
+		System.out.println("Size of nodes in graph1: "
+				+ session.left.cluster.getGraphData().nodes.size());
+		System.out.println("Size of nodes in graph2: "
+				+ session.right.cluster.getGraphData().nodes.size());
 
 		System.out.println("Intersection ratio of block hashes: "
-				+ setInterRate + "  " + graph1.getBlockHashes().size() + ","
-				+ graph2.getBlockHashes().size() + ":" + interHashSize + "/"
-				+ totalHashSize);
-		System.out.println("Merged nodes: " + matchedNodes.size());
-		System.out.println("Graph1 nodes: " + graph1.getNodes().size());
-		System.out.println("Graph2 nodes: " + graph2.getNodes().size());
+				+ setInterRate
+				+ "  "
+				+ session.left.cluster.getGraphData().nodesByHash.keySet()
+						.size()
+				+ ","
+				+ session.right.cluster.getGraphData().nodesByHash.keySet()
+						.size() + ":" + interHashSize + "/" + totalHashSize);
+		System.out.println("Merged nodes: " + session.matchedNodes.size());
+		System.out.println("Graph1 nodes: "
+				+ session.left.cluster.getGraphData().nodes.size());
+		System.out.println("Graph2 nodes: "
+				+ session.right.cluster.getGraphData().nodes.size());
 		System.out.println("Total nodes: " + totalNodeSize);
 
 		System.out.println("Merged nodes / G1 nodes: "
-				+ (float) matchedNodes.size() / graph1.getNodes().size());
+				+ (float) session.matchedNodes.size()
+				/ session.left.cluster.getGraphData().nodes.size());
 		System.out.println("Merged nodes / G2 nodes: "
-				+ (float) matchedNodes.size() / graph2.getNodes().size());
-		float nodeInterRate = (float) matchedNodes.size() / totalNodeSize;
+				+ (float) session.matchedNodes.size()
+				/ session.right.cluster.getGraphData().nodes.size());
+		float nodeInterRate = (float) session.matchedNodes.size()
+				/ totalNodeSize;
 		System.out.println("Merged nodes / all nodes: " + nodeInterRate);
 
 		System.out.println("Indirect edge trial: " + indirectEdgeTrialCnt);
@@ -199,9 +215,10 @@ public class GraphMergingInfo {
 
 		try {
 			pwRelationFile = new PrintWriter(fileName + ".relation");
-			for (int index1 : matchedNodes) {
-				int index2 = matchedNodes.getByFirstIndex(index1);
-				pwRelationFile.println(index1 + "->" + index2);
+			for (Node.Key leftKey : session.matchedNodes.getLeftKeySet()) {
+				Node.Key rightKey = session.matchedNodes
+						.getMatchByLeftKey(leftKey);
+				pwRelationFile.println(leftKey + "->" + rightKey);
 			}
 
 			pwRelationFile.flush();
@@ -212,32 +229,7 @@ public class GraphMergingInfo {
 			pwRelationFile.close();
 	}
 
-	public static long outputFirstMain(ProcessExecutionGraph graph) {
-		ExecutionNode n = null;
-		long firstMainHash = -1;
-		for (int i = 0; i < graph.getNodes().size(); i++) {
-			if (graph.getNodes().get(i).getHash() == ModuleGraphMerger.specialHash) {
-				n = graph.getNodes().get(i);
-				if (n.getOutgoingEdges().size() > 1) {
-					for (int j = 0; j < n.getOutgoingEdges().size(); j++) {
-						if (n.getOutgoingEdges().get(j).getEdgeType() == EdgeType.INDIRECT) {
-							return n.getOutgoingEdges().get(j).getToNode()
-									.getHash();
-						}
-					}
-					System.out.println("More than one target!");
-					return n.getOutgoingEdges().size();
-				} else {
-					firstMainHash = n.getOutgoingEdges().get(0).getToNode()
-							.getHash();
-				}
-				break;
-			}
-		}
-		return firstMainHash;
-	}
-
-	public static void dumpGraph(ProcessExecutionGraph graph, String fileName) {
+	public static void dumpGraph(ModuleGraphCluster graph, String fileName) {
 		System.out.println("Dump the graph for " + graph + " to " + fileName);
 		File file = new File(fileName);
 		if (!file.getParentFile().exists()) {
@@ -267,9 +259,9 @@ public class GraphMergingInfo {
 
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			HashSet<ExecutionNode> accessibleNodes = graph.getAccessibleNodes();
-			for (int i = 0; i < graph.getNodes().size(); i++) {
-				ExecutionNode n = graph.getNodes().get(i);
+			Set<ExecutionNode> accessibleNodes = graph.searchAccessibleNodes();
+			for (int i = 0; i < graph.getGraphData().nodes.size(); i++) {
+				ExecutionNode n = graph.getGraphData().nodes.get(i);
 				if (!accessibleNodes.contains(n)) {
 					pwNodeFile.println(n);
 				}
@@ -277,16 +269,13 @@ public class GraphMergingInfo {
 			}
 
 			pwDotFile.println("digraph runGraph {");
-			long firstMainBlock = outputFirstMain(graph);
-			pwDotFile.println("# First main block: "
-					+ Long.toHexString(firstMainBlock));
-			for (int i = 0; i < graph.getNodes().size(); i++) {
-				ExecutionNode n = graph.getNodes().get(i);
+			for (int i = 0; i < graph.getGraphData().nodes.size(); i++) {
+				ExecutionNode n = graph.getGraphData().nodes.get(i);
 				pwDotFile.println(i + "[label=\"" + n + "\"]");
 
-				ArrayList<Edge> edges = graph.getNodes().get(i)
-						.getOutgoingEdges();
-				for (Edge e : edges) {
+				List<Edge<ExecutionNode>> edges = graph.getGraphData().nodes
+						.get(i).getOutgoingEdges();
+				for (Edge<ExecutionNode> e : edges) {
 					String branchType;
 					switch (e.getEdgeType()) {
 						case INDIRECT:
@@ -311,12 +300,12 @@ public class GraphMergingInfo {
 							branchType = "";
 							break;
 					}
-					String edgeLabel = i + "->" + e.getToNode().getIndex()
+					String edgeLabel = i + "->" + e.getToNode().getKey()
 							+ "[label=\"" + branchType + "_";
 					if (e.getEdgeType() == EdgeType.CROSS_MODULE) {
 						edgeLabel = edgeLabel
-								+ e.getFromNode().getNormalizedTag() + "->"
-								+ e.getToNode().getNormalizedTag() + "\"]";
+								+ e.getFromNode().getRelativeTag() + "->"
+								+ e.getToNode().getRelativeTag() + "\"]";
 					} else {
 						edgeLabel = edgeLabel + e.getOrdinal() + "\"]";
 					}

@@ -16,7 +16,7 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
  */
 public class ExecutionNode extends Node {
 
-	public static class Key {
+	public static class Key implements Node.Key {
 		public final long tag;
 
 		public final int version;
@@ -57,15 +57,15 @@ public class ExecutionNode extends Node {
 
 	private final ModuleDescriptor module;
 
-	private final Key key;
-
 	private final long hash;
+
+	private final Key key;
 
 	private MetaNodeType metaNodeType;
 
-	private ArrayList<Edge<ExecutionNode>> outgoingEdges = new ArrayList<Edge<ExecutionNode>>();
+	private List<Edge<ExecutionNode>> outgoingEdges = new ArrayList<Edge<ExecutionNode>>();
 
-	private ArrayList<Edge<ExecutionNode>> incomingEdges = new ArrayList<Edge<ExecutionNode>>();
+	private List<Edge<ExecutionNode>> incomingEdges = new ArrayList<Edge<ExecutionNode>>();
 
 	// TODO: what's this for? Try to normalize this.
 	private final ProcessExecutionGraph containingGraph;
@@ -75,19 +75,6 @@ public class ExecutionNode extends Node {
 	// Indicate if this node is reachable from the entry point
 	private boolean reachable = false;
 
-	// !!!Not a deep copy, we don't copy edges...
-	// TODO: only for MODULE_BOUNDARY nodes--is this value used now?
-	/**
-	 * <pre>
-	public Node(ProcessExecutionGraph containingGraph, Node anotherNode) {
-		this(containingGraph, anotherNode.tag, anotherNode.hash,
-				MetaNodeType.NORMAL);
-		this.index = anotherNode.index;
-		this.score = anotherNode.score;
-		this.metaNodeType = anotherNode.metaNodeType;
-	}
-	 */
-
 	public ExecutionNode(ProcessExecutionGraph containingGraph,
 			MetaNodeType metaNodeType, long tag, int tagVersion, long hash) {
 		this.containingGraph = containingGraph;
@@ -95,6 +82,11 @@ public class ExecutionNode extends Node {
 		this.metaNodeType = metaNodeType;
 		this.key = new Key(tag, tagVersion);
 		this.hash = hash;
+	}
+
+	@Override
+	public Node.Key getKey() {
+		return key;
 	}
 
 	public ProcessExecutionGraph getContainingGraph() {
@@ -153,8 +145,6 @@ public class ExecutionNode extends Node {
 		return -1;
 	}
 
-	int score = 0;
-
 	public void addOutgoingEdge(Edge<ExecutionNode> e) {
 		outgoingEdges.add(e);
 	}
@@ -172,7 +162,7 @@ public class ExecutionNode extends Node {
 		return null;
 	}
 
-	public MetaNodeType getMetaNodeType() {
+	public MetaNodeType getType() {
 		return this.metaNodeType;
 	}
 
@@ -198,14 +188,6 @@ public class ExecutionNode extends Node {
 
 	public void setIndex(int index) {
 		this.index = index;
-	}
-
-	public int getScore() {
-		return score;
-	}
-
-	public void setScore(int score) {
-		this.score = score;
 	}
 
 	public String getHashHex() {

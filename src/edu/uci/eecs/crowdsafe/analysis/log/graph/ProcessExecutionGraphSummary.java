@@ -1,6 +1,5 @@
 package edu.uci.eecs.crowdsafe.analysis.log.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraph;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
 
@@ -14,26 +13,14 @@ public class ProcessExecutionGraphSummary {
 	 */
 	public static void summarizeGraph(ProcessExecutionGraph graph) {
 		for (ModuleGraphCluster cluster : graph.getAutonomousClusters()) {
-			int clusterNodeCount = 0;
-			for (ModuleGraph module : cluster.getGraphs()) {
-				// Output basic nodes info
-				int realNodeCount = module.getGraphData().getNodeCount()
-						- module.getCrossModuleSignatureCount();
-				clusterNodeCount += realNodeCount;
-				System.out
-						.println(String
-								.format("Module %s has %d nodes and %d cross-module entry points, with %d accessible nodes.",
-										module.softwareUnit.name,
-										realNodeCount,
-										module.getCrossModuleSignatureCount(),
-										module.getAccessibleNodes().size()));
-
-				System.out.println(String.format(
-						"Cluster %s has %d modules and %d total nodes",
-						cluster.distribution.name,
-						cluster.distribution.distributionUnits.size(),
-						clusterNodeCount));
-			}
+			int clusterNodeCount = cluster.getGraphData().nodesByKey.size();
+			System.out
+					.println(String
+							.format("Cluster %s has %d nodes and %d cross-module entry points, with %d accessible nodes.",
+									cluster.distribution.name,
+									clusterNodeCount, cluster
+											.getEntryNodeCount(), cluster
+											.searchAccessibleNodes().size()));
 		}
 	}
 }

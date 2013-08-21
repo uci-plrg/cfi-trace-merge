@@ -1,56 +1,18 @@
-package edu.uci.eecs.crowdsafe.analysis.data.graph;
+package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.MatchResult;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.SpeculativeScoreRecord.SpeculativeScoreType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleDescriptor;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.ModuleGraphMerger;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 
-import utils.AnalysisUtil;
-
 public class SpeculativeScoreList {
-	// This is a global filed to record all the statistics during the comparison
-	// Every time an instance is created, it should be added to allLists
-	static public ArrayList<SpeculativeScoreList> allLists = new ArrayList<SpeculativeScoreList>();
-
-	private ModuleGraphMerger graphMerger;
-	private ArrayList<SpeculativeScoreRecord> records;
-	private boolean hasConflict;
-
-	private int[] indirectScoreCaseCnts;
-	private int[] pureHeuristicsScoreCaseCnts;
-	private int[] matchResultCnts;
-
-	HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>> result2Records;
-
-	public void setHasConflict(boolean hasConflict) {
-		this.hasConflict = hasConflict;
-	}
-
-	public SpeculativeScoreList(ModuleGraphMerger graphMerger) {
-		this.graphMerger = graphMerger;
-
-		records = new ArrayList<SpeculativeScoreRecord>();
-		indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
-		pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType.values().length];
-		matchResultCnts = new int[MatchResult.values().length];
-
-		for (int i = 0; i < matchResultCnts.length; i++) {
-			matchResultCnts[i] = 0;
-		}
-
-		result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
-
-		// Record all the history info
-		// Currently don't do this. The graph is too big and it will lead to
-		// out-of-memory error
-		// SpeculativeScoreList.allLists.add(this);
-	}
 
 	public static void showGlobalStats() {
 		int matchCnt = 0;
@@ -59,7 +21,6 @@ public class SpeculativeScoreList {
 				.values().length];
 		int[] globalPureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType
 				.values().length];
-		;
 		int[] globalMatchResultCnts = new int[MatchResult.values().length];
 		for (int i = 0; i < globalIndirectScoreCaseCnts.length; i++) {
 			globalIndirectScoreCaseCnts[i] = 0;
@@ -67,20 +28,6 @@ public class SpeculativeScoreList {
 		}
 		for (int i = 0; i < globalMatchResultCnts.length; i++) {
 			globalMatchResultCnts[i] = 0;
-		}
-
-		for (int i = 0; i < allLists.size(); i++) {
-			SpeculativeScoreList list = allLists.get(i);
-			if (!list.hasConflict) {
-				matchCnt++;
-				for (int j = 0; j < globalIndirectScoreCaseCnts.length; j++) {
-					globalIndirectScoreCaseCnts[j] += list.indirectScoreCaseCnts[j];
-					globalPureHeuristicsScoreCaseCnts[j] += list.pureHeuristicsScoreCaseCnts[j];
-				}
-				for (int j = 0; j < globalMatchResultCnts.length; j++) {
-					globalMatchResultCnts[j] += list.matchResultCnts[j];
-				}
-			}
 		}
 
 		System.out
@@ -104,6 +51,40 @@ public class SpeculativeScoreList {
 			System.out
 					.println("Total " + res + ": " + globalMatchResultCnts[i]);
 		}
+	}
+
+	private final GraphMergeSession session;
+	private final List<SpeculativeScoreRecord> records = new ArrayList<SpeculativeScoreRecord>();
+	private final Map<MatchResult, ArrayList<SpeculativeScoreRecord>> result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
+
+	private int[] indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
+	private int[] pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType
+			.values().length];
+	private int[] matchResultCnts = new int[MatchResult.values().length];
+
+	private boolean hasConflict;
+
+	public SpeculativeScoreList(GraphMergeSession session) {
+		this.session = session;
+	}
+
+	public void clear() {
+		records.clear();
+		result2Records.clear();
+
+		for (int i = 0; i < indirectScoreCaseCnts.length; i++) {
+			indirectScoreCaseCnts[i] = 0;
+		}
+		for (int i = 0; i < pureHeuristicsScoreCaseCnts.length; i++) {
+			pureHeuristicsScoreCaseCnts[i] = 0;
+		}
+		for (int i = 0; i < matchResultCnts.length; i++) {
+			matchResultCnts[i] = 0;
+		}
+	}
+
+	public void setHasConflict(boolean hasConflict) {
+		this.hasConflict = hasConflict;
 	}
 
 	public void add(SpeculativeScoreRecord record) {
@@ -170,28 +151,19 @@ public class SpeculativeScoreList {
 					}
 					for (int j = 0; j < records.size(); j++) {
 						SpeculativeScoreRecord record = records.get(j);
-						ExecutionNode selectedNode1 = record.selectedNode1;
-						ExecutionNode node2 = record.node2;
-						long node2RelativeTag = node2.getRelativeTag();
-						int node2Version = node2.getTagVersion();
-						SoftwareDistributionUnit node2Unit = node2.getModule().unit;
-						ModuleDescriptor node1Module = graphMerger.getGraph1()
-								.getModules().getModule(node2Unit);
-						long node1Tag = node1Module.beginAddr
-								+ node2RelativeTag;
-						ExecutionNode trueNode1 = graphMerger.getGraph1()
-								.getModuleGraphCluster(node2Unit)
-								.getModuleGraph(node2Unit).getGraphData()
-								.getNode(new ExecutionNode.Key(node1Tag, node2Version));
+						ExecutionNode node2 = (ExecutionNode) record.rightNode;
+						ExecutionNode trueNode1 = session.left.cluster
+								.getGraphData().HACK_relativeTagLookup(node2);
 						if (trueNode1 != null) {
 							// int depth = (int) (graphMerger.getGraph1()
 							// .getNodes().size() * 0.1f);
 							int depth = 200;
 							if (DebugUtils.debug) {
-								graphMerger.comparedNodes.clear();
+								session.comparedNodes.clear();
 							}
-							int score = graphMerger.debug_getContextSimilarity(
-									trueNode1, node2, depth);
+							int score = session.engine
+									.debug_getContextSimilarity(trueNode1,
+											node2, depth);
 							// System.out.println("Score: " + score + " -- "
 							// + depth);
 							if (score == -1) {

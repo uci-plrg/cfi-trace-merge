@@ -1,24 +1,24 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 
 public class PairNode {
-	private ExecutionNode node1, node2;
+	private Node node1, node2;
 	// The level of the BFS traverse
 	public final int level;
 	// Marker for whether this node should be matched anymore
 	// It's only used in unmatched queue
 	public final boolean neverMatched;
 
-	public PairNode(ExecutionNode node1, ExecutionNode node2, int level) {
+	public PairNode(Node node1, Node node2, int level) {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.level = level;
 		this.neverMatched = false;
 	}
 
-	public PairNode(ExecutionNode node1, ExecutionNode node2, int level, boolean neverMatched) {
+	public PairNode(Node node1, Node node2, int level,
+			boolean neverMatched) {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.level = level;
@@ -26,16 +26,16 @@ public class PairNode {
 	}
 
 	public String toString() {
-		String node1Str = node1 == null ? "null" : Integer.toString(node1.getIndex()),
-				node2Str = node2 == null ? "null" : Integer.toString(node2.getIndex());
+		String node1Str = node1 == null ? "null" : node1.getKey().toString(), node2Str = node2 == null ? "null"
+				: node2.getKey().toString();
 		return node1Str + "<->" + node2Str;
 	}
 
-	public ExecutionNode getNode1() {
+	public Node getLeftNode() {
 		return node1;
 	}
 
-	public ExecutionNode getNode2() {
+	public Node getRightNode() {
 		return node2;
 	}
 

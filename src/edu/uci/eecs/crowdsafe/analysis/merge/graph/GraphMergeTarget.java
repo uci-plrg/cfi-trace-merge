@@ -1,30 +1,30 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.NodeHashMap;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraph;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
 
 public class GraphMergeTarget {
 
 	private final GraphMergeSession session;
 
-	final NodeHashMap nodesByHash = new NodeHashMap();
-	final Map<ExecutionNode.Key, ExecutionNode> nodesByKey = new HashMap<ExecutionNode.Key, ExecutionNode>();
+	final ModuleGraphCluster cluster;
 
-	GraphMergeTarget(GraphMergeSession session) {
+	final Set<Node> visitedNodes = new HashSet<Node>();
+
+	GraphMergeTarget(GraphMergeSession session, ModuleGraphCluster cluster) {
 		this.session = session;
+		this.cluster = cluster;
 	}
 
-	void addModule(ModuleGraph module) {
-		if (session.state != GraphMergeSession.State.INITIALIZATION)
-			throw new IllegalStateException(String.format(
-					"Attempt to add a module to a merge session in %s state.",
-					session.state));
+	int getProcessId() {
+		return cluster.getGraphData().containingGraph.dataSource.getProcessId();
+	}
 
-		nodesByHash.addAll(module.getGraphData().nodesByHash);
-		nodesByKey.putAll(module.getGraphData().nodesByKey);
+	String getProcessName() {
+		return cluster.getGraphData().containingGraph.dataSource
+				.getProcessName();
 	}
 }
