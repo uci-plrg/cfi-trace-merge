@@ -27,6 +27,7 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.MatchResult;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -231,10 +232,10 @@ public class AnalysisUtil {
 					false);
 			DataOutputStream dataOutput = new DataOutputStream(outputStream);
 
-			System.out.println("Start outputting hash set to "
+			Log.log("Start outputting hash set to "
 					+ outputFile.getAbsolutePath() + " file.");
 
-			System.out.println("Finish outputting hash set to "
+			Log.log("Finish outputting hash set to "
 					+ outputFile.getAbsolutePath() + " file.");
 			outputStream.close();
 			dataOutput.close();
@@ -310,8 +311,7 @@ public class AnalysisUtil {
 			pw.close();
 		}
 
-		System.out.println("Total number of hash modification: "
-				+ modificationCnt);
+		Log.log("Total number of hash modification: " + modificationCnt);
 	}
 
 	/**
@@ -392,8 +392,7 @@ public class AnalysisUtil {
 	 */
 	public static void outputIndirectNodesInfo(ExecutionNode n1,
 			ExecutionNode n2) {
-		System.out.println("Start indirect node pair info output: " + n1
-				+ " & " + n2);
+		Log.log("Start indirect node pair info output: " + n1 + " & " + n2);
 		HashMap<Long, Integer> hash2CollisionCnt = new HashMap<Long, Integer>();
 		for (int i = 0; i < n1.getOutgoingEdges().size(); i++) {
 			long hash = n1.getOutgoingEdges().get(i).getToNode().getHash();
@@ -412,10 +411,10 @@ public class AnalysisUtil {
 		for (long hash : hash2CollisionCnt.keySet()) {
 			int cnt = hash2CollisionCnt.get(hash);
 			if (cnt > 2) {
-				System.out.println(Long.toHexString(hash) + ": " + cnt);
+				Log.log(Long.toHexString(hash) + ": " + cnt);
 			}
 		}
-		System.out.println("Finish indirect node pair info output.");
+		Log.log("Finish indirect node pair info output.");
 	}
 
 	/**
@@ -439,40 +438,38 @@ public class AnalysisUtil {
 						.getIncomingEdges().get(0).getFromNode().getIndex();
 				int toIdx = n.getOutgoingEdges().size() == 0 ? -1 : n
 						.getOutgoingEdges().get(0).getToNode().getIndex();
-				System.out.println(" _ " + fromIdx + "_" + toIdx);
+				Log.log(" _ " + fromIdx + "_" + toIdx);
 			}
 		}
-		System.out.println("Unknown tag count: " + unknownTagCnt);
-		System.out.println("Max unknown tag: "
+		Log.log("Max unknown tag: "
 				+ Long.toHexString(maxUnknownTag));
-		System.out.println("Min unknown tag: "
+		Log.log("Min unknown tag: "
 				+ Long.toHexString(minUnknownTag));
 	}
 
 	public static void outputTagComparisonInfo(ProcessExecutionGraph graph1,
 			ProcessExecutionGraph graph2) {
-		System.out
-				.println("New tags comparison for " + graph1 + " & " + graph2);
-		System.out.println("New tags for graph1: " + graph1);
+		Log.log("New tags comparison for " + graph1 + " & " + graph2);
+		Log.log("New tags for graph1: " + graph1);
 		for (int i = 0; i < graph1.getNodes().size(); i++) {
 			Node n = graph1.getNodes().get(i);
 			NormalizedTag t = new NormalizedTag(n);
 			if (!graph2.normalizedTag2Node.containsKey(t)
 					&& t.moduleName.indexOf("Unknown") == -1) {
 				// if (t.moduleName.indexOf("HexEdit") != -1) {
-				System.out.println(t);
+				Log.log(t);
 				// }
 			}
 		}
 
-		System.out.println("New tags for graph2: " + graph2);
+		Log.log("New tags for graph2: " + graph2);
 		for (int i = 0; i < graph2.getNodes().size(); i++) {
 			Node n = graph2.getNodes().get(i);
 			NormalizedTag t = new NormalizedTag(n);
 			if (!graph1.normalizedTag2Node.containsKey(t)
 					&& t.moduleName.indexOf("Unknown") == -1) {
 				// if (t.moduleName.indexOf("HexEdit") != -1) {
-				System.out.println(t);
+				Log.log(t);
 				// }
 
 			}
@@ -489,15 +486,14 @@ public class AnalysisUtil {
 			n = graph2.normalizedTag2Node.get(tag);
 			previous_n = n.getIncomingEdges().get(0).getFromNode();
 			previous_tag2 = new NormalizedTag(previous_n);
-			System.out.println(n);
+			Log.log(n);
 			if (graph1.normalizedTag2Node.containsKey(previous_tag2)) {
-				System.out.println("extra info:");
-				System.out.println(previous_n);
-				System.out.println(n);
+				Log.log(previous_n);
+				Log.log(n);
 			}
 			tag = previous_tag2;
 		}
-		System.out.println(previous_n);
+		Log.log(previous_n);
 	}
 	 */
 
@@ -540,7 +536,8 @@ public class AnalysisUtil {
 		if (level == 0) {
 			return false;
 		}
-		List<? extends Edge<? extends Node>> outgoingEdges = node.getOutgoingEdges();
+		List<? extends Edge<? extends Node>> outgoingEdges = node
+				.getOutgoingEdges();
 		if (outgoingEdges.size() == 0) {
 			return true;
 		}

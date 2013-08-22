@@ -2,14 +2,20 @@ package edu.uci.eecs.crowdsafe.analysis.config;
 
 import java.io.File;
 
+import edu.uci.eecs.crowdsafe.util.log.Log;
+
 public class CrowdSafeAnalysisConfiguration {
 
 	public static synchronized CrowdSafeAnalysisConfiguration getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new CrowdSafeAnalysisConfiguration();
-			INSTANCE.initialize();
+			INSTANCE.initializeImpl();
 		}
 		return INSTANCE;
+	}
+	
+	public static void initialize() {
+		getInstance();
 	}
 
 	private static CrowdSafeAnalysisConfiguration INSTANCE;
@@ -17,7 +23,7 @@ public class CrowdSafeAnalysisConfiguration {
 
 	private File ANALYSIS_HOME;
 
-	private void initialize() {
+	private void initializeImpl() {
 		String homeDir = System.getenv(CROWD_SAFE_MERGE_DIR);
 		if (homeDir == null)
 			throw new IllegalStateException(
@@ -30,6 +36,8 @@ public class CrowdSafeAnalysisConfiguration {
 			throw new IllegalStateException(String.format(
 					"The configured %s cannot be found: %s",
 					CROWD_SAFE_MERGE_DIR, homeDir));
+
+		Log.addOutput(System.out);
 	}
 
 	public File getAnalysisHome() {

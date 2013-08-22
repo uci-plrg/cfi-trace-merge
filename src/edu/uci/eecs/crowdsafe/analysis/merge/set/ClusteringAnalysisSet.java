@@ -1,10 +1,5 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.set;
 
-import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
-import edu.uci.eecs.crowdsafe.analysis.util.DistancePair;
-import edu.uci.eecs.crowdsafe.analysis.util.Heap;
-import gnu.getopt.Getopt;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,13 +7,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.analysis.util.DistancePair;
+import edu.uci.eecs.crowdsafe.analysis.util.Heap;
+import edu.uci.eecs.crowdsafe.util.log.Log;
+import gnu.getopt.Getopt;
 
 /**
  * 
@@ -73,7 +72,7 @@ public class ClusteringAnalysisSet {
 			for (int k = fromIndex; k <= toIndex; k++) {
 				if (count == 1000) {
 					endTime = System.currentTimeMillis();
-					System.out.println("Time for 1000 distance computation of "
+					Log.log("Time for 1000 distance computation of "
 							+ thread.getName() + " is: "
 							+ (endTime - beginTime) + " miliseconds");
 					beginTime = System.currentTimeMillis();
@@ -147,8 +146,8 @@ public class ClusteringAnalysisSet {
 
 	public void timeElapsed() {
 		veryEnding = System.nanoTime();
-		System.out.println("Total time:" + (veryEnding - veryBeginning)
-				/ 1000000000.0f + " seconds");
+		Log.log("Total time:" + (veryEnding - veryBeginning) / 1000000000.0f
+				+ " seconds");
 	}
 
 	public static float scoreOfSet(Set<Long> set, Map<Long, Integer> freqTable) {
@@ -177,7 +176,7 @@ public class ClusteringAnalysisSet {
 			for (int j = i; j < paths.length; j++) {
 				if (count == 1000) {
 					endTime = System.currentTimeMillis();
-					System.out.println("Time for 1000 distance computation"
+					Log.log("Time for 1000 distance computation"
 							+ (endTime - beginTime) + " miliseconds");
 					beginTime = System.currentTimeMillis();
 					count = 0;
@@ -188,19 +187,19 @@ public class ClusteringAnalysisSet {
 			}
 		}
 		veryEnding = System.currentTimeMillis();
-		System.out.println("Total time:" + (veryEnding - veryBeginning) / 1000
+		Log.log("Total time:" + (veryEnding - veryBeginning) / 1000
 				+ " seconds");
 	}
 
 	public void outputDistMatrix() {
 		// for (int i = 0; i < paths.length; i++) {
-		// System.out.println(paths[i]);
+		// Log.log(paths[i]);
 		// }
 		// System.out.printf("%7s", "");
 		// for (int i = 0; i < paths.length; i++) {
 		// System.out.printf("%7s", i + progNames[i]);
 		// }
-		// System.out.println();
+		// Log.log();
 		float min = 1.5f, max = 1.5f;
 		StringBuilder strBuilder = new StringBuilder();
 		for (int i = 0; i < paths.length; i++) {
@@ -227,9 +226,9 @@ public class ClusteringAnalysisSet {
 				if (distMatrix[i][j] > max)
 					max = distMatrix[i][j];
 			}
-			System.out.println();
+			Log.log();
 		}
-		System.out.println("\n");
+		Log.log("\n");
 		System.out.printf("Minimum distance: %.1f\n", min);
 		System.out.printf("Maximum distance: %.1f\n", max);
 		// System.out.print(strBuilder.toString());
@@ -319,34 +318,30 @@ public class ClusteringAnalysisSet {
 		}
 
 		// output the result
-		System.out.println("Max distance of the same program("
+		Log.log("Max distance of the same program("
 				+ index2ProgName.get(maxIndex) + "): " + maxSameProg);
-		System.out.println(paths[maxInstanceI]);
-		System.out.println(paths[maxInstanceJ]);
+		Log.log(paths[maxInstanceJ]);
 
-		System.out.println("Min distance of different programs("
+		Log.log("Min distance of different programs("
 				+ index2ProgName.get(minIndexI) + " & "
 				+ index2ProgName.get(minIndexJ) + "): " + minDiffProg);
-		System.out.println(paths[minInstanceI]);
-		System.out.println(paths[minInstanceJ]);
+		Log.log(paths[minInstanceJ]);
 
 		for (int i = 0; i < numProgs; i++) {
-			System.out.println("Average distance of program("
-					+ index2ProgName.get(i) + "): " + sumDistSameProgs[i]
-					/ numSameProgs[i]);
-			System.out.println("Max distance of program("
-					+ index2ProgName.get(i) + "): " + maxDistSameProgs[i]);
-			System.out.println(paths[maxSameProgInstanceIs[i]]);
-			System.out.println(paths[maxSameProgInstanceJs[i]]);
+			Log.log("Average distance of program(" + index2ProgName.get(i)
+					+ "): " + sumDistSameProgs[i] / numSameProgs[i]);
+			Log.log("Max distance of program(" + index2ProgName.get(i) + "): "
+					+ maxDistSameProgs[i]);
+			Log.log(paths[maxSameProgInstanceJs[i]]);
 		}
 
 		// output the N closest pairs of different programs
-		System.out.println("The closest pairs of different programs: ");
+		Log.log("The closest pairs of different programs: ");
 		while (minDistDiffProgs.size() > 0) {
 			DistancePair pair = minDistDiffProgs.removeMaxElem();
-			System.out.println(pair.progName1 + " & " + pair.progName2
-					+ " dist: " + pair.dist);
-			System.out.println(pair.path1 + "\n" + pair.path2 + "\n");
+			Log.log(pair.progName1 + " & " + pair.progName2 + " dist: "
+					+ pair.dist);
+			Log.log(pair.path1 + "\n" + pair.path2 + "\n");
 		}
 	}
 
@@ -441,8 +436,7 @@ public class ClusteringAnalysisSet {
 					break;
 				case '?':
 					error = true;
-					System.out.println("parse error for option: -"
-							+ (char) g.getOptopt());
+					Log.log("parse error for option: -" + (char) g.getOptopt());
 					break;
 				default:
 					error = true;
@@ -462,8 +456,7 @@ public class ClusteringAnalysisSet {
 		} else if (index < argvs.length) {
 			recordFile = argvs[index];
 		} else {
-			System.out
-					.println("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
+			Log.log("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
 			return;
 		}
 
@@ -477,10 +470,8 @@ public class ClusteringAnalysisSet {
 			float score1 = scoreOfSet(set1, freqTable), score2 = scoreOfSet(
 					set2, freqTable), scoreInter = scoreOfSet(inter, freqTable), dist = 2 / (scoreInter
 					/ score1 + scoreInter / score2) - 1;
-			System.out.println("Score of " + dir4Hashset1 + " is: " + score1);
-			System.out.println("Score of " + dir4Hashset2 + " is: " + score2);
-			System.out.println("Score of the intersection is: " + scoreInter);
-			System.out.println("Distance of the two sets is: " + dist);
+			Log.log("Score of " + dir4Hashset2 + " is: " + score2);
+			Log.log("Distance of the two sets is: " + dist);
 			return;
 		}
 

@@ -2,6 +2,8 @@ package edu.uci.eecs.crowdsafe.analysis.merge.graph.debug;
 
 import java.util.ArrayList;
 
+import edu.uci.eecs.crowdsafe.util.log.Log;
+
 public class ContextSimilarityTrace {
 	private ArrayList<MatchingInstance> traces;
 	private int index;
@@ -24,8 +26,8 @@ public class ContextSimilarityTrace {
 	public void printTrace() {
 		for (int i = index; i >= 0; i--) {
 			MatchingInstance inst = traces.get(i);
-			System.out.println(inst.level + ":" + inst.matchingType + ":"
-					+ inst.leftKey + "<->" + inst.rightKey);
+			Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey
+					+ "<->" + inst.rightKey);
 		}
 	}
 }

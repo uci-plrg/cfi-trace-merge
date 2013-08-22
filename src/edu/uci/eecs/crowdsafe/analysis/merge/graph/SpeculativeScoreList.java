@@ -5,12 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleDescriptor;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.MatchResult;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class SpeculativeScoreList {
 
@@ -30,26 +29,23 @@ public class SpeculativeScoreList {
 			globalMatchResultCnts[i] = 0;
 		}
 
-		System.out
-				.println("The global statistical results for speculative scoring is:");
+		Log.log("The global statistical results for speculative scoring is:");
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			System.out.println("Total indirect "
-					+ SpeculativeScoreType.values()[i] + ": "
+			Log.log("Total indirect " + SpeculativeScoreType.values()[i] + ": "
 					+ (float) globalIndirectScoreCaseCnts[i] / matchCnt);
 		}
-		System.out.println();
+		Log.log();
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			System.out.println("Total pure heuristics "
-					+ SpeculativeScoreType.values()[i] + ": "
-					+ (float) globalPureHeuristicsScoreCaseCnts[i] / matchCnt);
+			Log.log("Total pure heuristics " + SpeculativeScoreType.values()[i]
+					+ ": " + (float) globalPureHeuristicsScoreCaseCnts[i]
+					/ matchCnt);
 		}
-		System.out.println();
+		Log.log();
 		for (int i = 0; i < MatchResult.values().length; i++) {
 			MatchResult res = MatchResult.values()[i];
-			System.out
-					.println("Total " + res + ": " + globalMatchResultCnts[i]);
+			Log.log("Total " + res + ": " + globalMatchResultCnts[i]);
 		}
 	}
 
@@ -118,27 +114,24 @@ public class SpeculativeScoreList {
 	}
 
 	public void showResult() {
-		System.out
-				.println("The statistical results for speculative scoring is:");
+		Log.log("The statistical results for speculative scoring is:");
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			System.out.println("Total indirect "
-					+ SpeculativeScoreType.values()[i] + ": "
+			Log.log("Total indirect " + SpeculativeScoreType.values()[i] + ": "
 					+ indirectScoreCaseCnts[i]);
 		}
-		System.out.println();
+		Log.log();
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			System.out.println("Total pure heuristics "
-					+ SpeculativeScoreType.values()[i] + ": "
-					+ pureHeuristicsScoreCaseCnts[i]);
+			Log.log("Total pure heuristics " + SpeculativeScoreType.values()[i]
+					+ ": " + pureHeuristicsScoreCaseCnts[i]);
 		}
-		System.out.println();
+		Log.log();
 
 		// Output overall number of incorrect matches and its detailed records
 		for (int i = 0; i < MatchResult.values().length; i++) {
 			MatchResult res = MatchResult.values()[i];
-			System.out.println("Total " + res + ": " + matchResultCnts[i]);
+			Log.log("Total " + res + ": " + matchResultCnts[i]);
 
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				// if (false) {
@@ -164,10 +157,10 @@ public class SpeculativeScoreList {
 							int score = session.engine
 									.debug_getContextSimilarity(trueNode1,
 											node2, depth);
-							// System.out.println("Score: " + score + " -- "
+							// Log.log("Score: " + score + " -- "
 							// + depth);
 							if (score == -1) {
-								System.out.println("bad!");
+								Log.log("bad!");
 							} else if (score == 1) {
 								continue;
 							}

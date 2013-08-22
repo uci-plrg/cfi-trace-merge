@@ -17,8 +17,7 @@ public class PairNode {
 		this.neverMatched = false;
 	}
 
-	public PairNode(Node node1, Node node2, int level,
-			boolean neverMatched) {
+	public PairNode(Node node1, Node node2, int level, boolean neverMatched) {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.level = level;

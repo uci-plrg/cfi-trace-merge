@@ -11,7 +11,8 @@ public class ProcessGraphDataLoader {
 	public static ProcessExecutionGraph loadProcessGraph(File dir)
 			throws IOException {
 		ProcessTraceDataSource dataSource = new ProcessTraceDirectory(dir);
-		ProcessGraphLoadSession session = new ProcessGraphLoadSession(dataSource);
+		ProcessGraphLoadSession session = new ProcessGraphLoadSession(
+				dataSource);
 		return session.loadGraph();
 	}
 }

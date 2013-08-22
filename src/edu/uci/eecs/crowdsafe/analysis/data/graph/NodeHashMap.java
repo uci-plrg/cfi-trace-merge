@@ -28,7 +28,7 @@ public class NodeHashMap {
 	public void addAll(NodeHashMap other) {
 		map.putAll(other.map);
 	}
-	
+
 	public void add(Long hash, NodeList list) {
 		map.put(hash, list);
 	}

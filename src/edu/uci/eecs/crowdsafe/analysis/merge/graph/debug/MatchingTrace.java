@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 /**
  * This is to record how a trace of nodes are matched so that we can find out the mismatch or conflict more easily
@@ -24,8 +25,8 @@ public class MatchingTrace {
 
 	public void printTrace(int index) {
 		MatchingInstance inst = key2MatchingInstance.get(index);
-		System.out.println(inst.level + ":" + inst.matchingType + ":"
-				+ inst.leftKey + "<->" + inst.rightKey);
+		Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey
+				+ "<->" + inst.rightKey);
 		while (inst.parentKey != null) {
 			inst = key2MatchingInstance.get(inst.parentKey);
 			MatchingInstance parentInst = key2MatchingInstance
@@ -34,17 +35,17 @@ public class MatchingTrace {
 					: parentInst.leftKey;
 			Node.Key parentIdx2 = parentInst == null ? null
 					: parentInst.rightKey;
-			System.out.println(inst.level + ":" + inst.matchingType + ":"
-					+ inst.leftKey + "<->" + inst.rightKey + "(By "
-					+ leftParentKey + "<->" + parentIdx2 + ")");
+			Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey
+					+ "<->" + inst.rightKey + "(By " + leftParentKey + "<->"
+					+ parentIdx2 + ")");
 		}
 	}
 
 	public void printTrace() {
 		for (int i = 0; i < matchingInstances.size(); i++) {
 			MatchingInstance inst = matchingInstances.get(i);
-			System.out.println(inst.level + ":" + inst.matchingType + ":"
-					+ inst.leftKey + "<->" + inst.rightKey);
+			Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey
+					+ "<->" + inst.rightKey);
 		}
 	}
 

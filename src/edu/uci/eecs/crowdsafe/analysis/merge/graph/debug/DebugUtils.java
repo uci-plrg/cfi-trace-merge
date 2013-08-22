@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergeEngine;
-
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class DebugUtils {
 	// Some options about whether to throw graph exception or tolerate minor
@@ -95,7 +95,7 @@ public class DebugUtils {
 			}
 		}
 		if (cnt < commonBitNum) {
-			System.out.println(s1 + "<->" + s2);
+			Log.log(s1 + "<->" + s2);
 		}
 		return cnt;
 	}
@@ -181,9 +181,9 @@ public class DebugUtils {
 			Node node2 = graph2.getNodes().get(node2Idx), node1 = AnalysisUtil
 					.getTrueMatch(graph1, graph2, node2);
 			if (node1 == null) {
-				System.out.println("null");
+				Log.log("null");
 			} else {
-				System.out.println(node1.getIndex());
+				Log.log(node1.getIndex());
 			}
 		} else if (argvs.length == 5) {
 			// Example: run1 run2 233 233 15
@@ -217,7 +217,7 @@ public class DebugUtils {
 			}
 			int score = graphMerger.debug_getContextSimilarity(node1, node2,
 					searchDepth);
-			System.out.println(score);
+			Log.log(score);
 		}
 
 	}

@@ -5,17 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
-
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class DRLauncherUtils {
 
@@ -131,7 +127,7 @@ public class DRLauncherUtils {
 						+ "/";
 				// + AnalysisUtil.getBaseNameFromPath(scriptName, "/");
 				// TODO: file handling refactor
-				System.out.println("Writing " + subscriptName + " ...");
+				Log.log("Writing " + subscriptName + " ...");
 				writeSubScript(subscriptName, server2StrBuilder.get(serverName));
 			}
 
@@ -162,8 +158,7 @@ public class DRLauncherUtils {
 			File file = new File(fileName);
 			if (!file.exists()) {
 				if (!file.getParentFile().mkdirs()) {
-					System.out
-							.println("Can't create the necessary directories!");
+					Log.log("Can't create the necessary directories!");
 				}
 			}
 			PrintWriter pw = new PrintWriter(fileName);

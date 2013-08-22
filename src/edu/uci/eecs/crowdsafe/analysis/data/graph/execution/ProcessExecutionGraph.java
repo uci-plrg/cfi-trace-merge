@@ -3,14 +3,12 @@ package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
 
 /**

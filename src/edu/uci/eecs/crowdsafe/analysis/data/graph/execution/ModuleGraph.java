@@ -1,14 +1,6 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.MetaNodeType;
 
 /**
  * <p>
@@ -31,7 +23,6 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.MetaNodeType;
 
 public class ModuleGraph {
 	public final SoftwareDistributionUnit softwareUnit;
-
 
 	protected final ProcessExecutionGraph containingGraph;
 

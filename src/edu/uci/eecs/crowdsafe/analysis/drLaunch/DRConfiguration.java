@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import edu.uci.eecs.crowdsafe.util.log.Log;
+
 public class DRConfiguration {
 	public final String DEFAULT_SCRIPT_HOME = "/home/peizhaoo/cs-analysis-utils/cs-analysis-utils/scripts";
 	public final String DEFAULT_RUNDR_HOME = DEFAULT_SCRIPT_HOME + "/run-dr";
@@ -61,14 +63,12 @@ public class DRConfiguration {
 						.substring(curLine.indexOf('=') + 1);
 				if (key.equals("Server_Info")) {
 					if (!readServerInfo(DEFAULT_RUNDR_HOME + "/" + value)) {
-						System.out
-								.println("Wrong configuration file for servers!");
+						Log.log("Wrong configuration file for servers!");
 					}
 				} else if (key.equals("Generated_Script_Dir")) {
 					generatedScriptsPath = value;
 				} else {
-					System.out.println("Unrecognized field in config file: "
-							+ key);
+					Log.log("Unrecognized field in config file: " + key);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -91,8 +91,7 @@ public class DRConfiguration {
 				try {
 					processorNum = Integer.parseInt(processorNumStr);
 					if (server2ProcessorNum.containsKey(serverName)) {
-						System.out
-								.println("Duplicate servers in server config file!");
+						Log.log("Duplicate servers in server config file!");
 					} else {
 						server2ProcessorNum.put(serverName, processorNum);
 					}

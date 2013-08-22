@@ -1,12 +1,20 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.set;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.nio.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
-
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class GenerateStats {
 
@@ -24,8 +32,7 @@ public class GenerateStats {
 
 	public static void main(String[] args) {
 		// if (argvs.length > 2 || argvs.length == 0) {
-		// System.out.println("Usage: java GenerateStats <Target_Hashlog_Directory>");
-		// System.out.println("or     java GenerateStats <Target_Hashlog_Directory> <Output_Directory>");
+		// Log.log("or     java GenerateStats <Target_Hashlog_Directory> <Output_Directory>");
 		// return;
 		// }
 		GenerateStats generateStats = new GenerateStats();
@@ -77,7 +84,7 @@ public class GenerateStats {
 		File outputDir = new File(targetDir, this.progName + "-"
 				+ GenerateStats.DATE_FORMAT.format(date));
 		if (!outputDir.mkdir()) {
-			System.out.println("Error: It can't create the directory!");
+			Log.log("Error: It can't create the directory!");
 			return;
 		}
 

@@ -12,7 +12,8 @@ import java.util.regex.Pattern;
 
 public class ProcessTraceDirectory implements ProcessTraceDataSource {
 	private static class FilePatterns {
-		final Map<ProcessTraceStreamType, String> patterns = new EnumMap<ProcessTraceStreamType, String>(ProcessTraceStreamType.class);
+		final Map<ProcessTraceStreamType, String> patterns = new EnumMap<ProcessTraceStreamType, String>(
+				ProcessTraceStreamType.class);
 
 		public FilePatterns() {
 			for (ProcessTraceStreamType streamType : STREAM_TYPES) {
@@ -62,9 +63,8 @@ public class ProcessTraceDirectory implements ProcessTraceDataSource {
 
 		String runSignature = files.get(ProcessTraceStreamType.BLOCK_HASH)
 				.getName();
-		processName = runSignature
-				.substring(0, runSignature
-						.indexOf(ProcessTraceStreamType.BLOCK_HASH.id) - 1);
+		processName = runSignature.substring(0,
+				runSignature.indexOf(ProcessTraceStreamType.BLOCK_HASH.id) - 1);
 		runSignature = runSignature.substring(runSignature.indexOf('.',
 				runSignature.indexOf(ProcessTraceStreamType.BLOCK_HASH.id)));
 
@@ -90,7 +90,7 @@ public class ProcessTraceDirectory implements ProcessTraceDataSource {
 			throws IOException {
 		return new FileInputStream(files.get(streamType));
 	}
-	
+
 	@Override
 	public String toString() {
 		return processName + "-" + processId;

@@ -1,13 +1,14 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.set;
 
-import java.io.*;
-import java.util.*;
-import java.lang.Math;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
-
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class ProgOverlap {
 
@@ -61,15 +62,13 @@ public class ProgOverlap {
 	}
 
 	public void outputOverlapInfo() {
-		System.out.println("total hashes of each program : ");
+		Log.log("total hashes of each program : ");
 		for (int i = 0; i < this.hashes.length; i++) {
-			System.out.println(this.progNames[i] + " : "
-					+ this.hashes[i].size());
+			Log.log(this.progNames[i] + " : " + this.hashes[i].size());
 		}
 
-		System.out.println();
-		System.out
-				.println("total hashes unoutputSetGraphion : " + union.size());
+		Log.log();
+		Log.log("total hashes unoutputSetGraphion : " + union.size());
 		for (Vector<Integer> vi : setMap.keySet()) {
 			for (int i = 0; i < vi.size(); i++) {
 				if (i != vi.size() - 1)
@@ -77,36 +76,33 @@ public class ProgOverlap {
 				else
 					System.out.print(progNames[vi.get(i)] + " : ");
 			}
-			System.out.println(setMap.get(vi).size());
+			Log.log(setMap.get(vi).size());
 		}
 
-		System.out.println("Mutual overlap:");
+		Log.log("Mutual overlap:");
 		outputMutualOverlap();
 	}
 
 	// public void outputTransGraph() {
 	// for (int i = 0; i < hashes.length; i++) {
 	// for (Long l : hashes[i]) {
-	// System.out.println(transTable.get(l).x + "\t" + transTable.get(l).y);
+	// Log.log(transTable.get(l).x + "\t" + transTable.get(l).y);
 	// }
-	// System.out.println();
-	// System.out.println();
+	// Log.log();
 	// }
 	// }
 
 	public void outputMutualOverlap() {
 		for (int i = 0; i < hashes.length; i++) {
 			for (int j = i + 1; j < hashes.length; j++) {
-				System.out.print(progNames[i] + " & " + progNames[j] + " : ");
-				System.out.println(AnalysisUtil.intersection(hashes[i],
-						hashes[j]).size());
+				Log.log(AnalysisUtil.intersection(hashes[i], hashes[j]).size());
 			}
 		}
 	}
 
 	public HashMap<Vector<Integer>, Integer> classifyProg(HashSet<Long> set) {
 
-		System.out.println("Hashes for this run: " + set.size());
+		Log.log("Hashes for this run: " + set.size());
 
 		HashMap<Vector<Integer>, Integer> distributionMap = new HashMap<Vector<Integer>, Integer>();
 
@@ -134,8 +130,7 @@ public class ProgOverlap {
 
 		for (Vector<Integer> vi : distributionMap.keySet()) {
 			if (vi.size() == 0) {
-				System.out.println("New hashes found : "
-						+ distributionMap.get(vi));
+				Log.log("New hashes found : " + distributionMap.get(vi));
 				continue;
 			}
 			for (int i = 0; i < vi.size(); i++) {
@@ -144,7 +139,7 @@ public class ProgOverlap {
 				else
 					System.out.print(progNames[vi.get(i)] + " : ");
 			}
-			System.out.println(distributionMap.get(vi));
+			Log.log(distributionMap.get(vi));
 		}
 
 		return distributionMap;

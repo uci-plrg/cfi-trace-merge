@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-
 public class AutonomousSoftwareDistributionLoader {
 
 	// TODO: should all the windows dlls really be in a single dist?

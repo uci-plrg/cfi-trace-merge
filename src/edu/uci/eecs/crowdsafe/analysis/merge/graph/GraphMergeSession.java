@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.analysis.config.CrowdSafeAnalysisConfiguration;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
@@ -17,6 +18,8 @@ import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
 import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.util.log.Log;
+import edu.uci.eecs.crowdsafe.util.log.LogFile;
 
 public class GraphMergeSession {
 
@@ -125,29 +128,45 @@ public class GraphMergeSession {
 		return 0;
 	}
 
+	private static void printUsageAndExit() {
+		Log.log("Arguments: <left-trace-dir> <right-trace-dir> [<log-output>]");
+		System.exit(1);
+	}
+
 	public static void main(String[] args) {
 		try {
-			if (args.length != 2) {
-				System.out
-						.println("Illegal arguments: please specify the two run directories as relative or absolute paths.");
-				System.exit(1);
+			CrowdSafeAnalysisConfiguration.initialize();
+
+			if (args.length < 2) {
+				Log.log("Illegal arguments: please specify the two run directories as relative or absolute paths.");
+				printUsageAndExit();
 			}
 
 			File leftRun = new File(args[0]);
 			File rightRun = new File(args[1]);
 
 			if (!(leftRun.exists() && leftRun.isDirectory())) {
-				System.out.println("Illegal argument '" + args[0]
+				Log.log("Illegal argument '" + args[0]
 						+ "'; no such directory.");
-				System.exit(1);
+				printUsageAndExit();
 			}
 			if (!(rightRun.exists() && rightRun.isDirectory())) {
-				System.out.println("Illegal argument '" + args[1]
+				Log.log("Illegal argument '" + args[1]
 						+ "'; no such directory.");
-				System.exit(1);
+				printUsageAndExit();
 			}
 
-			System.out.println("### --------------- ###");
+			if (args.length > 2) {
+				try {
+					Log.addOutput(LogFile.create(args[2],
+							LogFile.CollisionMode.AVOID,
+							LogFile.NoSuchPathMode.ERROR));
+				} catch (LogFile.Exception e) {
+					Log.log(e);
+				}
+			}
+
+			Log.log("### --------------- ###");
 			ProcessExecutionGraph left = ProcessGraphDataLoader
 					.loadProcessGraph(leftRun);
 			ProcessExecutionGraph right = ProcessGraphDataLoader

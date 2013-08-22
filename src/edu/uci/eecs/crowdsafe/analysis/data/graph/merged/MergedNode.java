@@ -11,7 +11,7 @@ public class MergedNode extends Node {
 	public static class Key implements Node.Key {
 		final long hash;
 		final int instanceId;
- 
+
 		public Key(long hash, int instanceId) {
 			this.hash = hash;
 			this.instanceId = instanceId;

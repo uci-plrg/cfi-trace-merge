@@ -1,7 +1,6 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,7 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.NodeHashMap;
 import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class ExecutionGraphData {
 	public final ProcessExecutionGraph containingGraph;
@@ -33,7 +33,8 @@ public class ExecutionGraphData {
 			return null; // no way to find it across versions
 
 		SoftwareDistributionUnit foreignUnit = foreignNode.getModule().unit;
-		ModuleDescriptor module = containingGraph.getModules().getModule(foreignUnit);
+		ModuleDescriptor module = containingGraph.getModules().getModule(
+				foreignUnit);
 		long mappedTag = module.beginAddr + foreignNode.getRelativeTag();
 		return nodesByKey.get(new ExecutionNode.Key(mappedTag, 0));
 	}
@@ -49,7 +50,7 @@ public class ExecutionGraphData {
 		for (int i = 0; i < nodes.size(); i++) {
 			ExecutionNode n = nodes.get(i);
 			if (n.getIndex() != i) {
-				System.out.println("Wrong index: " + n.getIndex());
+				Log.log("Wrong index: " + n.getIndex());
 				return false;
 			}
 		}
@@ -65,7 +66,7 @@ public class ExecutionGraphData {
 					break;
 				case PROCESS_EXIT:
 					if (n.getOutgoingEdges().size() != 0) {
-						System.out.println("");
+						Log.log("");
 						throw new InvalidGraphException(
 								"Exit point has outgoing edges!");
 					}

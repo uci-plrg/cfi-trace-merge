@@ -10,7 +10,7 @@ public abstract class Node implements NodeList {
 	public abstract Key getKey();
 
 	public abstract long getHash();
-	
+
 	public abstract MetaNodeType getType();
 
 	public abstract Edge<? extends Node> getContinuationEdge();

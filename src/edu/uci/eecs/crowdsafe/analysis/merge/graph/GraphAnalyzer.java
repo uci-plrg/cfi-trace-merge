@@ -1,16 +1,7 @@
 package edu.uci.eecs.crowdsafe.analysis.merge.graph;
 
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
-import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
+import edu.uci.eecs.crowdsafe.util.log.Log;
 import gnu.getopt.Getopt;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-
-
 
 //import analysis.graph.representation.SpeculativeScoreList;
 
@@ -47,8 +38,7 @@ public class GraphAnalyzer {
 					break;
 				case '?':
 					error = true;
-					System.out.println("parse error for option: -"
-							+ (char) g.getOptopt());
+					Log.log("parse error for option: -" + (char) g.getOptopt());
 					break;
 				default:
 					error = true;
@@ -61,7 +51,7 @@ public class GraphAnalyzer {
 		}
 
 		if (error) {
-			System.out.println("Parameter error, correct it first!");
+			Log.log("Parameter error, correct it first!");
 			return;
 		}
 
@@ -114,7 +104,7 @@ public class GraphAnalyzer {
 					for (int l = 0; l < graphs2.size(); l++) {
 						ExecutionGraph g1 = graphs1.get(k), g2 = graphs2.get(l);
 
-						// System.out.println("Current thread: " + threadCnt);
+						// Log.log("Current thread: " + threadCnt);
 						mergers[threadCnt] = new GraphMergerThread(g1, g2);
 						threads[threadCnt] = new Thread(mergers[threadCnt]);
 						
@@ -124,7 +114,7 @@ public class GraphAnalyzer {
 
 						if (threadCnt == threadGroupSize) {
 							threadCnt = 0;
-							System.out.println(pairCnt
+							Log.log(pairCnt
 									+ " pairs have been launched!");
 							for (int m = 0; m < threadGroupSize; m++) {
 								try {

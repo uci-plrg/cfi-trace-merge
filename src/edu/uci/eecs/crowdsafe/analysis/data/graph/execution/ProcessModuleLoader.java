@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.uci.eecs.crowdsafe.analysis.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;

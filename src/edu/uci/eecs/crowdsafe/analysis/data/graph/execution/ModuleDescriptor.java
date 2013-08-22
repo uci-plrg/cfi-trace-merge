@@ -1,7 +1,5 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
-import java.util.HashSet;
-
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 
 public class ModuleDescriptor implements Comparable<ModuleDescriptor> {

@@ -7,9 +7,9 @@ public enum ProcessTraceStreamType {
 	CROSS_MODULE_GRAPH("cross-module"),
 	GRAPH_HASH("bb-graph-hash"),
 	MODULE("module");
-	
+
 	public final String id;
-	
+
 	private ProcessTraceStreamType(String id) {
 		this.id = id;
 	}

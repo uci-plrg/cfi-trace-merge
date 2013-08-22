@@ -17,7 +17,8 @@ import edu.uci.eecs.crowdsafe.analysis.exception.graph.TagNotFoundException;
 import edu.uci.eecs.crowdsafe.analysis.log.graph.ProcessExecutionGraphSummary;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.analysis.util.AnalysisUtil;
-import edu.uci.eecs.crowdsafe.analysis.util.LittleEndianInputStream;
+import edu.uci.eecs.crowdsafe.util.io.LittleEndianInputStream;
+import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class ProcessGraphLoadSession {
 	private final ProcessTraceDataSource dataSource;
@@ -320,7 +321,7 @@ public class ProcessGraphLoadSession {
 						} else {
 							String msg = "Multiple edges:\n" + "Edge1: "
 									+ existing + "\n" + "Edge2: " + e;
-							System.out.println(msg);
+							Log.log(msg);
 							if (DebugUtils.ThrowMultipleEdge) {
 								throw new MultipleEdgeException(msg);
 							}
@@ -334,7 +335,7 @@ public class ProcessGraphLoadSession {
 
 		// Output the count for wrong edges if there is any
 		if (wrongIntraModuleEdgeCnt > 0) {
-			System.out.println("There are " + wrongIntraModuleEdgeCnt
+			Log.log("There are " + wrongIntraModuleEdgeCnt
 					+ " cross-module edges in the intra-module edge file");
 		}
 	}

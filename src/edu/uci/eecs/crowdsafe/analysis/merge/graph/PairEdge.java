@@ -23,8 +23,7 @@ public class PairEdge {
 		return ordinal;
 	}
 
-	public PairEdge(Node parent, Node child, boolean isDirect,
-			int ordinal) {
+	public PairEdge(Node parent, Node child, boolean isDirect, int ordinal) {
 		this.parent = parent;
 		this.child = child;
 		this.isDirect = isDirect;
