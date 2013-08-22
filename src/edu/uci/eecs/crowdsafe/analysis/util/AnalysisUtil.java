@@ -25,6 +25,7 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleInstance;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.SpeculativeScoreRecord.MatchResult;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.util.log.Log;
@@ -291,8 +292,9 @@ public class AnalysisUtil {
 				// replace the right node with a copy having the left node's hash
 				right.getGraphData().nodesByKey.put(rightNode.getKey(),
 						new ExecutionNode(rightNode.getContainingGraph(),
-								rightNode.getType(), rightNode.getTag(),
-								rightNode.getTagVersion(), leftNode.getHash()));
+								rightNode.getModule(), rightNode.getType(),
+								rightNode.getTag(), rightNode.getTagVersion(),
+								leftNode.getHash()));
 				modificationCnt++;
 				if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
 					pw.print("tag1: 0x" + Long.toHexString(leftNode.getTag()));
@@ -522,10 +524,11 @@ public class AnalysisUtil {
 	}
 
 	// get the lower 6 byte of the tag, which is a long integer
-	public static ExecutionNode.Key getNodeKey(long tag) {
-		long tagLong = tag << 24 >>> 24;
-		int versionNumber = (new Long(tag >>> 56)).intValue();
-		return new ExecutionNode.Key(tagLong, versionNumber);
+	public static ExecutionNode.Key getNodeKey(long annotatedTag,
+			ModuleInstance module) {
+		long tag = annotatedTag << 24 >>> 24;
+		int version = (new Long(annotatedTag >>> 56)).intValue();
+		return new ExecutionNode.Key(tag, version, module);
 	}
 
 	public static boolean isTailNode(Node node) {

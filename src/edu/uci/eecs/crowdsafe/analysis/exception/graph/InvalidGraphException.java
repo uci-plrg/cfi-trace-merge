@@ -5,7 +5,7 @@ public class InvalidGraphException extends RuntimeException {
 		super(source);
 	}
 
-	public InvalidGraphException(String message) {
-		super(message);
+	public InvalidGraphException(String format, Object... args) {
+		super(String.format(format, args));
 	}
 }

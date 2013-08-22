@@ -62,11 +62,12 @@ public class ModuleGraphCluster {
 	}
 
 	// Add the signature node to the graph
-	public ExecutionNode addClusterEntryNode(long crossModuleSignatureHash) {
+	public ExecutionNode addClusterEntryNode(long crossModuleSignatureHash,
+			ModuleInstance module) {
 		ExecutionNode entryNode = entryNodesBySignatureHash
 				.get(crossModuleSignatureHash);
 		if (entryNode == null) {
-			entryNode = new ExecutionNode(graphData.containingGraph,
+			entryNode = new ExecutionNode(graphData.containingGraph, module,
 					MetaNodeType.SIGNATURE_HASH, 0L, 0,
 					crossModuleSignatureHash);
 			entryNodesBySignatureHash.put(entryNode.getHash(), entryNode);

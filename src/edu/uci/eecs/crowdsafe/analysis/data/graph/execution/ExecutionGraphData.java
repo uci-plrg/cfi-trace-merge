@@ -33,10 +33,10 @@ public class ExecutionGraphData {
 			return null; // no way to find it across versions
 
 		SoftwareDistributionUnit foreignUnit = foreignNode.getModule().unit;
-		ModuleDescriptor module = containingGraph.getModules().getModule(
+		ModuleInstance localModule = containingGraph.getModules().getModule(
 				foreignUnit);
-		long mappedTag = module.beginAddr + foreignNode.getRelativeTag();
-		return nodesByKey.get(new ExecutionNode.Key(mappedTag, 0));
+		long localTag = localModule.start + foreignNode.getRelativeTag();
+		return nodesByKey.get(new ExecutionNode.Key(localTag, 0, localModule));
 	}
 
 	/**

@@ -17,20 +17,26 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 public class ExecutionNode extends Node {
 
 	public static class Key implements Node.Key {
-		public final long tag;
+		public final long relativeTag;
 
 		public final int version;
 
-		public Key(long tag, int tagVersion) {
-			this.tag = tag;
+		public final ModuleInstance module;
+
+		public Key(long tag, int tagVersion, ModuleInstance module) {
+			this.relativeTag = (tag - module.start);
 			this.version = tagVersion;
+			this.module = module;
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + (int) (tag ^ (tag >>> 32));
+			result = prime * result
+					+ ((module == null) ? 0 : module.hashCode());
+			result = prime * result
+					+ (int) (relativeTag ^ (relativeTag >>> 32));
 			result = prime * result + version;
 			return result;
 		}
@@ -44,7 +50,12 @@ public class ExecutionNode extends Node {
 			if (getClass() != obj.getClass())
 				return false;
 			Key other = (Key) obj;
-			if (tag != other.tag)
+			if (module == null) {
+				if (other.module != null)
+					return false;
+			} else if (!module.equals(other.module))
+				return false;
+			if (relativeTag != other.relativeTag)
 				return false;
 			if (version != other.version)
 				return false;
@@ -52,14 +63,14 @@ public class ExecutionNode extends Node {
 		}
 	}
 
+	private final Key key;
+
 	// Index in the ArrayList<Node>
 	private int index;
 
-	private final ModuleDescriptor module;
+	private final ModuleInstance module;
 
 	private final long hash;
-
-	private final Key key;
 
 	private MetaNodeType metaNodeType;
 
@@ -76,11 +87,12 @@ public class ExecutionNode extends Node {
 	private boolean reachable = false;
 
 	public ExecutionNode(ProcessExecutionGraph containingGraph,
-			MetaNodeType metaNodeType, long tag, int tagVersion, long hash) {
+			ModuleInstance module, MetaNodeType metaNodeType, long tag,
+			int tagVersion, long hash) {
+		this.key = new Key(tag, tagVersion, module);
 		this.containingGraph = containingGraph;
-		this.module = containingGraph.getModules().getModule(tag);
+		this.module = module;
 		this.metaNodeType = metaNodeType;
-		this.key = new Key(tag, tagVersion);
 		this.hash = hash;
 	}
 
@@ -97,21 +109,20 @@ public class ExecutionNode extends Node {
 		this.metaNodeType = metaNodeType;
 	}
 
+	// TODO: this is not a good identifier anymore! Need to use the key.
 	public long getTag() {
-		return key.tag;
+		return (key.module == null ? 0L : key.module.start) + key.relativeTag;
 	}
 
 	public long getRelativeTag() {
-		if (module == null)
-			return key.tag;
-		return key.tag - module.beginAddr;
+		return key.relativeTag;
 	}
 
 	public int getTagVersion() {
 		return key.version;
 	}
 
-	public ModuleDescriptor getModule() {
+	public ModuleInstance getModule() {
 		return module;
 	}
 
@@ -228,15 +239,14 @@ public class ExecutionNode extends Node {
 		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
 			return ((Long) hash).hashCode();
 		}
-		return new Long(key.tag).hashCode() << 5 ^ new Long(hash).hashCode();
+		return key.hashCode() << 5 ^ new Long(hash).hashCode();
 	}
 
 	public String toString() {
 		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
-			return "0x" + Long.toHexString(hash) + ":0x"
-					+ Long.toHexString(key.tag) + "-v" + key.version;
+			return String.format("0x%x:0x%x-v%d", hash, getTag(), key.version);
 		} else {
-			return "SIG: 0x" + Long.toHexString(hash);
+			return String.format("SIG: 0x%x", hash);
 		}
 	}
 }

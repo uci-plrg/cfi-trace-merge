@@ -9,19 +9,19 @@ import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 
 public class ProcessExecutionModuleSet {
 
-	private final Map<SoftwareDistributionUnit, ModuleDescriptor> descriptors = new HashMap<SoftwareDistributionUnit, ModuleDescriptor>();
+	private final Map<SoftwareDistributionUnit, ModuleInstance> descriptors = new HashMap<SoftwareDistributionUnit, ModuleInstance>();
 
-	public void add(ModuleDescriptor module) {
+	public void add(ModuleInstance module) {
 		descriptors.put(module.unit, module);
 	}
 
 	public boolean hashOverlap() {
-		List<ModuleDescriptor> list = new ArrayList<ModuleDescriptor>();
+		List<ModuleInstance> list = new ArrayList<ModuleInstance>();
 		for (int i = 0; i < list.size(); i++) {
 			for (int j = i + 1; j < list.size(); j++) {
-				ModuleDescriptor mod1 = list.get(i), mod2 = list.get(j);
-				if ((mod1.beginAddr < mod2.beginAddr && mod1.endAddr > mod2.beginAddr)
-						|| (mod1.beginAddr < mod2.endAddr && mod1.endAddr > mod2.endAddr)) {
+				ModuleInstance mod1 = list.get(i), mod2 = list.get(j);
+				if ((mod1.start < mod2.start && mod1.end > mod2.start)
+						|| (mod1.start < mod2.end && mod1.end > mod2.end)) {
 					return true;
 				}
 			}
@@ -29,16 +29,44 @@ public class ProcessExecutionModuleSet {
 		return false;
 	}
 
-	public ModuleDescriptor getModule(long tag) {
-		for (ModuleDescriptor descriptor : descriptors.values()) {
+	public ModuleInstance getModuleForLoadedBlock(long tag, long tagIndex) {
+		ModuleInstance activeModule = ModuleInstance.UNKNOWN;
+		for (ModuleInstance descriptor : descriptors.values()) {
 			if (descriptor.containsTag(tag)) {
-				return descriptor;
+				if ((descriptor.blockTimestamp < tagIndex)
+						&& ((activeModule == ModuleInstance.UNKNOWN) || (descriptor.blockTimestamp > activeModule.blockTimestamp)))
+					activeModule = descriptor;
 			}
 		}
-		return ModuleDescriptor.UNKNOWN;
+		return activeModule;
 	}
 
-	public ModuleDescriptor getModule(SoftwareDistributionUnit unit) {
+	public ModuleInstance getModuleForLoadedEdge(long tag, long edgeIndex) {
+		ModuleInstance activeModule = ModuleInstance.UNKNOWN;
+		for (ModuleInstance descriptor : descriptors.values()) {
+			if (descriptor.containsTag(tag)) {
+				if ((descriptor.edgeTimestamp < edgeIndex)
+						&& ((activeModule == ModuleInstance.UNKNOWN) || (descriptor.edgeTimestamp > activeModule.edgeTimestamp)))
+					activeModule = descriptor;
+			}
+		}
+		return activeModule;
+	}
+
+	public ModuleInstance getModuleForLoadedCrossModuleEdge(long tag,
+			long edgeIndex) {
+		ModuleInstance activeModule = ModuleInstance.UNKNOWN;
+		for (ModuleInstance descriptor : descriptors.values()) {
+			if (descriptor.containsTag(tag)) {
+				if ((descriptor.crossModuleEdgeTimestamp < edgeIndex)
+						&& ((activeModule == ModuleInstance.UNKNOWN) || (descriptor.crossModuleEdgeTimestamp > activeModule.crossModuleEdgeTimestamp)))
+					activeModule = descriptor;
+			}
+		}
+		return activeModule;
+	}
+
+	public ModuleInstance getModule(SoftwareDistributionUnit unit) {
 		return descriptors.get(unit);
 	}
 }
