@@ -23,7 +23,7 @@ public class ModuleInstance implements Comparable<ModuleInstance> {
 		this.edgeTimestamp = edgeTimestamp;
 		this.crossModuleEdgeTimestamp = crossModuleEdgeTimestamp;
 	}
-
+	
 	public boolean containsTag(long tag) {
 		return ((tag >= start) && (tag <= end));
 	}

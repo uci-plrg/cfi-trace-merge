@@ -65,11 +65,6 @@ public class ExecutionNode extends Node {
 
 	private final Key key;
 
-	// Index in the ArrayList<Node>
-	private int index;
-
-	private final ModuleInstance module;
-
 	private final long hash;
 
 	private MetaNodeType metaNodeType;
@@ -78,20 +73,9 @@ public class ExecutionNode extends Node {
 
 	private List<Edge<ExecutionNode>> incomingEdges = new ArrayList<Edge<ExecutionNode>>();
 
-	// TODO: what's this for? Try to normalize this.
-	private final ProcessExecutionGraph containingGraph;
-
-	// TODO: is processing state necessary on a Node?
-	private boolean isVisited = false;
-	// Indicate if this node is reachable from the entry point
-	private boolean reachable = false;
-
-	public ExecutionNode(ProcessExecutionGraph containingGraph,
-			ModuleInstance module, MetaNodeType metaNodeType, long tag,
-			int tagVersion, long hash) {
+	public ExecutionNode(ModuleInstance module, MetaNodeType metaNodeType,
+			long tag, int tagVersion, long hash) {
 		this.key = new Key(tag, tagVersion, module);
-		this.containingGraph = containingGraph;
-		this.module = module;
 		this.metaNodeType = metaNodeType;
 		this.hash = hash;
 	}
@@ -101,17 +85,20 @@ public class ExecutionNode extends Node {
 		return key;
 	}
 
-	public ProcessExecutionGraph getContainingGraph() {
-		return containingGraph;
-	}
-
 	public void setMetaNodeType(MetaNodeType metaNodeType) {
 		this.metaNodeType = metaNodeType;
 	}
 
-	// TODO: this is not a good identifier anymore! Need to use the key.
-	public long getTag() {
-		return (key.module == null ? 0L : key.module.start) + key.relativeTag;
+	public String identify() {
+		switch (metaNodeType) {
+			case CLUSTER_ENTRY:
+				return String.format("ClusterEntry(0x%x)", hash);
+			case CLUSTER_EXIT:
+				return String.format("ClusterExit(0x%x)", hash);
+			default:
+				return String.format("%s(0x%x-v%d)", key.module.unit.filename,
+						key.relativeTag, key.version);
+		}
 	}
 
 	public long getRelativeTag() {
@@ -123,7 +110,7 @@ public class ExecutionNode extends Node {
 	}
 
 	public ModuleInstance getModule() {
-		return module;
+		return key.module;
 	}
 
 	public void addIncomingEdge(Edge<ExecutionNode> e) {
@@ -132,6 +119,11 @@ public class ExecutionNode extends Node {
 
 	public List<Edge<ExecutionNode>> getIncomingEdges() {
 		return incomingEdges;
+	}
+
+	public ExecutionNode changeHashCode(long newHash) {
+		return new ExecutionNode(key.module, metaNodeType, key.module.start
+				+ key.relativeTag, key.version, newHash);
 	}
 
 	/**
@@ -164,9 +156,9 @@ public class ExecutionNode extends Node {
 		return outgoingEdges;
 	}
 
-	public Edge<ExecutionNode> getOutgoingEdge(ExecutionNode node) {
+	public Edge<ExecutionNode> getOutgoingEdge(ExecutionNode toNode) {
 		for (Edge<ExecutionNode> edge : outgoingEdges) {
-			if (edge.getToNode().getTag() == node.getTag())
+			if (edge.getToNode().getKey().equals(toNode.getKey()))
 				return edge;
 		}
 
@@ -179,38 +171,6 @@ public class ExecutionNode extends Node {
 
 	public long getHash() {
 		return hash;
-	}
-
-	public void resetVisited() {
-		isVisited = false;
-	}
-
-	public void setVisited() {
-		isVisited = true;
-	}
-
-	public boolean isVisited() {
-		return isVisited;
-	}
-
-	public int getIndex() {
-		return index;
-	}
-
-	public void setIndex(int index) {
-		this.index = index;
-	}
-
-	public String getHashHex() {
-		return "0x" + Long.toHexString(hash);
-	}
-
-	public boolean isReachable() {
-		return reachable;
-	}
-
-	public void setReachable(boolean reachable) {
-		this.reachable = reachable;
 	}
 
 	/**
@@ -228,25 +188,21 @@ public class ExecutionNode extends Node {
 		}
 		ExecutionNode node = (ExecutionNode) o;
 		if (node.metaNodeType == metaNodeType
-				&& metaNodeType == MetaNodeType.SIGNATURE_HASH) {
+				&& metaNodeType == MetaNodeType.CLUSTER_ENTRY) {
 			return (node.hash == hash);
 		}
 
-		return (node.key.equals(key) && node.containingGraph == containingGraph);
+		return node.key.equals(key);
 	}
 
 	public int hashCode() {
-		if (metaNodeType == MetaNodeType.SIGNATURE_HASH) {
+		if (metaNodeType == MetaNodeType.CLUSTER_ENTRY) {
 			return ((Long) hash).hashCode();
 		}
 		return key.hashCode() << 5 ^ new Long(hash).hashCode();
 	}
 
 	public String toString() {
-		if (metaNodeType != MetaNodeType.SIGNATURE_HASH) {
-			return String.format("0x%x:0x%x-v%d", hash, getTag(), key.version);
-		} else {
-			return String.format("SIG: 0x%x", hash);
-		}
+		return identify();
 	}
 }

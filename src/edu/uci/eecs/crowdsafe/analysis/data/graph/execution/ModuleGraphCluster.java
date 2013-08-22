@@ -56,7 +56,6 @@ public class ModuleGraphCluster {
 	}
 
 	public void addNode(ExecutionNode node) {
-		graphData.nodes.add(node);
 		graphData.nodesByHash.add(node);
 		graphData.nodesByKey.put(node.getKey(), node);
 	}
@@ -67,12 +66,10 @@ public class ModuleGraphCluster {
 		ExecutionNode entryNode = entryNodesBySignatureHash
 				.get(crossModuleSignatureHash);
 		if (entryNode == null) {
-			entryNode = new ExecutionNode(graphData.containingGraph, module,
-					MetaNodeType.SIGNATURE_HASH, 0L, 0,
-					crossModuleSignatureHash);
+			entryNode = new ExecutionNode(module, MetaNodeType.CLUSTER_ENTRY,
+					0L, 0, crossModuleSignatureHash);
 			entryNodesBySignatureHash.put(entryNode.getHash(), entryNode);
-			entryNode.setIndex(graphData.nodes.size());
-			graphData.nodes.add(entryNode);
+			graphData.nodesByKey.put(entryNode.getKey(), entryNode);
 		}
 		return entryNode;
 	}
@@ -91,8 +88,6 @@ public class ModuleGraphCluster {
 		if (type == MetaNodeType.MODULE_BOUNDARY) {
 			// addModuleBoundaryNode(n); // TODO: do we need module boundary nodes?
 		} else {
-			node.setIndex(graphData.nodes.size());
-			graphData.nodes.add(node);
 			graphData.nodesByHash.add(node);
 			graphData.nodesByKey.put(node.getKey(), node);
 		}
@@ -100,9 +95,7 @@ public class ModuleGraphCluster {
 
 	public Set<ExecutionNode> searchAccessibleNodes() {
 		Set<ExecutionNode> accessibleNodes = new HashSet<ExecutionNode>();
-		for (int i = 0; i < graphData.nodes.size(); i++) {
-			graphData.nodes.get(i).resetVisited();
-		}
+		Set<ExecutionNode> visitedNodes = new HashSet<ExecutionNode>();
 		Queue<ExecutionNode> bfsQueue = new LinkedList<ExecutionNode>();
 		bfsQueue.addAll(entryNodesBySignatureHash.values());
 		// TODO: do this with all entry points
@@ -118,14 +111,14 @@ public class ModuleGraphCluster {
 
 		while (bfsQueue.size() > 0) {
 			ExecutionNode n = bfsQueue.remove();
-			n.setVisited();
 			accessibleNodes.add(n);
+			visitedNodes.add(n);
 			for (int i = 0; i < n.getOutgoingEdges().size(); i++) {
 				ExecutionNode neighbor = n.getOutgoingEdges().get(i)
 						.getToNode();
-				if (!neighbor.isVisited()) {
+				if (!visitedNodes.contains(neighbor)) {
 					bfsQueue.add(neighbor);
-					neighbor.setVisited();
+					visitedNodes.add(neighbor);
 				}
 			}
 		}
@@ -134,8 +127,7 @@ public class ModuleGraphCluster {
 
 	public List<ExecutionNode> getDanglingNodes() {
 		List<ExecutionNode> danglingNodes = new ArrayList<ExecutionNode>();
-		for (int i = 0; i < graphData.nodes.size(); i++) {
-			ExecutionNode n = graphData.nodes.get(i);
+		for (ExecutionNode n : graphData.nodesByKey.values()) {
 			if (n.getIncomingEdges().size() == 0
 					&& n.getOutgoingEdges().size() == 0)
 				danglingNodes.add(n);

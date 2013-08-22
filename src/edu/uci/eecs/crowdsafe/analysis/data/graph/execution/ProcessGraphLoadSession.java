@@ -122,8 +122,8 @@ public class ProcessGraphLoadSession {
 					}
 				}
 
-				ExecutionNode node = new ExecutionNode(graph, module,
-						metaNodeType, tag, versionNumber, hash);
+				ExecutionNode node = new ExecutionNode(module, metaNodeType,
+						tag, versionNumber, hash);
 
 				ModuleGraphCluster moduleCluster = graph
 						.getModuleGraphCluster(module.unit);
@@ -221,7 +221,7 @@ public class ProcessGraphLoadSession {
 						fromNode.addOutgoingEdge(e);
 						toNode.addIncomingEdge(e);
 					} else {
-						ExecutionNode exitNode = new ExecutionNode(graph, graph
+						ExecutionNode exitNode = new ExecutionNode(graph
 								.getModules().getModule(fromModule.unit),
 								MetaNodeType.CLUSTER_EXIT, signatureHash, 0,
 								signatureHash);
@@ -301,9 +301,9 @@ public class ProcessGraphLoadSession {
 								.getModuleGraphCluster(toModule.unit))) {
 					throw new InvalidGraphException(
 							String.format(
-									"Error: a normal edge [0x%x - 0x%x] crosses between module %s and %s",
-									node1.getTag(),
-									node2.getTag(),
+									"Error: a normal edge [%s - %s] crosses between module %s and %s",
+									node1,
+									node2,
 									graph.getModuleGraphCluster(fromModule.unit).distribution.name,
 									graph.getModuleGraphCluster(toModule.unit).distribution.name));
 				}

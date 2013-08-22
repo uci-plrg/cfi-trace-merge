@@ -475,9 +475,7 @@ public class GraphMergeEngine {
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				ExecutionNode r = (ExecutionNode) rightNode;
 				DebugUtils.getScorePW().print(
-						"PureHeuristic_" + r.getModule().unit.name + "_0x"
-								+ Long.toHexString(r.getRelativeTag()) + "_0x"
-								+ Long.toHexString(r.getTag()) + ":\t");
+						String.format("PureHeuristic_%s:\t", r));
 				for (int i = 0; i < leftCandidates.size(); i++) {
 					int candidateScore = session
 							.getScore(leftCandidates.get(i));
@@ -582,13 +580,7 @@ public class GraphMergeEngine {
 			// matching score of indirect edges to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				ExecutionNode r = (ExecutionNode) rightToNode;
-				String moduleName = r.getModule().unit.name;
-				long relativeTag = r.getRelativeTag();
-				DebugUtils.getScorePW().print(
-						"Direct_" + moduleName + "_0x"
-								+ Long.toHexString(relativeTag) + "_0x"
-								+ Long.toHexString(r.getTag()) + "v"
-								+ r.getTagVersion() + ":\t");
+				DebugUtils.getScorePW().print(String.format("Direct_%s:\t", r));
 				for (int i = 0; i < candidates.size(); i++) {
 					int candidateScore = session.getScore(candidates.get(i));
 					if (candidateScore > 0) {
@@ -666,10 +658,9 @@ public class GraphMergeEngine {
 					if (DebugUtils.ThrowWrongEdgeType) {
 						ExecutionNode lp = (ExecutionNode) leftParentNode;
 						Edge<ExecutionNode> lpe = (Edge<ExecutionNode>) leftParentEdge;
-						String msg = Long.toHexString(lp.getTag()) + "->"
-								+ Long.toHexString(lpe.getToNode().getTag())
-								+ "(" + leftParentEdge.getEdgeType() + ", "
-								+ rightEdge.getEdgeType() + ")";
+						String msg = String.format("%s -> %s (%s -> %s)", lp,
+								lpe.getToNode(), leftParentEdge.getEdgeType(),
+								rightEdge.getEdgeType());
 						throw new WrongEdgeTypeException(msg);
 					}
 					continue;
@@ -701,12 +692,8 @@ public class GraphMergeEngine {
 			// matching score of indirect edges to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				ExecutionNode r = (ExecutionNode) rightToNode;
-				String moduleName = r.getModule().unit.name;
-				long relativeTag = r.getRelativeTag();
 				DebugUtils.getScorePW().print(
-						"Indirect_" + moduleName + "_0x"
-								+ Long.toHexString(relativeTag) + "_0x"
-								+ Long.toHexString(r.getTag()) + ":\t");
+						String.format("Indirect_%s:\t", r));
 				for (int i = 0; i < leftCandidates.size(); i++) {
 					int candidateScore = session
 							.getScore(leftCandidates.get(i));
@@ -954,13 +941,9 @@ public class GraphMergeEngine {
 										.getOrdinal()) {
 							System.err
 									.println(String
-											.format("Edge from 0x%x to 0x%x was merged with type %s and ordinal %d, but has type %s and ordinal %d in the right graph",
-													((ExecutionNode) rightEdge
-															.getFromNode())
-															.getTag(),
-													((ExecutionNode) rightEdge
-															.getToNode())
-															.getTag(),
+											.format("Edge from %s to %s was merged with type %s and ordinal %d, but has type %s and ordinal %d in the right graph",
+													rightEdge.getFromNode(),
+													rightEdge.getToNode(),
 													sharedEdge.getEdgeType(),
 													sharedEdge.getOrdinal(),
 													rightEdge.getEdgeType(),
@@ -991,13 +974,9 @@ public class GraphMergeEngine {
 				mergedFromNode.addOutgoingEdge(mergedEdge);
 
 				if (mergedToNode == null) {
-					System.err
-							.println(String
-									.format("Error: merged node with tag 0x%x-v%d cannot be found",
-											((ExecutionNode) rightToNode)
-													.getTag(),
-											((ExecutionNode) rightToNode)
-													.getTagVersion()));
+					System.err.println(String.format(
+							"Error: merged node %s cannot be found",
+							rightToNode));
 					continue;
 				}
 				mergedToNode.addIncomingEdge(mergedEdge);

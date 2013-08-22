@@ -1,8 +1,6 @@
 package edu.uci.eecs.crowdsafe.analysis.data.graph.execution;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
@@ -12,13 +10,6 @@ import edu.uci.eecs.crowdsafe.util.log.Log;
 
 public class ExecutionGraphData {
 	public final ProcessExecutionGraph containingGraph;
-
-	// False means that the file doesn't exist or is in wrong format
-	protected boolean isValidGraph = true;
-
-	// nodes in an array in the read order from file
-	// TODO: would prefer to keep the nodes only by hash, or also by key if that is necessary
-	public final List<ExecutionNode> nodes = new ArrayList<ExecutionNode>();
 
 	public final NodeHashMap nodesByHash = new NodeHashMap();
 
@@ -45,27 +36,17 @@ public class ExecutionGraphData {
 	 * 
 	 * @return true means this is a valid graph, otherwise it's invalid
 	 */
-	public boolean validate() {
-		// Check if the index of the node is correct
-		for (int i = 0; i < nodes.size(); i++) {
-			ExecutionNode n = nodes.get(i);
-			if (n.getIndex() != i) {
-				Log.log("Wrong index: " + n.getIndex());
-				return false;
-			}
-		}
-
-		outerLoop: for (int i = 0; i < nodes.size(); i++) {
-			ExecutionNode n = nodes.get(i);
-			switch (n.getType()) {
+	public void validate() {
+		for (ExecutionNode node : nodesByKey.values()) {
+			switch (node.getType()) {
 				case PROCESS_ENTRY:
-					if (n.getIncomingEdges().size() != 0) {
+					if (node.getIncomingEdges().size() != 0) {
 						throw new InvalidGraphException(
 								"Exit point has outgoing edges!");
 					}
 					break;
 				case PROCESS_EXIT:
-					if (n.getOutgoingEdges().size() != 0) {
+					if (node.getOutgoingEdges().size() != 0) {
 						Log.log("");
 						throw new InvalidGraphException(
 								"Exit point has outgoing edges!");
@@ -75,6 +56,5 @@ public class ExecutionGraphData {
 					break;
 			}
 		}
-		return isValidGraph;
 	}
 }

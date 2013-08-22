@@ -95,8 +95,8 @@ public class GraphMergeStatistics {
 
 	public ArrayList<ExecutionNode> unmatchedGraph1Nodes() {
 		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (int i = 0; i < session.left.cluster.getGraphData().nodes.size(); i++) {
-			ExecutionNode n = session.left.cluster.getGraphData().nodes.get(i);
+		for (ExecutionNode n : session.left.cluster.getGraphData().nodesByKey
+				.values()) {
 			if (!session.matchedNodes.containsLeftKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
@@ -106,8 +106,8 @@ public class GraphMergeStatistics {
 
 	public ArrayList<ExecutionNode> unmatchedGraph2Nodes() {
 		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (int i = 0; i < session.right.cluster.getGraphData().nodes.size(); i++) {
-			ExecutionNode n = session.right.cluster.getGraphData().nodes.get(i);
+		for (ExecutionNode n : session.right.cluster.getGraphData().nodesByKey
+				.values()) {
 			if (!session.matchedNodes.containsRightKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
@@ -133,8 +133,8 @@ public class GraphMergeStatistics {
 	}
 
 	synchronized public void outputMergedGraphInfo() {
-		totalNodeSize = session.left.cluster.getGraphData().nodes.size()
-				+ session.right.cluster.getGraphData().nodes.size()
+		totalNodeSize = session.left.cluster.getGraphData().nodesByKey.size()
+				+ session.right.cluster.getGraphData().nodesByKey.size()
 				- session.matchedNodes.size();
 		Log.log("Comparison between "
 				+ session.left.cluster.getGraphData().containingGraph.dataSource
@@ -161,9 +161,9 @@ public class GraphMergeStatistics {
 		Log.log("Total block hashes: " + totalBlockSet.size());
 
 		Log.log("Size of nodes in graph1: "
-				+ session.left.cluster.getGraphData().nodes.size());
+				+ session.left.cluster.getGraphData().nodesByKey.size());
 		Log.log("Size of nodes in graph2: "
-				+ session.right.cluster.getGraphData().nodes.size());
+				+ session.right.cluster.getGraphData().nodesByKey.size());
 
 		Log.log("Intersection ratio of block hashes: "
 				+ setInterRate
@@ -174,17 +174,17 @@ public class GraphMergeStatistics {
 				+ session.right.cluster.getGraphData().nodesByHash.keySet()
 						.size() + ":" + interHashSize + "/" + totalHashSize);
 		Log.log("Graph1 nodes: "
-				+ session.left.cluster.getGraphData().nodes.size());
+				+ session.left.cluster.getGraphData().nodesByKey.size());
 		Log.log("Graph2 nodes: "
-				+ session.right.cluster.getGraphData().nodes.size());
+				+ session.right.cluster.getGraphData().nodesByKey.size());
 		Log.log("Total nodes: " + totalNodeSize);
 
 		Log.log("Merged nodes / G1 nodes: "
 				+ (float) session.matchedNodes.size()
-				/ session.left.cluster.getGraphData().nodes.size());
+				/ session.left.cluster.getGraphData().nodesByKey.size());
 		Log.log("Merged nodes / G2 nodes: "
 				+ (float) session.matchedNodes.size()
-				/ session.right.cluster.getGraphData().nodes.size());
+				/ session.right.cluster.getGraphData().nodesByKey.size());
 		float nodeInterRate = (float) session.matchedNodes.size()
 				/ totalNodeSize;
 		Log.log("Merged nodes / all nodes: " + nodeInterRate);
@@ -255,8 +255,7 @@ public class GraphMergeStatistics {
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
 			Set<ExecutionNode> accessibleNodes = graph.searchAccessibleNodes();
-			for (int i = 0; i < graph.getGraphData().nodes.size(); i++) {
-				ExecutionNode n = graph.getGraphData().nodes.get(i);
+			for (ExecutionNode n : graph.getGraphData().nodesByKey.values()) {
 				if (!accessibleNodes.contains(n)) {
 					pwNodeFile.println(n);
 				}
@@ -264,12 +263,12 @@ public class GraphMergeStatistics {
 			}
 
 			pwDotFile.println("digraph runGraph {");
-			for (int i = 0; i < graph.getGraphData().nodes.size(); i++) {
-				ExecutionNode n = graph.getGraphData().nodes.get(i);
+			int i = 0;
+			for (ExecutionNode n : graph.getGraphData().nodesByKey.values()) {
 				pwDotFile.println(i + "[label=\"" + n + "\"]");
+				i++;
 
-				List<Edge<ExecutionNode>> edges = graph.getGraphData().nodes
-						.get(i).getOutgoingEdges();
+				List<Edge<ExecutionNode>> edges = n.getOutgoingEdges();
 				for (Edge<ExecutionNode> e : edges) {
 					String branchType;
 					switch (e.getEdgeType()) {

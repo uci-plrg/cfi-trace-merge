@@ -291,20 +291,11 @@ public class AnalysisUtil {
 			if (leftNode.getHash() != rightNode.getHash()) {
 				// replace the right node with a copy having the left node's hash
 				right.getGraphData().nodesByKey.put(rightNode.getKey(),
-						new ExecutionNode(rightNode.getContainingGraph(),
-								rightNode.getModule(), rightNode.getType(),
-								rightNode.getTag(), rightNode.getTagVersion(),
-								leftNode.getHash()));
+						rightNode.changeHashCode(leftNode.getHash()));
 				modificationCnt++;
 				if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
-					pw.print("tag1: 0x" + Long.toHexString(leftNode.getTag()));
-					pw.println("\t" + leftNode.getModule().unit.name + "\t0x"
-							+ Long.toHexString(leftNode.getRelativeTag()));
-
-					pw.print("tag2: 0x" + Long.toHexString(rightNode.getTag()));
-					pw.println("\t" + rightNode.getModule().unit.name + "\t0x"
-							+ Long.toHexString(rightNode.getRelativeTag()));
-					pw.println();
+					pw.println("leftNode: " + leftNode);
+					pw.println("rightNode: " + rightNode);
 				}
 			}
 		}

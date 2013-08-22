@@ -6,9 +6,11 @@ public class SoftwareDistributionUnit {
 			"__unknown__");
 
 	public final String name;
+	public final String filename;
 
 	SoftwareDistributionUnit(String name) {
 		this.name = name;
+		filename = name.substring(0, name.lastIndexOf('-'));
 	}
 
 	@Override
