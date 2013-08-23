@@ -159,11 +159,13 @@ public class GraphMergeSession {
 
 			if (args.length > 2) {
 				try {
-					Log.addOutput(LogFile.create(args[2],
+					File logFile = LogFile.create(args[2],
 							LogFile.CollisionMode.AVOID,
-							LogFile.NoSuchPathMode.ERROR));
+							LogFile.NoSuchPathMode.ERROR);
+					Log.addOutput(logFile);
+					System.out.println("Logging to " + logFile.getName());
 				} catch (LogFile.Exception e) {
-					Log.log(e);
+					e.printStackTrace(System.err);
 				}
 			}
 

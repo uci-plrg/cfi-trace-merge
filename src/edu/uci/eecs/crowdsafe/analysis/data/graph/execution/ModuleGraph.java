@@ -26,6 +26,8 @@ public class ModuleGraph {
 
 	protected final ProcessExecutionGraph containingGraph;
 
+	private int blockCount = 0;
+
 	public ModuleGraph(ProcessExecutionGraph containingGraph,
 			SoftwareDistributionUnit softwareUnit) {
 		this.containingGraph = containingGraph;
@@ -34,6 +36,14 @@ public class ModuleGraph {
 
 	public ProcessExecutionGraph getContainingGraph() {
 		return containingGraph;
+	}
+
+	void incrementBlockCount() {
+		blockCount++;
+	}
+
+	public int getBlockCount() {
+		return blockCount;
 	}
 
 	/**

@@ -137,7 +137,7 @@ public class ProcessGraphLoadSession {
 					moduleGraph = new ModuleGraph(graph, module.unit);
 					moduleCluster.addModule(moduleGraph);
 				}
-				moduleCluster.addModuleNode(node);
+				moduleCluster.addNode(node);
 				hashLookupTable.put(newKey, node);
 				graph.addBlockHash(hashLookupTable.get(newKey).getHash());
 			}

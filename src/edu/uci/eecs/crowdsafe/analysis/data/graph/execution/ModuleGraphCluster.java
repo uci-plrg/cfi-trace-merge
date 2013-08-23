@@ -58,6 +58,10 @@ public class ModuleGraphCluster {
 	public void addNode(ExecutionNode node) {
 		graphData.nodesByHash.add(node);
 		graphData.nodesByKey.put(node.getKey(), node);
+
+		if ((node.getType() != MetaNodeType.CLUSTER_ENTRY)
+				&& (node.getType() != MetaNodeType.CLUSTER_EXIT))
+			graphs.get(node.getModule().unit).incrementBlockCount();
 	}
 
 	// Add the signature node to the graph
@@ -72,25 +76,6 @@ public class ModuleGraphCluster {
 			graphData.nodesByKey.put(entryNode.getKey(), entryNode);
 		}
 		return entryNode;
-	}
-
-	/**
-	 * Node n is assumed to be a node in this module. When calling this function, check this property first.
-	 * 
-	 * The edges are added in the node outside this function. Cross-module edges are not seen in any ExecutionGraph. For
-	 * cross-module edges, it assumes that the indirect edge between the signature node to the real entry node has
-	 * already been established.
-	 * 
-	 * @param node
-	 */
-	public void addModuleNode(ExecutionNode node) {
-		MetaNodeType type = node.getType();
-		if (type == MetaNodeType.MODULE_BOUNDARY) {
-			// addModuleBoundaryNode(n); // TODO: do we need module boundary nodes?
-		} else {
-			graphData.nodesByHash.add(node);
-			graphData.nodesByKey.put(node.getKey(), node);
-		}
 	}
 
 	public Set<ExecutionNode> searchAccessibleNodes() {

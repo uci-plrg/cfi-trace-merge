@@ -36,8 +36,6 @@ public class CrowdSafeAnalysisConfiguration {
 			throw new IllegalStateException(String.format(
 					"The configured %s cannot be found: %s",
 					CROWD_SAFE_MERGE_DIR, homeDir));
-
-		Log.addOutput(System.out);
 	}
 
 	public File getAnalysisHome() {

@@ -42,9 +42,6 @@ public class ModuleInstance implements Comparable<ModuleInstance> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ (int) (blockTimestamp ^ (blockTimestamp >>> 32));
-		result = prime * result + (int) (start ^ (start >>> 32));
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
 		return result;
 	}
@@ -58,10 +55,6 @@ public class ModuleInstance implements Comparable<ModuleInstance> {
 		if (getClass() != obj.getClass())
 			return false;
 		ModuleInstance other = (ModuleInstance) obj;
-		if (blockTimestamp != other.blockTimestamp)
-			return false;
-		if (start != other.start)
-			return false;
 		if (unit == null) {
 			if (other.unit != null)
 				return false;
