@@ -24,10 +24,16 @@ public class ExecutionGraphData {
 			return null; // no way to find it across versions
 
 		SoftwareDistributionUnit foreignUnit = foreignNode.getModule().unit;
-		ModuleInstance localModule = containingGraph.getModules().getModule(
-				foreignUnit);
-		long localTag = localModule.start + foreignNode.getRelativeTag();
-		return nodesByKey.get(new ExecutionNode.Key(localTag, 0, localModule));
+		Iterable<ModuleInstance> localModules = containingGraph.getModules()
+				.getModule(foreignUnit);
+		for (ModuleInstance localModule : localModules) {
+			long localTag = localModule.start + foreignNode.getRelativeTag();
+			ExecutionNode node = nodesByKey.get(ExecutionNode.Key.create(
+					localTag, 0, localModule));
+			if (node != null)
+				return node;
+		}
+		return null;
 	}
 
 	/**

@@ -533,7 +533,9 @@ public class GraphMergeEngine {
 					// same ordinal 0
 					continue;
 				} else {
-					if (leftEdge.getToNode().getHash() != rightToNode.getHash()) {
+					if ((leftEdge.getEdgeType() != EdgeType.CROSS_MODULE)
+							&& (leftEdge.getToNode().getHash() != rightToNode
+									.getHash())) {
 						if (leftEdge.getEdgeType() == EdgeType.DIRECT) {
 							Log.log("Direct branch has different targets, "
 									+ "but it may be caused by code re-writing!");
@@ -552,10 +554,15 @@ public class GraphMergeEngine {
 						Log.log("Code re-written!");
 						hasConflict = true;
 					} else {
-						if (leftEdge.getEdgeType() == EdgeType.DIRECT) {
-							session.graphMergingInfo.directMatch();
-						} else {
-							session.graphMergingInfo.callContinuationMatch();
+						switch (leftEdge.getEdgeType()) {
+							case DIRECT:
+								session.graphMergingInfo.directMatch();
+								break;
+							case CALL_CONTINUATION:
+								session.graphMergingInfo
+										.callContinuationMatch();
+								break;
+							default: // TODO
 						}
 
 						if ((score = getContextSimilarity(leftEdge.getToNode(),
@@ -1027,9 +1034,7 @@ public class GraphMergeEngine {
 	 */
 	public MergedClusterGraph mergeGraph() throws WrongEdgeTypeException {
 		// Set up the initial status before actually matching
-		if (!session.initializeMerge()) {
-			return null;
-		}
+		session.initializeMerge();
 
 		// In the OUTPUT_SCORE debug mode, initialize the PrintWriter for this
 		// merging process
@@ -1073,98 +1078,109 @@ public class GraphMergeEngine {
 					// Find out the next matched node
 					// Prioritize direct edge and call continuation edge
 					Node leftChild;
-					if ((rightEdge.getEdgeType() == EdgeType.DIRECT || rightEdge
-							.getEdgeType() == EdgeType.CALL_CONTINUATION)) {
-						session.graphMergingInfo.tryDirectMatch();
+					switch (rightEdge.getEdgeType()) {
+						case DIRECT:
+						case CALL_CONTINUATION:
+//						case CROSS_MODULE:
+							session.graphMergingInfo.tryDirectMatch();
 
-						leftChild = getCorrespondingDirectChildNode(leftNode,
-								rightEdge);
+							leftChild = getCorrespondingDirectChildNode(
+									leftNode, rightEdge);
 
-						if (leftChild != null) {
-							session.matchedQueue.add(new PairNode(leftChild,
-									rightEdge.getToNode(), pairNode.level + 1));
+							if (leftChild != null) {
+								session.matchedQueue.add(new PairNode(
+										leftChild, rightEdge.getToNode(),
+										pairNode.level + 1));
 
-							// Update matched relationship
-							if (!session.matchedNodes.hasPair(leftChild
-									.getKey(), rightEdge.getToNode().getKey())) {
-								if (!session.matchedNodes.addPair(leftChild
+								// Update matched relationship
+								if (!session.matchedNodes.hasPair(leftChild
 										.getKey(), rightEdge.getToNode()
-										.getKey(), session.getScore(leftChild))) {
-									Log.log("In execution "
-											+ session.left.getProcessId()
-											+ " & "
-											+ session.right.getProcessId());
-									Log.log("Node "
-											+ leftChild.getKey()
-											+ " of the left graph is already matched!");
-									Log.log("Node pair need to be matched: "
-											+ leftChild.getKey() + "<->"
-											+ rightEdge.getToNode().getKey());
-									Log.log("Prematched nodes: "
-											+ leftChild.getKey()
-											+ "<->"
-											+ session.matchedNodes
-													.getMatchByLeftKey(leftChild
-															.getKey()));
-									Log.log(session.matchedNodes
-											.getMatchByRightKey(rightEdge
-													.getToNode().getKey()));
-									hasConflict = true;
-									break;
-								}
+										.getKey())) {
+									if (!session.matchedNodes.addPair(
+											leftChild, rightEdge.getToNode(),
+											session.getScore(leftChild))) {
+										Log.log("In execution "
+												+ session.left.getProcessId()
+												+ " & "
+												+ session.right.getProcessId());
+										Log.log("Node "
+												+ leftChild.getKey()
+												+ " of the left graph is already matched!");
+										Log.log("Node pair need to be matched: "
+												+ leftChild.getKey()
+												+ "<->"
+												+ rightEdge.getToNode()
+														.getKey());
+										Log.log("Prematched nodes: "
+												+ leftChild.getKey()
+												+ "<->"
+												+ session.matchedNodes
+														.getMatchByLeftKey(leftChild
+																.getKey()));
+										Log.log(session.matchedNodes
+												.getMatchByRightKey(rightEdge
+														.getToNode().getKey()));
+										hasConflict = true;
+										break;
+									}
 
-								if (DebugUtils.debug) {
-									MatchingType matchType = rightEdge
-											.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
-											: MatchingType.CallingContinuation;
-									DebugUtils.debug_matchingTrace
-											.addInstance(new MatchingInstance(
-													pairNode.level, leftChild
-															.getKey(),
-													rightEdge.getToNode()
-															.getKey(),
-													matchType, rightNode
-															.getKey()));
-								}
+									if (DebugUtils.debug) {
+										MatchingType matchType = rightEdge
+												.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
+												: MatchingType.CallingContinuation;
+										DebugUtils.debug_matchingTrace
+												.addInstance(new MatchingInstance(
+														pairNode.level,
+														leftChild.getKey(),
+														rightEdge.getToNode()
+																.getKey(),
+														matchType, rightNode
+																.getKey()));
+									}
 
+									if (DebugUtils
+											.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
+										// Print out indirect nodes that can be
+										// matched
+										// by direct edges. However, they might also
+										// indirectly
+										// decided by the heuristic
+										MatchingType matchType = rightEdge
+												.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
+												: MatchingType.CallingContinuation;
+										Log.log(matchType
+												+ ": "
+												+ leftChild.getKey()
+												+ "<->"
+												+ rightEdge.getToNode()
+														.getKey() + "(by "
+												+ leftNode.getKey() + "<->"
+												+ rightNode.getKey() + ")");
+									}
+
+								}
+							} else {
 								if (DebugUtils
-										.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
-									// Print out indirect nodes that can be
-									// matched
-									// by direct edges. However, they might also
-									// indirectly
-									// decided by the heuristic
-									MatchingType matchType = rightEdge
-											.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
-											: MatchingType.CallingContinuation;
-									Log.log(matchType + ": "
-											+ leftChild.getKey() + "<->"
-											+ rightEdge.getToNode().getKey()
-											+ "(by " + leftNode.getKey()
-											+ "<->" + rightNode.getKey() + ")");
+										.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+									DebugUtils.debug_directUnmatchedCnt++;
 								}
 
+								// Should mark that this node should never be
+								// matched when
+								// it is popped out of the session.unmatchedQueue
+								addUnmatchedNode2Queue(rightEdge.getToNode(),
+										pairNode.level + 1);
 							}
-						} else {
-							if (DebugUtils
-									.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-								DebugUtils.debug_directUnmatchedCnt++;
+							break;
+						default:
+							// Add the indirect node to the queue
+							// to delay its matching
+							if (!session.matchedNodes
+									.containsRightKey(rightEdge.getToNode()
+											.getKey())) {
+								session.indirectChildren.add(new PairNodeEdge(
+										leftNode, rightEdge, rightNode));
 							}
-
-							// Should mark that this node should never be
-							// matched when
-							// it is popped out of the session.unmatchedQueue
-							addUnmatchedNode2Queue(rightEdge.getToNode(),
-									pairNode.level + 1);
-						}
-					} else {
-						// Add the indirect node to the queue
-						// to delay its matching
-						if (!session.matchedNodes.containsRightKey(rightEdge
-								.getToNode().getKey())) {
-							session.indirectChildren.add(new PairNodeEdge(
-									leftNode, rightEdge, rightNode));
-						}
 					}
 				}
 			} else if (session.indirectChildren.size() != 0) {
@@ -1182,8 +1198,8 @@ public class GraphMergeEngine {
 					// Update matched relationship
 					if (!session.matchedNodes.hasPair(leftChild.getKey(),
 							rightEdge.getToNode().getKey())) {
-						if (!session.matchedNodes.addPair(leftChild.getKey(),
-								rightEdge.getToNode().getKey(),
+						if (!session.matchedNodes.addPair(leftChild,
+								rightEdge.getToNode(),
 								session.getScore(leftChild))) {
 							Log.log("Node " + leftChild.getKey()
 									+ " of the left graph is already matched!");

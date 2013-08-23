@@ -41,11 +41,14 @@ public class MatchedNodes {
 		return matchedNodesLeftRight.get(leftKey) == rightKey;
 	}
 
-	public boolean addPair(Node.Key leftKey, Node.Key rightKey, int score) {
+	public boolean addPair(Node left, Node right, int score) {
+		Node.Key leftKey = left.getKey();
+		Node.Key rightKey = right.getKey();
 		if (hasPair(leftKey, rightKey))
 			return true;
-		if (matchedNodesLeftRight.containsKey(leftKey)
-				|| matchedNodesLeftRight.containsValue(rightKey)) {
+		if ((matchedNodesLeftRight.containsKey(leftKey) || matchedNodesLeftRight
+				.containsValue(rightKey))
+				&& !(left.isMetaNode() && right.isMetaNode())) {
 			return false;
 		}
 		matchedNodesLeftRight.put(leftKey, rightKey);

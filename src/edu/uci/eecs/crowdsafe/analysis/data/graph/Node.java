@@ -19,6 +19,10 @@ public abstract class Node implements NodeList {
 
 	public abstract List<? extends Edge<? extends Node>> getOutgoingEdges();
 
+	public boolean isMetaNode() {
+		return getType() != MetaNodeType.NORMAL;
+	}
+
 	@Override
 	public Node get(int index) {
 		return this;

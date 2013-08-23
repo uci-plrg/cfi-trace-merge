@@ -4,7 +4,7 @@ import edu.uci.eecs.crowdsafe.analysis.data.dist.SoftwareDistributionUnit;
 
 public class ModuleInstance implements Comparable<ModuleInstance> {
 	public static ModuleInstance UNKNOWN = new ModuleInstance(
-			SoftwareDistributionUnit.UNKNOWN, 0L, 0L, 0L, 0L, 0L);
+			SoftwareDistributionUnit.UNKNOWN, 0L, Long.MAX_VALUE, 0L, 0L, 0L);
 
 	public final SoftwareDistributionUnit unit;
 	public final long start;
@@ -13,8 +13,8 @@ public class ModuleInstance implements Comparable<ModuleInstance> {
 	public final long edgeTimestamp;
 	public final long crossModuleEdgeTimestamp;
 
-	public ModuleInstance(SoftwareDistributionUnit unit, long start,
-			long end, long blockTimestamp, long edgeTimestamp,
+	public ModuleInstance(SoftwareDistributionUnit unit, long start, long end,
+			long blockTimestamp, long edgeTimestamp,
 			long crossModuleEdgeTimestamp) {
 		this.unit = unit;
 		this.start = start;
@@ -23,7 +23,7 @@ public class ModuleInstance implements Comparable<ModuleInstance> {
 		this.edgeTimestamp = edgeTimestamp;
 		this.crossModuleEdgeTimestamp = crossModuleEdgeTimestamp;
 	}
-	
+
 	public boolean containsTag(long tag) {
 		return ((tag >= start) && (tag <= end));
 	}
@@ -71,7 +71,6 @@ public class ModuleInstance implements Comparable<ModuleInstance> {
 	}
 
 	public String toString() {
-		return unit.name + ": 0x" + Long.toHexString(start) + " - 0x"
-				+ Long.toHexString(end);
+		return String.format("%s: 0x%x - 0x%x", unit.name, start, end);
 	}
 }

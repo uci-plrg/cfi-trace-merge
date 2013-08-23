@@ -7,6 +7,7 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
+import edu.uci.eecs.crowdsafe.analysis.exception.graph.InvalidGraphException;
 
 /**
  * This is
@@ -17,16 +18,29 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 public class ExecutionNode extends Node {
 
 	public static class Key implements Node.Key {
+		public static Key create(long tag, int tagVersion, ModuleInstance module) {
+			return new Key(tag - module.start, tagVersion, module,
+					MetaNodeType.NORMAL);
+		}
+
 		public final long relativeTag;
 
 		public final int version;
 
 		public final ModuleInstance module;
 
-		public Key(long tag, int tagVersion, ModuleInstance module) {
-			this.relativeTag = (tag - module.start);
+		private Key(long relativeTag, int tagVersion, ModuleInstance module,
+				MetaNodeType type) {
+			this.relativeTag = relativeTag;
 			this.version = tagVersion;
 			this.module = module;
+
+			if ((type == MetaNodeType.NORMAL)
+					&& ((relativeTag < 0L) || (relativeTag > (module.end - module.start)))) {
+				throw new InvalidGraphException(
+						"Relative tag 0x%x is outside the module's relative bounds [0-%d]",
+						relativeTag, (module.end - module.start));
+			}
 		}
 
 		@Override
@@ -61,6 +75,12 @@ public class ExecutionNode extends Node {
 				return false;
 			return true;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("%s(0x%x-v%d)", module.unit.filename,
+					relativeTag, version);
+		}
 	}
 
 	private final Key key;
@@ -75,7 +95,16 @@ public class ExecutionNode extends Node {
 
 	public ExecutionNode(ModuleInstance module, MetaNodeType metaNodeType,
 			long tag, int tagVersion, long hash) {
-		this.key = new Key(tag, tagVersion, module);
+		Key key;
+		switch (metaNodeType) {
+			case CLUSTER_ENTRY:
+			case CLUSTER_EXIT:
+				key = new Key(hash, 0, module, metaNodeType);
+				break;
+			default:
+				key = Key.create(tag, tagVersion, module);
+		}
+		this.key = key;
 		this.metaNodeType = metaNodeType;
 		this.hash = hash;
 	}
@@ -96,8 +125,7 @@ public class ExecutionNode extends Node {
 			case CLUSTER_EXIT:
 				return String.format("ClusterExit(0x%x)", hash);
 			default:
-				return String.format("%s(0x%x-v%d)", key.module.unit.filename,
-						key.relativeTag, key.version);
+				return key.toString();
 		}
 	}
 
@@ -113,6 +141,11 @@ public class ExecutionNode extends Node {
 		return key.module;
 	}
 
+	public ExecutionNode changeHashCode(long newHash) {
+		return new ExecutionNode(key.module, metaNodeType, key.module.start
+				+ key.relativeTag, key.version, newHash);
+	}
+
 	public void addIncomingEdge(Edge<ExecutionNode> e) {
 		incomingEdges.add(e);
 	}
@@ -121,13 +154,7 @@ public class ExecutionNode extends Node {
 		return incomingEdges;
 	}
 
-	public ExecutionNode changeHashCode(long newHash) {
-		return new ExecutionNode(key.module, metaNodeType, key.module.start
-				+ key.relativeTag, key.version, newHash);
-	}
-
 	/**
-	 * 
 	 * @return null for non-call node, edge for the first block of the calling procedure
 	 */
 	public Edge<ExecutionNode> getContinuationEdge() {
@@ -172,7 +199,7 @@ public class ExecutionNode extends Node {
 	public long getHash() {
 		return hash;
 	}
-
+	
 	/**
 	 * In a single execution, tag combined with the version number is the only identifier for the normal nodes. This is
 	 * particularly used in the initialization of the graph, where hashtables are needed.
@@ -196,10 +223,11 @@ public class ExecutionNode extends Node {
 	}
 
 	public int hashCode() {
-		if (metaNodeType == MetaNodeType.CLUSTER_ENTRY) {
-			return ((Long) hash).hashCode();
-		}
-		return key.hashCode() << 5 ^ new Long(hash).hashCode();
+		// if (metaNodeType == MetaNodeType.CLUSTER_ENTRY) {
+		// return ((Long) hash).hashCode();
+		// }
+		// return key.hashCode() << 5 ^ new Long(hash).hashCode();
+		return key.hashCode();
 	}
 
 	public String toString() {

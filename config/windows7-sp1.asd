@@ -1,6 +1,7 @@
 aaclient.dll
 accessibilitycpl.dll
 ACCTRES.dll
+aclayers.dll
 acledit.dll
 aclui.dll
 acppage.dll

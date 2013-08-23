@@ -515,11 +515,12 @@ public class AnalysisUtil {
 	}
 
 	// get the lower 6 byte of the tag, which is a long integer
-	public static ExecutionNode.Key getNodeKey(long annotatedTag,
-			ModuleInstance module) {
-		long tag = annotatedTag << 24 >>> 24;
-		int version = (new Long(annotatedTag >>> 56)).intValue();
-		return new ExecutionNode.Key(tag, version, module);
+	public static long getTag(long annotatedTag) {
+		return annotatedTag << 24 >>> 24;
+	}
+
+	public static int getTagVersion(long annotatedTag) {
+		return (new Long(annotatedTag >>> 56)).intValue();
 	}
 
 	public static boolean isTailNode(Node node) {

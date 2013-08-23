@@ -10,7 +10,12 @@ public class SoftwareDistributionUnit {
 
 	SoftwareDistributionUnit(String name) {
 		this.name = name;
-		filename = name.substring(0, name.lastIndexOf('-'));
+
+		int lastDash = name.lastIndexOf('-');
+		if (lastDash < 0)
+			filename = name;
+		else
+			filename = name.substring(0, lastDash);
 	}
 
 	@Override

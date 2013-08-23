@@ -13,7 +13,9 @@ import edu.uci.eecs.crowdsafe.analysis.data.graph.Node;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessGraphDataLoader;
+import edu.uci.eecs.crowdsafe.analysis.data.graph.execution.ProcessGraphLoadSession;
+import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDataSource;
+import edu.uci.eecs.crowdsafe.analysis.datasource.ProcessTraceDirectory;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.analysis.merge.graph.debug.MatchingType;
@@ -65,7 +67,7 @@ public class GraphMergeSession {
 		graphMergingInfo = new GraphMergeStatistics(this);
 	}
 
-	public boolean initializeMerge() {
+	public void initializeMerge() {
 		right.visitedNodes.clear();
 		matchedNodes.clear();
 		matchedQueue.clear();
@@ -91,7 +93,7 @@ public class GraphMergeSession {
 
 				PairNode pairNode = new PairNode(leftNode, rightNode, 0);
 				matchedQueue.add(pairNode);
-				matchedNodes.addPair(leftNode.getKey(), rightNode.getKey(), 0);
+				matchedNodes.addPair(leftNode, rightNode, 0);
 
 				graphMergingInfo.directMatch();
 
@@ -114,7 +116,6 @@ public class GraphMergeSession {
 				engine.addUnmatchedNode2Queue(n2, -1);
 			}
 		}
-		return true;
 	}
 
 	void setScore(Node leftNode, int score) {
@@ -166,14 +167,30 @@ public class GraphMergeSession {
 				}
 			}
 
-			Log.log("### --------------- ###");
-			ProcessExecutionGraph left = ProcessGraphDataLoader
-					.loadProcessGraph(leftRun);
-			ProcessExecutionGraph right = ProcessGraphDataLoader
-					.loadProcessGraph(rightRun);
+			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(
+					leftRun);
+			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(
+					rightRun);
+			Log.log("### ------- Merge %s(%d) with %s(%d) -------- ###",
+					leftDataSource.getProcessName(),
+					leftDataSource.getProcessId(),
+					rightDataSource.getProcessName(),
+					rightDataSource.getProcessId());
 
-			for (ModuleGraphCluster leftCluster : left.getAutonomousClusters()) {
-				ModuleGraphCluster rightCluster = right
+			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(
+					leftDataSource);
+			ProcessExecutionGraph leftGraph = leftSession.loadGraph();
+
+			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(
+					rightDataSource);
+			ProcessExecutionGraph rightGraph = rightSession.loadGraph();
+
+			for (ModuleGraphCluster leftCluster : leftGraph
+					.getAutonomousClusters()) {
+				Log.log("\n  === Merging cluster %s ===",
+						leftCluster.distribution.name);
+
+				ModuleGraphCluster rightCluster = rightGraph
 						.getModuleGraphCluster(leftCluster.distribution);
 
 				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {

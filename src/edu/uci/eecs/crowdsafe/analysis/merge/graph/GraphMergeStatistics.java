@@ -136,62 +136,39 @@ public class GraphMergeStatistics {
 		totalNodeSize = session.left.cluster.getGraphData().nodesByKey.size()
 				+ session.right.cluster.getGraphData().nodesByKey.size()
 				- session.matchedNodes.size();
-		Log.log("Comparison between "
-				+ session.left.cluster.getGraphData().containingGraph.dataSource
-						.getProcessName()
-				+ session.left.cluster.getGraphData().containingGraph.dataSource
-						.getProcessId()
-				+ " & "
-				+ session.right.cluster.getGraphData().containingGraph.dataSource
-						.getProcessName()
-				+ session.right.cluster.getGraphData().containingGraph.dataSource
-						.getProcessId() + ":");
-		// TODO: print a comparison header
-		// Log.log(AnalysisUtil.getRunStr(graph1.getRunDir())
-		// + " & " + AnalysisUtil.getRunStr(graph2.getRunDir()));
-		Log.log("Total block hashes of the whole graph1: "
-				+ session.left.cluster.getGraphData().nodesByHash.keySet()
-						.size());
-		Log.log("Total block hashes of the whole graph2: "
-				+ session.right.cluster.getGraphData().nodesByHash.keySet()
-						.size());
+		Log.log("Block hash count on the left: %d",
+				session.left.cluster.getGraphData().nodesByHash.keySet().size());
+		Log.log("Block hash count on the right: %d", session.right.cluster
+				.getGraphData().nodesByHash.keySet().size());
 		Set<Long> totalBlockSet = AnalysisUtil.intersection(
 				session.left.cluster.getGraphData().nodesByHash.keySet(),
 				session.right.cluster.getGraphData().nodesByHash.keySet());
-		Log.log("Total block hashes: " + totalBlockSet.size());
+		Log.log("Block hash count in the merged graph: %d",
+				totalBlockSet.size());
 
-		Log.log("Size of nodes in graph1: "
-				+ session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Size of nodes in graph2: "
-				+ session.right.cluster.getGraphData().nodesByKey.size());
+		Log.log("Nodes on the left: %d",
+				session.left.cluster.getGraphData().nodesByKey.size());
+		Log.log("Nodes on the right: %d",
+				session.right.cluster.getGraphData().nodesByKey.size());
+		Log.log("Nodes in the merged graph: %d", totalNodeSize);
 
-		Log.log("Intersection ratio of block hashes: "
-				+ setInterRate
-				+ "  "
-				+ session.left.cluster.getGraphData().nodesByHash.keySet()
-						.size()
-				+ ","
-				+ session.right.cluster.getGraphData().nodesByHash.keySet()
-						.size() + ":" + interHashSize + "/" + totalHashSize);
-		Log.log("Graph1 nodes: "
-				+ session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Graph2 nodes: "
-				+ session.right.cluster.getGraphData().nodesByKey.size());
-		Log.log("Total nodes: " + totalNodeSize);
+		Log.log("Intersecting nodes: %d; ratio of block hashes: %f %d,%d:%d/%d",
+				session.matchedNodes.size(), setInterRate, session.left.cluster
+						.getGraphData().nodesByHash.keySet().size(),
+				session.right.cluster.getGraphData().nodesByHash.keySet()
+						.size(), interHashSize, totalHashSize);
 
-		Log.log("Merged nodes / G1 nodes: "
-				+ (float) session.matchedNodes.size()
+		Log.log("Intersection/left: %f", (float) session.matchedNodes.size()
 				/ session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Merged nodes / G2 nodes: "
-				+ (float) session.matchedNodes.size()
+		Log.log("Intersection/right: %f", (float) session.matchedNodes.size()
 				/ session.right.cluster.getGraphData().nodesByKey.size());
 		float nodeInterRate = (float) session.matchedNodes.size()
 				/ totalNodeSize;
-		Log.log("Merged nodes / all nodes: " + nodeInterRate);
+		Log.log("Intersection/union: %f", nodeInterRate);
 
-		Log.log("Indirect edge matched: " + indirectEdgeMatchCnt);
-		Log.log("Pure Heuristic match: " + pureHeuristicMatchCnt);
-		Log.log("CallContinuation Match: " + callContinuationMatchCnt);
+		Log.log("Indirect edge matched: %d", indirectEdgeMatchCnt);
+		Log.log("Pure Heuristic match: %d", pureHeuristicMatchCnt);
+		Log.log("CallContinuation Match: %d", callContinuationMatchCnt);
 
 		Log.log();
 	}

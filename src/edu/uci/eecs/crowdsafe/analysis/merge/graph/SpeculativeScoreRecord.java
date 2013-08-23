@@ -73,25 +73,25 @@ public class SpeculativeScoreRecord {
 	public final Node leftNode, rightNode;
 
 	// The actual chosen leftNode
-	public final Node selectedLeftNode;
+	public final Node tagMappedLeftNode;
 
 	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
 			boolean isIndirectSpeculation, int matchingScore, Node leftNode,
-			Node rightNode, Node selectedLeftNode, MatchResult matchResult) {
+			Node rightNode, Node tagMappedLeftNode, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 		this.matchingScore = matchingScore;
 		this.leftNode = leftNode;
 		this.rightNode = rightNode;
-		this.selectedLeftNode = selectedLeftNode;
+		this.tagMappedLeftNode = tagMappedLeftNode;
 		this.matchResult = matchResult;
 	}
 
 	public String toString() {
 		String leftNodeKeyStr = leftNode == null ? "null" : leftNode.getKey()
 				.toString();
-		String selectedleftNodeKeyStr = selectedLeftNode == null ? "null"
-				: selectedLeftNode.getKey().toString();
+		String selectedleftNodeKeyStr = tagMappedLeftNode == null ? "null"
+				: tagMappedLeftNode.getKey().toString();
 
 		if (isIndirectSpeculation) {
 			return "Indirect: " + speculativeScoreType + " -- ("
