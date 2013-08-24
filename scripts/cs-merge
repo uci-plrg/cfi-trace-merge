@@ -1,5 +1,38 @@
 #!/bin/bash
 
-java -cp $CROWD_SAFE_MERGE_DIR/bin:$CROWD_SAFE_MERGE_DIR/lib/guava-14.0.1.jar:$CROWD_SAFE_UTIL_DIR/bin \
-  edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergeSession $1 $2 $3
+function append_classpath() {
+  project=$1
+  
+  if [ -z $$project ]; then
+    echo "Environment variable $project is required."
+    exit
+  fi
+  
+  project_path=${!project}
+  
+  if [ ! -e $project_path ]; then
+    echo "The path of $project could not be found: $project_path"
+    exit
+  fi
+  
+  #echo "Appending classpath for $project: "$project_path
+  
+  cp=$cp:$project_path/bin
+  
+  if [ -e $project_path/lib ]; then
+    for j in `find $project_path/lib -name '*.jar'`; do 
+      cp=$cp:$j
+    done
+  fi
+}
+
+
+append_classpath "CROWD_SAFE_MERGE_DIR"
+append_classpath "CROWD_SAFE_COMMON_DIR"
+
+#echo "classpath: $cp"
+
+main_class="edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergeSession"
+
+java -cp $cp $main_class $1 $2 $3
   
