@@ -154,7 +154,7 @@ public class SpeculativeScoreList {
 							if (DebugUtils.debug) {
 								session.comparedNodes.clear();
 							}
-							int score = session.engine
+							int score = session.engine.matcher
 									.debug_getContextSimilarity(trueNode1,
 											node2, depth);
 							// Log.log("Score: " + score + " -- "

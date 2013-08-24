@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeEngine;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMatchEngine;
 
 public class DebugUtils {
 	// Some options about whether to throw graph exception or tolerate minor
@@ -129,7 +129,7 @@ public class DebugUtils {
 	public static MatchingTrace debug_matchingTrace;
 	public static ContextSimilarityTrace debug_contextSimilarityTrace;
 
-	public static int searchDepth = GraphMergeEngine.pureSearchDepth;
+	public static int searchDepth = GraphMatchEngine.PURE_SEARCH_DEPTH;
 
 	public static void debug_init() {
 		debug_pureHeuristicCnt = 0;

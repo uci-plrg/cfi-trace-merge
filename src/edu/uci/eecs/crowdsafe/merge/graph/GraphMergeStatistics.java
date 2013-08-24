@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.common.CrowdSafeTraceUtil;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
@@ -15,6 +16,9 @@ import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
+import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 
 public class GraphMergeStatistics {
@@ -315,5 +319,104 @@ public class GraphMergeStatistics {
 
 	public float getSetInterRate() {
 		return setInterRate;
+	}
+	
+	void collectScoreRecord(List<Node> leftCandidates, Node rightNode,
+			boolean isIndirect) {
+		int maxScore = -1, maxScoreCnt = 0;
+		Node maxNode = null;
+		for (int i = 0; i < leftCandidates.size(); i++) {
+			int candidateScore = session.getScore(leftCandidates.get(i));
+			if (candidateScore > maxScore && candidateScore != 0) {
+				maxNode = leftCandidates.get(i);
+				maxScore = candidateScore;
+				maxScoreCnt = 1;
+			} else if (candidateScore == maxScore) {
+				maxScoreCnt++;
+			}
+		}
+		if (maxScoreCnt > 1) {
+			maxNode = null;
+		}
+
+		MatchResult matchResult = AnalysisUtil.getMatchResult(
+				session.left.cluster, session.right.cluster, maxNode,
+				(ExecutionNode) rightNode, isIndirect);
+		Node trueLeftNode = session.left.cluster.getGraphData()
+				.HACK_relativeTagLookup((ExecutionNode) rightNode);
+		if (maxNode == null) {
+			if (matchResult == MatchResult.IndirectExistingUnfoundMismatch
+					|| matchResult == MatchResult.PureHeuristicsExistingUnfoundMismatch) {
+				session.speculativeScoreList.add(new SpeculativeScoreRecord(
+						SpeculativeScoreType.NoMatch, isIndirect, -1,
+						trueLeftNode, rightNode, null, matchResult));
+			} else {
+				session.speculativeScoreList.add(new SpeculativeScoreRecord(
+						SpeculativeScoreType.NoMatch, isIndirect, -1, null,
+						rightNode, null, matchResult));
+			}
+			return;
+		}
+
+		// Count the different cases for different
+		// speculative matching cases
+		boolean allLowScore = true;
+		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+			for (int i = 0; i < leftCandidates.size(); i++) {
+				int candidateScore = session.getScore(leftCandidates.get(i));
+				if (candidateScore >= SpeculativeScoreRecord.LowScore) {
+					allLowScore = false;
+				}
+			}
+
+			if (allLowScore) {
+				// Need to figure out what leads the low score
+				// Easier to find if it is the tail case
+				if (CrowdSafeTraceUtil.isTailNode(rightNode)) {
+					session.speculativeScoreList
+							.add(new SpeculativeScoreRecord(
+									SpeculativeScoreType.LowScoreTail,
+									isIndirect, maxScore, trueLeftNode,
+									rightNode, maxNode, matchResult));
+				} else {
+					session.speculativeScoreList
+							.add(new SpeculativeScoreRecord(
+									SpeculativeScoreType.LowScoreDivergence,
+									isIndirect, maxScore, trueLeftNode,
+									rightNode, maxNode, matchResult));
+				}
+			} else {
+				if (leftCandidates.size() == 1) {
+					if (((ExecutionNode) rightNode).getRelativeTag() == ((ExecutionNode) maxNode)
+							.getRelativeTag()) {
+						session.speculativeScoreList
+								.add(new SpeculativeScoreRecord(
+										SpeculativeScoreType.OneMatchTrue,
+										isIndirect, maxScore, trueLeftNode,
+										rightNode, maxNode, matchResult));
+					} else {
+						session.speculativeScoreList
+								.add(new SpeculativeScoreRecord(
+										SpeculativeScoreType.OneMatchFalse,
+										isIndirect, maxScore, trueLeftNode,
+										rightNode, maxNode, matchResult));
+					}
+				} else {
+					if (maxScoreCnt <= 1) {
+						session.speculativeScoreList
+								.add(new SpeculativeScoreRecord(
+										SpeculativeScoreType.ManyMatchesCorrect,
+										isIndirect, maxScore, trueLeftNode,
+										rightNode, maxNode, matchResult));
+					} else {
+						session.speculativeScoreList
+								.add(new SpeculativeScoreRecord(
+										SpeculativeScoreType.ManyMatchesAmbiguity,
+										isIndirect, maxScore, trueLeftNode,
+										rightNode, maxNode, matchResult));
+					}
+				}
+			}
+		}
 	}
 }
