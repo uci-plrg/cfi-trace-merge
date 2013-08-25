@@ -2,10 +2,12 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,9 +53,7 @@ public class GraphMergeSession {
 	final SpeculativeScoreList speculativeScoreList = new SpeculativeScoreList(
 			this);
 
-	// In case of recursively compute the similarity of cyclic graph, record
-	// the compared nodes every time getContextSimilarity is called
-	Set<Node> comparedNodes = new HashSet<Node>();
+	final ContextMatchRecord contextRecord = new ContextMatchRecord();
 
 	private final Map<Node, Integer> scoresByLeftNode = new HashMap<Node, Integer>();
 
@@ -117,6 +117,14 @@ public class GraphMergeSession {
 				engine.addUnmatchedNode2Queue(n2, -1);
 			}
 		}
+	}
+
+	boolean acceptContext(Node candidate) {
+		int score = contextRecord.evaluate();
+		if (score < 0)
+			return false;
+		setScore(candidate, score);
+		return true;
 	}
 
 	void setScore(Node leftNode, int score) {
@@ -184,6 +192,8 @@ public class GraphMergeSession {
 					rightDataSource.getProcessName(),
 					rightDataSource.getProcessId());
 
+			long start = System.currentTimeMillis();
+
 			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(
 					leftDataSource);
 			ProcessExecutionGraph leftGraph = leftSession.loadGraph();
@@ -191,6 +201,9 @@ public class GraphMergeSession {
 			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(
 					rightDataSource);
 			ProcessExecutionGraph rightGraph = rightSession.loadGraph();
+
+			long merge = System.currentTimeMillis();
+			Log.log("\nGraph loaded in %f seconds.", ((merge - start) / 1000.));
 
 			for (ModuleGraphCluster leftCluster : leftGraph
 					.getAutonomousClusters()) {
@@ -214,6 +227,8 @@ public class GraphMergeSession {
 					e.printStackTrace();
 				}
 			}
+			Log.log("\nClusters merged in %f seconds.",
+					((System.currentTimeMillis() - merge) / 1000.));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

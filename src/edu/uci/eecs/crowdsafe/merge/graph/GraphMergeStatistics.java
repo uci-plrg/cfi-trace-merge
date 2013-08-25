@@ -272,7 +272,7 @@ public class GraphMergeStatistics {
 						case UNEXPECTED_RETURN:
 							branchType = "u";
 							break;
-						case CROSS_MODULE:
+						case MODULE_ENTRY:
 							branchType = "xk";
 							break;
 						case CROSS_CUSTOM_MODULE:
@@ -284,7 +284,7 @@ public class GraphMergeStatistics {
 					}
 					String edgeLabel = i + "->" + e.getToNode().getKey()
 							+ "[label=\"" + branchType + "_";
-					if (e.getEdgeType() == EdgeType.CROSS_MODULE) {
+					if (e.getEdgeType() == EdgeType.MODULE_ENTRY) {
 						edgeLabel = edgeLabel
 								+ e.getFromNode().getRelativeTag() + "->"
 								+ e.getToNode().getRelativeTag() + "\"]";

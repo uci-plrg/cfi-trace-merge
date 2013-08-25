@@ -1,28 +1,24 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.common.CrowdSafeTraceUtil;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
-import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.MatchResult;
-import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
 import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.data.MergedNode;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
-import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 
 /**
  * <p>
@@ -136,8 +132,8 @@ class GraphMergeEngine {
 
 		// Copy edges from left
 		// Traverse edges by outgoing edges
-		for (Node leftNode : session.left.cluster.getGraphData().nodesByKey
-				.values()) {
+		for (Node<? extends Node> leftNode : session.left.cluster
+				.getGraphData().nodesByKey.values()) {
 			for (Edge<? extends Node> leftEdge : leftNode.getOutgoingEdges()) {
 				MergedNode mergedFromNode = mergedGraph
 						.getNode(leftNode2MergedNode.get(leftNode).getKey());
@@ -180,7 +176,8 @@ class GraphMergeEngine {
 
 		// Merge edges from right
 		// Traverse edges in right by outgoing edges
-		for (Node rightFromNode : right.getGraphData().nodesByKey.values()) {
+		for (Node<? extends Node> rightFromNode : right.getGraphData().nodesByKey
+				.values()) {
 			// New fromNode and toNode in the merged graph
 			Edge<MergedNode> mergedEdge;
 			for (int j = 0; j < rightFromNode.getOutgoingEdges().size(); j++) {
@@ -335,15 +332,24 @@ class GraphMergeEngine {
 				pairNode = session.matchedQueue.remove();
 
 				// Nodes in the matchedQueue is already matched
-				Node leftNode = pairNode.getLeftNode();
-				Node rightNode = pairNode.getRightNode();
+				Node<? extends Node> leftNode = pairNode.getLeftNode();
+				Node<? extends Node> rightNode = pairNode.getRightNode();
 				if (session.right.visitedNodes.contains(rightNode))
 					continue;
 				session.right.visitedNodes.add(rightNode);
 
-				for (int k = 0; k < rightNode.getOutgoingEdges().size(); k++) {
-					Edge<? extends Node> rightEdge = rightNode
-							.getOutgoingEdges().get(k);
+				// TODO: yuk! How to handle the call continuation?
+				List<Edge<? extends Node>> rightEdges = new ArrayList<Edge<? extends Node>>();
+				for (Edge<? extends Node> rightEdge : rightNode
+						.getOutgoingEdges()) {
+					rightEdges.add(rightEdge);
+				}
+				if (rightNode.getCallContinuation() != null) {
+					rightEdges.add(rightNode.getCallContinuation());
+				}
+				// end yuk
+
+				for (Edge<? extends Node> rightEdge : rightEdges) {
 					if (session.right.visitedNodes.contains(rightEdge
 							.getToNode()))
 						continue;
@@ -356,11 +362,20 @@ class GraphMergeEngine {
 						case CALL_CONTINUATION:
 							session.graphMergingStats.tryDirectMatch();
 
+							if (rightEdge.getOrdinal() == 1
+									&& (rightEdge.getFromNode().getHash() == 0xc0900c1755584f4aL)
+									|| (rightEdge.getFromNode().getHash() == 0x108acd25cb5L))
+								System.out.println("wait!");
+
 							leftChild = matcher
 									.getCorrespondingDirectChildNode(leftNode,
 											rightEdge);
 
 							if (leftChild != null) {
+								if (session.matchedNodes
+										.containsLeftKey(leftChild.getKey()))
+									continue;
+
 								session.matchedQueue.add(new PairNode(
 										leftChild, rightEdge.getToNode(),
 										pairNode.level + 1));
@@ -511,7 +526,7 @@ class GraphMergeEngine {
 			} else {
 				// try to match unmatched nodes
 				pairNode = session.unmatchedQueue.remove();
-				Node rightNode = pairNode.getRightNode();
+				Node<? extends Node> rightNode = pairNode.getRightNode();
 				if (session.right.visitedNodes.contains(rightNode))
 					continue;
 

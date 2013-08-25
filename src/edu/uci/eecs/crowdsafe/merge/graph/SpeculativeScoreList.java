@@ -128,6 +128,8 @@ public class SpeculativeScoreList {
 		}
 		Log.log();
 
+		/**
+		 * <pre>
 		// Output overall number of incorrect matches and its detailed records
 		for (int i = 0; i < MatchResult.values().length; i++) {
 			MatchResult res = MatchResult.values()[i];
@@ -170,5 +172,6 @@ public class SpeculativeScoreList {
 				}
 			}
 		}
+		 */
 	}
 }

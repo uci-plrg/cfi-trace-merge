@@ -1,14 +1,12 @@
 package edu.uci.eecs.crowdsafe.merge.graph.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.common.data.graph.EdgeSet;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
-public class MergedNode extends Node {
+public class MergedNode extends Node<MergedNode> {
 	public static class Key implements Node.Key {
 		public final long hash;
 		public final int instanceId;
@@ -48,9 +46,9 @@ public class MergedNode extends Node {
 
 	private final MetaNodeType type;
 
-	private List<Edge<MergedNode>> outgoingEdges = new ArrayList<Edge<MergedNode>>();
+	private final EdgeSet<MergedNode> edges = new EdgeSet<MergedNode>();
 
-	private List<Edge<MergedNode>> incomingEdges = new ArrayList<Edge<MergedNode>>();
+	private Edge<MergedNode> continuationEdge;
 
 	MergedNode(long hash, int instanceId, MetaNodeType type) {
 		this.key = new Key(hash, instanceId);
@@ -71,31 +69,18 @@ public class MergedNode extends Node {
 		return key.hash;
 	}
 
-	@Override
-	public Edge<? extends Node> getContinuationEdge() {
-		for (int i = 0; i < outgoingEdges.size(); i++) {
-			if (outgoingEdges.get(i).getEdgeType() == EdgeType.CALL_CONTINUATION) {
-				return outgoingEdges.get(i);
-			}
+	public void addIncomingEdge(Edge<MergedNode> e) {
+		edges.addEdge(EdgeSet.Direction.INCOMING, e);
+	}
+
+	public void addOutgoingEdge(Edge<MergedNode> e) {
+		if (e.getEdgeType() == EdgeType.CALL_CONTINUATION) {
+			if (continuationEdge != null)
+				throw new IllegalStateException(
+						"Cannot add multiple call continuation edges!");
+			continuationEdge = e;
+		} else {
+			edges.addEdge(EdgeSet.Direction.OUTGOING, e);
 		}
-		return null;
-	}
-
-	@Override
-	public List<Edge<MergedNode>> getIncomingEdges() {
-		return incomingEdges;
-	}
-
-	@Override
-	public List<Edge<MergedNode>> getOutgoingEdges() {
-		return outgoingEdges;
-	}
-
-	public void addOutgoingEdge(Edge<MergedNode> edge) {
-		outgoingEdges.add(edge);
-	}
-
-	public void addIncomingEdge(Edge<MergedNode> edge) {
-		incomingEdges.add(edge);
 	}
 }
