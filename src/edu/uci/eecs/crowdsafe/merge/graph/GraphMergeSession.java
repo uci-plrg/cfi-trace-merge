@@ -21,6 +21,7 @@ import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDataSource;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
+import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
@@ -39,6 +40,7 @@ public class GraphMergeSession {
 
 	final GraphMergeTarget left;
 	final GraphMergeTarget right;
+	final MergedClusterGraph mergedGraph;
 
 	final GraphMergeStatistics graphMergingStats;
 
@@ -64,8 +66,9 @@ public class GraphMergeSession {
 	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right) {
 		this.left = new GraphMergeTarget(this, left);
 		this.right = new GraphMergeTarget(this, right);
-		matchedNodes = new MatchedNodes();
+		matchedNodes = new MatchedNodes(this);
 		graphMergingStats = new GraphMergeStatistics(this);
+		mergedGraph = new MergedClusterGraph();
 	}
 
 	public void initializeMerge() {
@@ -117,6 +120,8 @@ public class GraphMergeSession {
 				engine.addUnmatchedNode2Queue(n2, -1);
 			}
 		}
+
+		GraphMergeDebug.initializeMerge(left.cluster, right.cluster);
 	}
 
 	boolean acceptContext(Node candidate) {

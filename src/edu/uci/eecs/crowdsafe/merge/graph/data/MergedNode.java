@@ -46,10 +46,6 @@ public class MergedNode extends Node<MergedNode> {
 
 	private final MetaNodeType type;
 
-	private final EdgeSet<MergedNode> edges = new EdgeSet<MergedNode>();
-
-	private Edge<MergedNode> continuationEdge;
-
 	MergedNode(long hash, int instanceId, MetaNodeType type) {
 		this.key = new Key(hash, instanceId);
 		this.type = type;
@@ -74,13 +70,6 @@ public class MergedNode extends Node<MergedNode> {
 	}
 
 	public void addOutgoingEdge(Edge<MergedNode> e) {
-		if (e.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-			if (continuationEdge != null)
-				throw new IllegalStateException(
-						"Cannot add multiple call continuation edges!");
-			continuationEdge = e;
-		} else {
-			edges.addEdge(EdgeSet.Direction.OUTGOING, e);
-		}
+		edges.addEdge(EdgeSet.Direction.OUTGOING, e);
 	}
 }

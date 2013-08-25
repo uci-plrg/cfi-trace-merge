@@ -29,46 +29,56 @@ public class GraphMergeStatistics {
 
 	private int directEdgeTrialCnt = 0;
 	private int indirectEdgeTrialCnt = 0;
-	private int indirectEdgeMatchCnt = 0;
+	private int indirectEdgeMatchCount = 0;
 	private int pureHeuristicTrialCnt = 0;
-	private int pureHeuristicMatchCnt = 0;
+	private int pureHeuristicMatchCount = 0;
 	private int directMatchCnt = 0;
-	private int callContinuationMatchCnt = 0;
+	private int callContinuationMatchCount = 0;
 	private int possibleRewrites = 0;
 
-	private float setInterRate = 0f;
-	private int totalNodeSize = 0;
-	private int totalHashSize = 0;
-	private int interHashSize = 0;
+	private int hashUnionSize = 0;
+	private int hashIntersectionSize = 0;
+	private float hashIntersectionRatio = 0f;
+
+	private int mergedGraphNodeCount = 0;
+	private float nodeIntersectionRatio = 0f;
 
 	public GraphMergeStatistics(GraphMergeSession session) {
 		this.session = session;
-
-		Set<Long> interBlockHashes = AnalysisUtil.intersection(
-				session.left.cluster.getGraphData().nodesByHash.keySet(),
-				session.right.cluster.getGraphData().nodesByHash.keySet());
-		Set<Long> totalBlockHashes = AnalysisUtil.union(
-				session.left.cluster.getGraphData().nodesByHash.keySet(),
-				session.right.cluster.getGraphData().nodesByHash.keySet());
-		interHashSize = interBlockHashes.size();
-		totalHashSize = totalBlockHashes.size();
-		setInterRate = (float) interBlockHashes.size() / totalHashSize;
 	}
 
 	public void reset() {
 		directEdgeTrialCnt = 0;
 		indirectEdgeTrialCnt = 0;
-		indirectEdgeMatchCnt = 0;
+		indirectEdgeMatchCount = 0;
 		pureHeuristicTrialCnt = 0;
-		pureHeuristicMatchCnt = 0;
+		pureHeuristicMatchCount = 0;
 		directMatchCnt = 0;
-		callContinuationMatchCnt = 0;
+		callContinuationMatchCount = 0;
 		possibleRewrites = 0;
 
-		setInterRate = 0f;
-		totalNodeSize = 0;
-		totalHashSize = 0;
-		interHashSize = 0;
+		hashUnionSize = 0;
+		hashIntersectionSize = 0;
+		hashIntersectionRatio = 0f;
+
+		mergedGraphNodeCount = 0;
+		nodeIntersectionRatio = 0f;
+	}
+
+	public void computeResults() {
+		Set<Long> hashIntersection = AnalysisUtil.intersection(
+				session.left.cluster.getGraphData().nodesByHash.keySet(),
+				session.right.cluster.getGraphData().nodesByHash.keySet());
+		Set<Long> hashUnion = AnalysisUtil.union(
+				session.left.cluster.getGraphData().nodesByHash.keySet(),
+				session.right.cluster.getGraphData().nodesByHash.keySet());
+		hashIntersectionSize = hashIntersection.size();
+		hashUnionSize = hashUnion.size();
+		hashIntersectionRatio = hashIntersectionSize / (float) hashUnionSize;
+
+		mergedGraphNodeCount = session.mergedGraph.nodesByHash.getNodeCount();
+		nodeIntersectionRatio = session.matchedNodes.size()
+				/ (float) mergedGraphNodeCount;
 	}
 
 	public void tryDirectMatch() {
@@ -84,11 +94,11 @@ public class GraphMergeStatistics {
 	}
 
 	public void indirectMatch() {
-		indirectEdgeMatchCnt++;
+		indirectEdgeMatchCount++;
 	}
 
 	public void pureHeuristicMatch() {
-		pureHeuristicMatchCnt++;
+		pureHeuristicMatchCount++;
 	}
 
 	public void directMatch() {
@@ -96,7 +106,7 @@ public class GraphMergeStatistics {
 	}
 
 	public void callContinuationMatch() {
-		callContinuationMatchCnt++;
+		callContinuationMatchCount++;
 	}
 
 	public void possibleRewrite() {
@@ -126,13 +136,7 @@ public class GraphMergeStatistics {
 	}
 
 	public boolean lowMatching() {
-		float nodeInterRate = (float) session.matchedNodes.size()
-				/ totalNodeSize;
-		if ((setInterRate - nodeInterRate) > LOW_MATCHING_TRHESHOLD) {
-			return true;
-		} else {
-			return false;
-		}
+		return (hashIntersectionRatio - nodeIntersectionRatio) > LOW_MATCHING_TRHESHOLD;
 	}
 
 	public void dumpMatchedNodes() {
@@ -142,11 +146,15 @@ public class GraphMergeStatistics {
 		}
 	}
 
-	synchronized public void outputMergedGraphInfo() {
-		totalNodeSize = session.left.cluster.getGraphData().nodesByKey.size()
-				+ session.right.cluster.getGraphData().nodesByKey.size()
-				- session.matchedNodes.size();
-		Log.log("Block hash count on the left: %d",
+	public void outputMergedGraphInfo() {
+		Log.log("\nIntersecting nodes: %d", session.matchedNodes.size());
+		Log.log("Nodes on the left: %d",
+				session.left.cluster.getGraphData().nodesByKey.size());
+		Log.log("Nodes on the right: %d",
+				session.right.cluster.getGraphData().nodesByKey.size());
+		Log.log("Nodes in the merged graph: %d", mergedGraphNodeCount);
+
+		Log.log("\nBlock hash count on the left: %d",
 				session.left.cluster.getGraphData().nodesByHash.keySet().size());
 		Log.log("Block hash count on the right: %d", session.right.cluster
 				.getGraphData().nodesByHash.keySet().size());
@@ -155,31 +163,19 @@ public class GraphMergeStatistics {
 				session.right.cluster.getGraphData().nodesByHash.keySet());
 		Log.log("Block hash count in the merged graph: %d",
 				totalBlockSet.size());
+		Log.log("Ratio of block hashes: %f (%d/%d)", hashIntersectionRatio,
+				hashIntersectionSize, hashUnionSize);
 
-		Log.log("Nodes on the left: %d",
-				session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Nodes on the right: %d",
-				session.right.cluster.getGraphData().nodesByKey.size());
-		Log.log("Nodes in the merged graph: %d", totalNodeSize);
-
-		Log.log("Intersecting nodes: %d; ratio of block hashes: %f %d,%d:%d/%d",
-				session.matchedNodes.size(), setInterRate, session.left.cluster
-						.getGraphData().nodesByHash.keySet().size(),
-				session.right.cluster.getGraphData().nodesByHash.keySet()
-						.size(), interHashSize, totalHashSize);
-
-		Log.log("Intersection/left: %f", (float) session.matchedNodes.size()
+		Log.log("\nIntersection/left: %f", (float) session.matchedNodes.size()
 				/ session.left.cluster.getGraphData().nodesByKey.size());
 		Log.log("Intersection/right: %f", (float) session.matchedNodes.size()
 				/ session.right.cluster.getGraphData().nodesByKey.size());
-		float nodeInterRate = (float) session.matchedNodes.size()
-				/ totalNodeSize;
-		Log.log("Intersection/union: %f", nodeInterRate);
+		Log.log("Intersection/union: %f", nodeIntersectionRatio);
 
-		Log.log("Indirect edge matched: %d", indirectEdgeMatchCnt);
-		Log.log("Pure Heuristic match: %d", pureHeuristicMatchCnt);
-		Log.log("CallContinuation Match: %d", callContinuationMatchCnt);
-		Log.log("Possible rewritten blocks: %d", possibleRewrites);
+		Log.log("\nIndirect edge matched: %d", indirectEdgeMatchCount);
+		Log.log("Pure Heuristic match: %d", pureHeuristicMatchCount);
+		Log.log("CallContinuation Match: %d", callContinuationMatchCount);
+		Log.log("Possibly rewritten blocks: %d", possibleRewrites);
 
 		Log.log();
 	}
@@ -313,14 +309,6 @@ public class GraphMergeStatistics {
 
 	}
 
-	public int getTotalNodeSize() {
-		return totalNodeSize;
-	}
-
-	public float getSetInterRate() {
-		return setInterRate;
-	}
-	
 	void collectScoreRecord(List<Node> leftCandidates, Node rightNode,
 			boolean isIndirect) {
 		int maxScore = -1, maxScoreCnt = 0;

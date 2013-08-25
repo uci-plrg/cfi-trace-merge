@@ -313,13 +313,33 @@ public class GraphMatchEngine {
 			Edge<? extends Node> rightEdge) throws WrongEdgeTypeException {
 		Node rightToNode = rightEdge.getToNode();
 
+		if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
+			Edge<? extends Node> callContinuation = leftParent.getCallContinuation();
+			if (callContinuation != null) {
+				if (callContinuation.getToNode().getHash() == rightEdge
+						.getToNode().getHash()) {
+					return callContinuation.getToNode();
+				}
+			}
+		}
+
+		List<? extends Edge<? extends Node>> leftEdges = leftParent
+				.getOutgoingEdges(rightEdge.getOrdinal());
+
+		if (leftEdges.size() == 1) {
+			Node leftChild = leftEdges.get(0).getToNode();
+			if (leftChild.getHash() == rightToNode.getHash()) {
+				return leftChild;
+			} else {
+				return null;
+			}
+		}
+
 		// Direct edges will also have multiple possible match because of the
 		// existence of code re-writing
 		ArrayList<Node> candidates = new ArrayList<Node>();
-		int score;
 
-		for (Edge<? extends Node> leftEdge : leftParent
-				.getOutgoingEdges(rightEdge.getOrdinal())) {
+		for (Edge<? extends Node> leftEdge : leftEdges) {
 			if (leftEdge.getEdgeType() == rightEdge.getEdgeType()) {
 				if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
 
@@ -372,7 +392,7 @@ public class GraphMatchEngine {
 			}
 
 			int pos = 0, highestScoreCnt = 0;
-			score = -1;
+			int score = -1;
 			for (int i = 0; i < candidates.size(); i++) {
 				int candidateScore = session.getScore(candidates.get(i));
 				if (candidateScore > score) {

@@ -8,6 +8,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
 
 /**
  * MatchedNodes contains pairs of matched nodes. It maintains one-to-one map that maps the matched nodes, an arraylist
@@ -24,6 +26,12 @@ public class MatchedNodes {
 	// Maps index of node1 and its matching score with nodes
 	// If they are matched directly, then their score should be 0
 	private final Map<Node.Key, Integer> matchingScore = new HashMap<Node.Key, Integer>();
+
+	private final GraphMergeSession session;
+
+	MatchedNodes(GraphMergeSession session) {
+		this.session = session;
+	}
 
 	public void clear() {
 		matchedNodesLeftRight.clear();
@@ -49,7 +57,17 @@ public class MatchedNodes {
 		if ((matchedNodesLeftRight.containsKey(leftKey) || matchedNodesLeftRight
 				.containsValue(rightKey))
 				&& !(left.isMetaNode() && right.isMetaNode())) {
-			return false;
+			Log.log("In execution " + session.left.getProcessId() + " & "
+					+ session.right.getProcessId());
+			Log.log("Node " + left.getKey()
+					+ " of the left graph is already matched!");
+			Log.log("Node pair need to be matched: " + left.getKey() + "<->"
+					+ right.getKey());
+			Log.log("Prematched nodes: " + left.getKey() + "<->"
+					+ session.matchedNodes.getMatchByLeftKey(left.getKey()));
+			Log.log(session.matchedNodes.getMatchByRightKey(right.getKey()));
+
+			throw new MergedFailedException("Merge collision.");
 		}
 		matchedNodesLeftRight.put(leftKey, rightKey);
 		matchingScore.put(leftKey, score);

@@ -7,7 +7,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 
 public class MergedClusterGraph {
 
-	private final NodeHashMap nodesByHash = new NodeHashMap();
+	public final NodeHashMap nodesByHash = new NodeHashMap();
 
 	public MergedNode addNode(long hash, MetaNodeType type) {
 		NodeList collisions = nodesByHash.get(hash);

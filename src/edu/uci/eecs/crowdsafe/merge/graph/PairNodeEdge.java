@@ -14,14 +14,15 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 public class PairNodeEdge {
 	private Node leftParentNode;
 	private Edge<? extends Node> rightEdge;
-
 	private Node rightParentNode;
+	public final int level;
 
 	public PairNodeEdge(Node leftParentNode, Edge<? extends Node> rightEdge,
-			Node rightParentNode) {
+			Node rightParentNode, int level) {
 		this.leftParentNode = leftParentNode;
 		this.rightEdge = rightEdge;
 		this.rightParentNode = rightParentNode;
+		this.level = level;
 	}
 
 	public Node getLeftParentNode() {
