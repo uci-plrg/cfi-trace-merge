@@ -25,10 +25,8 @@ public class DRLauncherUtils {
 	 * @param scriptName
 	 */
 	public static void splitScript(String scriptName) {
-		HashMap<String, Integer> serverInfo = DRConfiguration.getConfig()
-				.getServerInfo();
-		String generatedScriptsPath = DRConfiguration.getConfig()
-				.getGeneratedScriptsPath();
+		HashMap<String, Integer> serverInfo = DRConfiguration.getConfig().getServerInfo();
+		String generatedScriptsPath = DRConfiguration.getConfig().getGeneratedScriptsPath();
 
 		int subscriptNum = serverInfo.size();
 		HashMap<String, StringBuilder> server2StrBuilder = new HashMap<String, StringBuilder>();
@@ -81,15 +79,12 @@ public class DRLauncherUtils {
 				int processorNum = serverInfo.get(serverName);
 				if (serverIdx != serverInfo.size()) {
 
-					int subScriptsSize = (int) ((float) processorNum
-							/ totalProcessorNum * executionSize);
+					int subScriptsSize = (int) ((float) processorNum / totalProcessorNum * executionSize);
 					for (int i = 0; i < subScriptsSize; i++) {
 						curLine = iter.next();
 						strBuilder.append(curLine + "\n");
-						while (!(curLine = iter.next())
-								.startsWith("# meta run")) {
-							if (curLine.startsWith("$runcs")
-									|| curLine.startsWith("($runcs")) {
+						while (!(curLine = iter.next()).startsWith("# meta run")) {
+							if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
 								strBuilder.append(curLine + " &\n");
 							} else {
 								strBuilder.append(curLine + "\n");
@@ -111,8 +106,7 @@ public class DRLauncherUtils {
 								strBuilder.append("wait\n");
 							}
 						}
-						if (curLine.startsWith("$runcs")
-								|| curLine.startsWith("($runcs")) {
+						if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
 							strBuilder.append(curLine + " &\n");
 						} else {
 							strBuilder.append(curLine + "\n");
@@ -123,8 +117,7 @@ public class DRLauncherUtils {
 
 			// Write pieces of files back to disks
 			for (String serverName : serverInfo.keySet()) {
-				String subscriptName = generatedScriptsPath + "/" + serverName
-						+ "/";
+				String subscriptName = generatedScriptsPath + "/" + serverName + "/";
 				// + AnalysisUtil.getBaseNameFromPath(scriptName, "/");
 				// TODO: file handling refactor
 				Log.log("Writing " + subscriptName + " ...");
@@ -139,8 +132,7 @@ public class DRLauncherUtils {
 	}
 
 	public static File[] getAllScripts() {
-		String originalScriptsPath = DRConfiguration.getConfig()
-				.getOriginalScriptsPath();
+		String originalScriptsPath = DRConfiguration.getConfig().getOriginalScriptsPath();
 		File dir = new File(originalScriptsPath);
 		File[] scripts = dir.listFiles();
 		return scripts;
@@ -166,8 +158,7 @@ public class DRLauncherUtils {
 			pw.flush();
 			pw.close();
 			try {
-				Runtime.getRuntime()
-						.exec("chmod u+x " + file.getAbsolutePath());
+				Runtime.getRuntime().exec("chmod u+x " + file.getAbsolutePath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

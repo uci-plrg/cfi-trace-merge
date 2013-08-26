@@ -46,8 +46,7 @@ public class GraphMergeSession {
 
 	// The speculativeScoreList, which records the detail of the scoring of
 	// all the possible cases
-	final SpeculativeScoreList speculativeScoreList = new SpeculativeScoreList(
-			this);
+	final SpeculativeScoreList speculativeScoreList = new SpeculativeScoreList(this);
 
 	final ContextMatchRecord contextRecord = new ContextMatchRecord();
 
@@ -57,8 +56,7 @@ public class GraphMergeSession {
 
 	final GraphMergeEngine engine = new GraphMergeEngine(this);
 
-	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right,
-			GraphMergeDebug debugLog) {
+	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeDebug debugLog) {
 		this.left = new GraphMergeTarget(this, left);
 		this.right = new GraphMergeTarget(this, right);
 		this.debugLog = debugLog;
@@ -83,10 +81,8 @@ public class GraphMergeSession {
 			DebugUtils.debug_init();
 		}
 
-		Map<Long, ExecutionNode> leftEntryPoints = left.cluster
-				.getEntryPoints();
-		Map<Long, ExecutionNode> rightEntryPoints = right.cluster
-				.getEntryPoints();
+		Map<Long, ExecutionNode> leftEntryPoints = left.cluster.getEntryPoints();
+		Map<Long, ExecutionNode> rightEntryPoints = right.cluster.getEntryPoints();
 		for (long sigHash : rightEntryPoints.keySet()) {
 			if (leftEntryPoints.containsKey(sigHash)) {
 				ExecutionNode leftNode = leftEntryPoints.get(sigHash);
@@ -104,10 +100,8 @@ public class GraphMergeSession {
 					}
 
 					if (DebugUtils.debug) {
-						DebugUtils.debug_matchingTrace
-								.addInstance(new MatchingInstance(0, leftNode
-										.getKey(), rightNode.getKey(),
-										MatchingType.SignatureNode, null));
+						DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(0, leftNode.getKey(), rightNode
+								.getKey(), MatchingType.SignatureNode, null));
 					}
 					continue;
 				}
@@ -150,15 +144,11 @@ public class GraphMergeSession {
 
 	public static void main(String[] args) {
 		try {
-			CrowdSafeConfiguration
-					.initialize(EnumSet
-							.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
+			CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
 
 			if (args.length > 2) {
 				try {
-					File logFile = LogFile.create(args[2],
-							LogFile.CollisionMode.AVOID,
-							LogFile.NoSuchPathMode.ERROR);
+					File logFile = LogFile.create(args[2], LogFile.CollisionMode.AVOID, LogFile.NoSuchPathMode.ERROR);
 					Log.addOutput(logFile);
 					System.out.println("Logging to " + logFile.getName());
 				} catch (LogFile.Exception e) {
@@ -177,56 +167,43 @@ public class GraphMergeSession {
 			File rightRun = new File(args[1]);
 
 			if (!(leftRun.exists() && leftRun.isDirectory())) {
-				Log.log("Illegal argument '" + args[0]
-						+ "'; no such directory.");
+				Log.log("Illegal argument '" + args[0] + "'; no such directory.");
 				printUsageAndExit();
 			}
 			if (!(rightRun.exists() && rightRun.isDirectory())) {
-				Log.log("Illegal argument '" + args[1]
-						+ "'; no such directory.");
+				Log.log("Illegal argument '" + args[1] + "'; no such directory.");
 				printUsageAndExit();
 			}
 
-			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(
-					leftRun);
-			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(
-					rightRun);
-			Log.log("### ------- Merge %s(%d) with %s(%d) -------- ###",
-					leftDataSource.getProcessName(),
-					leftDataSource.getProcessId(),
-					rightDataSource.getProcessName(),
-					rightDataSource.getProcessId());
+			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(leftRun);
+			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(rightRun);
+			Log.log("### ------- Merge %s(%d) with %s(%d) -------- ###", leftDataSource.getProcessName(),
+					leftDataSource.getProcessId(), rightDataSource.getProcessName(), rightDataSource.getProcessId());
 
 			long start = System.currentTimeMillis();
 
 			GraphMergeDebug debugLog = new GraphMergeDebug();
-			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(
-					leftDataSource);
+			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(leftDataSource);
 			leftSession.setListener(debugLog);
 			ProcessExecutionGraph leftGraph = leftSession.loadGraph();
 
-			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(
-					rightDataSource);
+			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(rightDataSource);
 			rightSession.setListener(debugLog);
 			ProcessExecutionGraph rightGraph = rightSession.loadGraph();
 
 			long merge = System.currentTimeMillis();
 			Log.log("\nGraph loaded in %f seconds.", ((merge - start) / 1000.));
 
-			for (ModuleGraphCluster leftCluster : leftGraph
-					.getAutonomousClusters()) {
-				Log.log("\n  === Merging cluster %s ===",
-						leftCluster.distribution.name);
+			for (ModuleGraphCluster leftCluster : leftGraph.getAutonomousClusters()) {
+				Log.log("\n  === Merging cluster %s ===", leftCluster.distribution.name);
 
-				ModuleGraphCluster rightCluster = rightGraph
-						.getModuleGraphCluster(leftCluster.distribution);
+				ModuleGraphCluster rightCluster = rightGraph.getModuleGraphCluster(leftCluster.distribution);
 
 				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
 					AnalysisUtil.filteroutImmeAddr(leftCluster, rightCluster);
 				}
 
-				GraphMergeSession session = new GraphMergeSession(leftCluster,
-						rightCluster, debugLog);
+				GraphMergeSession session = new GraphMergeSession(leftCluster, rightCluster, debugLog);
 				GraphMergeEngine engine = new GraphMergeEngine(session);
 
 				try {
@@ -238,8 +215,7 @@ public class GraphMergeSession {
 					e.printStackTrace();
 				}
 			}
-			Log.log("\nClusters merged in %f seconds.",
-					((System.currentTimeMillis() - merge) / 1000.));
+			Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - merge) / 1000.));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

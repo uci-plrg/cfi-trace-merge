@@ -17,8 +17,7 @@ public class PairNodeEdge {
 	private Node rightParentNode;
 	public final int level;
 
-	public PairNodeEdge(Node leftParentNode, Edge<? extends Node> rightEdge,
-			Node rightParentNode, int level) {
+	public PairNodeEdge(Node leftParentNode, Edge<? extends Node> rightEdge, Node rightParentNode, int level) {
 		this.leftParentNode = leftParentNode;
 		this.rightEdge = rightEdge;
 		this.rightParentNode = rightParentNode;
@@ -43,8 +42,7 @@ public class PairNodeEdge {
 		if (o.getClass() != PairNodeEdge.class)
 			return false;
 		PairNodeEdge pairNodeEdge = (PairNodeEdge) o;
-		if (pairNodeEdge.leftParentNode.equals(leftParentNode)
-				&& pairNodeEdge.rightParentNode.equals(rightEdge)
+		if (pairNodeEdge.leftParentNode.equals(leftParentNode) && pairNodeEdge.rightParentNode.equals(rightEdge)
 				&& pairNodeEdge.rightEdge.equals(rightEdge))
 			return true;
 		else
@@ -52,7 +50,6 @@ public class PairNodeEdge {
 	}
 
 	public int hashCode() {
-		return leftParentNode.hashCode() << 5 ^ rightParentNode.hashCode() << 5
-				^ rightEdge.hashCode();
+		return leftParentNode.hashCode() << 5 ^ rightParentNode.hashCode() << 5 ^ rightEdge.hashCode();
 	}
 }

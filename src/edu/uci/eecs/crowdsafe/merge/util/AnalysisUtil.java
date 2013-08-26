@@ -35,8 +35,7 @@ public class AnalysisUtil {
 		String filename = file.getName();
 		int lastDashPos = filename.lastIndexOf('-');
 		int lastDotPos = filename.lastIndexOf('.');
-		return Integer
-				.parseInt(filename.substring(lastDashPos + 1, lastDotPos));
+		return Integer.parseInt(filename.substring(lastDashPos + 1, lastDotPos));
 	}
 
 	private static void findHashFiles(File dir, ArrayList<String> lists) {
@@ -90,11 +89,9 @@ public class AnalysisUtil {
 		return list;
 	}
 
-	public static void saveStringPerline(String filename,
-			ArrayList<String> list, boolean append) {
+	public static void saveStringPerline(String filename, ArrayList<String> list, boolean append) {
 		try {
-			PrintWriter pw = new PrintWriter(new FileOutputStream(filename,
-					append));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(filename, append));
 			for (String str : list) {
 				pw.println(str);
 			}
@@ -226,15 +223,12 @@ public class AnalysisUtil {
 				outputFile.createNewFile();
 			}
 
-			FileOutputStream outputStream = new FileOutputStream(outputFile,
-					false);
+			FileOutputStream outputStream = new FileOutputStream(outputFile, false);
 			DataOutputStream dataOutput = new DataOutputStream(outputStream);
 
-			Log.log("Start outputting hash set to "
-					+ outputFile.getAbsolutePath() + " file.");
+			Log.log("Start outputting hash set to " + outputFile.getAbsolutePath() + " file.");
 
-			Log.log("Finish outputting hash set to "
-					+ outputFile.getAbsolutePath() + " file.");
+			Log.log("Finish outputting hash set to " + outputFile.getAbsolutePath() + " file.");
 			outputStream.close();
 			dataOutput.close();
 
@@ -252,23 +246,16 @@ public class AnalysisUtil {
 	 * @param right
 	 */
 
-	public static void filteroutImmeAddr(ModuleGraphCluster left,
-			ModuleGraphCluster right) {
+	public static void filteroutImmeAddr(ModuleGraphCluster left, ModuleGraphCluster right) {
 		int modificationCnt = 0;
 
 		PrintWriter pw = null;
 		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
 			try {
-				String fileName = left.getGraphData().containingGraph.dataSource
-						.getProcessName()
-						+ ".imme-addr."
-						+ left.getGraphData().containingGraph.dataSource
-								.getProcessId()
-						+ "-"
-						+ right.getGraphData().containingGraph.dataSource
-								.getProcessId() + ".txt";
-				String absolutePath = DebugUtils.MODIFIED_HASH_DIR + "/"
-						+ fileName;
+				String fileName = left.getGraphData().containingGraph.dataSource.getProcessName() + ".imme-addr."
+						+ left.getGraphData().containingGraph.dataSource.getProcessId() + "-"
+						+ right.getGraphData().containingGraph.dataSource.getProcessId() + ".txt";
+				String absolutePath = DebugUtils.MODIFIED_HASH_DIR + "/" + fileName;
 				File f = new File(DebugUtils.MODIFIED_HASH_DIR);
 				f.mkdirs();
 				pw = new PrintWriter(absolutePath);
@@ -280,15 +267,13 @@ public class AnalysisUtil {
 		for (ExecutionNode leftNode : left.getGraphData().nodesByKey.values()) {
 			if (leftNode.getTagVersion() > 0)
 				continue; // can't be sure about these re-written things
-			ExecutionNode rightNode = right.getGraphData().nodesByKey
-					.get(leftNode.getKey());
+			ExecutionNode rightNode = right.getGraphData().nodesByKey.get(leftNode.getKey());
 			if (rightNode == null) {
 				continue;
 			}
 			if (leftNode.getHash() != rightNode.getHash()) {
 				// replace the right node with a copy having the left node's hash
-				right.getGraphData().nodesByKey.put(rightNode.getKey(),
-						rightNode.changeHashCode(leftNode.getHash()));
+				right.getGraphData().nodesByKey.put(rightNode.getKey(), rightNode.changeHashCode(leftNode.getHash()));
 				modificationCnt++;
 				if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
 					pw.println("leftNode: " + leftNode);
@@ -314,9 +299,8 @@ public class AnalysisUtil {
 	 * @param n2
 	 * @return
 	 */
-	public static MatchResult getMatchResult(ModuleGraphCluster left,
-			ModuleGraphCluster right, Node leftNode, ExecutionNode rightNode,
-			boolean isIndirect) {
+	public static MatchResult getMatchResult(ModuleGraphCluster left, ModuleGraphCluster right, Node leftNode,
+			ExecutionNode rightNode, boolean isIndirect) {
 		SoftwareDistributionUnit rightUnit = rightNode.getModule().unit;
 
 		// Cannot normalized tags from unknown modules
@@ -324,8 +308,7 @@ public class AnalysisUtil {
 			return MatchResult.Unknown;
 		}
 
-		Node leftCorrespondingToRight = left.getGraphData()
-				.HACK_relativeTagLookup(rightNode);
+		Node leftCorrespondingToRight = left.getGraphData().HACK_relativeTagLookup(rightNode);
 		if (leftCorrespondingToRight == null) {
 			// The corresponding node does not exist in graph1
 			// 1. n1 == null, non-existing correct match
@@ -355,8 +338,7 @@ public class AnalysisUtil {
 					return MatchResult.PureHeuristicsExistingUnfoundMismatch;
 				}
 			} else {
-				if (leftCorrespondingToRight.getKey()
-						.equals(rightNode.getKey())) {
+				if (leftCorrespondingToRight.getKey().equals(rightNode.getKey())) {
 					if (isIndirect) {
 						return MatchResult.IndirectExistingCorrectMatch;
 					} else {
@@ -380,8 +362,7 @@ public class AnalysisUtil {
 	 * @param n1
 	 * @param n2
 	 */
-	public static void outputIndirectNodesInfo(ExecutionNode n1,
-			ExecutionNode n2) {
+	public static void outputIndirectNodesInfo(ExecutionNode n1, ExecutionNode n2) {
 		Log.log("Start indirect node pair info output: " + n1 + " & " + n2);
 		HashMap<Long, Integer> hash2CollisionCnt = new HashMap<Long, Integer>();
 		for (int i = 0; i < n1.getOutgoingEdges().size(); i++) {

@@ -39,8 +39,7 @@ public class GraphMatchEngine {
 		this.session = session;
 	}
 
-	public void getContextSimilarity(Node<? extends Node> leftNode,
-			Node<? extends Node> rightNode, int depth) {
+	public void getContextSimilarity(Node<? extends Node> leftNode, Node<? extends Node> rightNode, int depth) {
 		if (depth <= 0)
 			return;
 		// In order to avoid cyclic graph
@@ -58,17 +57,12 @@ public class GraphMatchEngine {
 		if (!leftNode.hasOutgoingEdges() || !rightNode.hasOutgoingEdges()) {
 			// Just think that they might be similar...
 			for (Edge<? extends Node> leftEdge : leftNode.getOutgoingEdges()) {
-				session.contextRecord.addEdge(depth,
-						EdgeMatchType.ONE_SIDE_ONLY);
+				session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
 			}
 			for (Edge<? extends Node> rightEdge : rightNode.getOutgoingEdges()) {
-				session.contextRecord.addEdge(depth,
-						EdgeMatchType.ONE_SIDE_ONLY);
+				session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
 			}
 		}
-
-		// potentialMaxScore.setVal(potentialMaxScore.getVal() + maxEdgeSize
-		// + maxOrdinal);
 
 		{
 			// First consider the CallContinuation edge
@@ -76,37 +70,28 @@ public class GraphMatchEngine {
 			Edge<? extends Node> rightEdge;
 			if ((rightEdge = rightNode.getCallContinuation()) != null
 					&& (leftEdge = leftNode.getCallContinuation()) != null) {
-				if (leftEdge.getToNode().getHash() != rightEdge.getToNode()
-						.getHash()) {
+				if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
 					session.contextRecord.fail();
 					return;
 				}
-				// Check if leftEdge.toNode was already matched to another node; if
-				// so, it should return -1 to indicate a conflict
-				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode()
-						.getKey())
-						&& !session.matchedNodes.hasPair(leftEdge.getToNode()
-								.getKey(), rightEdge.getToNode().getKey())) {
+				// Check if leftEdge.toNode was already matched to another node; if so, fail
+				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey())
+						&& !session.matchedNodes.hasPair(leftEdge.getToNode().getKey(), rightEdge.getToNode().getKey())) {
 					session.contextRecord.fail();
 					return;
 				}
-				getContextSimilarity(leftEdge.getToNode(),
-						rightEdge.getToNode(), depth - 1);
+				getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
 				if (session.contextRecord.isFailed())
 					return;
 			}
 		}
 
-		int minOrdinal = Math.min(leftNode.getOutgoingOrdinalCount(),
-				rightNode.getOutgoingOrdinalCount());
+		int minOrdinal = Math.min(leftNode.getOutgoingOrdinalCount(), rightNode.getOutgoingOrdinalCount());
 		for (int ordinal = 0; ordinal < minOrdinal; ordinal++) {
-			List<? extends Edge<? extends Node>> leftEdges = leftNode
-					.getOutgoingEdges(ordinal);
-			List<? extends Edge<? extends Node>> rightEdges = rightNode
-					.getOutgoingEdges(ordinal);
+			List<? extends Edge<? extends Node>> leftEdges = leftNode.getOutgoingEdges(ordinal);
+			List<? extends Edge<? extends Node>> rightEdges = rightNode.getOutgoingEdges(ordinal);
 			if (leftEdges.isEmpty() || rightEdges.isEmpty()) { // but not both...
-				session.contextRecord.addEdge(depth,
-						EdgeMatchType.ONE_SIDE_ONLY);
+				session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
 				continue;
 			}
 			EdgeType type = leftEdges.get(0).getEdgeType();
@@ -115,36 +100,28 @@ public class GraphMatchEngine {
 					int matchCount = 0;
 					for (Edge<? extends Node> leftEdge : leftEdges) {
 						for (Edge<? extends Node> rightEdge : rightEdges) {
-							if (leftEdge.getToNode().getHash() != rightEdge
-									.getToNode().getHash()) {
+							if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
 								continue;
 							}
 							// Check if leftEdge.toNode was already matched to another
 							// node; if so, it should return -1 to indicate a
 							// conflict
-							if (session.matchedNodes.containsLeftKey(leftEdge
-									.getToNode().getKey())
-									&& !session.matchedNodes.hasPair(leftEdge
-											.getToNode().getKey(), rightEdge
+							if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey())
+									&& !session.matchedNodes.hasPair(leftEdge.getToNode().getKey(), rightEdge
 											.getToNode().getKey())) {
 								matchCount++;
 								continue;
 							}
 
-							getContextSimilarity(leftEdge.getToNode(),
-									rightEdge.getToNode(), depth - 1);
+							getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
 							if (!session.contextRecord.isFailed())
 								matchCount++;
 						}
 					}
-					if (matchCount == Math.min(leftEdges.size(),
-							rightEdges.size())) {
-						session.contextRecord.addEdge(depth,
-								EdgeMatchType.DIRECT_MATCH);
-					} else if ((leftEdges.size() > 1)
-							|| (rightEdges.size() > 1)) {
-						session.contextRecord.addEdge(depth,
-								EdgeMatchType.DIRECT_MATCH);
+					if (matchCount == Math.min(leftEdges.size(), rightEdges.size())) {
+						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
+					} else if ((leftEdges.size() > 1) || (rightEdges.size() > 1)) {
+						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
 					} else {
 						session.contextRecord.fail();
 						return;
@@ -158,21 +135,16 @@ public class GraphMatchEngine {
 							// Either indirect or unexpected edges, keep tracing
 							// down. If the pair of node does not match, that does
 							// not mean the context is different.
-							if (leftEdge.getToNode().getHash() == rightEdge
-									.getToNode().getHash()) {
+							if (leftEdge.getToNode().getHash() == rightEdge.getToNode().getHash()) {
 								session.contextRecord.saveState();
-								getContextSimilarity(leftEdge.getToNode(),
-										rightEdge.getToNode(), depth - 1);
+								getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
 								// In the case of res == -1, just leave it alone
 								// because of lack of information
 								if (session.contextRecord.isFailed()) {
 									session.contextRecord.rewindState();
 								} else {
 									session.contextRecord.commitState();
-									session.contextRecord
-											.addEdge(
-													depth,
-													EdgeMatchType.INDIRECT_UNIQUE_MATCH);
+									session.contextRecord.addEdge(depth, EdgeMatchType.INDIRECT_UNIQUE_MATCH);
 									// TODO: ambiguous indirect matches
 								}
 							}
@@ -199,16 +171,13 @@ public class GraphMatchEngine {
 		}
 
 		// First check if this is a node already merged
-		Node.Key leftNodeKey = session.matchedNodes
-				.getMatchByRightKey(rightNode.getKey());
+		Node.Key leftNodeKey = session.matchedNodes.getMatchByRightKey(rightNode.getKey());
 		if (leftNodeKey != null) {
-			return session.left.cluster.getGraphData().nodesByKey
-					.get(leftNodeKey);
+			return session.left.cluster.getGraphData().nodesByKey.get(leftNodeKey);
 		}
 
 		// This node is not in the left graph and is not yet merged
-		NodeList leftNodes = session.left.cluster.getGraphData().nodesByHash
-				.get(rightNode.getHash());
+		NodeList leftNodes = session.left.cluster.getGraphData().nodesByHash.get(rightNode.getHash());
 		if (leftNodes == null || leftNodes.size() == 0) {
 			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 				DebugUtils.debug_pureHeuristicNotPresentCnt++;
@@ -233,8 +202,7 @@ public class GraphMatchEngine {
 			session.contextRecord.reset();
 			getContextSimilarity(leftNode, rightNode, PURE_SEARCH_DEPTH);
 			if (session.acceptContext(leftNode)) {
-				if ((leftNode.getType() != MetaNodeType.CLUSTER_EXIT)
-						|| !leftCandidates.contains(leftNode))
+				if ((leftNode.getType() != MetaNodeType.CLUSTER_EXIT) || !leftCandidates.contains(leftNode))
 					leftCandidates.add(leftNode);
 			}
 		}
@@ -242,8 +210,7 @@ public class GraphMatchEngine {
 		// Collect the matching score record for pure heuristics
 		// Only in OUTPUT_SCORE debug mode
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-			session.graphMergingStats.collectScoreRecord(leftCandidates,
-					rightNode, false);
+			session.graphMergingStats.collectScoreRecord(leftCandidates, rightNode, false);
 		}
 
 		if (leftCandidates.size() > 1) {
@@ -264,11 +231,9 @@ public class GraphMatchEngine {
 			// matching score to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				ExecutionNode r = (ExecutionNode) rightNode;
-				DebugUtils.getScorePW().print(
-						String.format("PureHeuristic_%s:\t", r));
+				DebugUtils.getScorePW().print(String.format("PureHeuristic_%s:\t", r));
 				for (int i = 0; i < leftCandidates.size(); i++) {
-					int candidateScore = session
-							.getScore(leftCandidates.get(i));
+					int candidateScore = session.getScore(leftCandidates.get(i));
 					if (candidateScore > 0) {
 						DebugUtils.getScorePW().print(candidateScore + "\t");
 					}
@@ -305,28 +270,24 @@ public class GraphMatchEngine {
 	 * @return The node that matched; Null if no matched node found
 	 * @throws WrongEdgeTypeException
 	 */
-	Node getCorrespondingDirectChildNode(Node<? extends Node> leftParent,
-			Edge<? extends Node> rightEdge) throws WrongEdgeTypeException {
+	Node getCorrespondingDirectChildNode(Node<? extends Node> leftParent, Edge<? extends Node> rightEdge)
+			throws WrongEdgeTypeException {
 		Node rightToNode = rightEdge.getToNode();
 
 		if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-			Edge<? extends Node> callContinuation = leftParent
-					.getCallContinuation();
+			Edge<? extends Node> callContinuation = leftParent.getCallContinuation();
 			if (callContinuation != null) {
-				if (callContinuation.getToNode().getHash() == rightEdge
-						.getToNode().getHash()) {
+				if (callContinuation.getToNode().getHash() == rightEdge.getToNode().getHash()) {
 					return callContinuation.getToNode();
 				}
 			}
 		}
 
-		List<? extends Edge<? extends Node>> leftEdges = leftParent
-				.getOutgoingEdges(rightEdge.getOrdinal());
+		List<? extends Edge<? extends Node>> leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
 
 		if (leftEdges.size() == 1) {
 			Node leftChild = leftEdges.get(0).getToNode();
-			if ((leftChild.getHash() == rightToNode.getHash())
-					&& leftChild.hasCompatibleEdges(rightEdge.getToNode())) {
+			if ((leftChild.getHash() == rightToNode.getHash()) && leftChild.hasCompatibleEdges(rightEdge.getToNode())) {
 				return leftChild;
 			} else {
 				return null;
@@ -341,8 +302,7 @@ public class GraphMatchEngine {
 			if (leftEdge.getEdgeType() == rightEdge.getEdgeType()) {
 				if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
 
-					if (session.matchedNodes.containsLeftKey(leftEdge
-							.getToNode().getKey()))
+					if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()))
 						return leftEdge.getToNode();
 
 					switch (leftEdge.getEdgeType()) {
@@ -359,8 +319,7 @@ public class GraphMatchEngine {
 					}
 
 					session.contextRecord.reset();
-					getContextSimilarity(leftEdge.getToNode(),
-							rightEdge.getToNode(), DIRECT_SEARCH_DEPTH);
+					getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), DIRECT_SEARCH_DEPTH);
 					if (session.acceptContext(leftEdge.getToNode())) {
 						candidates.add(leftEdge.getToNode());
 					}
@@ -407,8 +366,7 @@ public class GraphMatchEngine {
 			// Collect the matching score record for indirect speculation
 			// Only in OUTPUT_SCORE debug mode
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				session.graphMergingStats.collectScoreRecord(candidates,
-						rightToNode, true);
+				session.graphMergingStats.collectScoreRecord(candidates, rightToNode, true);
 			}
 
 			// Ambiguous high score, cannot make any decision
@@ -432,9 +390,8 @@ public class GraphMatchEngine {
 
 	// In the new approach, we only match the pure speculation when the score
 	// exceeds the IndirectSpeculationThreshold
-	Node getCorrespondingIndirectChildNode(
-			Node<? extends Node<?>> leftParentNode,
-			Edge<? extends Node> rightEdge) throws WrongEdgeTypeException {
+	Node getCorrespondingIndirectChildNode(Node<? extends Node<?>> leftParentNode, Edge<? extends Node> rightEdge)
+			throws WrongEdgeTypeException {
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			DebugUtils.debug_indirectHeuristicCnt++;
 		}
@@ -445,21 +402,17 @@ public class GraphMatchEngine {
 
 		// First check if the current node is already matched
 		if (session.matchedNodes.containsRightKey(rightToNode.getKey())) {
-			Node alreadyMatched = session.left.cluster.getGraphData().nodesByKey
-					.get(session.matchedNodes.getMatchByRightKey(rightToNode
-							.getKey()));
+			Node alreadyMatched = session.left.cluster.getGraphData().nodesByKey.get(session.matchedNodes
+					.getMatchByRightKey(rightToNode.getKey()));
 			return alreadyMatched;
 		}
 
 		List<Node> leftCandidates = new ArrayList<Node>();
 
-		for (Edge<? extends Node> leftParentEdge : leftParentNode
-				.getOutgoingEdges(rightEdge.getOrdinal())) {
+		for (Edge<? extends Node> leftParentEdge : leftParentNode.getOutgoingEdges(rightEdge.getOrdinal())) {
 			if (leftParentEdge.getEdgeType() == rightEdge.getEdgeType()) {
-				if (leftParentEdge.getToNode().getHash() == rightToNode
-						.getHash()) {
-					if (session.matchedNodes.containsLeftKey(leftParentEdge
-							.getToNode().getKey()))
+				if (leftParentEdge.getToNode().getHash() == rightToNode.getHash()) {
+					if (session.matchedNodes.containsLeftKey(leftParentEdge.getToNode().getKey()))
 						continue;
 
 					int score = -1;
@@ -471,8 +424,7 @@ public class GraphMatchEngine {
 					// if (leftParentNode.getHash() == 0x2ae4fb2c244e43e2L)
 					// System.out.println("check it");
 					session.contextRecord.reset();
-					getContextSimilarity(leftParentEdge.getToNode(),
-							rightToNode, INDIRECT_SEARCH_DEPTH);
+					getContextSimilarity(leftParentEdge.getToNode(), rightToNode, INDIRECT_SEARCH_DEPTH);
 					if (session.acceptContext(leftParentEdge.getToNode())) {
 						leftCandidates.add(leftParentEdge.getToNode());
 					}
@@ -494,11 +446,9 @@ public class GraphMatchEngine {
 			// matching score of indirect edges to a file
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
 				ExecutionNode r = (ExecutionNode) rightToNode;
-				DebugUtils.getScorePW().print(
-						String.format("Indirect_%s:\t", r));
+				DebugUtils.getScorePW().print(String.format("Indirect_%s:\t", r));
 				for (int i = 0; i < leftCandidates.size(); i++) {
-					int candidateScore = session
-							.getScore(leftCandidates.get(i));
+					int candidateScore = session.getScore(leftCandidates.get(i));
 
 					if (candidateScore > 0) {
 						DebugUtils.getScorePW().print(candidateScore + "\t");
@@ -523,18 +473,15 @@ public class GraphMatchEngine {
 			// Collect the matching score record for indirect speculation
 			// Only in OUTPUT_SCORE debug mode
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				session.graphMergingStats.collectScoreRecord(leftCandidates,
-						rightToNode, true);
+				session.graphMergingStats.collectScoreRecord(leftCandidates, rightToNode, true);
 			}
 
 			// Ambiguous match, multiple ndoes have the same high score
 			if (topCandidates.size() > 1) {
 				// Bail if any incoming edge has an unmatched source node
 				for (Node<? extends Node> candidate : topCandidates) {
-					for (Edge<? extends Node> incoming : candidate
-							.getIncomingEdges()) {
-						if (!session.matchedNodes.containsLeftKey(incoming
-								.getFromNode().getKey()))
+					for (Edge<? extends Node> incoming : candidate.getIncomingEdges()) {
+						if (!session.matchedNodes.containsLeftKey(incoming.getFromNode().getKey()))
 							return null;
 					}
 				}

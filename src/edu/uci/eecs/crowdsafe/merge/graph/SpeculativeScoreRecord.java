@@ -2,7 +2,6 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
-
 public class SpeculativeScoreRecord {
 	/**
 	 * SpeculativeMatchingType enumerates the possible cases where speculative matches are made. The boundary for low
@@ -76,9 +75,8 @@ public class SpeculativeScoreRecord {
 	// The actual chosen leftNode
 	public final Node tagMappedLeftNode;
 
-	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType,
-			boolean isIndirectSpeculation, int matchingScore, Node leftNode,
-			Node rightNode, Node tagMappedLeftNode, MatchResult matchResult) {
+	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType, boolean isIndirectSpeculation,
+			int matchingScore, Node leftNode, Node rightNode, Node tagMappedLeftNode, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 		this.matchingScore = matchingScore;
@@ -89,21 +87,15 @@ public class SpeculativeScoreRecord {
 	}
 
 	public String toString() {
-		String leftNodeKeyStr = leftNode == null ? "null" : leftNode.getKey()
-				.toString();
-		String selectedleftNodeKeyStr = tagMappedLeftNode == null ? "null"
-				: tagMappedLeftNode.getKey().toString();
+		String leftNodeKeyStr = leftNode == null ? "null" : leftNode.getKey().toString();
+		String selectedleftNodeKeyStr = tagMappedLeftNode == null ? "null" : tagMappedLeftNode.getKey().toString();
 
 		if (isIndirectSpeculation) {
-			return "Indirect: " + speculativeScoreType + " -- ("
-					+ matchingScore + ") " + selectedleftNodeKeyStr + "<=>"
-					+ rightNode.getKey() + " [" + leftNodeKeyStr + "] -- "
-					+ matchResult;
+			return "Indirect: " + speculativeScoreType + " -- (" + matchingScore + ") " + selectedleftNodeKeyStr
+					+ "<=>" + rightNode.getKey() + " [" + leftNodeKeyStr + "] -- " + matchResult;
 		} else {
-			return "PureHeuristics: " + speculativeScoreType + " -- ("
-					+ matchingScore + ") " + selectedleftNodeKeyStr + "<=>"
-					+ rightNode.getKey() + " [" + leftNodeKeyStr + "] -- "
-					+ matchResult;
+			return "PureHeuristics: " + speculativeScoreType + " -- (" + matchingScore + ") " + selectedleftNodeKeyStr
+					+ "<=>" + rightNode.getKey() + " [" + leftNodeKeyStr + "] -- " + matchResult;
 		}
 	}
 }

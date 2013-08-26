@@ -22,8 +22,7 @@ public class GenerateStats {
 
 	private HashMap<Integer, Integer> newHashesCounter = new HashMap<Integer, Integer>();
 
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-			"yy-MM-dd_HH-mm-ss");
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy-MM-dd_HH-mm-ss");
 
 	Set<Long> totalPairHashes = new HashSet<Long>();
 	Set<Long> totalBlockHashes = new HashSet<Long>();
@@ -41,8 +40,7 @@ public class GenerateStats {
 		else if (args.length == 2) {
 			generateStats.generateStats(new File(args[0]), new File(args[1]));
 		} else {
-			generateStats.generateStats(new File(args[0]), new File(args[1]),
-					new File(args[2]), new File(args[3]));
+			generateStats.generateStats(new File(args[0]), new File(args[1]), new File(args[2]), new File(args[3]));
 		}
 	}
 
@@ -60,8 +58,7 @@ public class GenerateStats {
 		}
 	}
 
-	public void generateStats(File dir, File targetDir, File prePairSetFile,
-			File preBlockSetFile) {
+	public void generateStats(File dir, File targetDir, File prePairSetFile, File preBlockSetFile) {
 		totalPairHashes = AnalysisUtil.loadHashSet(prePairSetFile);
 		totalBlockHashes = AnalysisUtil.loadHashSet(preBlockSetFile);
 		generateStats(dir, targetDir);
@@ -81,18 +78,15 @@ public class GenerateStats {
 		this.progName = "<program-name>";
 
 		Date date = new Date();
-		File outputDir = new File(targetDir, this.progName + "-"
-				+ GenerateStats.DATE_FORMAT.format(date));
+		File outputDir = new File(targetDir, this.progName + "-" + GenerateStats.DATE_FORMAT.format(date));
 		if (!outputDir.mkdir()) {
 			Log.log("Error: It can't create the directory!");
 			return;
 		}
 
 		try {
-			outPlot = new PrintStream(new FileOutputStream(
-					outputDir.getAbsolutePath() + "/" + "unique_hash.dat"));
-			outInfo = new PrintStream(new FileOutputStream(
-					outputDir.getAbsoluteFile() + "/" + "info.dat"));
+			outPlot = new PrintStream(new FileOutputStream(outputDir.getAbsolutePath() + "/" + "unique_hash.dat"));
+			outInfo = new PrintStream(new FileOutputStream(outputDir.getAbsoluteFile() + "/" + "info.dat"));
 			outPlot.println("#Index\tNew-Pair\tNew-Block\tTotal-Pairs4-RuntTotal-Pairs\tTotal-Blocks\n");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -118,8 +112,7 @@ public class GenerateStats {
 
 			HashSet<Long> totalPairHashes4Run = new HashSet<Long>();
 			for (int i = 0; i < programs.length; i++) {
-				File fRun = new File(dir.getAbsolutePath() + "/" + programs[i]
-						+ "/" + run);
+				File fRun = new File(dir.getAbsolutePath() + "/" + programs[i] + "/" + run);
 				for (File file : fRun.listFiles()) {
 					if (file.getName().contains("pair-hash")) {
 						Set<Long> set = AnalysisUtil.loadHashSet(file);
@@ -127,17 +120,14 @@ public class GenerateStats {
 						if (allIntersection == null) {
 							allIntersection = new HashSet<Long>(set);
 						}
-						allIntersection = AnalysisUtil.intersection(set,
-								allIntersection);
+						allIntersection = AnalysisUtil.intersection(set, allIntersection);
 
 						for (Long l : set) {
 							if (!totalPairHashes.contains(l)) {
 								totalPairHashes.add(l);
 								countPair++;
 								if (countPair == 1) {
-									outInfo.println("----------"
-											+ fRun.getAbsolutePath()
-											+ "----------");
+									outInfo.println("----------" + fRun.getAbsolutePath() + "----------");
 								}
 								if (countPair < 50) {
 									outInfo.println(Long.toHexString(l));
@@ -157,10 +147,8 @@ public class GenerateStats {
 				}
 			}
 			if (countPair > 0) {
-				outInfo.println("Number of new hashes in this run: "
-						+ countPair);
-				this.dumpCommand(outInfo, progFile.getAbsolutePath() + "/run"
-						+ runNumber + "/command.txt");
+				outInfo.println("Number of new hashes in this run: " + countPair);
+				this.dumpCommand(outInfo, progFile.getAbsolutePath() + "/run" + runNumber + "/command.txt");
 				outInfo.println();
 			}
 
@@ -173,17 +161,13 @@ public class GenerateStats {
 			// countPair + "\t" + countBlock + "\t" +
 			// totalPairHashes4Run.size() + "\t" + totalPairHashes.size()+ "\t"
 			// + totalBlockHashes.size());
-			outPlot.println(runIndex + "\t" + countPair + "\t" + countBlock
-					+ "\t" + totalPairHashes4Run.size() + "\t"
+			outPlot.println(runIndex + "\t" + countPair + "\t" + countBlock + "\t" + totalPairHashes4Run.size() + "\t"
 					+ totalPairHashes.size() + "\t" + totalBlockHashes.size());
 		}
 
-		AnalysisUtil.writeSetToFile(new File(outputDir, "total_hashes.dat"),
-				totalPairHashes);
-		AnalysisUtil.writeSetToFile(new File(outputDir,
-				"total_block_hashes.dat"), totalBlockHashes);
-		AnalysisUtil.writeSetToFile(new File(outputDir,
-				"intersection_hashes.dat"), allIntersection);
+		AnalysisUtil.writeSetToFile(new File(outputDir, "total_hashes.dat"), totalPairHashes);
+		AnalysisUtil.writeSetToFile(new File(outputDir, "total_block_hashes.dat"), totalBlockHashes);
+		AnalysisUtil.writeSetToFile(new File(outputDir, "intersection_hashes.dat"), allIntersection);
 
 		outPlot.flush();
 		outPlot.close();

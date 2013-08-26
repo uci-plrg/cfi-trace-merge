@@ -2,7 +2,6 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
-
 public class PairNode {
 	private Node node1, node2;
 	// The level of the BFS traverse
@@ -26,8 +25,8 @@ public class PairNode {
 	}
 
 	public String toString() {
-		String node1Str = node1 == null ? "null" : node1.getKey().toString(), node2Str = node2 == null ? "null"
-				: node2.getKey().toString();
+		String node1Str = node1 == null ? "null" : node1.getKey().toString(), node2Str = node2 == null ? "null" : node2
+				.getKey().toString();
 		return node1Str + "<->" + node2Str;
 	}
 

@@ -21,8 +21,7 @@ import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
  * 
  */
 public class MatchedNodes {
-	private final BiMap<Node.Key, Node.Key> matchedNodesLeftRight = HashBiMap
-			.create();
+	private final BiMap<Node.Key, Node.Key> matchedNodesLeftRight = HashBiMap.create();
 
 	// Maps index of node1 and its matching score with nodes
 	// If they are matched directly, then their score should be 0
@@ -42,7 +41,7 @@ public class MatchedNodes {
 	public Set<Node.Key> getLeftKeySet() {
 		return matchedNodesLeftRight.keySet();
 	}
-	
+
 	public Set<Node.Key> getRightKeySet() {
 		return matchedNodesLeftRight.values();
 	}
@@ -55,22 +54,17 @@ public class MatchedNodes {
 	}
 
 	public boolean addPair(Node left, Node right, int score) {
-		session.debugLog.nodesMatched((ExecutionNode) left,
-				(ExecutionNode) right);
+		session.debugLog.nodesMatched((ExecutionNode) left, (ExecutionNode) right);
 
 		Node.Key leftKey = left.getKey();
 		Node.Key rightKey = right.getKey();
 		if (hasPair(leftKey, rightKey))
 			return true;
-		if ((matchedNodesLeftRight.containsKey(leftKey) || matchedNodesLeftRight
-				.containsValue(rightKey))
+		if ((matchedNodesLeftRight.containsKey(leftKey) || matchedNodesLeftRight.containsValue(rightKey))
 				&& !(left.isMetaNode() && right.isMetaNode())) {
-			Log.log("In execution " + session.left.getProcessId() + " & "
-					+ session.right.getProcessId());
-			Log.log("Node " + left.getKey()
-					+ " of the left graph is already matched!");
-			Log.log("Node pair need to be matched: " + left.getKey() + "<->"
-					+ right.getKey());
+			Log.log("In execution " + session.left.getProcessId() + " & " + session.right.getProcessId());
+			Log.log("Node " + left.getKey() + " of the left graph is already matched!");
+			Log.log("Node pair need to be matched: " + left.getKey() + "<->" + right.getKey());
 			Log.log("Prematched nodes: " + left.getKey() + "<->"
 					+ session.matchedNodes.getMatchByLeftKey(left.getKey()));
 			Log.log(session.matchedNodes.getMatchByRightKey(right.getKey()));

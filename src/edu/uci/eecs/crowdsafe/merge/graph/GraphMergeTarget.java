@@ -24,7 +24,6 @@ public class GraphMergeTarget {
 	}
 
 	String getProcessName() {
-		return cluster.getGraphData().containingGraph.dataSource
-				.getProcessName();
+		return cluster.getGraphData().containingGraph.dataSource.getProcessName();
 	}
 }

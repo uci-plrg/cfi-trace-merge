@@ -69,16 +69,14 @@ public class GraphMergeStatistics {
 		Set<Long> hashIntersection = AnalysisUtil.intersection(
 				session.left.cluster.getGraphData().nodesByHash.keySet(),
 				session.right.cluster.getGraphData().nodesByHash.keySet());
-		Set<Long> hashUnion = AnalysisUtil.union(
-				session.left.cluster.getGraphData().nodesByHash.keySet(),
+		Set<Long> hashUnion = AnalysisUtil.union(session.left.cluster.getGraphData().nodesByHash.keySet(),
 				session.right.cluster.getGraphData().nodesByHash.keySet());
 		hashIntersectionSize = hashIntersection.size();
 		hashUnionSize = hashUnion.size();
 		hashIntersectionRatio = hashIntersectionSize / (float) hashUnionSize;
 
 		mergedGraphNodeCount = session.mergedGraph.nodesByHash.getNodeCount();
-		nodeIntersectionRatio = session.matchedNodes.size()
-				/ (float) mergedGraphNodeCount;
+		nodeIntersectionRatio = session.matchedNodes.size() / (float) mergedGraphNodeCount;
 	}
 
 	public void tryDirectMatch() {
@@ -115,8 +113,7 @@ public class GraphMergeStatistics {
 
 	public ArrayList<ExecutionNode> unmatchedGraph1Nodes() {
 		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (ExecutionNode n : session.left.cluster.getGraphData().nodesByKey
-				.values()) {
+		for (ExecutionNode n : session.left.cluster.getGraphData().nodesByKey.values()) {
 			if (!session.matchedNodes.containsLeftKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
@@ -126,8 +123,7 @@ public class GraphMergeStatistics {
 
 	public ArrayList<ExecutionNode> unmatchedGraph2Nodes() {
 		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (ExecutionNode n : session.right.cluster.getGraphData().nodesByKey
-				.values()) {
+		for (ExecutionNode n : session.right.cluster.getGraphData().nodesByKey.values()) {
 			if (!session.matchedNodes.containsRightKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
@@ -147,25 +143,17 @@ public class GraphMergeStatistics {
 	}
 
 	public void outputMergedGraphInfo() {
-		Log.log("\nNode profile U:L[M]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)",
-				mergedGraphNodeCount,
-				session.left.cluster.getGraphData().nodesByKey.size(),
-				session.matchedNodes.size(),
+		Log.log("\nNode profile U:L[M]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)", mergedGraphNodeCount,
+				session.left.cluster.getGraphData().nodesByKey.size(), session.matchedNodes.size(),
 				session.right.cluster.getGraphData().nodesByKey.size(),
-				session.left.cluster.getGraphData().nodesByKey.size()
-						- session.matchedNodes.size(),
-				session.right.cluster.getGraphData().nodesByKey.size()
-						- session.matchedNodes.size());
+				session.left.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size(),
+				session.right.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size());
 
-		Log.log("BB hash profile U:L[I]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)",
-				hashUnionSize, session.left.cluster.getGraphData().nodesByHash
-						.keySet().size(), hashIntersectionSize,
-				session.right.cluster.getGraphData().nodesByHash.keySet()
-						.size(),
-				session.left.cluster.getGraphData().nodesByHash.keySet().size()
-						- hashIntersectionSize,
-				session.right.cluster.getGraphData().nodesByHash.keySet()
-						.size() - hashIntersectionSize);
+		Log.log("BB hash profile U:L[I]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)", hashUnionSize,
+				session.left.cluster.getGraphData().nodesByHash.keySet().size(), hashIntersectionSize,
+				session.right.cluster.getGraphData().nodesByHash.keySet().size(),
+				session.left.cluster.getGraphData().nodesByHash.keySet().size() - hashIntersectionSize,
+				session.right.cluster.getGraphData().nodesByHash.keySet().size() - hashIntersectionSize);
 
 		Log.log("\nIntersection/left: %f", (float) session.matchedNodes.size()
 				/ session.left.cluster.getGraphData().nodesByKey.size());
@@ -196,8 +184,7 @@ public class GraphMergeStatistics {
 		try {
 			pwRelationFile = new PrintWriter(fileName + ".relation");
 			for (Node.Key leftKey : session.matchedNodes.getLeftKeySet()) {
-				Node.Key rightKey = session.matchedNodes
-						.getMatchByLeftKey(leftKey);
+				Node.Key rightKey = session.matchedNodes.getMatchByLeftKey(leftKey);
 				pwRelationFile.println(leftKey + "->" + rightKey);
 			}
 
@@ -276,11 +263,9 @@ public class GraphMergeStatistics {
 							branchType = "";
 							break;
 					}
-					String edgeLabel = i + "->" + e.getToNode().getKey()
-							+ "[label=\"" + branchType + "_";
+					String edgeLabel = i + "->" + e.getToNode().getKey() + "[label=\"" + branchType + "_";
 					if (e.getEdgeType() == EdgeType.MODULE_ENTRY) {
-						edgeLabel = edgeLabel
-								+ e.getFromNode().getRelativeTag() + "->"
+						edgeLabel = edgeLabel + e.getFromNode().getRelativeTag() + "->"
 								+ e.getToNode().getRelativeTag() + "\"]";
 					} else {
 						edgeLabel = edgeLabel + e.getOrdinal() + "\"]";
@@ -307,8 +292,7 @@ public class GraphMergeStatistics {
 
 	}
 
-	void collectScoreRecord(List<Node> leftCandidates, Node rightNode,
-			boolean isIndirect) {
+	void collectScoreRecord(List<Node> leftCandidates, Node rightNode, boolean isIndirect) {
 		int maxScore = -1, maxScoreCnt = 0;
 		Node maxNode = null;
 		for (int i = 0; i < leftCandidates.size(); i++) {
@@ -325,21 +309,17 @@ public class GraphMergeStatistics {
 			maxNode = null;
 		}
 
-		MatchResult matchResult = AnalysisUtil.getMatchResult(
-				session.left.cluster, session.right.cluster, maxNode,
+		MatchResult matchResult = AnalysisUtil.getMatchResult(session.left.cluster, session.right.cluster, maxNode,
 				(ExecutionNode) rightNode, isIndirect);
-		Node trueLeftNode = session.left.cluster.getGraphData()
-				.HACK_relativeTagLookup((ExecutionNode) rightNode);
+		Node trueLeftNode = session.left.cluster.getGraphData().HACK_relativeTagLookup((ExecutionNode) rightNode);
 		if (maxNode == null) {
 			if (matchResult == MatchResult.IndirectExistingUnfoundMismatch
 					|| matchResult == MatchResult.PureHeuristicsExistingUnfoundMismatch) {
-				session.speculativeScoreList.add(new SpeculativeScoreRecord(
-						SpeculativeScoreType.NoMatch, isIndirect, -1,
-						trueLeftNode, rightNode, null, matchResult));
+				session.speculativeScoreList.add(new SpeculativeScoreRecord(SpeculativeScoreType.NoMatch, isIndirect,
+						-1, trueLeftNode, rightNode, null, matchResult));
 			} else {
-				session.speculativeScoreList.add(new SpeculativeScoreRecord(
-						SpeculativeScoreType.NoMatch, isIndirect, -1, null,
-						rightNode, null, matchResult));
+				session.speculativeScoreList.add(new SpeculativeScoreRecord(SpeculativeScoreType.NoMatch, isIndirect,
+						-1, null, rightNode, null, matchResult));
 			}
 			return;
 		}
@@ -359,47 +339,31 @@ public class GraphMergeStatistics {
 				// Need to figure out what leads the low score
 				// Easier to find if it is the tail case
 				if (CrowdSafeTraceUtil.isTailNode(rightNode)) {
-					session.speculativeScoreList
-							.add(new SpeculativeScoreRecord(
-									SpeculativeScoreType.LowScoreTail,
-									isIndirect, maxScore, trueLeftNode,
-									rightNode, maxNode, matchResult));
+					session.speculativeScoreList.add(new SpeculativeScoreRecord(SpeculativeScoreType.LowScoreTail,
+							isIndirect, maxScore, trueLeftNode, rightNode, maxNode, matchResult));
 				} else {
-					session.speculativeScoreList
-							.add(new SpeculativeScoreRecord(
-									SpeculativeScoreType.LowScoreDivergence,
-									isIndirect, maxScore, trueLeftNode,
-									rightNode, maxNode, matchResult));
+					session.speculativeScoreList.add(new SpeculativeScoreRecord(
+							SpeculativeScoreType.LowScoreDivergence, isIndirect, maxScore, trueLeftNode, rightNode,
+							maxNode, matchResult));
 				}
 			} else {
 				if (leftCandidates.size() == 1) {
-					if (((ExecutionNode) rightNode).getRelativeTag() == ((ExecutionNode) maxNode)
-							.getRelativeTag()) {
-						session.speculativeScoreList
-								.add(new SpeculativeScoreRecord(
-										SpeculativeScoreType.OneMatchTrue,
-										isIndirect, maxScore, trueLeftNode,
-										rightNode, maxNode, matchResult));
+					if (((ExecutionNode) rightNode).getRelativeTag() == ((ExecutionNode) maxNode).getRelativeTag()) {
+						session.speculativeScoreList.add(new SpeculativeScoreRecord(SpeculativeScoreType.OneMatchTrue,
+								isIndirect, maxScore, trueLeftNode, rightNode, maxNode, matchResult));
 					} else {
-						session.speculativeScoreList
-								.add(new SpeculativeScoreRecord(
-										SpeculativeScoreType.OneMatchFalse,
-										isIndirect, maxScore, trueLeftNode,
-										rightNode, maxNode, matchResult));
+						session.speculativeScoreList.add(new SpeculativeScoreRecord(SpeculativeScoreType.OneMatchFalse,
+								isIndirect, maxScore, trueLeftNode, rightNode, maxNode, matchResult));
 					}
 				} else {
 					if (maxScoreCnt <= 1) {
-						session.speculativeScoreList
-								.add(new SpeculativeScoreRecord(
-										SpeculativeScoreType.ManyMatchesCorrect,
-										isIndirect, maxScore, trueLeftNode,
-										rightNode, maxNode, matchResult));
+						session.speculativeScoreList.add(new SpeculativeScoreRecord(
+								SpeculativeScoreType.ManyMatchesCorrect, isIndirect, maxScore, trueLeftNode, rightNode,
+								maxNode, matchResult));
 					} else {
-						session.speculativeScoreList
-								.add(new SpeculativeScoreRecord(
-										SpeculativeScoreType.ManyMatchesAmbiguity,
-										isIndirect, maxScore, trueLeftNode,
-										rightNode, maxNode, matchResult));
+						session.speculativeScoreList.add(new SpeculativeScoreRecord(
+								SpeculativeScoreType.ManyMatchesAmbiguity, isIndirect, maxScore, trueLeftNode,
+								rightNode, maxNode, matchResult));
 					}
 				}
 			}

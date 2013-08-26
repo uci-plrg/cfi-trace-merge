@@ -47,8 +47,7 @@ public class ContextMatchRecord {
 
 	private final State currentState = new State();
 
-	private final List<EdgeComparison> edges = new ArrayList<EdgeComparison>(
-			INITIAL_COMPARISON_COUNT);
+	private final List<EdgeComparison> edges = new ArrayList<EdgeComparison>(INITIAL_COMPARISON_COUNT);
 
 	// In case of recursively compute the similarity of cyclic graph, record
 	// the compared nodes every time getContextSimilarity is called
@@ -78,7 +77,7 @@ public class ContextMatchRecord {
 		currentState.hasAmbiguity = false;
 		currentState.complete = true;
 		stateIndex = 0;
-		
+
 		comparedNodeSet.clear();
 		comparedNodeList.clear();
 	}
@@ -95,7 +94,7 @@ public class ContextMatchRecord {
 		comparedNodeSet.add(node);
 		comparedNodeList.add(node);
 	}
-	
+
 	public boolean isAlreadyCompared(Node node) {
 		return comparedNodeSet.contains(node);
 	}
@@ -111,8 +110,7 @@ public class ContextMatchRecord {
 		stateStack.get(--stateIndex).copyTo(currentState);
 
 		while (comparedNodeList.size() > currentState.comparedNodeCount) {
-			comparedNodeSet.remove(comparedNodeList.remove(comparedNodeList
-					.size() - 1));
+			comparedNodeSet.remove(comparedNodeList.remove(comparedNodeList.size() - 1));
 		}
 	}
 

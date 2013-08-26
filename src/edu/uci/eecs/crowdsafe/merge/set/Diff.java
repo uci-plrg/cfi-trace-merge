@@ -9,19 +9,16 @@ import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 public class Diff {
 
 	public void diff(File file1, File file2, int showNewHashes) {
-		Set<Long> set1 = AnalysisUtil.loadHashSet(file1), set2 = AnalysisUtil
-				.loadHashSet(file2);
+		Set<Long> set1 = AnalysisUtil.loadHashSet(file1), set2 = AnalysisUtil.loadHashSet(file2);
 
 		if (set1.containsAll(set2) && set2.containsAll(set1))
 			Log.log("No new hash codes found in set " + file1 + "!");
 		else {
 			Log.log("The two sets are not the same!");
-			Set<Long> s1_s2 = AnalysisUtil.minus(set1, set2), s2_s1 = AnalysisUtil
-					.minus(set2, set1);
+			Set<Long> s1_s2 = AnalysisUtil.minus(set1, set2), s2_s1 = AnalysisUtil.minus(set2, set1);
 			Log.log("size of set1: " + set1.size());
 			Log.log("size of set2: " + set2.size());
-			Log.log("intersection size = "
-					+ AnalysisUtil.intersection(set1, set2).size());
+			Log.log("intersection size = " + AnalysisUtil.intersection(set1, set2).size());
 			Log.log("Number of new hash codes: " + s1_s2.size());
 			if (showNewHashes == 1) {
 				for (Long l : s1_s2) {
@@ -38,8 +35,7 @@ public class Diff {
 	}
 
 	public void addToSet(File from, File to) {
-		Set<Long> fromSet = AnalysisUtil.loadHashSet(from), toSet = AnalysisUtil
-				.loadHashSet(to);
+		Set<Long> fromSet = AnalysisUtil.loadHashSet(from), toSet = AnalysisUtil.loadHashSet(to);
 		toSet.addAll(fromSet);
 		AnalysisUtil.writeSetToFile(to, toSet);
 	}

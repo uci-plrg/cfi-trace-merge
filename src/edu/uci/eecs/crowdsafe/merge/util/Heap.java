@@ -89,14 +89,12 @@ public class Heap<Type> {
 				maxSon = elems.get(leftSonIndex);
 				maxSonIndex = leftSonIndex;
 				if (rightSonIndex <= size()
-						&& comparator.compare(elems.get(leftSonIndex),
-								elems.get(rightSonIndex)) < 0) {
+						&& comparator.compare(elems.get(leftSonIndex), elems.get(rightSonIndex)) < 0) {
 					maxSon = elems.get(rightSonIndex);
 					maxSonIndex = rightSonIndex;
 				}
 			}
-			if (leftSonIndex > size()
-					|| comparator.compare(maxSon, elems.get(0)) < 0)
+			if (leftSonIndex > size() || comparator.compare(maxSon, elems.get(0)) < 0)
 				break;
 			else if (leftSonIndex <= size()) {
 				elems.set(index, maxSon);
@@ -114,8 +112,7 @@ public class Heap<Type> {
 		}
 	}
 
-	public static <Type> Heap<Type> buildHeapFromArray(Type[] arr,
-			Comparator<Type> comparator) {
+	public static <Type> Heap<Type> buildHeapFromArray(Type[] arr, Comparator<Type> comparator) {
 		Heap<Type> heap = new Heap<Type>();
 		heap.setComparator(comparator);
 		if (arr == null || arr.length == 0)

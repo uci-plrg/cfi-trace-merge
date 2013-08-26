@@ -2,7 +2,6 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
-
 public class PairEdge {
 	private Node parent, child;
 	private boolean isDirect;

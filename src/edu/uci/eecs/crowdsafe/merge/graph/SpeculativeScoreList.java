@@ -16,10 +16,8 @@ public class SpeculativeScoreList {
 	public static void showGlobalStats() {
 		int matchCnt = 0;
 
-		int[] globalIndirectScoreCaseCnts = new int[SpeculativeScoreType
-				.values().length];
-		int[] globalPureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType
-				.values().length];
+		int[] globalIndirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
+		int[] globalPureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType.values().length];
 		int[] globalMatchResultCnts = new int[MatchResult.values().length];
 		for (int i = 0; i < globalIndirectScoreCaseCnts.length; i++) {
 			globalIndirectScoreCaseCnts[i] = 0;
@@ -38,9 +36,8 @@ public class SpeculativeScoreList {
 		Log.log();
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			Log.log("Total pure heuristics " + SpeculativeScoreType.values()[i]
-					+ ": " + (float) globalPureHeuristicsScoreCaseCnts[i]
-					/ matchCnt);
+			Log.log("Total pure heuristics " + SpeculativeScoreType.values()[i] + ": "
+					+ (float) globalPureHeuristicsScoreCaseCnts[i] / matchCnt);
 		}
 		Log.log();
 		for (int i = 0; i < MatchResult.values().length; i++) {
@@ -54,8 +51,7 @@ public class SpeculativeScoreList {
 	private final Map<MatchResult, ArrayList<SpeculativeScoreRecord>> result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
 
 	private int[] indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
-	private int[] pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType
-			.values().length];
+	private int[] pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType.values().length];
 	private int[] matchResultCnts = new int[MatchResult.values().length];
 
 	private boolean hasConflict;
@@ -117,14 +113,12 @@ public class SpeculativeScoreList {
 		Log.log("The statistical results for speculative scoring is:");
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			Log.log("Total indirect " + SpeculativeScoreType.values()[i] + ": "
-					+ indirectScoreCaseCnts[i]);
+			Log.log("Total indirect " + SpeculativeScoreType.values()[i] + ": " + indirectScoreCaseCnts[i]);
 		}
 		Log.log();
 
 		for (int i = 0; i < SpeculativeScoreType.values().length; i++) {
-			Log.log("Total pure heuristics " + SpeculativeScoreType.values()[i]
-					+ ": " + pureHeuristicsScoreCaseCnts[i]);
+			Log.log("Total pure heuristics " + SpeculativeScoreType.values()[i] + ": " + pureHeuristicsScoreCaseCnts[i]);
 		}
 		Log.log();
 

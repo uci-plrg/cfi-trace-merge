@@ -59,21 +59,17 @@ public class DebugUtils {
 
 	public static final int USEFUL_DEBUG_OPTION0 = debug_option(DEBUG_ONLY);
 	public static final int USEFUL_DEBUG_OPTION1 = debug_option(MERGE_ERROR);
-	public static final int USEFUL_DEBUG_OPTION2 = debug_option(MERGE_ERROR,
-			DUMP_GRAPH);
-	public static final int USEFUL_DEBUG_OPTION3 = debug_option(MERGE_ERROR,
-			DUMP_GRAPH, PRINT_MATCHING_HISTORY, TRACE_HEURISTIC);
-	public static final int USEFUL_DEBUG_OPTION4 = debug_option(MERGE_ERROR,
-			DUMP_GRAPH, PRINT_MATCHING_HISTORY, MAIN_KNOWN);
-	public static final int USEFUL_DEBUG_OPTION5 = debug_option(MERGE_ERROR,
-			DUMP_GRAPH, PRINT_MATCHING_HISTORY, MAIN_KNOWN_ADD_MAIN);
-	public static final int USEFUL_DEBUG_OPTION6 = debug_option(MERGE_ERROR,
-			DUMP_GRAPH, MAIN_KNOWN);
-	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR,
+	public static final int USEFUL_DEBUG_OPTION2 = debug_option(MERGE_ERROR, DUMP_GRAPH);
+	public static final int USEFUL_DEBUG_OPTION3 = debug_option(MERGE_ERROR, DUMP_GRAPH, PRINT_MATCHING_HISTORY,
+			TRACE_HEURISTIC);
+	public static final int USEFUL_DEBUG_OPTION4 = debug_option(MERGE_ERROR, DUMP_GRAPH, PRINT_MATCHING_HISTORY,
 			MAIN_KNOWN);
+	public static final int USEFUL_DEBUG_OPTION5 = debug_option(MERGE_ERROR, DUMP_GRAPH, PRINT_MATCHING_HISTORY,
+			MAIN_KNOWN_ADD_MAIN);
+	public static final int USEFUL_DEBUG_OPTION6 = debug_option(MERGE_ERROR, DUMP_GRAPH, MAIN_KNOWN);
+	public static final int USEFUL_DEBUG_OPTION7 = debug_option(MERGE_ERROR, MAIN_KNOWN);
 
-	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION1
-			| FILTER_OUT_IMME_ADDR;
+	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION1 | FILTER_OUT_IMME_ADDR;
 	// public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0;
 
 	public static boolean debug = true;
