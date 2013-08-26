@@ -90,8 +90,9 @@ public class GraphMatchEngine {
 		for (int ordinal = 0; ordinal < minOrdinal; ordinal++) {
 			List<? extends Edge<? extends Node>> leftEdges = leftNode.getOutgoingEdges(ordinal);
 			List<? extends Edge<? extends Node>> rightEdges = rightNode.getOutgoingEdges(ordinal);
-			if (leftEdges.isEmpty() || rightEdges.isEmpty()) { // but not both...
-				session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
+			if (leftEdges.isEmpty() || rightEdges.isEmpty()) {
+				if (!(leftEdges.isEmpty() && rightEdges.isEmpty()))
+					session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
 				continue;
 			}
 			EdgeType type = leftEdges.get(0).getEdgeType();
@@ -103,9 +104,7 @@ public class GraphMatchEngine {
 							if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
 								continue;
 							}
-							// Check if leftEdge.toNode was already matched to another
-							// node; if so, it should return -1 to indicate a
-							// conflict
+							// Check if leftEdge.toNode was already matched to another node; if so, fail
 							if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey())
 									&& !session.matchedNodes.hasPair(leftEdge.getToNode().getKey(), rightEdge
 											.getToNode().getKey())) {
