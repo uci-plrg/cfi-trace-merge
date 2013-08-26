@@ -2,14 +2,10 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.config.CrowdSafeConfiguration;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
@@ -43,12 +39,10 @@ public class GraphMergeSession {
 	final MergedClusterGraph mergedGraph;
 
 	final GraphMergeStatistics graphMergingStats;
+	final GraphMergeDebug debugLog;
 
 	final MatchedNodes matchedNodes;
-
-	final LinkedList<PairNode> matchedQueue = new LinkedList<PairNode>();
-	final LinkedList<PairNode> unmatchedQueue = new LinkedList<PairNode>();
-	final LinkedList<PairNodeEdge> indirectChildren = new LinkedList<PairNodeEdge>();
+	final GraphMatchState matchState;
 
 	// The speculativeScoreList, which records the detail of the scoring of
 	// all the possible cases
@@ -63,10 +57,15 @@ public class GraphMergeSession {
 
 	final GraphMergeEngine engine = new GraphMergeEngine(this);
 
-	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right) {
+	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right,
+			GraphMergeDebug debugLog) {
 		this.left = new GraphMergeTarget(this, left);
 		this.right = new GraphMergeTarget(this, right);
+		this.debugLog = debugLog;
+		debugLog.setSession(this);
+
 		matchedNodes = new MatchedNodes(this);
+		matchState = new GraphMatchState(this);
 		graphMergingStats = new GraphMergeStatistics(this);
 		mergedGraph = new MergedClusterGraph();
 	}
@@ -74,9 +73,7 @@ public class GraphMergeSession {
 	public void initializeMerge() {
 		right.visitedNodes.clear();
 		matchedNodes.clear();
-		matchedQueue.clear();
-		unmatchedQueue.clear();
-		indirectChildren.clear();
+		matchState.clear();
 		speculativeScoreList.clear();
 		graphMergingStats.reset();
 		hasConflict = false;
@@ -95,33 +92,36 @@ public class GraphMergeSession {
 				ExecutionNode leftNode = leftEntryPoints.get(sigHash);
 				ExecutionNode rightNode = rightEntryPoints.get(sigHash);
 
-				PairNode pairNode = new PairNode(leftNode, rightNode, 0);
-				matchedQueue.add(pairNode);
-				matchedNodes.addPair(leftNode, rightNode, 0);
+				if (leftNode.hasCompatibleEdges(rightNode)) {
+					PairNode pairNode = new PairNode(leftNode, rightNode, 0);
+					matchState.enqueueMatch(pairNode);
+					matchedNodes.addPair(leftNode, rightNode, 0);
 
-				graphMergingStats.directMatch();
+					graphMergingStats.directMatch();
 
-				if (DebugUtils.debug) {
-					// AnalysisUtil.outputIndirectNodesInfo(n1, n2);
+					if (DebugUtils.debug) {
+						// AnalysisUtil.outputIndirectNodesInfo(n1, n2);
+					}
+
+					if (DebugUtils.debug) {
+						DebugUtils.debug_matchingTrace
+								.addInstance(new MatchingInstance(0, leftNode
+										.getKey(), rightNode.getKey(),
+										MatchingType.SignatureNode, null));
+					}
+					continue;
 				}
-
-				if (DebugUtils.debug) {
-					DebugUtils.debug_matchingTrace
-							.addInstance(new MatchingInstance(0, leftNode
-									.getKey(), rightNode.getKey(),
-									MatchingType.SignatureNode, null));
-				}
-			} else {
-				// Push new signature node to prioritize the speculation to the
-				// beginning of the graph
-				ExecutionNode n2 = rightEntryPoints.get(sigHash);
-				// TODO: guessing that the third arg "level" should be 0
-				unmatchedQueue.add(new PairNode(null, n2, 0));
-				engine.addUnmatchedNode2Queue(n2, -1);
 			}
+
+			// Push new signature node to prioritize the speculation to the
+			// beginning of the graph
+			ExecutionNode n2 = rightEntryPoints.get(sigHash);
+			// TODO: guessing that the third arg "level" should be 0
+			matchState.enqueueUnmatch(new PairNode(null, n2, 0));
+			engine.addUnmatchedNode2Queue(n2, -1);
 		}
 
-		GraphMergeDebug.initializeMerge(left.cluster, right.cluster);
+		debugLog.initializeMerge(left.cluster, right.cluster);
 	}
 
 	boolean acceptContext(Node candidate) {
@@ -199,12 +199,15 @@ public class GraphMergeSession {
 
 			long start = System.currentTimeMillis();
 
+			GraphMergeDebug debugLog = new GraphMergeDebug();
 			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(
 					leftDataSource);
+			leftSession.setListener(debugLog);
 			ProcessExecutionGraph leftGraph = leftSession.loadGraph();
 
 			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(
 					rightDataSource);
+			rightSession.setListener(debugLog);
 			ProcessExecutionGraph rightGraph = rightSession.loadGraph();
 
 			long merge = System.currentTimeMillis();
@@ -223,11 +226,14 @@ public class GraphMergeSession {
 				}
 
 				GraphMergeSession session = new GraphMergeSession(leftCluster,
-						rightCluster);
+						rightCluster, debugLog);
 				GraphMergeEngine engine = new GraphMergeEngine(session);
 
 				try {
 					engine.mergeGraph();
+					session.graphMergingStats.computeResults();
+					session.graphMergingStats.outputMergedGraphInfo();
+					debugLog.mergeCompleted();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

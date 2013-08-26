@@ -192,7 +192,7 @@ public class GraphMatchEngine {
 
 	// In the new approach, we only match the pure speculation when the score
 	// exceeds the PureHeuristicsSpeculationThreshold
-	Node getCorrespondingNode(Node rightNode) {
+	Node matchByHashThenContext(Node rightNode) {
 		session.graphMergingStats.tryPureHeuristicMatch();
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			DebugUtils.debug_pureHeuristicCnt++;
@@ -205,10 +205,6 @@ public class GraphMatchEngine {
 			return session.left.cluster.getGraphData().nodesByKey
 					.get(leftNodeKey);
 		}
-
-		if ((rightNode.getHash() == 0x843ab2189L)
-				|| (rightNode.getHash() == 0x1da2d80bedd7ef8bL)) // two @1000
-			System.out.println("wait!");
 
 		// This node is not in the left graph and is not yet merged
 		NodeList leftNodes = session.left.cluster.getGraphData().nodesByHash
@@ -314,7 +310,8 @@ public class GraphMatchEngine {
 		Node rightToNode = rightEdge.getToNode();
 
 		if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-			Edge<? extends Node> callContinuation = leftParent.getCallContinuation();
+			Edge<? extends Node> callContinuation = leftParent
+					.getCallContinuation();
 			if (callContinuation != null) {
 				if (callContinuation.getToNode().getHash() == rightEdge
 						.getToNode().getHash()) {
@@ -328,7 +325,8 @@ public class GraphMatchEngine {
 
 		if (leftEdges.size() == 1) {
 			Node leftChild = leftEdges.get(0).getToNode();
-			if (leftChild.getHash() == rightToNode.getHash()) {
+			if ((leftChild.getHash() == rightToNode.getHash())
+					&& leftChild.hasCompatibleEdges(rightEdge.getToNode())) {
 				return leftChild;
 			} else {
 				return null;
@@ -349,6 +347,7 @@ public class GraphMatchEngine {
 
 					switch (leftEdge.getEdgeType()) {
 						case DIRECT:
+						case MODULE_ENTRY:
 							session.graphMergingStats.directMatch();
 							break;
 						case CALL_CONTINUATION:
@@ -356,7 +355,7 @@ public class GraphMatchEngine {
 							break;
 						default:
 							throw new IllegalArgumentException(
-									"Method expects only direct and call continuation edges!");
+									"Method only expects edges of type direct, module entry and call continuation!");
 					}
 
 					session.contextRecord.reset();
@@ -365,7 +364,8 @@ public class GraphMatchEngine {
 					if (session.acceptContext(leftEdge.getToNode())) {
 						candidates.add(leftEdge.getToNode());
 					}
-				} else { // hashes differ on a matching direct edge!
+				} else if (rightEdge.getEdgeType() != EdgeType.MODULE_ENTRY) {
+					// hashes differ on a matching direct edge!
 					session.graphMergingStats.possibleRewrite();
 				}
 			} else {
@@ -448,12 +448,10 @@ public class GraphMatchEngine {
 			Node alreadyMatched = session.left.cluster.getGraphData().nodesByKey
 					.get(session.matchedNodes.getMatchByRightKey(rightToNode
 							.getKey()));
-			if (alreadyMatched == null)
-				System.out.println("break");
 			return alreadyMatched;
 		}
 
-		ArrayList<Node> leftCandidates = new ArrayList<Node>();
+		List<Node> leftCandidates = new ArrayList<Node>();
 
 		for (Edge<? extends Node> leftParentEdge : leftParentNode
 				.getOutgoingEdges(rightEdge.getOrdinal())) {
@@ -509,15 +507,16 @@ public class GraphMatchEngine {
 				DebugUtils.getScorePW().println();
 			}
 
-			int pos = 0, score = -1, highestScoreCnt = 0;
-			for (int i = 0; i < leftCandidates.size(); i++) {
-				int candidateScore = session.getScore(leftCandidates.get(i));
+			List<Node> topCandidates = new ArrayList<Node>();
+			int pos = 0, score = -1;
+			for (Node candidate : leftCandidates) {
+				int candidateScore = session.getScore(candidate);
 				if (candidateScore > score) {
 					score = candidateScore;
-					pos = i;
-					highestScoreCnt = 1;
+					topCandidates.clear();
+					topCandidates.add(candidate);
 				} else if (candidateScore == score) {
-					highestScoreCnt++;
+					topCandidates.add(candidate);
 				}
 			}
 
@@ -528,16 +527,26 @@ public class GraphMatchEngine {
 						rightToNode, true);
 			}
 
-			// Ambiguous high score, cannot make any decision
-			if (highestScoreCnt > 1) {
-				return null;
+			// Ambiguous match, multiple ndoes have the same high score
+			if (topCandidates.size() > 1) {
+				// Bail if any incoming edge has an unmatched source node
+				for (Node<? extends Node> candidate : topCandidates) {
+					for (Edge<? extends Node> incoming : candidate
+							.getIncomingEdges()) {
+						if (!session.matchedNodes.containsLeftKey(incoming
+								.getFromNode().getKey()))
+							return null;
+					}
+				}
+				// All incoming edges are from matches, so randomly pick a match
+				while (topCandidates.size() > 1)
+					topCandidates.remove(topCandidates.size() - 1);
 			}
 
 			session.graphMergingStats.indirectMatch();
-			return leftCandidates.get(pos);
+			return topCandidates.get(0);
 		}
 	}
-
 	/**
 	 * This is used only for debugging to analyze the aliasing problem. Don't ever use it to merge the graph!!!
 	 * 

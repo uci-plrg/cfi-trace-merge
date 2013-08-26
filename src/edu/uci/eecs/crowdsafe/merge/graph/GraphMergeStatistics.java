@@ -147,24 +147,25 @@ public class GraphMergeStatistics {
 	}
 
 	public void outputMergedGraphInfo() {
-		Log.log("\nIntersecting nodes: %d", session.matchedNodes.size());
-		Log.log("Nodes on the left: %d",
-				session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Nodes on the right: %d",
-				session.right.cluster.getGraphData().nodesByKey.size());
-		Log.log("Nodes in the merged graph: %d", mergedGraphNodeCount);
+		Log.log("\nNode profile U:L[M]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)",
+				mergedGraphNodeCount,
+				session.left.cluster.getGraphData().nodesByKey.size(),
+				session.matchedNodes.size(),
+				session.right.cluster.getGraphData().nodesByKey.size(),
+				session.left.cluster.getGraphData().nodesByKey.size()
+						- session.matchedNodes.size(),
+				session.right.cluster.getGraphData().nodesByKey.size()
+						- session.matchedNodes.size());
 
-		Log.log("\nBlock hash count on the left: %d",
-				session.left.cluster.getGraphData().nodesByHash.keySet().size());
-		Log.log("Block hash count on the right: %d", session.right.cluster
-				.getGraphData().nodesByHash.keySet().size());
-		Set<Long> totalBlockSet = AnalysisUtil.intersection(
-				session.left.cluster.getGraphData().nodesByHash.keySet(),
-				session.right.cluster.getGraphData().nodesByHash.keySet());
-		Log.log("Block hash count in the merged graph: %d",
-				totalBlockSet.size());
-		Log.log("Ratio of block hashes: %f (%d/%d)", hashIntersectionRatio,
-				hashIntersectionSize, hashUnionSize);
+		Log.log("BB hash profile U:L[I]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)",
+				hashUnionSize, session.left.cluster.getGraphData().nodesByHash
+						.keySet().size(), hashIntersectionSize,
+				session.right.cluster.getGraphData().nodesByHash.keySet()
+						.size(),
+				session.left.cluster.getGraphData().nodesByHash.keySet().size()
+						- hashIntersectionSize,
+				session.right.cluster.getGraphData().nodesByHash.keySet()
+						.size() - hashIntersectionSize);
 
 		Log.log("\nIntersection/left: %f", (float) session.matchedNodes.size()
 				/ session.left.cluster.getGraphData().nodesByKey.size());
@@ -238,12 +239,9 @@ public class GraphMergeStatistics {
 
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			Set<ExecutionNode> accessibleNodes = graph.searchAccessibleNodes();
-			for (ExecutionNode n : graph.getGraphData().nodesByKey.values()) {
-				if (!accessibleNodes.contains(n)) {
-					pwNodeFile.println(n);
-				}
-
+			Set<ExecutionNode> unreachableNodes = graph.getUnreachableNodes();
+			for (ExecutionNode n : unreachableNodes) {
+				pwNodeFile.println(n);
 			}
 
 			pwDotFile.println("digraph runGraph {");

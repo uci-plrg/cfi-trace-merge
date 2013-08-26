@@ -8,6 +8,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
 
@@ -41,6 +42,10 @@ public class MatchedNodes {
 	public Set<Node.Key> getLeftKeySet() {
 		return matchedNodesLeftRight.keySet();
 	}
+	
+	public Set<Node.Key> getRightKeySet() {
+		return matchedNodesLeftRight.values();
+	}
 
 	public boolean hasPair(Node.Key leftKey, Node.Key rightKey) {
 		if (!matchedNodesLeftRight.containsKey(leftKey)) {
@@ -50,6 +55,9 @@ public class MatchedNodes {
 	}
 
 	public boolean addPair(Node left, Node right, int score) {
+		session.debugLog.nodesMatched((ExecutionNode) left,
+				(ExecutionNode) right);
+
 		Node.Key leftKey = left.getKey();
 		Node.Key rightKey = right.getKey();
 		if (hasPair(leftKey, rightKey))
