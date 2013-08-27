@@ -76,18 +76,6 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 	public GraphMergeDebug() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
-		// Error: merged node __unknown__(0x6651fbc7-v0|0x3c3f0f4e3b1) cannot be found
-		trackedNodes.add(new TrackedNodeKey(0xbc7, 0x3c3f0f4e3b1L));
-
-		// Error: merged node wpdshext.dll(0x149116-v0|0x166296a3ed7) cannot be found
-		trackedNodes.add(new TrackedNodeKey(0x116, 0x166296a3ed7L));
-
-		// Error: merged node wpdshext.dll(0x11b433-v0|0xfdbaa2963) cannot be found
-		trackedNodes.add(new TrackedNodeKey(0x433, 0xfdbaa2963L));
-
-		// Error: merged node wpdshext.dll(0x6877c-v0|0x22232e641ea) cannot be found
-		trackedNodes.add(new TrackedNodeKey(0x77c, 0x22232e641eaL));
-
 		// __unknown__(0x1c3d1903-v0|0x1fe439402a) has no incoming edges
 		// trackedNodes.add(new TrackedNodeKey(0x903, 0x1fe439402aL));
 
