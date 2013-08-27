@@ -38,6 +38,9 @@ public class GraphMergeStatistics {
 
 	private int hashUnionSize = 0;
 	private int hashIntersectionSize = 0;
+	private int hashIntersectionBlockCount = 0;
+	private int hashIntersectionLeftBlockCount = 0;
+	private int hashIntersectionRightBlockCount = 0;
 	private float hashIntersectionRatio = 0f;
 
 	private int mergedGraphNodeCount = 0;
@@ -59,6 +62,9 @@ public class GraphMergeStatistics {
 
 		hashUnionSize = 0;
 		hashIntersectionSize = 0;
+		hashIntersectionBlockCount = 0;
+		hashIntersectionLeftBlockCount = 0;
+		hashIntersectionRightBlockCount = 0;
 		hashIntersectionRatio = 0f;
 
 		mergedGraphNodeCount = 0;
@@ -74,6 +80,12 @@ public class GraphMergeStatistics {
 		hashIntersectionSize = hashIntersection.size();
 		hashUnionSize = hashUnion.size();
 		hashIntersectionRatio = hashIntersectionSize / (float) hashUnionSize;
+
+		for (Long hash : hashIntersection) {
+			hashIntersectionBlockCount += session.mergedGraph.nodesByHash.get(hash).size();
+			hashIntersectionLeftBlockCount += session.left.cluster.getGraphData().nodesByHash.get(hash).size();
+			hashIntersectionRightBlockCount += session.right.cluster.getGraphData().nodesByHash.get(hash).size();
+		}
 
 		mergedGraphNodeCount = session.mergedGraph.nodesByHash.getNodeCount();
 		nodeIntersectionRatio = session.matchedNodes.size() / (float) mergedGraphNodeCount;
@@ -143,28 +155,37 @@ public class GraphMergeStatistics {
 	}
 
 	public void outputMergedGraphInfo() {
-		Log.log("\nNode profile U:L[M]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)", mergedGraphNodeCount,
-				session.left.cluster.getGraphData().nodesByKey.size(), session.matchedNodes.size(),
-				session.right.cluster.getGraphData().nodesByKey.size(),
-				session.left.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size(),
-				session.right.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size());
-
-		Log.log("BB hash profile U:L[I]R:(EL|ER) = %d: %d [ %d ] %d :(%d|%d)", hashUnionSize,
-				session.left.cluster.getGraphData().nodesByHash.keySet().size(), hashIntersectionSize,
+		Log.log("\nBB hash profile\n\tUnion:Left[Int(nodes)]Right:(ExcL|ExcR)\n\t%d: %d [ %d ] %d :(%d|%d)",
+				hashUnionSize, session.left.cluster.getGraphData().nodesByHash.keySet().size(), hashIntersectionSize,
 				session.right.cluster.getGraphData().nodesByHash.keySet().size(),
 				session.left.cluster.getGraphData().nodesByHash.keySet().size() - hashIntersectionSize,
 				session.right.cluster.getGraphData().nodesByHash.keySet().size() - hashIntersectionSize);
 
-		Log.log("\nIntersection/left: %f", (float) session.matchedNodes.size()
-				/ session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Intersection/right: %f", (float) session.matchedNodes.size()
-				/ session.right.cluster.getGraphData().nodesByKey.size());
-		Log.log("Intersection/union: %f", nodeIntersectionRatio);
+		Log.log("Node profile\n\tUnion:Left[Merge]Right:(ExcL|ExcR)\n\t%d: %d [ %d ] %d :(%d|%d)",
+				mergedGraphNodeCount, session.left.cluster.getGraphData().nodesByKey.size(),
+				session.matchedNodes.size(), session.right.cluster.getGraphData().nodesByKey.size(),
+				session.left.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size(),
+				session.right.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size());
+
+		Log.log("\nHash potential: %.2f of nodes have shared hash codes", hashIntersectionBlockCount
+				/ (float) mergedGraphNodeCount);
+		Log.log("Left: node intersection/total: %.2f",
+				session.matchedNodes.size() / (float) session.left.cluster.getGraphData().nodesByKey.size());
+		Log.log("Left: node intersection/hash potential: %.2f", session.matchedNodes.size()
+				/ (float) hashIntersectionLeftBlockCount);
+		Log.log("Right: node intersection/total: %.2f",
+				session.matchedNodes.size() / (float) session.right.cluster.getGraphData().nodesByKey.size());
+		Log.log("Right: node intersection/hash potential: %.2f", session.matchedNodes.size()
+				/ (float) hashIntersectionRightBlockCount);
+		Log.log("Merge: node intersection/union: %.2f", nodeIntersectionRatio);
+		Log.log("Merge: node intersection/hash potential: %.2f", session.matchedNodes.size()
+				/ (float) hashIntersectionBlockCount);
 
 		Log.log("\nIndirect edge matched: %d", indirectEdgeMatchCount);
 		Log.log("Pure Heuristic match: %d", pureHeuristicMatchCount);
 		Log.log("CallContinuation Match: %d", callContinuationMatchCount);
 		Log.log("Possibly rewritten blocks: %d", possibleRewrites);
+		Log.log("Mismatches by tag: %d", session.matchedNodes.HACK_getMismatchCount());
 
 		Log.log();
 	}

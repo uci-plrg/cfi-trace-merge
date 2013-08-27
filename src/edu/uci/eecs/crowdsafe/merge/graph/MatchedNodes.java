@@ -21,13 +21,16 @@ import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
  * 
  */
 public class MatchedNodes {
+
+	private final GraphMergeSession session;
+
 	private final BiMap<Node.Key, Node.Key> matchedNodesLeftRight = HashBiMap.create();
 
 	// Maps index of node1 and its matching score with nodes
 	// If they are matched directly, then their score should be 0
 	private final Map<Node.Key, Integer> matchingScore = new HashMap<Node.Key, Integer>();
 
-	private final GraphMergeSession session;
+	private int HACK_mismatchCount;
 
 	MatchedNodes(GraphMergeSession session) {
 		this.session = session;
@@ -36,6 +39,7 @@ public class MatchedNodes {
 	public void clear() {
 		matchedNodesLeftRight.clear();
 		matchingScore.clear();
+		HACK_mismatchCount = 0;
 	}
 
 	public Set<Node.Key> getLeftKeySet() {
@@ -51,6 +55,10 @@ public class MatchedNodes {
 			return false;
 		}
 		return matchedNodesLeftRight.get(leftKey) == rightKey;
+	}
+
+	public int HACK_getMismatchCount() {
+		return HACK_mismatchCount;
 	}
 
 	public boolean addPair(Node left, Node right, int score) {
@@ -73,6 +81,10 @@ public class MatchedNodes {
 		}
 		matchedNodesLeftRight.put(leftKey, rightKey);
 		matchingScore.put(leftKey, score);
+
+		if (!left.getKey().equals(right.getKey()))
+			HACK_mismatchCount++;
+
 		return true;
 	}
 

@@ -234,6 +234,7 @@ class GraphMergeEngine {
 		for (Node leftNode : session.left.cluster.getGraphData().nodesByKey.values()) {
 			MergedNode mergedNode = session.mergedGraph.addNode(leftNode.getHash(), leftNode.getType());
 			leftNode2MergedNode.put(leftNode, mergedNode);
+			session.debugLog.nodeMergedFromLeft(leftNode);
 		}
 
 		// Copy edges from left
@@ -247,6 +248,7 @@ class GraphMergeEngine {
 						leftEdge.getEdgeType(), leftEdge.getOrdinal());
 				mergedFromNode.addOutgoingEdge(mergedEdge);
 				mergedToNode.addIncomingEdge(mergedEdge);
+				session.debugLog.edgeMergedFromLeft(leftEdge);
 			}
 		}
 
@@ -256,6 +258,7 @@ class GraphMergeEngine {
 			if (!session.matchedNodes.containsRightKey(rightNode.getKey())) {
 				MergedNode mergedNode = session.mergedGraph.addNode(rightNode.getHash(), rightNode.getType());
 				rightNode2MergedNode.put(rightNode, mergedNode);
+				session.debugLog.nodeMergedFromRight(rightNode);
 			}
 		}
 
@@ -331,7 +334,7 @@ class GraphMergeEngine {
 				mergedFromNode.addOutgoingEdge(mergedEdge);
 
 				if (mergedToNode == null) {
-					System.err.println(String.format("Error: merged node %s cannot be found", rightToNode));
+					Log.log(String.format("Error: merged node %s cannot be found", rightToNode));
 					continue;
 				}
 

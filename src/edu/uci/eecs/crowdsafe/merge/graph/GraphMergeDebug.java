@@ -76,6 +76,18 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 	public GraphMergeDebug() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
+		// Error: merged node __unknown__(0x6651fbc7-v0|0x3c3f0f4e3b1) cannot be found
+		trackedNodes.add(new TrackedNodeKey(0xbc7, 0x3c3f0f4e3b1L));
+
+		// Error: merged node wpdshext.dll(0x149116-v0|0x166296a3ed7) cannot be found
+		trackedNodes.add(new TrackedNodeKey(0x116, 0x166296a3ed7L));
+
+		// Error: merged node wpdshext.dll(0x11b433-v0|0xfdbaa2963) cannot be found
+		trackedNodes.add(new TrackedNodeKey(0x433, 0xfdbaa2963L));
+
+		// Error: merged node wpdshext.dll(0x6877c-v0|0x22232e641ea) cannot be found
+		trackedNodes.add(new TrackedNodeKey(0x77c, 0x22232e641eaL));
+
 		// __unknown__(0x1c3d1903-v0|0x1fe439402a) has no incoming edges
 		// trackedNodes.add(new TrackedNodeKey(0x903, 0x1fe439402aL));
 
@@ -196,7 +208,8 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		}
 
 		Log.log();
-		Log.log("%d total unmatched nodes, with %d outstanding.", totalUnmatchedCount, unmatchedNodes.size());
+		Log.log("%d total unmatched nodes (%d reachable and in the hash intersection).", totalUnmatchedCount,
+				unmatchedNodes.size());
 		Log.log("\t%d of them were unreachable.", unreachableUnmatchedCount);
 		Log.log("\t%d hash-exclusive to the %s graph.", hashExclusionCount, side);
 		// for (Node.Key unmatched : unmatchedNodes) {
@@ -239,12 +252,34 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 
 	void indirectEdgeEnqueued(PairNodeEdge rightEdge) {
 		if (isTracked(rightEdge.getLeftParentNode()) || isTracked(rightEdge.getRightParentNode()))
-			Log.log("Enqueue unmatched pair %s and %s", rightEdge.getLeftParentNode(), rightEdge.getRightParentNode());
+			Log.log("Enqueue indirect edge from %s to %s", rightEdge.getLeftParentNode(),
+					rightEdge.getRightParentNode());
 	}
 
 	void indirectEdgeDequeued(PairNodeEdge rightEdge) {
 		if (isTracked(rightEdge.getLeftParentNode()) || isTracked(rightEdge.getRightParentNode()))
-			Log.log("Dequeue unmatched pair %s and %s", rightEdge.getLeftParentNode(), rightEdge.getRightParentNode());
+			Log.log("Dequeue indirect edge from %s to %s", rightEdge.getLeftParentNode(),
+					rightEdge.getRightParentNode());
+	}
+
+	void nodeMergedFromLeft(Node leftNode) {
+		if (isTracked(leftNode))
+			Log.log("Merge node %s from the left graph.", leftNode.toString());
+	}
+
+	void nodeMergedFromRight(Node rightNode) {
+		if (isTracked(rightNode))
+			Log.log("Merge node %s from the right graph.", rightNode.toString());
+	}
+
+	void edgeMergedFromLeft(Edge<? extends Node> edge) {
+		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode()))
+			Log.log("Merge edge %s from the left graph.", edge.toString());
+	}
+
+	void edgeMergedFromRight(Edge<? extends Node> edge) {
+		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode()))
+			Log.log("Merge edge %s from the right graph.", edge.toString());
 	}
 
 	@Override
