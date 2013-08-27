@@ -1,6 +1,13 @@
 #!/bin/bash
 
-. cs-common
+. $csc/scripts/cs-common
+
+function print_usage() {
+  echo "Usage: cs-merge <left-run-dir> <right-run-dir> <log-file-basename>"
+  exit
+}
+
+check_help $1 print_usage
 
 append_classpath "CROWD_SAFE_MERGE_DIR"
 append_classpath "CROWD_SAFE_COMMON_DIR"

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+. $csc/scripts/cs-common
+
+function print_usage() {
+  echo "Usage: round-robin-merge <logdir>"
+}
+
+check_help $1 print_usage
+
 logdir=${1%/}
 shift
 
