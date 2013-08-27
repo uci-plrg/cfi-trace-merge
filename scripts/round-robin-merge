@@ -1,0 +1,25 @@
+#!/bin/bash
+
+logdir=${1%/}
+shift
+
+for d in $@
+do
+  targets=$targets" "$d
+done
+
+runs=`find $targets -type 'd' | grep -v "/$"`
+
+for a in $runs
+do
+  for b in $runs
+  do
+    if [ $a == $b ]
+    then
+      continue
+    fi
+    
+    logfile=$logdir"/"`echo $a | egrep -o "[^\/]+$"`"~"`echo $b | egrep -o "[^\/]+$"`".merge.log"
+    cs-merge $a $b $logfile
+  done
+done

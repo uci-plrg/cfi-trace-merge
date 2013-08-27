@@ -1,38 +1,13 @@
 #!/bin/bash
 
-function append_classpath() {
-  project=$1
-  
-  if [ -z $$project ]; then
-    echo "Environment variable $project is required."
-    exit
-  fi
-  
-  project_path=${!project}
-  
-  if [ ! -e $project_path ]; then
-    echo "The path of $project could not be found: $project_path"
-    exit
-  fi
-  
-  #echo "Appending classpath for $project: "$project_path
-  
-  cp=$cp:$project_path/bin
-  
-  if [ -e $project_path/lib ]; then
-    for j in `find $project_path/lib -name '*.jar'`; do 
-      cp=$cp:$j
-    done
-  fi
-}
-
+. cs-common
 
 append_classpath "CROWD_SAFE_MERGE_DIR"
 append_classpath "CROWD_SAFE_COMMON_DIR"
 
 #echo "classpath: $cp"
 
-main_class="edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSession"
+main_class="edu.uci.eecs.crowdsafe.analysis.merge.graph.GraphMergeSession"
 
 java -cp $cp $main_class $1 $2 $3
   
