@@ -12,7 +12,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessGraphLoadSession;
+import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDataSource;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
@@ -184,12 +184,10 @@ public class GraphMergeSession {
 
 			GraphMergeDebug debugLog = new GraphMergeDebug();
 			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(leftDataSource);
-			leftSession.setListener(debugLog);
-			ProcessExecutionGraph leftGraph = leftSession.loadGraph();
+			ProcessExecutionGraph leftGraph = leftSession.loadGraph(debugLog);
 
 			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(rightDataSource);
-			rightSession.setListener(debugLog);
-			ProcessExecutionGraph rightGraph = rightSession.loadGraph();
+			ProcessExecutionGraph rightGraph = rightSession.loadGraph(debugLog);
 
 			long merge = System.currentTimeMillis();
 			Log.log("\nGraph loaded in %f seconds.", ((merge - start) / 1000.));
