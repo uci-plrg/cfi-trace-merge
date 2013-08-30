@@ -3,7 +3,7 @@
 . $csc/scripts/cs-common
 
 function print_usage() {
-  echo "Usage: round-robin-merge <logdir>"
+  echo "Usage: round-robin-merge <logdir> <run-dir>*"
 }
 
 check_help $1 print_usage
@@ -16,7 +16,7 @@ do
   targets=$targets" "$d
 done
 
-runs=`find $targets -type 'd' | grep -v "/$"`
+runs=`find -L $targets -type 'd' | grep -v 'modules' | grep -v "/$"`
 
 for a in $runs
 do
