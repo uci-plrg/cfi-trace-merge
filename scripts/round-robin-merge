@@ -6,9 +6,21 @@ function print_usage() {
   echo "Usage: "
   echo "    round-robin-merge <logdir> <run-dir>*"
   echo "    round-robin-merge <logdir> <run-listing> (file of <run-dir>*)"
+  echo "    -r : resume (skip completed executions)"
+  echo "    -v : verbose output"
 }
 
 check_help $1 print_usage
+
+while getopts "rv" Option
+do
+  case $Option in
+    r ) skip=true;;
+    v ) verbose=true;;
+    * ) usage; exit;;
+  esac
+done
+shift $(($OPTIND - 1))
 
 logdir=${1%/}
 shift
@@ -43,6 +55,7 @@ do
     a=${runs[$i]}
     b=${runs[$j]}
     logfile=$logdir"/"`echo $a | egrep -o "[^\/]+$"`"~"`echo $b | egrep -o "[^\/]+$"`".merge.log"
+    [ ! -z $skip ] && [ -e $logfile ] && { [ ! -z $verbose ] && echo "Skipping completed merge "$logfile; continue; }
     cs-merge $a $b $logfile
   done
 done
