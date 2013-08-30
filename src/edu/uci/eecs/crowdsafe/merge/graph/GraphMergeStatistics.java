@@ -167,16 +167,16 @@ public class GraphMergeStatistics {
 				session.left.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size(),
 				session.right.cluster.getGraphData().nodesByKey.size() - session.matchedNodes.size());
 
-		Log.log("\nHash potential: %.2f of nodes have shared hash codes", hashIntersectionBlockCount
-				/ (float) mergedGraphNodeCount);
+		Log.log("\nHash potential: %.2f of nodes have shared hash codes (%d/%d)", hashIntersectionBlockCount
+				/ (float) mergedGraphNodeCount, hashIntersectionBlockCount, mergedGraphNodeCount);
 		Log.log("Left: node intersection/total: %.2f",
 				session.matchedNodes.size() / (float) session.left.cluster.getGraphData().nodesByKey.size());
-		Log.log("Left: node intersection/hash potential: %.2f", session.matchedNodes.size()
-				/ (float) hashIntersectionLeftBlockCount);
+		Log.log("Left: node intersection/hash potential: %.2f (%d/%d)", session.matchedNodes.size()
+				/ (float) hashIntersectionLeftBlockCount, session.matchedNodes.size(), hashIntersectionLeftBlockCount);
 		Log.log("Right: node intersection/total: %.2f",
 				session.matchedNodes.size() / (float) session.right.cluster.getGraphData().nodesByKey.size());
-		Log.log("Right: node intersection/hash potential: %.2f", session.matchedNodes.size()
-				/ (float) hashIntersectionRightBlockCount);
+		Log.log("Right: node intersection/hash potential: %.2f (%d/%d)", session.matchedNodes.size()
+				/ (float) hashIntersectionRightBlockCount, session.matchedNodes.size(), hashIntersectionRightBlockCount);
 		Log.log("Merge: node intersection/union: %.2f", nodeIntersectionRatio);
 		Log.log("Merge: node intersection/hash potential: %.2f", session.matchedNodes.size()
 				/ (float) hashIntersectionBlockCount);

@@ -196,7 +196,8 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		}
 
 		Log.log();
-		Log.log("%d total unmatched nodes (%d reachable and in the hash intersection).", totalUnmatchedCount,
+		Log.log("%s graph: %d total unmatched nodes", side, totalUnmatchedCount);
+		Log.log("\t%d are reachable and in the hash intersection",
 				unmatchedNodes.size());
 		Log.log("\t%d of them were unreachable.", unreachableUnmatchedCount);
 		Log.log("\t%d hash-exclusive to the %s graph.", hashExclusionCount, side);

@@ -214,8 +214,9 @@ public class GraphMergeSession {
 				}
 			}
 			Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - merge) / 1000.));
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Throwable t) {
+			Log.log(t);
+			t.printStackTrace();
 		}
 	}
 }
