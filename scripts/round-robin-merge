@@ -3,7 +3,9 @@
 . $csc/scripts/cs-common
 
 function print_usage() {
-  echo "Usage: round-robin-merge <logdir> <run-dir>*"
+  echo "Usage: "
+  echo "    round-robin-merge <logdir> <run-dir>*"
+  echo "    round-robin-merge <logdir> <run-listing> (file of <run-dir>*)"
 }
 
 check_help $1 print_usage
@@ -11,22 +13,35 @@ check_help $1 print_usage
 logdir=${1%/}
 shift
 
-for d in $@
+if [ -f "$1" ]
+then
+  targets=$(cat $1)
+else
+  for d in $@
+  do
+    targets=$targets" "$d
+  done
+fi
+
+runs=($(find -L $targets -type 'f' -name "*.bb-graph.*" | sed "s/\/[^/]\+$//" | sort))
+
+echo "Found "${#runs[@]}" runs"
+for ((i = 0; (i + 1) < ${#runs[@]}; i++))
 do
-  targets=$targets" "$d
+  if [ ${runs[$i]} == ${runs[$i+1]} ] 
+  then
+    echo "Multiple runs found in directory "${runs[$i]}
+    echo "Merging requires each run to be in its own directory"
+    exit
+  fi
 done
 
-runs=`find -L $targets -type 'd' | grep -v 'modules' | grep -v "/$"`
-
-for a in $runs
+for ((i = 0; (i + 1) < ${#runs[@]}; i++))
 do
-  for b in $runs
+  for ((j = ($i + 1); j < ${#runs[@]}; j++))
   do
-    if [ $a == $b ]
-    then
-      continue
-    fi
-    
+    a=${runs[$i]}
+    b=${runs[$j]}
     logfile=$logdir"/"`echo $a | egrep -o "[^\/]+$"`"~"`echo $b | egrep -o "[^\/]+$"`".merge.log"
     cs-merge $a $b $logfile
   done
