@@ -15,6 +15,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDataSource;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
+import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
@@ -31,6 +32,10 @@ public class GraphMergeSession {
 		AD_HOC,
 		FINALIZE
 	}
+
+	private static final EnumSet<ProcessTraceStreamType> MERGE_FILE_TYPES = EnumSet.of(ProcessTraceStreamType.MODULE,
+			ProcessTraceStreamType.GRAPH_HASH, ProcessTraceStreamType.MODULE_GRAPH,
+			ProcessTraceStreamType.CROSS_MODULE_GRAPH);
 
 	State state = State.INITIALIZATION;
 
@@ -175,8 +180,8 @@ public class GraphMergeSession {
 				printUsageAndExit();
 			}
 
-			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(leftRun);
-			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(rightRun);
+			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(leftRun, MERGE_FILE_TYPES);
+			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(rightRun, MERGE_FILE_TYPES);
 			Log.log("### ------- Merge %s(%d) with %s(%d) -------- ###", leftDataSource.getProcessName(),
 					leftDataSource.getProcessId(), rightDataSource.getProcessName(), rightDataSource.getProcessId());
 
