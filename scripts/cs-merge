@@ -12,7 +12,7 @@ check_help $1 print_usage
 append_classpath "CROWD_SAFE_MERGE_DIR"
 append_classpath "CROWD_SAFE_COMMON_DIR"
 
-echo "classpath: $cp"
+#echo "classpath: $cp"
 
 main_class="edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSession"
 
