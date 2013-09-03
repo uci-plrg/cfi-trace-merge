@@ -1,0 +1,45 @@
+package crowd_safe_data_analysis;
+
+import "graph.proto";
+import "statistics.proto";
+
+message Merge {
+  required string processName = 1;
+  required int32 processId = 2;
+  repeated ClusterMerge cluster = 3;
+}
+
+message ClusterMerge {
+  required Cluster cluster = 1;
+  optional UnmatchedNodeSummary leftUnmatched = 2;
+  optional UnmatchedNodeSummary rightUnmatched = 3;
+  optional TraceCompilationProfile hashProfile = 4;
+  optional TraceCompilationProfile graphProfile = 5;
+  repeated MergeSummary mergeSummary = 6;
+
+  message UnmatchedNodeSummary {
+    required int32 nodeCount = 1;
+    optional int32 eligibleNodeCount = 2;
+    optional int32 unreachableNodeCount = 3;
+    optional int32 hashExclusiveNodeCount = 4;
+  }
+
+  message TraceCompilationProfile {
+    required int32 union = 1;
+    required int32 intersection = 2;
+    required int32 left = 3;
+    required int32 right = 4;
+    optional int32 leftExclusive = 5;
+    optional int32 rightExclusive = 6;
+  }
+
+  message MergeSummary {
+    required int32 id = 1;
+    required string name = 2;
+    repeated IntegerStatistic intStat = 3;
+    repeated FloatStatistic floatStat = 4;
+    repeated Ratio ratio = 5;
+  }
+}
+
+
