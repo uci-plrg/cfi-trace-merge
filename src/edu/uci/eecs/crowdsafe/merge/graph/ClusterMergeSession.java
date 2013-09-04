@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 
-public class GraphMergeSession {
+public class ClusterMergeSession {
 
 	enum State {
 		INITIALIZATION,
@@ -43,7 +44,8 @@ public class GraphMergeSession {
 	final GraphMergeTarget right;
 	final MergedClusterGraph mergedGraph;
 
-	final GraphMergeStatistics graphMergingStats;
+	final GraphMergeStatistics statistics;
+	final GraphMergeResults results;
 	final GraphMergeDebug debugLog;
 
 	final MatchedNodes matchedNodes;
@@ -61,15 +63,18 @@ public class GraphMergeSession {
 
 	final GraphMergeEngine engine = new GraphMergeEngine(this);
 
-	GraphMergeSession(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeDebug debugLog) {
+	ClusterMergeSession(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeResults results,
+			GraphMergeDebug debugLog) {
 		this.left = new GraphMergeTarget(this, left);
 		this.right = new GraphMergeTarget(this, right);
+		this.results = results;
+		results.beginCluster(this);
 		this.debugLog = debugLog;
 		debugLog.setSession(this);
 
 		matchedNodes = new MatchedNodes(this);
 		matchState = new GraphMatchState(this);
-		graphMergingStats = new GraphMergeStatistics(this);
+		statistics = new GraphMergeStatistics(this);
 		mergedGraph = new MergedClusterGraph();
 	}
 
@@ -78,7 +83,7 @@ public class GraphMergeSession {
 		matchedNodes.clear();
 		matchState.clear();
 		speculativeScoreList.clear();
-		graphMergingStats.reset();
+		statistics.reset();
 		hasConflict = false;
 
 		// Initialize debugging info before merging the graph
@@ -98,7 +103,7 @@ public class GraphMergeSession {
 					matchState.enqueueMatch(pairNode);
 					matchedNodes.addPair(leftNode, rightNode, 0);
 
-					graphMergingStats.directMatch();
+					statistics.directMatch();
 
 					if (DebugUtils.debug) {
 						// AnalysisUtil.outputIndirectNodesInfo(n1, n2);
@@ -151,9 +156,10 @@ public class GraphMergeSession {
 		try {
 			CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
 
+			File logFile = null;
 			if (args.length > 2) {
 				try {
-					File logFile = LogFile.create(args[2], LogFile.CollisionMode.AVOID, LogFile.NoSuchPathMode.ERROR);
+					logFile = LogFile.create(args[2], LogFile.CollisionMode.AVOID, LogFile.NoSuchPathMode.ERROR);
 					Log.addOutput(logFile);
 					System.out.println("Logging to " + logFile.getName());
 				} catch (LogFile.Exception e) {
@@ -182,43 +188,49 @@ public class GraphMergeSession {
 
 			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(leftRun, MERGE_FILE_TYPES);
 			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(rightRun, MERGE_FILE_TYPES);
-			Log.log("### ------- Merge %s(%d) with %s(%d) -------- ###", leftDataSource.getProcessName(),
-					leftDataSource.getProcessId(), rightDataSource.getProcessName(), rightDataSource.getProcessId());
 
 			long start = System.currentTimeMillis();
-
 			GraphMergeDebug debugLog = new GraphMergeDebug();
+
 			ProcessGraphLoadSession leftSession = new ProcessGraphLoadSession(leftDataSource);
 			ProcessExecutionGraph leftGraph = leftSession.loadGraph(debugLog);
 
 			ProcessGraphLoadSession rightSession = new ProcessGraphLoadSession(rightDataSource);
 			ProcessExecutionGraph rightGraph = rightSession.loadGraph(debugLog);
 
+			GraphMergeResults results = new GraphMergeResults(leftGraph, rightGraph);
+
 			long merge = System.currentTimeMillis();
 			Log.log("\nGraph loaded in %f seconds.", ((merge - start) / 1000.));
 
 			for (ModuleGraphCluster leftCluster : leftGraph.getAutonomousClusters()) {
-				Log.log("\n  === Merging cluster %s ===", leftCluster.distribution.name);
-
 				ModuleGraphCluster rightCluster = rightGraph.getModuleGraphCluster(leftCluster.distribution);
 
 				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
 					AnalysisUtil.filteroutImmeAddr(leftCluster, rightCluster);
 				}
 
-				GraphMergeSession session = new GraphMergeSession(leftCluster, rightCluster, debugLog);
+				ClusterMergeSession session = new ClusterMergeSession(leftCluster, rightCluster, results, debugLog);
 				GraphMergeEngine engine = new GraphMergeEngine(session);
 
-				try {
-					engine.mergeGraph();
-					session.graphMergingStats.computeResults();
-					session.graphMergingStats.outputMergedGraphInfo();
-					debugLog.mergeCompleted();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				engine.mergeGraph();
+				session.results.clusterMergeCompleted();
 			}
 			Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - merge) / 1000.));
+
+			if (logFile != null) {
+				String resultsFilename = logFile.getName().substring(0, logFile.getName().lastIndexOf('.'));
+				resultsFilename = String.format("%s.results.log", resultsFilename);
+				String resultsPath = new File(logFile.getParentFile(), resultsFilename).getPath();
+				File resultsFile = LogFile.create(resultsPath, LogFile.CollisionMode.ERROR,
+						LogFile.NoSuchPathMode.ERROR);
+				FileOutputStream out = new FileOutputStream(resultsFile);
+				results.getResults().writeTo(out);
+				out.flush();
+				out.close();
+			} else {
+				Log.log("Results logging skipped.");
+			}
 		} catch (Throwable t) {
 			Log.log(t);
 			t.printStackTrace();

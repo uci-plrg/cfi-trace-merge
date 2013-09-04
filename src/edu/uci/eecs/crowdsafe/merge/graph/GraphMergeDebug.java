@@ -1,6 +1,5 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,7 +67,7 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		}
 	}
 
-	private GraphMergeSession session;
+	private ClusterMergeSession session;
 
 	private final Set<TrackedNodeKey> trackedNodes = new HashSet<TrackedNodeKey>();
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
@@ -89,7 +88,7 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		// trackedNodes.add(new TrackedNodeKey(0x1bd, 0x29f156L));
 	}
 
-	void setSession(GraphMergeSession session) {
+	void setSession(ClusterMergeSession session) {
 		this.session = session;
 	}
 
@@ -105,6 +104,23 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 					+ left.getGraphData().containingGraph.dataSource.getProcessId() + "-"
 					+ right.getGraphData().containingGraph.dataSource.getProcessId() + ".txt";
 			DebugUtils.setScorePW(fileName);
+		}
+	}
+
+	void mergeCompleted() {
+		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
+			Log.log("All pure heuristic: " + DebugUtils.debug_pureHeuristicCnt);
+			Log.log("Pure heuristic not present: " + DebugUtils.debug_pureHeuristicNotPresentCnt);
+			Log.log("All direct unsmatched: " + DebugUtils.debug_directUnmatchedCnt);
+			Log.log("All indirect heuristic: " + DebugUtils.debug_indirectHeuristicCnt);
+			Log.log("Indirect heuristic unmatched: " + DebugUtils.debug_indirectHeuristicUnmatchedCnt);
+		}
+
+		// In the OUTPUT_SCORE debug mode, close the PrintWriter when merging
+		// finishes, also print out the score statistics
+		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
+			DebugUtils.getScorePW().flush();
+			DebugUtils.getScorePW().close();
 		}
 	}
 
@@ -153,58 +169,6 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 			Log.log("PureHeuristic: " + leftChild.getKey() + "<->" + pairNode.getRightNode().getKey()
 					+ "(by pure heuristic)");
 		}
-	}
-
-	void mergeCompleted() {
-		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-			Log.log("All pure heuristic: " + DebugUtils.debug_pureHeuristicCnt);
-			Log.log("Pure heuristic not present: " + DebugUtils.debug_pureHeuristicNotPresentCnt);
-			Log.log("All direct unsmatched: " + DebugUtils.debug_directUnmatchedCnt);
-			Log.log("All indirect heuristic: " + DebugUtils.debug_indirectHeuristicCnt);
-			Log.log("Indirect heuristic unmatched: " + DebugUtils.debug_indirectHeuristicUnmatchedCnt);
-		}
-
-		// In the OUTPUT_SCORE debug mode, close the PrintWriter when merging
-		// finishes, also print out the score statistics
-		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-			DebugUtils.getScorePW().flush();
-			DebugUtils.getScorePW().close();
-		}
-	}
-
-	void reportUnmatchedNodes() {
-		reportUnmatchedNodes(session.left.cluster, session.right.cluster, "left");
-		reportUnmatchedNodes(session.right.cluster, session.left.cluster, "right");
-	}
-
-	private void reportUnmatchedNodes(ModuleGraphCluster cluster, ModuleGraphCluster oppositeCluster, String side) {
-		Set<Node.Key> unmatchedNodes = new HashSet<Node.Key>(cluster.getGraphData().nodesByKey.keySet());
-		unmatchedNodes.removeAll(session.matchedNodes.getLeftKeySet());
-		int totalUnmatchedCount = unmatchedNodes.size();
-		int unreachableUnmatchedCount = 0;
-		for (Node unreachable : cluster.getUnreachableNodes()) {
-			unmatchedNodes.remove(unreachable.getKey());
-			unreachableUnmatchedCount++;
-		}
-		int hashExclusionCount = 0;
-		for (Node.Key unmatchedKey : new ArrayList<Node.Key>(unmatchedNodes)) {
-			Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
-			if (!oppositeCluster.getGraphData().nodesByHash.keySet().contains(unmatchedNode.getHash())) {
-				unmatchedNodes.remove(unmatchedKey);
-				hashExclusionCount++;
-			}
-		}
-
-		Log.log();
-		Log.log("%s graph: %d total unmatched nodes", side, totalUnmatchedCount);
-		Log.log("\t%d are reachable and in the hash intersection",
-				unmatchedNodes.size());
-		Log.log("\t%d of them were unreachable.", unreachableUnmatchedCount);
-		Log.log("\t%d hash-exclusive to the %s graph.", hashExclusionCount, side);
-		// for (Node.Key unmatched : unmatchedNodes) {
-		// Log.log("\tLeft node unmatched: %s",
-		// cluster.getGraphData().nodesByKey.get(unmatched));
-		// }
 	}
 
 	private boolean isTracked(Node node) {

@@ -57,13 +57,13 @@ import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
  */
 class GraphMergeEngine {
 
-	private final GraphMergeSession session;
+	private final ClusterMergeSession session;
 	final GraphMatchEngine matcher;
 
 	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622", 16).longValue();
 	private static final long beginHash = 0x5eee92;
 
-	public GraphMergeEngine(GraphMergeSession session) {
+	public GraphMergeEngine(ClusterMergeSession session) {
 		this.session = session;
 		matcher = new GraphMatchEngine(session);
 	}
@@ -132,7 +132,7 @@ class GraphMergeEngine {
 				case DIRECT:
 				case CALL_CONTINUATION:
 				case MODULE_ENTRY:
-					session.graphMergingStats.tryDirectMatch();
+					session.statistics.tryDirectMatch();
 
 					leftChild = matcher.getCorrespondingDirectChildNode(leftNode, rightEdge);
 
@@ -226,8 +226,6 @@ class GraphMergeEngine {
 	}
 
 	protected void buildMergedGraph() {
-		session.debugLog.reportUnmatchedNodes();
-
 		Map<Node, MergedNode> leftNode2MergedNode = new HashMap<Node, MergedNode>();
 
 		// Copy nodes from left

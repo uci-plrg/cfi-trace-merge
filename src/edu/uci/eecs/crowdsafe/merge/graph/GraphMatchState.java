@@ -3,13 +3,13 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.util.LinkedList;
 
 class GraphMatchState {
-	private final GraphMergeSession session;
+	private final ClusterMergeSession session;
 
 	private final LinkedList<PairNode> matchedQueue = new LinkedList<PairNode>();
 	private final LinkedList<PairNode> unmatchedQueue = new LinkedList<PairNode>();
 	private final LinkedList<PairNodeEdge> indirectChildren = new LinkedList<PairNodeEdge>();
 
-	GraphMatchState(GraphMergeSession session) {
+	GraphMatchState(ClusterMergeSession session) {
 		this.session = session;
 	}
 

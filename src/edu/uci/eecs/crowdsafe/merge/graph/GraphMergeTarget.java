@@ -8,13 +8,13 @@ import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 
 public class GraphMergeTarget {
 
-	private final GraphMergeSession session;
+	private final ClusterMergeSession session;
 
 	final ModuleGraphCluster cluster;
 
 	final Set<Node> visitedNodes = new HashSet<Node>();
 
-	GraphMergeTarget(GraphMergeSession session, ModuleGraphCluster cluster) {
+	GraphMergeTarget(ClusterMergeSession session, ModuleGraphCluster cluster) {
 		this.session = session;
 		this.cluster = cluster;
 	}

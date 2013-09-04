@@ -33,9 +33,9 @@ public class GraphMatchEngine {
 
 	private static final float VALID_SCORE_LIMIT = 0.5f;
 
-	private final GraphMergeSession session;
+	private final ClusterMergeSession session;
 
-	GraphMatchEngine(GraphMergeSession session) {
+	GraphMatchEngine(ClusterMergeSession session) {
 		this.session = session;
 	}
 
@@ -164,7 +164,7 @@ public class GraphMatchEngine {
 	// In the new approach, we only match the pure speculation when the score
 	// exceeds the PureHeuristicsSpeculationThreshold
 	Node matchByHashThenContext(Node rightNode) {
-		session.graphMergingStats.tryPureHeuristicMatch();
+		session.statistics.tryPureHeuristicMatch();
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			DebugUtils.debug_pureHeuristicCnt++;
 		}
@@ -209,7 +209,7 @@ public class GraphMatchEngine {
 		// Collect the matching score record for pure heuristics
 		// Only in OUTPUT_SCORE debug mode
 		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-			session.graphMergingStats.collectScoreRecord(leftCandidates, rightNode, false);
+			session.statistics.collectScoreRecord(leftCandidates, rightNode, false);
 		}
 
 		if (leftCandidates.size() > 1) {
@@ -248,7 +248,7 @@ public class GraphMatchEngine {
 			return mostSimilarNode;
 		} else if (leftCandidates.size() == 1) {
 			Node mostSimilarNode = leftCandidates.get(0);
-			session.graphMergingStats.pureHeuristicMatch();
+			session.statistics.pureHeuristicMatch();
 			return mostSimilarNode;
 		} else {
 			return null;
@@ -307,10 +307,10 @@ public class GraphMatchEngine {
 					switch (leftEdge.getEdgeType()) {
 						case DIRECT:
 						case MODULE_ENTRY:
-							session.graphMergingStats.directMatch();
+							session.statistics.directMatch();
 							break;
 						case CALL_CONTINUATION:
-							session.graphMergingStats.callContinuationMatch();
+							session.statistics.callContinuationMatch();
 							break;
 						default:
 							throw new IllegalArgumentException(
@@ -324,7 +324,7 @@ public class GraphMatchEngine {
 					}
 				} else if (rightEdge.getEdgeType() != EdgeType.MODULE_ENTRY) {
 					// hashes differ on a matching direct edge!
-					session.graphMergingStats.possibleRewrite();
+					session.statistics.possibleRewrite();
 				}
 			} else {
 				return null; // nothing good here, the edge structure differs
@@ -365,7 +365,7 @@ public class GraphMatchEngine {
 			// Collect the matching score record for indirect speculation
 			// Only in OUTPUT_SCORE debug mode
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				session.graphMergingStats.collectScoreRecord(candidates, rightToNode, true);
+				session.statistics.collectScoreRecord(candidates, rightToNode, true);
 			}
 
 			// Ambiguous high score, cannot make any decision
@@ -373,7 +373,7 @@ public class GraphMatchEngine {
 				return null;
 			}
 
-			session.graphMergingStats.directMatch();
+			session.statistics.directMatch();
 			return candidates.get(pos);
 		}
 	}
@@ -395,7 +395,7 @@ public class GraphMatchEngine {
 			DebugUtils.debug_indirectHeuristicCnt++;
 		}
 
-		session.graphMergingStats.tryIndirectMatch();
+		session.statistics.tryIndirectMatch();
 
 		Node rightToNode = rightEdge.getToNode();
 
@@ -472,7 +472,7 @@ public class GraphMatchEngine {
 			// Collect the matching score record for indirect speculation
 			// Only in OUTPUT_SCORE debug mode
 			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				session.graphMergingStats.collectScoreRecord(leftCandidates, rightToNode, true);
+				session.statistics.collectScoreRecord(leftCandidates, rightToNode, true);
 			}
 
 			// Ambiguous match, multiple ndoes have the same high score
@@ -489,7 +489,7 @@ public class GraphMatchEngine {
 					topCandidates.remove(topCandidates.size() - 1);
 			}
 
-			session.graphMergingStats.indirectMatch();
+			session.statistics.indirectMatch();
 			return topCandidates.get(0);
 		}
 	}

@@ -3,14 +3,17 @@ package crowd_safe_data_analysis;
 import "graph.proto";
 import "statistics.proto";
 
-message Merge {
-  required string processName = 1;
-  required int32 processId = 2;
+option java_package = "edu.uci.eecs.crowdsafe.merge.graph.data.results";
+option java_outer_classname = "Merge";
+
+message MergeResults {
+  required Process left = 1;
+  required Process right = 2;
   repeated ClusterMerge cluster = 3;
 }
 
 message ClusterMerge {
-  required Cluster cluster = 1;
+  required string distributionName = 1;
   optional UnmatchedNodeSummary leftUnmatched = 2;
   optional UnmatchedNodeSummary rightUnmatched = 3;
   optional TraceCompilationProfile hashProfile = 4;

@@ -22,7 +22,7 @@ import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
  */
 public class MatchedNodes {
 
-	private final GraphMergeSession session;
+	private final ClusterMergeSession session;
 
 	private final BiMap<Node.Key, Node.Key> matchedNodesLeftRight = HashBiMap.create();
 
@@ -32,7 +32,7 @@ public class MatchedNodes {
 
 	private int HACK_mismatchCount;
 
-	MatchedNodes(GraphMergeSession session) {
+	MatchedNodes(ClusterMergeSession session) {
 		this.session = session;
 	}
 

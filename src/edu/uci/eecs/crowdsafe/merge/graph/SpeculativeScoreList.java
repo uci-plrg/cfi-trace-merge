@@ -46,7 +46,7 @@ public class SpeculativeScoreList {
 		}
 	}
 
-	private final GraphMergeSession session;
+	private final ClusterMergeSession session;
 	private final List<SpeculativeScoreRecord> records = new ArrayList<SpeculativeScoreRecord>();
 	private final Map<MatchResult, ArrayList<SpeculativeScoreRecord>> result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
 
@@ -56,7 +56,7 @@ public class SpeculativeScoreList {
 
 	private boolean hasConflict;
 
-	public SpeculativeScoreList(GraphMergeSession session) {
+	public SpeculativeScoreList(ClusterMergeSession session) {
 		this.session = session;
 	}
 
