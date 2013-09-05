@@ -35,7 +35,7 @@ else
   done
 fi
 
-runs=($(find -L $targets -type 'f' -name "*.bb-graph.*" | sed "s/\/[^/]\+$//" | sort))
+runs=($(find -L $targets -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
 
 echo "Found "${#runs[@]}" runs"
 for ((i = 0; (i + 1) < ${#runs[@]}; i++))
