@@ -1116,100 +1116,128 @@ public final class Merge {
   public interface ClusterMergeOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required string distributionName = 1;
+    // required string distribution_name = 1;
     /**
-     * <code>required string distributionName = 1;</code>
+     * <code>required string distribution_name = 1;</code>
      */
     boolean hasDistributionName();
     /**
-     * <code>required string distributionName = 1;</code>
+     * <code>required string distribution_name = 1;</code>
      */
     java.lang.String getDistributionName();
     /**
-     * <code>required string distributionName = 1;</code>
+     * <code>required string distribution_name = 1;</code>
      */
     com.google.protobuf.ByteString
         getDistributionNameBytes();
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;
+    // optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
      */
     boolean hasLeftUnmatched();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getLeftUnmatched();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getLeftUnmatched();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder getLeftUnmatchedOrBuilder();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder getLeftUnmatchedOrBuilder();
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;
+    // optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
      */
     boolean hasRightUnmatched();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getRightUnmatched();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getRightUnmatched();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder getRightUnmatchedOrBuilder();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder getRightUnmatchedOrBuilder();
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;
+    // optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
      */
     boolean hasHashProfile();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getHashProfile();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getHashProfile();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder getHashProfileOrBuilder();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getHashProfileOrBuilder();
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;
+    // optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
      */
     boolean hasGraphProfile();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getGraphProfile();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getGraphProfile();
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder getGraphProfileOrBuilder();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getGraphProfileOrBuilder();
 
-    // repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;
+    // optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
      */
-    java.util.List<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary> 
-        getMergeSummaryList();
+    boolean hasGraphWithinHashIntersection();
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary getMergeSummary(int index);
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getGraphWithinHashIntersection();
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
      */
-    int getMergeSummaryCount();
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getGraphWithinHashIntersectionOrBuilder();
+
+    // optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
      */
-    java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder> 
-        getMergeSummaryOrBuilderList();
+    boolean hasMergeSummary();
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder getMergeSummaryOrBuilder(
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary getMergeSummary();
+    /**
+     * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
+     */
+    edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder getMergeSummaryOrBuilder();
+
+    // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> 
+        getStatisticsList();
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index);
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    int getStatisticsCount();
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+        getStatisticsOrBuilderList();
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
         int index);
   }
   /**
@@ -1269,11 +1297,11 @@ public final class Merge {
               break;
             }
             case 18: {
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = leftUnmatched_.toBuilder();
               }
-              leftUnmatched_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.PARSER, extensionRegistry);
+              leftUnmatched_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(leftUnmatched_);
                 leftUnmatched_ = subBuilder.buildPartial();
@@ -1282,11 +1310,11 @@ public final class Merge {
               break;
             }
             case 26: {
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder subBuilder = null;
               if (((bitField0_ & 0x00000004) == 0x00000004)) {
                 subBuilder = rightUnmatched_.toBuilder();
               }
-              rightUnmatched_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.PARSER, extensionRegistry);
+              rightUnmatched_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(rightUnmatched_);
                 rightUnmatched_ = subBuilder.buildPartial();
@@ -1295,11 +1323,11 @@ public final class Merge {
               break;
             }
             case 34: {
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder subBuilder = null;
               if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = hashProfile_.toBuilder();
               }
-              hashProfile_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.PARSER, extensionRegistry);
+              hashProfile_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(hashProfile_);
                 hashProfile_ = subBuilder.buildPartial();
@@ -1308,11 +1336,11 @@ public final class Merge {
               break;
             }
             case 42: {
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder subBuilder = null;
               if (((bitField0_ & 0x00000010) == 0x00000010)) {
                 subBuilder = graphProfile_.toBuilder();
               }
-              graphProfile_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.PARSER, extensionRegistry);
+              graphProfile_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(graphProfile_);
                 graphProfile_ = subBuilder.buildPartial();
@@ -1321,11 +1349,37 @@ public final class Merge {
               break;
             }
             case 50: {
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-                mergeSummary_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary>();
-                mutable_bitField0_ |= 0x00000020;
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                subBuilder = graphWithinHashIntersection_.toBuilder();
               }
-              mergeSummary_.add(input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.PARSER, extensionRegistry));
+              graphWithinHashIntersection_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(graphWithinHashIntersection_);
+                graphWithinHashIntersection_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000020;
+              break;
+            }
+            case 58: {
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000040) == 0x00000040)) {
+                subBuilder = mergeSummary_.toBuilder();
+              }
+              mergeSummary_ = input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(mergeSummary_);
+                mergeSummary_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000040;
+              break;
+            }
+            case 66: {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+                statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree>();
+                mutable_bitField0_ |= 0x00000080;
+              }
+              statistics_.add(input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.PARSER, extensionRegistry));
               break;
             }
           }
@@ -1336,8 +1390,8 @@ public final class Merge {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-          mergeSummary_ = java.util.Collections.unmodifiableList(mergeSummary_);
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+          statistics_ = java.util.Collections.unmodifiableList(statistics_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1370,3188 +1424,18 @@ public final class Merge {
       return PARSER;
     }
 
-    public interface UnmatchedNodeSummaryOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
-
-      // required int32 nodeCount = 1;
-      /**
-       * <code>required int32 nodeCount = 1;</code>
-       */
-      boolean hasNodeCount();
-      /**
-       * <code>required int32 nodeCount = 1;</code>
-       */
-      int getNodeCount();
-
-      // optional int32 eligibleNodeCount = 2;
-      /**
-       * <code>optional int32 eligibleNodeCount = 2;</code>
-       */
-      boolean hasEligibleNodeCount();
-      /**
-       * <code>optional int32 eligibleNodeCount = 2;</code>
-       */
-      int getEligibleNodeCount();
-
-      // optional int32 unreachableNodeCount = 3;
-      /**
-       * <code>optional int32 unreachableNodeCount = 3;</code>
-       */
-      boolean hasUnreachableNodeCount();
-      /**
-       * <code>optional int32 unreachableNodeCount = 3;</code>
-       */
-      int getUnreachableNodeCount();
-
-      // optional int32 hashExclusiveNodeCount = 4;
-      /**
-       * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-       */
-      boolean hasHashExclusiveNodeCount();
-      /**
-       * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-       */
-      int getHashExclusiveNodeCount();
-    }
-    /**
-     * Protobuf type {@code crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary}
-     */
-    public static final class UnmatchedNodeSummary extends
-        com.google.protobuf.GeneratedMessage
-        implements UnmatchedNodeSummaryOrBuilder {
-      // Use UnmatchedNodeSummary.newBuilder() to construct.
-      private UnmatchedNodeSummary(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-        super(builder);
-        this.unknownFields = builder.getUnknownFields();
-      }
-      private UnmatchedNodeSummary(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final UnmatchedNodeSummary defaultInstance;
-      public static UnmatchedNodeSummary getDefaultInstance() {
-        return defaultInstance;
-      }
-
-      public UnmatchedNodeSummary getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
-      @java.lang.Override
-      public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
-        return this.unknownFields;
-      }
-      private UnmatchedNodeSummary(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
-        int mutable_bitField0_ = 0;
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder();
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-              case 8: {
-                bitField0_ |= 0x00000001;
-                nodeCount_ = input.readInt32();
-                break;
-              }
-              case 16: {
-                bitField0_ |= 0x00000002;
-                eligibleNodeCount_ = input.readInt32();
-                break;
-              }
-              case 24: {
-                bitField0_ |= 0x00000004;
-                unreachableNodeCount_ = input.readInt32();
-                break;
-              }
-              case 32: {
-                bitField0_ |= 0x00000008;
-                hashExclusiveNodeCount_ = input.readInt32();
-                break;
-              }
-            }
-          }
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
-        } finally {
-          this.unknownFields = unknownFields.build();
-          makeExtensionsImmutable();
-        }
-      }
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<UnmatchedNodeSummary> PARSER =
-          new com.google.protobuf.AbstractParser<UnmatchedNodeSummary>() {
-        public UnmatchedNodeSummary parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new UnmatchedNodeSummary(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<UnmatchedNodeSummary> getParserForType() {
-        return PARSER;
-      }
-
-      private int bitField0_;
-      // required int32 nodeCount = 1;
-      public static final int NODECOUNT_FIELD_NUMBER = 1;
-      private int nodeCount_;
-      /**
-       * <code>required int32 nodeCount = 1;</code>
-       */
-      public boolean hasNodeCount() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required int32 nodeCount = 1;</code>
-       */
-      public int getNodeCount() {
-        return nodeCount_;
-      }
-
-      // optional int32 eligibleNodeCount = 2;
-      public static final int ELIGIBLENODECOUNT_FIELD_NUMBER = 2;
-      private int eligibleNodeCount_;
-      /**
-       * <code>optional int32 eligibleNodeCount = 2;</code>
-       */
-      public boolean hasEligibleNodeCount() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional int32 eligibleNodeCount = 2;</code>
-       */
-      public int getEligibleNodeCount() {
-        return eligibleNodeCount_;
-      }
-
-      // optional int32 unreachableNodeCount = 3;
-      public static final int UNREACHABLENODECOUNT_FIELD_NUMBER = 3;
-      private int unreachableNodeCount_;
-      /**
-       * <code>optional int32 unreachableNodeCount = 3;</code>
-       */
-      public boolean hasUnreachableNodeCount() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional int32 unreachableNodeCount = 3;</code>
-       */
-      public int getUnreachableNodeCount() {
-        return unreachableNodeCount_;
-      }
-
-      // optional int32 hashExclusiveNodeCount = 4;
-      public static final int HASHEXCLUSIVENODECOUNT_FIELD_NUMBER = 4;
-      private int hashExclusiveNodeCount_;
-      /**
-       * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-       */
-      public boolean hasHashExclusiveNodeCount() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-       */
-      public int getHashExclusiveNodeCount() {
-        return hashExclusiveNodeCount_;
-      }
-
-      private void initFields() {
-        nodeCount_ = 0;
-        eligibleNodeCount_ = 0;
-        unreachableNodeCount_ = 0;
-        hashExclusiveNodeCount_ = 0;
-      }
-      private byte memoizedIsInitialized = -1;
-      public final boolean isInitialized() {
-        byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
-
-        if (!hasNodeCount()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        memoizedIsInitialized = 1;
-        return true;
-      }
-
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeInt32(1, nodeCount_);
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeInt32(2, eligibleNodeCount_);
-        }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          output.writeInt32(3, unreachableNodeCount_);
-        }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          output.writeInt32(4, hashExclusiveNodeCount_);
-        }
-        getUnknownFields().writeTo(output);
-      }
-
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-
-        size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(1, nodeCount_);
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(2, eligibleNodeCount_);
-        }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(3, unreachableNodeCount_);
-        }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(4, hashExclusiveNodeCount_);
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-
-      private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-
-      @java.lang.Override
-      protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        Builder builder = new Builder(parent);
-        return builder;
-      }
-      /**
-       * Protobuf type {@code crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary}
-       */
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder {
-        public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_fieldAccessorTable
-              .ensureFieldAccessorsInitialized(
-                  edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder.class);
-        }
-
-        // Construct using edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.newBuilder()
-        private Builder() {
-          maybeForceBuilderInitialization();
-        }
-
-        private Builder(
-            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-          super(parent);
-          maybeForceBuilderInitialization();
-        }
-        private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          }
-        }
-        private static Builder create() {
-          return new Builder();
-        }
-
-        public Builder clear() {
-          super.clear();
-          nodeCount_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000001);
-          eligibleNodeCount_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000002);
-          unreachableNodeCount_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000004);
-          hashExclusiveNodeCount_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000008);
-          return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_descriptor;
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getDefaultInstanceForType() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary build() {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary result = buildPartial();
-          if (!result.isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return result;
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary buildPartial() {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary result = new edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary(this);
-          int from_bitField0_ = bitField0_;
-          int to_bitField0_ = 0;
-          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-            to_bitField0_ |= 0x00000001;
-          }
-          result.nodeCount_ = nodeCount_;
-          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-            to_bitField0_ |= 0x00000002;
-          }
-          result.eligibleNodeCount_ = eligibleNodeCount_;
-          if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-            to_bitField0_ |= 0x00000004;
-          }
-          result.unreachableNodeCount_ = unreachableNodeCount_;
-          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-            to_bitField0_ |= 0x00000008;
-          }
-          result.hashExclusiveNodeCount_ = hashExclusiveNodeCount_;
-          result.bitField0_ = to_bitField0_;
-          onBuilt();
-          return result;
-        }
-
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary) {
-            return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-
-        public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary other) {
-          if (other == edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance()) return this;
-          if (other.hasNodeCount()) {
-            setNodeCount(other.getNodeCount());
-          }
-          if (other.hasEligibleNodeCount()) {
-            setEligibleNodeCount(other.getEligibleNodeCount());
-          }
-          if (other.hasUnreachableNodeCount()) {
-            setUnreachableNodeCount(other.getUnreachableNodeCount());
-          }
-          if (other.hasHashExclusiveNodeCount()) {
-            setHashExclusiveNodeCount(other.getHashExclusiveNodeCount());
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-
-        public final boolean isInitialized() {
-          if (!hasNodeCount()) {
-            
-            return false;
-          }
-          return true;
-        }
-
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary parsedMessage = null;
-          try {
-            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary) e.getUnfinishedMessage();
-            throw e;
-          } finally {
-            if (parsedMessage != null) {
-              mergeFrom(parsedMessage);
-            }
-          }
-          return this;
-        }
-        private int bitField0_;
-
-        // required int32 nodeCount = 1;
-        private int nodeCount_ ;
-        /**
-         * <code>required int32 nodeCount = 1;</code>
-         */
-        public boolean hasNodeCount() {
-          return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-        /**
-         * <code>required int32 nodeCount = 1;</code>
-         */
-        public int getNodeCount() {
-          return nodeCount_;
-        }
-        /**
-         * <code>required int32 nodeCount = 1;</code>
-         */
-        public Builder setNodeCount(int value) {
-          bitField0_ |= 0x00000001;
-          nodeCount_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required int32 nodeCount = 1;</code>
-         */
-        public Builder clearNodeCount() {
-          bitField0_ = (bitField0_ & ~0x00000001);
-          nodeCount_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // optional int32 eligibleNodeCount = 2;
-        private int eligibleNodeCount_ ;
-        /**
-         * <code>optional int32 eligibleNodeCount = 2;</code>
-         */
-        public boolean hasEligibleNodeCount() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-        /**
-         * <code>optional int32 eligibleNodeCount = 2;</code>
-         */
-        public int getEligibleNodeCount() {
-          return eligibleNodeCount_;
-        }
-        /**
-         * <code>optional int32 eligibleNodeCount = 2;</code>
-         */
-        public Builder setEligibleNodeCount(int value) {
-          bitField0_ |= 0x00000002;
-          eligibleNodeCount_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional int32 eligibleNodeCount = 2;</code>
-         */
-        public Builder clearEligibleNodeCount() {
-          bitField0_ = (bitField0_ & ~0x00000002);
-          eligibleNodeCount_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // optional int32 unreachableNodeCount = 3;
-        private int unreachableNodeCount_ ;
-        /**
-         * <code>optional int32 unreachableNodeCount = 3;</code>
-         */
-        public boolean hasUnreachableNodeCount() {
-          return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-        /**
-         * <code>optional int32 unreachableNodeCount = 3;</code>
-         */
-        public int getUnreachableNodeCount() {
-          return unreachableNodeCount_;
-        }
-        /**
-         * <code>optional int32 unreachableNodeCount = 3;</code>
-         */
-        public Builder setUnreachableNodeCount(int value) {
-          bitField0_ |= 0x00000004;
-          unreachableNodeCount_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional int32 unreachableNodeCount = 3;</code>
-         */
-        public Builder clearUnreachableNodeCount() {
-          bitField0_ = (bitField0_ & ~0x00000004);
-          unreachableNodeCount_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // optional int32 hashExclusiveNodeCount = 4;
-        private int hashExclusiveNodeCount_ ;
-        /**
-         * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-         */
-        public boolean hasHashExclusiveNodeCount() {
-          return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-        /**
-         * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-         */
-        public int getHashExclusiveNodeCount() {
-          return hashExclusiveNodeCount_;
-        }
-        /**
-         * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-         */
-        public Builder setHashExclusiveNodeCount(int value) {
-          bitField0_ |= 0x00000008;
-          hashExclusiveNodeCount_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional int32 hashExclusiveNodeCount = 4;</code>
-         */
-        public Builder clearHashExclusiveNodeCount() {
-          bitField0_ = (bitField0_ & ~0x00000008);
-          hashExclusiveNodeCount_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary)
-      }
-
-      static {
-        defaultInstance = new UnmatchedNodeSummary(true);
-        defaultInstance.initFields();
-      }
-
-      // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary)
-    }
-
-    public interface TraceCompilationProfileOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
-
-      // required int32 union = 1;
-      /**
-       * <code>required int32 union = 1;</code>
-       */
-      boolean hasUnion();
-      /**
-       * <code>required int32 union = 1;</code>
-       */
-      int getUnion();
-
-      // required int32 intersection = 2;
-      /**
-       * <code>required int32 intersection = 2;</code>
-       */
-      boolean hasIntersection();
-      /**
-       * <code>required int32 intersection = 2;</code>
-       */
-      int getIntersection();
-
-      // required int32 left = 3;
-      /**
-       * <code>required int32 left = 3;</code>
-       */
-      boolean hasLeft();
-      /**
-       * <code>required int32 left = 3;</code>
-       */
-      int getLeft();
-
-      // required int32 right = 4;
-      /**
-       * <code>required int32 right = 4;</code>
-       */
-      boolean hasRight();
-      /**
-       * <code>required int32 right = 4;</code>
-       */
-      int getRight();
-
-      // optional int32 leftExclusive = 5;
-      /**
-       * <code>optional int32 leftExclusive = 5;</code>
-       */
-      boolean hasLeftExclusive();
-      /**
-       * <code>optional int32 leftExclusive = 5;</code>
-       */
-      int getLeftExclusive();
-
-      // optional int32 rightExclusive = 6;
-      /**
-       * <code>optional int32 rightExclusive = 6;</code>
-       */
-      boolean hasRightExclusive();
-      /**
-       * <code>optional int32 rightExclusive = 6;</code>
-       */
-      int getRightExclusive();
-    }
-    /**
-     * Protobuf type {@code crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile}
-     */
-    public static final class TraceCompilationProfile extends
-        com.google.protobuf.GeneratedMessage
-        implements TraceCompilationProfileOrBuilder {
-      // Use TraceCompilationProfile.newBuilder() to construct.
-      private TraceCompilationProfile(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-        super(builder);
-        this.unknownFields = builder.getUnknownFields();
-      }
-      private TraceCompilationProfile(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final TraceCompilationProfile defaultInstance;
-      public static TraceCompilationProfile getDefaultInstance() {
-        return defaultInstance;
-      }
-
-      public TraceCompilationProfile getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
-      @java.lang.Override
-      public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
-        return this.unknownFields;
-      }
-      private TraceCompilationProfile(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
-        int mutable_bitField0_ = 0;
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder();
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-              case 8: {
-                bitField0_ |= 0x00000001;
-                union_ = input.readInt32();
-                break;
-              }
-              case 16: {
-                bitField0_ |= 0x00000002;
-                intersection_ = input.readInt32();
-                break;
-              }
-              case 24: {
-                bitField0_ |= 0x00000004;
-                left_ = input.readInt32();
-                break;
-              }
-              case 32: {
-                bitField0_ |= 0x00000008;
-                right_ = input.readInt32();
-                break;
-              }
-              case 40: {
-                bitField0_ |= 0x00000010;
-                leftExclusive_ = input.readInt32();
-                break;
-              }
-              case 48: {
-                bitField0_ |= 0x00000020;
-                rightExclusive_ = input.readInt32();
-                break;
-              }
-            }
-          }
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
-        } finally {
-          this.unknownFields = unknownFields.build();
-          makeExtensionsImmutable();
-        }
-      }
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<TraceCompilationProfile> PARSER =
-          new com.google.protobuf.AbstractParser<TraceCompilationProfile>() {
-        public TraceCompilationProfile parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new TraceCompilationProfile(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<TraceCompilationProfile> getParserForType() {
-        return PARSER;
-      }
-
-      private int bitField0_;
-      // required int32 union = 1;
-      public static final int UNION_FIELD_NUMBER = 1;
-      private int union_;
-      /**
-       * <code>required int32 union = 1;</code>
-       */
-      public boolean hasUnion() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required int32 union = 1;</code>
-       */
-      public int getUnion() {
-        return union_;
-      }
-
-      // required int32 intersection = 2;
-      public static final int INTERSECTION_FIELD_NUMBER = 2;
-      private int intersection_;
-      /**
-       * <code>required int32 intersection = 2;</code>
-       */
-      public boolean hasIntersection() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required int32 intersection = 2;</code>
-       */
-      public int getIntersection() {
-        return intersection_;
-      }
-
-      // required int32 left = 3;
-      public static final int LEFT_FIELD_NUMBER = 3;
-      private int left_;
-      /**
-       * <code>required int32 left = 3;</code>
-       */
-      public boolean hasLeft() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>required int32 left = 3;</code>
-       */
-      public int getLeft() {
-        return left_;
-      }
-
-      // required int32 right = 4;
-      public static final int RIGHT_FIELD_NUMBER = 4;
-      private int right_;
-      /**
-       * <code>required int32 right = 4;</code>
-       */
-      public boolean hasRight() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>required int32 right = 4;</code>
-       */
-      public int getRight() {
-        return right_;
-      }
-
-      // optional int32 leftExclusive = 5;
-      public static final int LEFTEXCLUSIVE_FIELD_NUMBER = 5;
-      private int leftExclusive_;
-      /**
-       * <code>optional int32 leftExclusive = 5;</code>
-       */
-      public boolean hasLeftExclusive() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional int32 leftExclusive = 5;</code>
-       */
-      public int getLeftExclusive() {
-        return leftExclusive_;
-      }
-
-      // optional int32 rightExclusive = 6;
-      public static final int RIGHTEXCLUSIVE_FIELD_NUMBER = 6;
-      private int rightExclusive_;
-      /**
-       * <code>optional int32 rightExclusive = 6;</code>
-       */
-      public boolean hasRightExclusive() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional int32 rightExclusive = 6;</code>
-       */
-      public int getRightExclusive() {
-        return rightExclusive_;
-      }
-
-      private void initFields() {
-        union_ = 0;
-        intersection_ = 0;
-        left_ = 0;
-        right_ = 0;
-        leftExclusive_ = 0;
-        rightExclusive_ = 0;
-      }
-      private byte memoizedIsInitialized = -1;
-      public final boolean isInitialized() {
-        byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
-
-        if (!hasUnion()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!hasIntersection()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!hasLeft()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!hasRight()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        memoizedIsInitialized = 1;
-        return true;
-      }
-
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeInt32(1, union_);
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeInt32(2, intersection_);
-        }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          output.writeInt32(3, left_);
-        }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          output.writeInt32(4, right_);
-        }
-        if (((bitField0_ & 0x00000010) == 0x00000010)) {
-          output.writeInt32(5, leftExclusive_);
-        }
-        if (((bitField0_ & 0x00000020) == 0x00000020)) {
-          output.writeInt32(6, rightExclusive_);
-        }
-        getUnknownFields().writeTo(output);
-      }
-
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-
-        size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(1, union_);
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(2, intersection_);
-        }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(3, left_);
-        }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(4, right_);
-        }
-        if (((bitField0_ & 0x00000010) == 0x00000010)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(5, leftExclusive_);
-        }
-        if (((bitField0_ & 0x00000020) == 0x00000020)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(6, rightExclusive_);
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-
-      private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-
-      @java.lang.Override
-      protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        Builder builder = new Builder(parent);
-        return builder;
-      }
-      /**
-       * Protobuf type {@code crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile}
-       */
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder {
-        public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_fieldAccessorTable
-              .ensureFieldAccessorsInitialized(
-                  edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder.class);
-        }
-
-        // Construct using edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.newBuilder()
-        private Builder() {
-          maybeForceBuilderInitialization();
-        }
-
-        private Builder(
-            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-          super(parent);
-          maybeForceBuilderInitialization();
-        }
-        private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          }
-        }
-        private static Builder create() {
-          return new Builder();
-        }
-
-        public Builder clear() {
-          super.clear();
-          union_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000001);
-          intersection_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000002);
-          left_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000004);
-          right_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000008);
-          leftExclusive_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000010);
-          rightExclusive_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000020);
-          return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_descriptor;
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getDefaultInstanceForType() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile build() {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile result = buildPartial();
-          if (!result.isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return result;
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile buildPartial() {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile result = new edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile(this);
-          int from_bitField0_ = bitField0_;
-          int to_bitField0_ = 0;
-          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-            to_bitField0_ |= 0x00000001;
-          }
-          result.union_ = union_;
-          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-            to_bitField0_ |= 0x00000002;
-          }
-          result.intersection_ = intersection_;
-          if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-            to_bitField0_ |= 0x00000004;
-          }
-          result.left_ = left_;
-          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-            to_bitField0_ |= 0x00000008;
-          }
-          result.right_ = right_;
-          if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-            to_bitField0_ |= 0x00000010;
-          }
-          result.leftExclusive_ = leftExclusive_;
-          if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-            to_bitField0_ |= 0x00000020;
-          }
-          result.rightExclusive_ = rightExclusive_;
-          result.bitField0_ = to_bitField0_;
-          onBuilt();
-          return result;
-        }
-
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile) {
-            return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-
-        public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile other) {
-          if (other == edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance()) return this;
-          if (other.hasUnion()) {
-            setUnion(other.getUnion());
-          }
-          if (other.hasIntersection()) {
-            setIntersection(other.getIntersection());
-          }
-          if (other.hasLeft()) {
-            setLeft(other.getLeft());
-          }
-          if (other.hasRight()) {
-            setRight(other.getRight());
-          }
-          if (other.hasLeftExclusive()) {
-            setLeftExclusive(other.getLeftExclusive());
-          }
-          if (other.hasRightExclusive()) {
-            setRightExclusive(other.getRightExclusive());
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-
-        public final boolean isInitialized() {
-          if (!hasUnion()) {
-            
-            return false;
-          }
-          if (!hasIntersection()) {
-            
-            return false;
-          }
-          if (!hasLeft()) {
-            
-            return false;
-          }
-          if (!hasRight()) {
-            
-            return false;
-          }
-          return true;
-        }
-
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile parsedMessage = null;
-          try {
-            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile) e.getUnfinishedMessage();
-            throw e;
-          } finally {
-            if (parsedMessage != null) {
-              mergeFrom(parsedMessage);
-            }
-          }
-          return this;
-        }
-        private int bitField0_;
-
-        // required int32 union = 1;
-        private int union_ ;
-        /**
-         * <code>required int32 union = 1;</code>
-         */
-        public boolean hasUnion() {
-          return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-        /**
-         * <code>required int32 union = 1;</code>
-         */
-        public int getUnion() {
-          return union_;
-        }
-        /**
-         * <code>required int32 union = 1;</code>
-         */
-        public Builder setUnion(int value) {
-          bitField0_ |= 0x00000001;
-          union_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required int32 union = 1;</code>
-         */
-        public Builder clearUnion() {
-          bitField0_ = (bitField0_ & ~0x00000001);
-          union_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // required int32 intersection = 2;
-        private int intersection_ ;
-        /**
-         * <code>required int32 intersection = 2;</code>
-         */
-        public boolean hasIntersection() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-        /**
-         * <code>required int32 intersection = 2;</code>
-         */
-        public int getIntersection() {
-          return intersection_;
-        }
-        /**
-         * <code>required int32 intersection = 2;</code>
-         */
-        public Builder setIntersection(int value) {
-          bitField0_ |= 0x00000002;
-          intersection_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required int32 intersection = 2;</code>
-         */
-        public Builder clearIntersection() {
-          bitField0_ = (bitField0_ & ~0x00000002);
-          intersection_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // required int32 left = 3;
-        private int left_ ;
-        /**
-         * <code>required int32 left = 3;</code>
-         */
-        public boolean hasLeft() {
-          return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-        /**
-         * <code>required int32 left = 3;</code>
-         */
-        public int getLeft() {
-          return left_;
-        }
-        /**
-         * <code>required int32 left = 3;</code>
-         */
-        public Builder setLeft(int value) {
-          bitField0_ |= 0x00000004;
-          left_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required int32 left = 3;</code>
-         */
-        public Builder clearLeft() {
-          bitField0_ = (bitField0_ & ~0x00000004);
-          left_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // required int32 right = 4;
-        private int right_ ;
-        /**
-         * <code>required int32 right = 4;</code>
-         */
-        public boolean hasRight() {
-          return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-        /**
-         * <code>required int32 right = 4;</code>
-         */
-        public int getRight() {
-          return right_;
-        }
-        /**
-         * <code>required int32 right = 4;</code>
-         */
-        public Builder setRight(int value) {
-          bitField0_ |= 0x00000008;
-          right_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required int32 right = 4;</code>
-         */
-        public Builder clearRight() {
-          bitField0_ = (bitField0_ & ~0x00000008);
-          right_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // optional int32 leftExclusive = 5;
-        private int leftExclusive_ ;
-        /**
-         * <code>optional int32 leftExclusive = 5;</code>
-         */
-        public boolean hasLeftExclusive() {
-          return ((bitField0_ & 0x00000010) == 0x00000010);
-        }
-        /**
-         * <code>optional int32 leftExclusive = 5;</code>
-         */
-        public int getLeftExclusive() {
-          return leftExclusive_;
-        }
-        /**
-         * <code>optional int32 leftExclusive = 5;</code>
-         */
-        public Builder setLeftExclusive(int value) {
-          bitField0_ |= 0x00000010;
-          leftExclusive_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional int32 leftExclusive = 5;</code>
-         */
-        public Builder clearLeftExclusive() {
-          bitField0_ = (bitField0_ & ~0x00000010);
-          leftExclusive_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // optional int32 rightExclusive = 6;
-        private int rightExclusive_ ;
-        /**
-         * <code>optional int32 rightExclusive = 6;</code>
-         */
-        public boolean hasRightExclusive() {
-          return ((bitField0_ & 0x00000020) == 0x00000020);
-        }
-        /**
-         * <code>optional int32 rightExclusive = 6;</code>
-         */
-        public int getRightExclusive() {
-          return rightExclusive_;
-        }
-        /**
-         * <code>optional int32 rightExclusive = 6;</code>
-         */
-        public Builder setRightExclusive(int value) {
-          bitField0_ |= 0x00000020;
-          rightExclusive_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>optional int32 rightExclusive = 6;</code>
-         */
-        public Builder clearRightExclusive() {
-          bitField0_ = (bitField0_ & ~0x00000020);
-          rightExclusive_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile)
-      }
-
-      static {
-        defaultInstance = new TraceCompilationProfile(true);
-        defaultInstance.initFields();
-      }
-
-      // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile)
-    }
-
-    public interface MergeSummaryOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
-
-      // required int32 id = 1;
-      /**
-       * <code>required int32 id = 1;</code>
-       */
-      boolean hasId();
-      /**
-       * <code>required int32 id = 1;</code>
-       */
-      int getId();
-
-      // required string name = 2;
-      /**
-       * <code>required string name = 2;</code>
-       */
-      boolean hasName();
-      /**
-       * <code>required string name = 2;</code>
-       */
-      java.lang.String getName();
-      /**
-       * <code>required string name = 2;</code>
-       */
-      com.google.protobuf.ByteString
-          getNameBytes();
-
-      // repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic> 
-          getIntStatList();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic getIntStat(int index);
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      int getIntStatCount();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder> 
-          getIntStatOrBuilderList();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder getIntStatOrBuilder(
-          int index);
-
-      // repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic> 
-          getFloatStatList();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic getFloatStat(int index);
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      int getFloatStatCount();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder> 
-          getFloatStatOrBuilderList();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder getFloatStatOrBuilder(
-          int index);
-
-      // repeated .crowd_safe_data_analysis.Ratio ratio = 5;
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio> 
-          getRatioList();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio getRatio(int index);
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      int getRatioCount();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder> 
-          getRatioOrBuilderList();
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder getRatioOrBuilder(
-          int index);
-    }
-    /**
-     * Protobuf type {@code crowd_safe_data_analysis.ClusterMerge.MergeSummary}
-     */
-    public static final class MergeSummary extends
-        com.google.protobuf.GeneratedMessage
-        implements MergeSummaryOrBuilder {
-      // Use MergeSummary.newBuilder() to construct.
-      private MergeSummary(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-        super(builder);
-        this.unknownFields = builder.getUnknownFields();
-      }
-      private MergeSummary(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final MergeSummary defaultInstance;
-      public static MergeSummary getDefaultInstance() {
-        return defaultInstance;
-      }
-
-      public MergeSummary getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
-      @java.lang.Override
-      public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
-        return this.unknownFields;
-      }
-      private MergeSummary(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
-        int mutable_bitField0_ = 0;
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder();
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-              case 8: {
-                bitField0_ |= 0x00000001;
-                id_ = input.readInt32();
-                break;
-              }
-              case 18: {
-                bitField0_ |= 0x00000002;
-                name_ = input.readBytes();
-                break;
-              }
-              case 26: {
-                if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                  intStat_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic>();
-                  mutable_bitField0_ |= 0x00000004;
-                }
-                intStat_.add(input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.PARSER, extensionRegistry));
-                break;
-              }
-              case 34: {
-                if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                  floatStat_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic>();
-                  mutable_bitField0_ |= 0x00000008;
-                }
-                floatStat_.add(input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.PARSER, extensionRegistry));
-                break;
-              }
-              case 42: {
-                if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                  ratio_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio>();
-                  mutable_bitField0_ |= 0x00000010;
-                }
-                ratio_.add(input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.PARSER, extensionRegistry));
-                break;
-              }
-            }
-          }
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
-        } finally {
-          if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-            intStat_ = java.util.Collections.unmodifiableList(intStat_);
-          }
-          if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-            floatStat_ = java.util.Collections.unmodifiableList(floatStat_);
-          }
-          if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-            ratio_ = java.util.Collections.unmodifiableList(ratio_);
-          }
-          this.unknownFields = unknownFields.build();
-          makeExtensionsImmutable();
-        }
-      }
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<MergeSummary> PARSER =
-          new com.google.protobuf.AbstractParser<MergeSummary>() {
-        public MergeSummary parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new MergeSummary(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<MergeSummary> getParserForType() {
-        return PARSER;
-      }
-
-      private int bitField0_;
-      // required int32 id = 1;
-      public static final int ID_FIELD_NUMBER = 1;
-      private int id_;
-      /**
-       * <code>required int32 id = 1;</code>
-       */
-      public boolean hasId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required int32 id = 1;</code>
-       */
-      public int getId() {
-        return id_;
-      }
-
-      // required string name = 2;
-      public static final int NAME_FIELD_NUMBER = 2;
-      private java.lang.Object name_;
-      /**
-       * <code>required string name = 2;</code>
-       */
-      public boolean hasName() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required string name = 2;</code>
-       */
-      public java.lang.String getName() {
-        java.lang.Object ref = name_;
-        if (ref instanceof java.lang.String) {
-          return (java.lang.String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            name_ = s;
-          }
-          return s;
-        }
-      }
-      /**
-       * <code>required string name = 2;</code>
-       */
-      public com.google.protobuf.ByteString
-          getNameBytes() {
-        java.lang.Object ref = name_;
-        if (ref instanceof java.lang.String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          name_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-
-      // repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;
-      public static final int INTSTAT_FIELD_NUMBER = 3;
-      private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic> intStat_;
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic> getIntStatList() {
-        return intStat_;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder> 
-          getIntStatOrBuilderList() {
-        return intStat_;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      public int getIntStatCount() {
-        return intStat_.size();
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic getIntStat(int index) {
-        return intStat_.get(index);
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-       */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder getIntStatOrBuilder(
-          int index) {
-        return intStat_.get(index);
-      }
-
-      // repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;
-      public static final int FLOATSTAT_FIELD_NUMBER = 4;
-      private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic> floatStat_;
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic> getFloatStatList() {
-        return floatStat_;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder> 
-          getFloatStatOrBuilderList() {
-        return floatStat_;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      public int getFloatStatCount() {
-        return floatStat_.size();
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic getFloatStat(int index) {
-        return floatStat_.get(index);
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-       */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder getFloatStatOrBuilder(
-          int index) {
-        return floatStat_.get(index);
-      }
-
-      // repeated .crowd_safe_data_analysis.Ratio ratio = 5;
-      public static final int RATIO_FIELD_NUMBER = 5;
-      private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio> ratio_;
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio> getRatioList() {
-        return ratio_;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder> 
-          getRatioOrBuilderList() {
-        return ratio_;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      public int getRatioCount() {
-        return ratio_.size();
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio getRatio(int index) {
-        return ratio_.get(index);
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-       */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder getRatioOrBuilder(
-          int index) {
-        return ratio_.get(index);
-      }
-
-      private void initFields() {
-        id_ = 0;
-        name_ = "";
-        intStat_ = java.util.Collections.emptyList();
-        floatStat_ = java.util.Collections.emptyList();
-        ratio_ = java.util.Collections.emptyList();
-      }
-      private byte memoizedIsInitialized = -1;
-      public final boolean isInitialized() {
-        byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
-
-        if (!hasId()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!hasName()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        for (int i = 0; i < getIntStatCount(); i++) {
-          if (!getIntStat(i).isInitialized()) {
-            memoizedIsInitialized = 0;
-            return false;
-          }
-        }
-        for (int i = 0; i < getFloatStatCount(); i++) {
-          if (!getFloatStat(i).isInitialized()) {
-            memoizedIsInitialized = 0;
-            return false;
-          }
-        }
-        for (int i = 0; i < getRatioCount(); i++) {
-          if (!getRatio(i).isInitialized()) {
-            memoizedIsInitialized = 0;
-            return false;
-          }
-        }
-        memoizedIsInitialized = 1;
-        return true;
-      }
-
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeInt32(1, id_);
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeBytes(2, getNameBytes());
-        }
-        for (int i = 0; i < intStat_.size(); i++) {
-          output.writeMessage(3, intStat_.get(i));
-        }
-        for (int i = 0; i < floatStat_.size(); i++) {
-          output.writeMessage(4, floatStat_.get(i));
-        }
-        for (int i = 0; i < ratio_.size(); i++) {
-          output.writeMessage(5, ratio_.get(i));
-        }
-        getUnknownFields().writeTo(output);
-      }
-
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-
-        size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(1, id_);
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getNameBytes());
-        }
-        for (int i = 0; i < intStat_.size(); i++) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(3, intStat_.get(i));
-        }
-        for (int i = 0; i < floatStat_.size(); i++) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(4, floatStat_.get(i));
-        }
-        for (int i = 0; i < ratio_.size(); i++) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(5, ratio_.get(i));
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-
-      private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input, extensionRegistry);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input);
-      }
-      public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-      }
-
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-
-      @java.lang.Override
-      protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        Builder builder = new Builder(parent);
-        return builder;
-      }
-      /**
-       * Protobuf type {@code crowd_safe_data_analysis.ClusterMerge.MergeSummary}
-       */
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder {
-        public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_fieldAccessorTable
-              .ensureFieldAccessorsInitialized(
-                  edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder.class);
-        }
-
-        // Construct using edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.newBuilder()
-        private Builder() {
-          maybeForceBuilderInitialization();
-        }
-
-        private Builder(
-            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-          super(parent);
-          maybeForceBuilderInitialization();
-        }
-        private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-            getIntStatFieldBuilder();
-            getFloatStatFieldBuilder();
-            getRatioFieldBuilder();
-          }
-        }
-        private static Builder create() {
-          return new Builder();
-        }
-
-        public Builder clear() {
-          super.clear();
-          id_ = 0;
-          bitField0_ = (bitField0_ & ~0x00000001);
-          name_ = "";
-          bitField0_ = (bitField0_ & ~0x00000002);
-          if (intStatBuilder_ == null) {
-            intStat_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000004);
-          } else {
-            intStatBuilder_.clear();
-          }
-          if (floatStatBuilder_ == null) {
-            floatStat_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000008);
-          } else {
-            floatStatBuilder_.clear();
-          }
-          if (ratioBuilder_ == null) {
-            ratio_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000010);
-          } else {
-            ratioBuilder_.clear();
-          }
-          return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_descriptor;
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary getDefaultInstanceForType() {
-          return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.getDefaultInstance();
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary build() {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary result = buildPartial();
-          if (!result.isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return result;
-        }
-
-        public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary buildPartial() {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary result = new edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary(this);
-          int from_bitField0_ = bitField0_;
-          int to_bitField0_ = 0;
-          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-            to_bitField0_ |= 0x00000001;
-          }
-          result.id_ = id_;
-          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-            to_bitField0_ |= 0x00000002;
-          }
-          result.name_ = name_;
-          if (intStatBuilder_ == null) {
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-              intStat_ = java.util.Collections.unmodifiableList(intStat_);
-              bitField0_ = (bitField0_ & ~0x00000004);
-            }
-            result.intStat_ = intStat_;
-          } else {
-            result.intStat_ = intStatBuilder_.build();
-          }
-          if (floatStatBuilder_ == null) {
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-              floatStat_ = java.util.Collections.unmodifiableList(floatStat_);
-              bitField0_ = (bitField0_ & ~0x00000008);
-            }
-            result.floatStat_ = floatStat_;
-          } else {
-            result.floatStat_ = floatStatBuilder_.build();
-          }
-          if (ratioBuilder_ == null) {
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-              ratio_ = java.util.Collections.unmodifiableList(ratio_);
-              bitField0_ = (bitField0_ & ~0x00000010);
-            }
-            result.ratio_ = ratio_;
-          } else {
-            result.ratio_ = ratioBuilder_.build();
-          }
-          result.bitField0_ = to_bitField0_;
-          onBuilt();
-          return result;
-        }
-
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary) {
-            return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-
-        public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary other) {
-          if (other == edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.getDefaultInstance()) return this;
-          if (other.hasId()) {
-            setId(other.getId());
-          }
-          if (other.hasName()) {
-            bitField0_ |= 0x00000002;
-            name_ = other.name_;
-            onChanged();
-          }
-          if (intStatBuilder_ == null) {
-            if (!other.intStat_.isEmpty()) {
-              if (intStat_.isEmpty()) {
-                intStat_ = other.intStat_;
-                bitField0_ = (bitField0_ & ~0x00000004);
-              } else {
-                ensureIntStatIsMutable();
-                intStat_.addAll(other.intStat_);
-              }
-              onChanged();
-            }
-          } else {
-            if (!other.intStat_.isEmpty()) {
-              if (intStatBuilder_.isEmpty()) {
-                intStatBuilder_.dispose();
-                intStatBuilder_ = null;
-                intStat_ = other.intStat_;
-                bitField0_ = (bitField0_ & ~0x00000004);
-                intStatBuilder_ = 
-                  com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                     getIntStatFieldBuilder() : null;
-              } else {
-                intStatBuilder_.addAllMessages(other.intStat_);
-              }
-            }
-          }
-          if (floatStatBuilder_ == null) {
-            if (!other.floatStat_.isEmpty()) {
-              if (floatStat_.isEmpty()) {
-                floatStat_ = other.floatStat_;
-                bitField0_ = (bitField0_ & ~0x00000008);
-              } else {
-                ensureFloatStatIsMutable();
-                floatStat_.addAll(other.floatStat_);
-              }
-              onChanged();
-            }
-          } else {
-            if (!other.floatStat_.isEmpty()) {
-              if (floatStatBuilder_.isEmpty()) {
-                floatStatBuilder_.dispose();
-                floatStatBuilder_ = null;
-                floatStat_ = other.floatStat_;
-                bitField0_ = (bitField0_ & ~0x00000008);
-                floatStatBuilder_ = 
-                  com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                     getFloatStatFieldBuilder() : null;
-              } else {
-                floatStatBuilder_.addAllMessages(other.floatStat_);
-              }
-            }
-          }
-          if (ratioBuilder_ == null) {
-            if (!other.ratio_.isEmpty()) {
-              if (ratio_.isEmpty()) {
-                ratio_ = other.ratio_;
-                bitField0_ = (bitField0_ & ~0x00000010);
-              } else {
-                ensureRatioIsMutable();
-                ratio_.addAll(other.ratio_);
-              }
-              onChanged();
-            }
-          } else {
-            if (!other.ratio_.isEmpty()) {
-              if (ratioBuilder_.isEmpty()) {
-                ratioBuilder_.dispose();
-                ratioBuilder_ = null;
-                ratio_ = other.ratio_;
-                bitField0_ = (bitField0_ & ~0x00000010);
-                ratioBuilder_ = 
-                  com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                     getRatioFieldBuilder() : null;
-              } else {
-                ratioBuilder_.addAllMessages(other.ratio_);
-              }
-            }
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-
-        public final boolean isInitialized() {
-          if (!hasId()) {
-            
-            return false;
-          }
-          if (!hasName()) {
-            
-            return false;
-          }
-          for (int i = 0; i < getIntStatCount(); i++) {
-            if (!getIntStat(i).isInitialized()) {
-              
-              return false;
-            }
-          }
-          for (int i = 0; i < getFloatStatCount(); i++) {
-            if (!getFloatStat(i).isInitialized()) {
-              
-              return false;
-            }
-          }
-          for (int i = 0; i < getRatioCount(); i++) {
-            if (!getRatio(i).isInitialized()) {
-              
-              return false;
-            }
-          }
-          return true;
-        }
-
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary parsedMessage = null;
-          try {
-            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary) e.getUnfinishedMessage();
-            throw e;
-          } finally {
-            if (parsedMessage != null) {
-              mergeFrom(parsedMessage);
-            }
-          }
-          return this;
-        }
-        private int bitField0_;
-
-        // required int32 id = 1;
-        private int id_ ;
-        /**
-         * <code>required int32 id = 1;</code>
-         */
-        public boolean hasId() {
-          return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-        /**
-         * <code>required int32 id = 1;</code>
-         */
-        public int getId() {
-          return id_;
-        }
-        /**
-         * <code>required int32 id = 1;</code>
-         */
-        public Builder setId(int value) {
-          bitField0_ |= 0x00000001;
-          id_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required int32 id = 1;</code>
-         */
-        public Builder clearId() {
-          bitField0_ = (bitField0_ & ~0x00000001);
-          id_ = 0;
-          onChanged();
-          return this;
-        }
-
-        // required string name = 2;
-        private java.lang.Object name_ = "";
-        /**
-         * <code>required string name = 2;</code>
-         */
-        public boolean hasName() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-        /**
-         * <code>required string name = 2;</code>
-         */
-        public java.lang.String getName() {
-          java.lang.Object ref = name_;
-          if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            name_ = s;
-            return s;
-          } else {
-            return (java.lang.String) ref;
-          }
-        }
-        /**
-         * <code>required string name = 2;</code>
-         */
-        public com.google.protobuf.ByteString
-            getNameBytes() {
-          java.lang.Object ref = name_;
-          if (ref instanceof String) {
-            com.google.protobuf.ByteString b = 
-                com.google.protobuf.ByteString.copyFromUtf8(
-                    (java.lang.String) ref);
-            name_ = b;
-            return b;
-          } else {
-            return (com.google.protobuf.ByteString) ref;
-          }
-        }
-        /**
-         * <code>required string name = 2;</code>
-         */
-        public Builder setName(
-            java.lang.String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          name_ = value;
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required string name = 2;</code>
-         */
-        public Builder clearName() {
-          bitField0_ = (bitField0_ & ~0x00000002);
-          name_ = getDefaultInstance().getName();
-          onChanged();
-          return this;
-        }
-        /**
-         * <code>required string name = 2;</code>
-         */
-        public Builder setNameBytes(
-            com.google.protobuf.ByteString value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          name_ = value;
-          onChanged();
-          return this;
-        }
-
-        // repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;
-        private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic> intStat_ =
-          java.util.Collections.emptyList();
-        private void ensureIntStatIsMutable() {
-          if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-            intStat_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic>(intStat_);
-            bitField0_ |= 0x00000004;
-           }
-        }
-
-        private com.google.protobuf.RepeatedFieldBuilder<
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder> intStatBuilder_;
-
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic> getIntStatList() {
-          if (intStatBuilder_ == null) {
-            return java.util.Collections.unmodifiableList(intStat_);
-          } else {
-            return intStatBuilder_.getMessageList();
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public int getIntStatCount() {
-          if (intStatBuilder_ == null) {
-            return intStat_.size();
-          } else {
-            return intStatBuilder_.getCount();
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic getIntStat(int index) {
-          if (intStatBuilder_ == null) {
-            return intStat_.get(index);
-          } else {
-            return intStatBuilder_.getMessage(index);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder setIntStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic value) {
-          if (intStatBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureIntStatIsMutable();
-            intStat_.set(index, value);
-            onChanged();
-          } else {
-            intStatBuilder_.setMessage(index, value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder setIntStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder builderForValue) {
-          if (intStatBuilder_ == null) {
-            ensureIntStatIsMutable();
-            intStat_.set(index, builderForValue.build());
-            onChanged();
-          } else {
-            intStatBuilder_.setMessage(index, builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder addIntStat(edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic value) {
-          if (intStatBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureIntStatIsMutable();
-            intStat_.add(value);
-            onChanged();
-          } else {
-            intStatBuilder_.addMessage(value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder addIntStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic value) {
-          if (intStatBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureIntStatIsMutable();
-            intStat_.add(index, value);
-            onChanged();
-          } else {
-            intStatBuilder_.addMessage(index, value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder addIntStat(
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder builderForValue) {
-          if (intStatBuilder_ == null) {
-            ensureIntStatIsMutable();
-            intStat_.add(builderForValue.build());
-            onChanged();
-          } else {
-            intStatBuilder_.addMessage(builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder addIntStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder builderForValue) {
-          if (intStatBuilder_ == null) {
-            ensureIntStatIsMutable();
-            intStat_.add(index, builderForValue.build());
-            onChanged();
-          } else {
-            intStatBuilder_.addMessage(index, builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder addAllIntStat(
-            java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic> values) {
-          if (intStatBuilder_ == null) {
-            ensureIntStatIsMutable();
-            super.addAll(values, intStat_);
-            onChanged();
-          } else {
-            intStatBuilder_.addAllMessages(values);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder clearIntStat() {
-          if (intStatBuilder_ == null) {
-            intStat_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000004);
-            onChanged();
-          } else {
-            intStatBuilder_.clear();
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public Builder removeIntStat(int index) {
-          if (intStatBuilder_ == null) {
-            ensureIntStatIsMutable();
-            intStat_.remove(index);
-            onChanged();
-          } else {
-            intStatBuilder_.remove(index);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder getIntStatBuilder(
-            int index) {
-          return getIntStatFieldBuilder().getBuilder(index);
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder getIntStatOrBuilder(
-            int index) {
-          if (intStatBuilder_ == null) {
-            return intStat_.get(index);  } else {
-            return intStatBuilder_.getMessageOrBuilder(index);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder> 
-             getIntStatOrBuilderList() {
-          if (intStatBuilder_ != null) {
-            return intStatBuilder_.getMessageOrBuilderList();
-          } else {
-            return java.util.Collections.unmodifiableList(intStat_);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder addIntStatBuilder() {
-          return getIntStatFieldBuilder().addBuilder(
-              edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.getDefaultInstance());
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder addIntStatBuilder(
-            int index) {
-          return getIntStatFieldBuilder().addBuilder(
-              index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.getDefaultInstance());
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.IntegerStatistic intStat = 3;</code>
-         */
-        public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder> 
-             getIntStatBuilderList() {
-          return getIntStatFieldBuilder().getBuilderList();
-        }
-        private com.google.protobuf.RepeatedFieldBuilder<
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder> 
-            getIntStatFieldBuilder() {
-          if (intStatBuilder_ == null) {
-            intStatBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-                edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatistic.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.IntegerStatisticOrBuilder>(
-                    intStat_,
-                    ((bitField0_ & 0x00000004) == 0x00000004),
-                    getParentForChildren(),
-                    isClean());
-            intStat_ = null;
-          }
-          return intStatBuilder_;
-        }
-
-        // repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;
-        private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic> floatStat_ =
-          java.util.Collections.emptyList();
-        private void ensureFloatStatIsMutable() {
-          if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-            floatStat_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic>(floatStat_);
-            bitField0_ |= 0x00000008;
-           }
-        }
-
-        private com.google.protobuf.RepeatedFieldBuilder<
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder> floatStatBuilder_;
-
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic> getFloatStatList() {
-          if (floatStatBuilder_ == null) {
-            return java.util.Collections.unmodifiableList(floatStat_);
-          } else {
-            return floatStatBuilder_.getMessageList();
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public int getFloatStatCount() {
-          if (floatStatBuilder_ == null) {
-            return floatStat_.size();
-          } else {
-            return floatStatBuilder_.getCount();
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic getFloatStat(int index) {
-          if (floatStatBuilder_ == null) {
-            return floatStat_.get(index);
-          } else {
-            return floatStatBuilder_.getMessage(index);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder setFloatStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic value) {
-          if (floatStatBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureFloatStatIsMutable();
-            floatStat_.set(index, value);
-            onChanged();
-          } else {
-            floatStatBuilder_.setMessage(index, value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder setFloatStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder builderForValue) {
-          if (floatStatBuilder_ == null) {
-            ensureFloatStatIsMutable();
-            floatStat_.set(index, builderForValue.build());
-            onChanged();
-          } else {
-            floatStatBuilder_.setMessage(index, builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder addFloatStat(edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic value) {
-          if (floatStatBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureFloatStatIsMutable();
-            floatStat_.add(value);
-            onChanged();
-          } else {
-            floatStatBuilder_.addMessage(value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder addFloatStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic value) {
-          if (floatStatBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureFloatStatIsMutable();
-            floatStat_.add(index, value);
-            onChanged();
-          } else {
-            floatStatBuilder_.addMessage(index, value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder addFloatStat(
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder builderForValue) {
-          if (floatStatBuilder_ == null) {
-            ensureFloatStatIsMutable();
-            floatStat_.add(builderForValue.build());
-            onChanged();
-          } else {
-            floatStatBuilder_.addMessage(builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder addFloatStat(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder builderForValue) {
-          if (floatStatBuilder_ == null) {
-            ensureFloatStatIsMutable();
-            floatStat_.add(index, builderForValue.build());
-            onChanged();
-          } else {
-            floatStatBuilder_.addMessage(index, builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder addAllFloatStat(
-            java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic> values) {
-          if (floatStatBuilder_ == null) {
-            ensureFloatStatIsMutable();
-            super.addAll(values, floatStat_);
-            onChanged();
-          } else {
-            floatStatBuilder_.addAllMessages(values);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder clearFloatStat() {
-          if (floatStatBuilder_ == null) {
-            floatStat_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000008);
-            onChanged();
-          } else {
-            floatStatBuilder_.clear();
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public Builder removeFloatStat(int index) {
-          if (floatStatBuilder_ == null) {
-            ensureFloatStatIsMutable();
-            floatStat_.remove(index);
-            onChanged();
-          } else {
-            floatStatBuilder_.remove(index);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder getFloatStatBuilder(
-            int index) {
-          return getFloatStatFieldBuilder().getBuilder(index);
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder getFloatStatOrBuilder(
-            int index) {
-          if (floatStatBuilder_ == null) {
-            return floatStat_.get(index);  } else {
-            return floatStatBuilder_.getMessageOrBuilder(index);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder> 
-             getFloatStatOrBuilderList() {
-          if (floatStatBuilder_ != null) {
-            return floatStatBuilder_.getMessageOrBuilderList();
-          } else {
-            return java.util.Collections.unmodifiableList(floatStat_);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder addFloatStatBuilder() {
-          return getFloatStatFieldBuilder().addBuilder(
-              edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.getDefaultInstance());
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder addFloatStatBuilder(
-            int index) {
-          return getFloatStatFieldBuilder().addBuilder(
-              index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.getDefaultInstance());
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.FloatStatistic floatStat = 4;</code>
-         */
-        public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder> 
-             getFloatStatBuilderList() {
-          return getFloatStatFieldBuilder().getBuilderList();
-        }
-        private com.google.protobuf.RepeatedFieldBuilder<
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder> 
-            getFloatStatFieldBuilder() {
-          if (floatStatBuilder_ == null) {
-            floatStatBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-                edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatistic.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.FloatStatisticOrBuilder>(
-                    floatStat_,
-                    ((bitField0_ & 0x00000008) == 0x00000008),
-                    getParentForChildren(),
-                    isClean());
-            floatStat_ = null;
-          }
-          return floatStatBuilder_;
-        }
-
-        // repeated .crowd_safe_data_analysis.Ratio ratio = 5;
-        private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio> ratio_ =
-          java.util.Collections.emptyList();
-        private void ensureRatioIsMutable() {
-          if (!((bitField0_ & 0x00000010) == 0x00000010)) {
-            ratio_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio>(ratio_);
-            bitField0_ |= 0x00000010;
-           }
-        }
-
-        private com.google.protobuf.RepeatedFieldBuilder<
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder> ratioBuilder_;
-
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio> getRatioList() {
-          if (ratioBuilder_ == null) {
-            return java.util.Collections.unmodifiableList(ratio_);
-          } else {
-            return ratioBuilder_.getMessageList();
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public int getRatioCount() {
-          if (ratioBuilder_ == null) {
-            return ratio_.size();
-          } else {
-            return ratioBuilder_.getCount();
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio getRatio(int index) {
-          if (ratioBuilder_ == null) {
-            return ratio_.get(index);
-          } else {
-            return ratioBuilder_.getMessage(index);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder setRatio(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio value) {
-          if (ratioBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureRatioIsMutable();
-            ratio_.set(index, value);
-            onChanged();
-          } else {
-            ratioBuilder_.setMessage(index, value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder setRatio(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder builderForValue) {
-          if (ratioBuilder_ == null) {
-            ensureRatioIsMutable();
-            ratio_.set(index, builderForValue.build());
-            onChanged();
-          } else {
-            ratioBuilder_.setMessage(index, builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder addRatio(edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio value) {
-          if (ratioBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureRatioIsMutable();
-            ratio_.add(value);
-            onChanged();
-          } else {
-            ratioBuilder_.addMessage(value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder addRatio(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio value) {
-          if (ratioBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            ensureRatioIsMutable();
-            ratio_.add(index, value);
-            onChanged();
-          } else {
-            ratioBuilder_.addMessage(index, value);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder addRatio(
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder builderForValue) {
-          if (ratioBuilder_ == null) {
-            ensureRatioIsMutable();
-            ratio_.add(builderForValue.build());
-            onChanged();
-          } else {
-            ratioBuilder_.addMessage(builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder addRatio(
-            int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder builderForValue) {
-          if (ratioBuilder_ == null) {
-            ensureRatioIsMutable();
-            ratio_.add(index, builderForValue.build());
-            onChanged();
-          } else {
-            ratioBuilder_.addMessage(index, builderForValue.build());
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder addAllRatio(
-            java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio> values) {
-          if (ratioBuilder_ == null) {
-            ensureRatioIsMutable();
-            super.addAll(values, ratio_);
-            onChanged();
-          } else {
-            ratioBuilder_.addAllMessages(values);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder clearRatio() {
-          if (ratioBuilder_ == null) {
-            ratio_ = java.util.Collections.emptyList();
-            bitField0_ = (bitField0_ & ~0x00000010);
-            onChanged();
-          } else {
-            ratioBuilder_.clear();
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public Builder removeRatio(int index) {
-          if (ratioBuilder_ == null) {
-            ensureRatioIsMutable();
-            ratio_.remove(index);
-            onChanged();
-          } else {
-            ratioBuilder_.remove(index);
-          }
-          return this;
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder getRatioBuilder(
-            int index) {
-          return getRatioFieldBuilder().getBuilder(index);
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder getRatioOrBuilder(
-            int index) {
-          if (ratioBuilder_ == null) {
-            return ratio_.get(index);  } else {
-            return ratioBuilder_.getMessageOrBuilder(index);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder> 
-             getRatioOrBuilderList() {
-          if (ratioBuilder_ != null) {
-            return ratioBuilder_.getMessageOrBuilderList();
-          } else {
-            return java.util.Collections.unmodifiableList(ratio_);
-          }
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder addRatioBuilder() {
-          return getRatioFieldBuilder().addBuilder(
-              edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.getDefaultInstance());
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder addRatioBuilder(
-            int index) {
-          return getRatioFieldBuilder().addBuilder(
-              index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.getDefaultInstance());
-        }
-        /**
-         * <code>repeated .crowd_safe_data_analysis.Ratio ratio = 5;</code>
-         */
-        public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder> 
-             getRatioBuilderList() {
-          return getRatioFieldBuilder().getBuilderList();
-        }
-        private com.google.protobuf.RepeatedFieldBuilder<
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder> 
-            getRatioFieldBuilder() {
-          if (ratioBuilder_ == null) {
-            ratioBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-                edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio, edu.uci.eecs.crowdsafe.common.data.results.Statistics.Ratio.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.RatioOrBuilder>(
-                    ratio_,
-                    ((bitField0_ & 0x00000010) == 0x00000010),
-                    getParentForChildren(),
-                    isClean());
-            ratio_ = null;
-          }
-          return ratioBuilder_;
-        }
-
-        // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.ClusterMerge.MergeSummary)
-      }
-
-      static {
-        defaultInstance = new MergeSummary(true);
-        defaultInstance.initFields();
-      }
-
-      // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.ClusterMerge.MergeSummary)
-    }
-
     private int bitField0_;
-    // required string distributionName = 1;
-    public static final int DISTRIBUTIONNAME_FIELD_NUMBER = 1;
+    // required string distribution_name = 1;
+    public static final int DISTRIBUTION_NAME_FIELD_NUMBER = 1;
     private java.lang.Object distributionName_;
     /**
-     * <code>required string distributionName = 1;</code>
+     * <code>required string distribution_name = 1;</code>
      */
     public boolean hasDistributionName() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required string distributionName = 1;</code>
+     * <code>required string distribution_name = 1;</code>
      */
     public java.lang.String getDistributionName() {
       java.lang.Object ref = distributionName_;
@@ -4568,7 +1452,7 @@ public final class Merge {
       }
     }
     /**
-     * <code>required string distributionName = 1;</code>
+     * <code>required string distribution_name = 1;</code>
      */
     public com.google.protobuf.ByteString
         getDistributionNameBytes() {
@@ -4584,137 +1468,183 @@ public final class Merge {
       }
     }
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;
-    public static final int LEFTUNMATCHED_FIELD_NUMBER = 2;
-    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary leftUnmatched_;
+    // optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;
+    public static final int LEFT_UNMATCHED_FIELD_NUMBER = 2;
+    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary leftUnmatched_;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
      */
     public boolean hasLeftUnmatched() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getLeftUnmatched() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getLeftUnmatched() {
       return leftUnmatched_;
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder getLeftUnmatchedOrBuilder() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder getLeftUnmatchedOrBuilder() {
       return leftUnmatched_;
     }
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;
-    public static final int RIGHTUNMATCHED_FIELD_NUMBER = 3;
-    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary rightUnmatched_;
+    // optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;
+    public static final int RIGHT_UNMATCHED_FIELD_NUMBER = 3;
+    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary rightUnmatched_;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
      */
     public boolean hasRightUnmatched() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getRightUnmatched() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getRightUnmatched() {
       return rightUnmatched_;
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+     * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder getRightUnmatchedOrBuilder() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder getRightUnmatchedOrBuilder() {
       return rightUnmatched_;
     }
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;
-    public static final int HASHPROFILE_FIELD_NUMBER = 4;
-    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile hashProfile_;
+    // optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;
+    public static final int HASH_PROFILE_FIELD_NUMBER = 4;
+    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile hashProfile_;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
      */
     public boolean hasHashProfile() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getHashProfile() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getHashProfile() {
       return hashProfile_;
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder getHashProfileOrBuilder() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getHashProfileOrBuilder() {
       return hashProfile_;
     }
 
-    // optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;
-    public static final int GRAPHPROFILE_FIELD_NUMBER = 5;
-    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile graphProfile_;
+    // optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;
+    public static final int GRAPH_PROFILE_FIELD_NUMBER = 5;
+    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile graphProfile_;
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
      */
     public boolean hasGraphProfile() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getGraphProfile() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getGraphProfile() {
       return graphProfile_;
     }
     /**
-     * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder getGraphProfileOrBuilder() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getGraphProfileOrBuilder() {
       return graphProfile_;
     }
 
-    // repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;
-    public static final int MERGESUMMARY_FIELD_NUMBER = 6;
-    private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary> mergeSummary_;
+    // optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;
+    public static final int GRAPH_WITHIN_HASH_INTERSECTION_FIELD_NUMBER = 6;
+    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile graphWithinHashIntersection_;
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
      */
-    public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary> getMergeSummaryList() {
+    public boolean hasGraphWithinHashIntersection() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+     */
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getGraphWithinHashIntersection() {
+      return graphWithinHashIntersection_;
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+     */
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getGraphWithinHashIntersectionOrBuilder() {
+      return graphWithinHashIntersection_;
+    }
+
+    // optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;
+    public static final int MERGE_SUMMARY_FIELD_NUMBER = 7;
+    private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary mergeSummary_;
+    /**
+     * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
+     */
+    public boolean hasMergeSummary() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
+     */
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary getMergeSummary() {
       return mergeSummary_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
      */
-    public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder> 
-        getMergeSummaryOrBuilderList() {
+    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder getMergeSummaryOrBuilder() {
       return mergeSummary_;
     }
+
+    // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
+    public static final int STATISTICS_FIELD_NUMBER = 8;
+    private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> statistics_;
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public int getMergeSummaryCount() {
-      return mergeSummary_.size();
+    public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> getStatisticsList() {
+      return statistics_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary getMergeSummary(int index) {
-      return mergeSummary_.get(index);
+    public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+        getStatisticsOrBuilderList() {
+      return statistics_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder getMergeSummaryOrBuilder(
+    public int getStatisticsCount() {
+      return statistics_.size();
+    }
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index) {
+      return statistics_.get(index);
+    }
+    /**
+     * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+     */
+    public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
         int index) {
-      return mergeSummary_.get(index);
+      return statistics_.get(index);
     }
 
     private void initFields() {
       distributionName_ = "";
-      leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
-      rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
-      hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
-      graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
-      mergeSummary_ = java.util.Collections.emptyList();
+      leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
+      rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
+      hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+      graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+      graphWithinHashIntersection_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+      mergeSummary_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance();
+      statistics_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -4749,8 +1679,14 @@ public final class Merge {
           return false;
         }
       }
-      for (int i = 0; i < getMergeSummaryCount(); i++) {
-        if (!getMergeSummary(i).isInitialized()) {
+      if (hasGraphWithinHashIntersection()) {
+        if (!getGraphWithinHashIntersection().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      for (int i = 0; i < getStatisticsCount(); i++) {
+        if (!getStatistics(i).isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -4777,8 +1713,14 @@ public final class Merge {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeMessage(5, graphProfile_);
       }
-      for (int i = 0; i < mergeSummary_.size(); i++) {
-        output.writeMessage(6, mergeSummary_.get(i));
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeMessage(6, graphWithinHashIntersection_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeMessage(7, mergeSummary_);
+      }
+      for (int i = 0; i < statistics_.size(); i++) {
+        output.writeMessage(8, statistics_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -4809,9 +1751,17 @@ public final class Merge {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(5, graphProfile_);
       }
-      for (int i = 0; i < mergeSummary_.size(); i++) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(6, mergeSummary_.get(i));
+          .computeMessageSize(6, graphWithinHashIntersection_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, mergeSummary_);
+      }
+      for (int i = 0; i < statistics_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(8, statistics_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4925,7 +1875,9 @@ public final class Merge {
           getRightUnmatchedFieldBuilder();
           getHashProfileFieldBuilder();
           getGraphProfileFieldBuilder();
+          getGraphWithinHashIntersectionFieldBuilder();
           getMergeSummaryFieldBuilder();
+          getStatisticsFieldBuilder();
         }
       }
       private static Builder create() {
@@ -4937,34 +1889,46 @@ public final class Merge {
         distributionName_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         if (leftUnmatchedBuilder_ == null) {
-          leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
+          leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
         } else {
           leftUnmatchedBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
         if (rightUnmatchedBuilder_ == null) {
-          rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
+          rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
         } else {
           rightUnmatchedBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000004);
         if (hashProfileBuilder_ == null) {
-          hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
+          hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
         } else {
           hashProfileBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000008);
         if (graphProfileBuilder_ == null) {
-          graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
+          graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
         } else {
           graphProfileBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000010);
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          graphWithinHashIntersection_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+        } else {
+          graphWithinHashIntersectionBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
         if (mergeSummaryBuilder_ == null) {
-          mergeSummary_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          mergeSummary_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance();
         } else {
           mergeSummaryBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000040);
+        if (statisticsBuilder_ == null) {
+          statistics_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000080);
+        } else {
+          statisticsBuilder_.clear();
         }
         return this;
       }
@@ -5030,14 +1994,30 @@ public final class Merge {
         } else {
           result.graphProfile_ = graphProfileBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          result.graphWithinHashIntersection_ = graphWithinHashIntersection_;
+        } else {
+          result.graphWithinHashIntersection_ = graphWithinHashIntersectionBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
         if (mergeSummaryBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020)) {
-            mergeSummary_ = java.util.Collections.unmodifiableList(mergeSummary_);
-            bitField0_ = (bitField0_ & ~0x00000020);
-          }
           result.mergeSummary_ = mergeSummary_;
         } else {
           result.mergeSummary_ = mergeSummaryBuilder_.build();
+        }
+        if (statisticsBuilder_ == null) {
+          if (((bitField0_ & 0x00000080) == 0x00000080)) {
+            statistics_ = java.util.Collections.unmodifiableList(statistics_);
+            bitField0_ = (bitField0_ & ~0x00000080);
+          }
+          result.statistics_ = statistics_;
+        } else {
+          result.statistics_ = statisticsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -5072,29 +2052,35 @@ public final class Merge {
         if (other.hasGraphProfile()) {
           mergeGraphProfile(other.getGraphProfile());
         }
-        if (mergeSummaryBuilder_ == null) {
-          if (!other.mergeSummary_.isEmpty()) {
-            if (mergeSummary_.isEmpty()) {
-              mergeSummary_ = other.mergeSummary_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+        if (other.hasGraphWithinHashIntersection()) {
+          mergeGraphWithinHashIntersection(other.getGraphWithinHashIntersection());
+        }
+        if (other.hasMergeSummary()) {
+          mergeMergeSummary(other.getMergeSummary());
+        }
+        if (statisticsBuilder_ == null) {
+          if (!other.statistics_.isEmpty()) {
+            if (statistics_.isEmpty()) {
+              statistics_ = other.statistics_;
+              bitField0_ = (bitField0_ & ~0x00000080);
             } else {
-              ensureMergeSummaryIsMutable();
-              mergeSummary_.addAll(other.mergeSummary_);
+              ensureStatisticsIsMutable();
+              statistics_.addAll(other.statistics_);
             }
             onChanged();
           }
         } else {
-          if (!other.mergeSummary_.isEmpty()) {
-            if (mergeSummaryBuilder_.isEmpty()) {
-              mergeSummaryBuilder_.dispose();
-              mergeSummaryBuilder_ = null;
-              mergeSummary_ = other.mergeSummary_;
-              bitField0_ = (bitField0_ & ~0x00000020);
-              mergeSummaryBuilder_ = 
+          if (!other.statistics_.isEmpty()) {
+            if (statisticsBuilder_.isEmpty()) {
+              statisticsBuilder_.dispose();
+              statisticsBuilder_ = null;
+              statistics_ = other.statistics_;
+              bitField0_ = (bitField0_ & ~0x00000080);
+              statisticsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getMergeSummaryFieldBuilder() : null;
+                   getStatisticsFieldBuilder() : null;
             } else {
-              mergeSummaryBuilder_.addAllMessages(other.mergeSummary_);
+              statisticsBuilder_.addAllMessages(other.statistics_);
             }
           }
         }
@@ -5131,8 +2117,14 @@ public final class Merge {
             return false;
           }
         }
-        for (int i = 0; i < getMergeSummaryCount(); i++) {
-          if (!getMergeSummary(i).isInitialized()) {
+        if (hasGraphWithinHashIntersection()) {
+          if (!getGraphWithinHashIntersection().isInitialized()) {
+            
+            return false;
+          }
+        }
+        for (int i = 0; i < getStatisticsCount(); i++) {
+          if (!getStatistics(i).isInitialized()) {
             
             return false;
           }
@@ -5159,16 +2151,16 @@ public final class Merge {
       }
       private int bitField0_;
 
-      // required string distributionName = 1;
+      // required string distribution_name = 1;
       private java.lang.Object distributionName_ = "";
       /**
-       * <code>required string distributionName = 1;</code>
+       * <code>required string distribution_name = 1;</code>
        */
       public boolean hasDistributionName() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required string distributionName = 1;</code>
+       * <code>required string distribution_name = 1;</code>
        */
       public java.lang.String getDistributionName() {
         java.lang.Object ref = distributionName_;
@@ -5182,7 +2174,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required string distributionName = 1;</code>
+       * <code>required string distribution_name = 1;</code>
        */
       public com.google.protobuf.ByteString
           getDistributionNameBytes() {
@@ -5198,7 +2190,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required string distributionName = 1;</code>
+       * <code>required string distribution_name = 1;</code>
        */
       public Builder setDistributionName(
           java.lang.String value) {
@@ -5211,7 +2203,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required string distributionName = 1;</code>
+       * <code>required string distribution_name = 1;</code>
        */
       public Builder clearDistributionName() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -5220,7 +2212,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required string distributionName = 1;</code>
+       * <code>required string distribution_name = 1;</code>
        */
       public Builder setDistributionNameBytes(
           com.google.protobuf.ByteString value) {
@@ -5233,20 +2225,20 @@ public final class Merge {
         return this;
       }
 
-      // optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;
-      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
+      // optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;
+      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder> leftUnmatchedBuilder_;
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder> leftUnmatchedBuilder_;
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
       public boolean hasLeftUnmatched() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getLeftUnmatched() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getLeftUnmatched() {
         if (leftUnmatchedBuilder_ == null) {
           return leftUnmatched_;
         } else {
@@ -5254,9 +2246,9 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
-      public Builder setLeftUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary value) {
+      public Builder setLeftUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary value) {
         if (leftUnmatchedBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5270,10 +2262,10 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
       public Builder setLeftUnmatched(
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder builderForValue) {
         if (leftUnmatchedBuilder_ == null) {
           leftUnmatched_ = builderForValue.build();
           onChanged();
@@ -5284,14 +2276,14 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
-      public Builder mergeLeftUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary value) {
+      public Builder mergeLeftUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary value) {
         if (leftUnmatchedBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              leftUnmatched_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance()) {
+              leftUnmatched_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance()) {
             leftUnmatched_ =
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.newBuilder(leftUnmatched_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.newBuilder(leftUnmatched_).mergeFrom(value).buildPartial();
           } else {
             leftUnmatched_ = value;
           }
@@ -5303,11 +2295,11 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
       public Builder clearLeftUnmatched() {
         if (leftUnmatchedBuilder_ == null) {
-          leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
+          leftUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
           onChanged();
         } else {
           leftUnmatchedBuilder_.clear();
@@ -5316,17 +2308,17 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder getLeftUnmatchedBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder getLeftUnmatchedBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getLeftUnmatchedFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder getLeftUnmatchedOrBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder getLeftUnmatchedOrBuilder() {
         if (leftUnmatchedBuilder_ != null) {
           return leftUnmatchedBuilder_.getMessageOrBuilder();
         } else {
@@ -5334,14 +2326,14 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary leftUnmatched = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary left_unmatched = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder> 
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder> 
           getLeftUnmatchedFieldBuilder() {
         if (leftUnmatchedBuilder_ == null) {
           leftUnmatchedBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder>(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder>(
                   leftUnmatched_,
                   getParentForChildren(),
                   isClean());
@@ -5350,20 +2342,20 @@ public final class Merge {
         return leftUnmatchedBuilder_;
       }
 
-      // optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;
-      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
+      // optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;
+      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder> rightUnmatchedBuilder_;
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder> rightUnmatchedBuilder_;
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
       public boolean hasRightUnmatched() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary getRightUnmatched() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getRightUnmatched() {
         if (rightUnmatchedBuilder_ == null) {
           return rightUnmatched_;
         } else {
@@ -5371,9 +2363,9 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
-      public Builder setRightUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary value) {
+      public Builder setRightUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary value) {
         if (rightUnmatchedBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5387,10 +2379,10 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
       public Builder setRightUnmatched(
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder builderForValue) {
         if (rightUnmatchedBuilder_ == null) {
           rightUnmatched_ = builderForValue.build();
           onChanged();
@@ -5401,14 +2393,14 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
-      public Builder mergeRightUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary value) {
+      public Builder mergeRightUnmatched(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary value) {
         if (rightUnmatchedBuilder_ == null) {
           if (((bitField0_ & 0x00000004) == 0x00000004) &&
-              rightUnmatched_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance()) {
+              rightUnmatched_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance()) {
             rightUnmatched_ =
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.newBuilder(rightUnmatched_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.newBuilder(rightUnmatched_).mergeFrom(value).buildPartial();
           } else {
             rightUnmatched_ = value;
           }
@@ -5420,11 +2412,11 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
       public Builder clearRightUnmatched() {
         if (rightUnmatchedBuilder_ == null) {
-          rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.getDefaultInstance();
+          rightUnmatched_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
           onChanged();
         } else {
           rightUnmatchedBuilder_.clear();
@@ -5433,17 +2425,17 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder getRightUnmatchedBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder getRightUnmatchedBuilder() {
         bitField0_ |= 0x00000004;
         onChanged();
         return getRightUnmatchedFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder getRightUnmatchedOrBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder getRightUnmatchedOrBuilder() {
         if (rightUnmatchedBuilder_ != null) {
           return rightUnmatchedBuilder_.getMessageOrBuilder();
         } else {
@@ -5451,14 +2443,14 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.UnmatchedNodeSummary rightUnmatched = 3;</code>
+       * <code>optional .crowd_safe_data_analysis.UnmatchedNodeSummary right_unmatched = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder> 
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder> 
           getRightUnmatchedFieldBuilder() {
         if (rightUnmatchedBuilder_ == null) {
           rightUnmatchedBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.UnmatchedNodeSummaryOrBuilder>(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder>(
                   rightUnmatched_,
                   getParentForChildren(),
                   isClean());
@@ -5467,20 +2459,20 @@ public final class Merge {
         return rightUnmatchedBuilder_;
       }
 
-      // optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;
-      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
+      // optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;
+      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder> hashProfileBuilder_;
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder> hashProfileBuilder_;
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
       public boolean hasHashProfile() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getHashProfile() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getHashProfile() {
         if (hashProfileBuilder_ == null) {
           return hashProfile_;
         } else {
@@ -5488,9 +2480,9 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
-      public Builder setHashProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile value) {
+      public Builder setHashProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile value) {
         if (hashProfileBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5504,10 +2496,10 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
       public Builder setHashProfile(
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder builderForValue) {
         if (hashProfileBuilder_ == null) {
           hashProfile_ = builderForValue.build();
           onChanged();
@@ -5518,14 +2510,14 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
-      public Builder mergeHashProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile value) {
+      public Builder mergeHashProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile value) {
         if (hashProfileBuilder_ == null) {
           if (((bitField0_ & 0x00000008) == 0x00000008) &&
-              hashProfile_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance()) {
+              hashProfile_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance()) {
             hashProfile_ =
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.newBuilder(hashProfile_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.newBuilder(hashProfile_).mergeFrom(value).buildPartial();
           } else {
             hashProfile_ = value;
           }
@@ -5537,11 +2529,11 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
       public Builder clearHashProfile() {
         if (hashProfileBuilder_ == null) {
-          hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
+          hashProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
           onChanged();
         } else {
           hashProfileBuilder_.clear();
@@ -5550,17 +2542,17 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder getHashProfileBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder getHashProfileBuilder() {
         bitField0_ |= 0x00000008;
         onChanged();
         return getHashProfileFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder getHashProfileOrBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getHashProfileOrBuilder() {
         if (hashProfileBuilder_ != null) {
           return hashProfileBuilder_.getMessageOrBuilder();
         } else {
@@ -5568,14 +2560,14 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile hashProfile = 4;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile hash_profile = 4;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder> 
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder> 
           getHashProfileFieldBuilder() {
         if (hashProfileBuilder_ == null) {
           hashProfileBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder>(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder>(
                   hashProfile_,
                   getParentForChildren(),
                   isClean());
@@ -5584,20 +2576,20 @@ public final class Merge {
         return hashProfileBuilder_;
       }
 
-      // optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;
-      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
+      // optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;
+      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder> graphProfileBuilder_;
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder> graphProfileBuilder_;
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
       public boolean hasGraphProfile() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile getGraphProfile() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getGraphProfile() {
         if (graphProfileBuilder_ == null) {
           return graphProfile_;
         } else {
@@ -5605,9 +2597,9 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
-      public Builder setGraphProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile value) {
+      public Builder setGraphProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile value) {
         if (graphProfileBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5621,10 +2613,10 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
       public Builder setGraphProfile(
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder builderForValue) {
         if (graphProfileBuilder_ == null) {
           graphProfile_ = builderForValue.build();
           onChanged();
@@ -5635,14 +2627,14 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
-      public Builder mergeGraphProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile value) {
+      public Builder mergeGraphProfile(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile value) {
         if (graphProfileBuilder_ == null) {
           if (((bitField0_ & 0x00000010) == 0x00000010) &&
-              graphProfile_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance()) {
+              graphProfile_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance()) {
             graphProfile_ =
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.newBuilder(graphProfile_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.newBuilder(graphProfile_).mergeFrom(value).buildPartial();
           } else {
             graphProfile_ = value;
           }
@@ -5654,11 +2646,11 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
       public Builder clearGraphProfile() {
         if (graphProfileBuilder_ == null) {
-          graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.getDefaultInstance();
+          graphProfile_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
           onChanged();
         } else {
           graphProfileBuilder_.clear();
@@ -5667,17 +2659,17 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder getGraphProfileBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder getGraphProfileBuilder() {
         bitField0_ |= 0x00000010;
         onChanged();
         return getGraphProfileFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder getGraphProfileOrBuilder() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getGraphProfileOrBuilder() {
         if (graphProfileBuilder_ != null) {
           return graphProfileBuilder_.getMessageOrBuilder();
         } else {
@@ -5685,14 +2677,14 @@ public final class Merge {
         }
       }
       /**
-       * <code>optional .crowd_safe_data_analysis.ClusterMerge.TraceCompilationProfile graphProfile = 5;</code>
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_profile = 5;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder> 
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder> 
           getGraphProfileFieldBuilder() {
         if (graphProfileBuilder_ == null) {
           graphProfileBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.TraceCompilationProfileOrBuilder>(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder>(
                   graphProfile_,
                   getParentForChildren(),
                   isClean());
@@ -5701,244 +2693,478 @@ public final class Merge {
         return graphProfileBuilder_;
       }
 
-      // repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;
-      private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary> mergeSummary_ =
-        java.util.Collections.emptyList();
-      private void ensureMergeSummaryIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
-          mergeSummary_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary>(mergeSummary_);
-          bitField0_ |= 0x00000020;
-         }
+      // optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;
+      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile graphWithinHashIntersection_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder> graphWithinHashIntersectionBuilder_;
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public boolean hasGraphWithinHashIntersection() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getGraphWithinHashIntersection() {
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          return graphWithinHashIntersection_;
+        } else {
+          return graphWithinHashIntersectionBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public Builder setGraphWithinHashIntersection(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile value) {
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          graphWithinHashIntersection_ = value;
+          onChanged();
+        } else {
+          graphWithinHashIntersectionBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public Builder setGraphWithinHashIntersection(
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder builderForValue) {
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          graphWithinHashIntersection_ = builderForValue.build();
+          onChanged();
+        } else {
+          graphWithinHashIntersectionBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public Builder mergeGraphWithinHashIntersection(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile value) {
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020) &&
+              graphWithinHashIntersection_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance()) {
+            graphWithinHashIntersection_ =
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.newBuilder(graphWithinHashIntersection_).mergeFrom(value).buildPartial();
+          } else {
+            graphWithinHashIntersection_ = value;
+          }
+          onChanged();
+        } else {
+          graphWithinHashIntersectionBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public Builder clearGraphWithinHashIntersection() {
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          graphWithinHashIntersection_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+          onChanged();
+        } else {
+          graphWithinHashIntersectionBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder getGraphWithinHashIntersectionBuilder() {
+        bitField0_ |= 0x00000020;
+        onChanged();
+        return getGraphWithinHashIntersectionFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder getGraphWithinHashIntersectionOrBuilder() {
+        if (graphWithinHashIntersectionBuilder_ != null) {
+          return graphWithinHashIntersectionBuilder_.getMessageOrBuilder();
+        } else {
+          return graphWithinHashIntersection_;
+        }
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.TraceCompilationProfile graph_within_hash_intersection = 6;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder> 
+          getGraphWithinHashIntersectionFieldBuilder() {
+        if (graphWithinHashIntersectionBuilder_ == null) {
+          graphWithinHashIntersectionBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder>(
+                  graphWithinHashIntersection_,
+                  getParentForChildren(),
+                  isClean());
+          graphWithinHashIntersection_ = null;
+        }
+        return graphWithinHashIntersectionBuilder_;
       }
 
-      private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder> mergeSummaryBuilder_;
-
+      // optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;
+      private edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary mergeSummary_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder> mergeSummaryBuilder_;
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary> getMergeSummaryList() {
+      public boolean hasMergeSummary() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary getMergeSummary() {
         if (mergeSummaryBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(mergeSummary_);
+          return mergeSummary_;
         } else {
-          return mergeSummaryBuilder_.getMessageList();
+          return mergeSummaryBuilder_.getMessage();
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
-      public int getMergeSummaryCount() {
+      public Builder setMergeSummary(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary value) {
         if (mergeSummaryBuilder_ == null) {
-          return mergeSummary_.size();
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          mergeSummary_ = value;
+          onChanged();
         } else {
-          return mergeSummaryBuilder_.getCount();
+          mergeSummaryBuilder_.setMessage(value);
         }
+        bitField0_ |= 0x00000040;
+        return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary getMergeSummary(int index) {
-        if (mergeSummaryBuilder_ == null) {
-          return mergeSummary_.get(index);
-        } else {
-          return mergeSummaryBuilder_.getMessage(index);
-        }
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
       public Builder setMergeSummary(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary value) {
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder builderForValue) {
         if (mergeSummaryBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
+          mergeSummary_ = builderForValue.build();
+          onChanged();
+        } else {
+          mergeSummaryBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000040;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
+       */
+      public Builder mergeMergeSummary(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary value) {
+        if (mergeSummaryBuilder_ == null) {
+          if (((bitField0_ & 0x00000040) == 0x00000040) &&
+              mergeSummary_ != edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance()) {
+            mergeSummary_ =
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.newBuilder(mergeSummary_).mergeFrom(value).buildPartial();
+          } else {
+            mergeSummary_ = value;
           }
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.set(index, value);
           onChanged();
         } else {
-          mergeSummaryBuilder_.setMessage(index, value);
+          mergeSummaryBuilder_.mergeFrom(value);
         }
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public Builder setMergeSummary(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder builderForValue) {
-        if (mergeSummaryBuilder_ == null) {
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public Builder addMergeSummary(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary value) {
-        if (mergeSummaryBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.add(value);
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public Builder addMergeSummary(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary value) {
-        if (mergeSummaryBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.add(index, value);
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public Builder addMergeSummary(
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder builderForValue) {
-        if (mergeSummaryBuilder_ == null) {
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.add(builderForValue.build());
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public Builder addMergeSummary(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder builderForValue) {
-        if (mergeSummaryBuilder_ == null) {
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public Builder addAllMergeSummary(
-          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary> values) {
-        if (mergeSummaryBuilder_ == null) {
-          ensureMergeSummaryIsMutable();
-          super.addAll(values, mergeSummary_);
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.addAllMessages(values);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
       public Builder clearMergeSummary() {
         if (mergeSummaryBuilder_ == null) {
-          mergeSummary_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          mergeSummary_ = edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance();
           onChanged();
         } else {
           mergeSummaryBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
-      public Builder removeMergeSummary(int index) {
-        if (mergeSummaryBuilder_ == null) {
-          ensureMergeSummaryIsMutable();
-          mergeSummary_.remove(index);
-          onChanged();
-        } else {
-          mergeSummaryBuilder_.remove(index);
-        }
-        return this;
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder getMergeSummaryBuilder() {
+        bitField0_ |= 0x00000040;
+        onChanged();
+        return getMergeSummaryFieldBuilder().getBuilder();
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder getMergeSummaryBuilder(
-          int index) {
-        return getMergeSummaryFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder getMergeSummaryOrBuilder(
-          int index) {
-        if (mergeSummaryBuilder_ == null) {
-          return mergeSummary_.get(index);  } else {
-          return mergeSummaryBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder> 
-           getMergeSummaryOrBuilderList() {
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder getMergeSummaryOrBuilder() {
         if (mergeSummaryBuilder_ != null) {
-          return mergeSummaryBuilder_.getMessageOrBuilderList();
+          return mergeSummaryBuilder_.getMessageOrBuilder();
         } else {
-          return java.util.Collections.unmodifiableList(mergeSummary_);
+          return mergeSummary_;
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
+       * <code>optional .crowd_safe_data_analysis.MergeSummary merge_summary = 7;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder addMergeSummaryBuilder() {
-        return getMergeSummaryFieldBuilder().addBuilder(
-            edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder addMergeSummaryBuilder(
-          int index) {
-        return getMergeSummaryFieldBuilder().addBuilder(
-            index, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .crowd_safe_data_analysis.ClusterMerge.MergeSummary mergeSummary = 6;</code>
-       */
-      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder> 
-           getMergeSummaryBuilderList() {
-        return getMergeSummaryFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder> 
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder> 
           getMergeSummaryFieldBuilder() {
         if (mergeSummaryBuilder_ == null) {
-          mergeSummaryBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.ClusterMerge.MergeSummaryOrBuilder>(
+          mergeSummaryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder>(
                   mergeSummary_,
-                  ((bitField0_ & 0x00000020) == 0x00000020),
                   getParentForChildren(),
                   isClean());
           mergeSummary_ = null;
         }
         return mergeSummaryBuilder_;
+      }
+
+      // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
+      private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> statistics_ =
+        java.util.Collections.emptyList();
+      private void ensureStatisticsIsMutable() {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
+          statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree>(statistics_);
+          bitField0_ |= 0x00000080;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> statisticsBuilder_;
+
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> getStatisticsList() {
+        if (statisticsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(statistics_);
+        } else {
+          return statisticsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public int getStatisticsCount() {
+        if (statisticsBuilder_ == null) {
+          return statistics_.size();
+        } else {
+          return statisticsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index) {
+        if (statisticsBuilder_ == null) {
+          return statistics_.get(index);
+        } else {
+          return statisticsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder setStatistics(
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
+        if (statisticsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureStatisticsIsMutable();
+          statistics_.set(index, value);
+          onChanged();
+        } else {
+          statisticsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder setStatistics(
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+        if (statisticsBuilder_ == null) {
+          ensureStatisticsIsMutable();
+          statistics_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          statisticsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder addStatistics(edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
+        if (statisticsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureStatisticsIsMutable();
+          statistics_.add(value);
+          onChanged();
+        } else {
+          statisticsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder addStatistics(
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
+        if (statisticsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureStatisticsIsMutable();
+          statistics_.add(index, value);
+          onChanged();
+        } else {
+          statisticsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder addStatistics(
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+        if (statisticsBuilder_ == null) {
+          ensureStatisticsIsMutable();
+          statistics_.add(builderForValue.build());
+          onChanged();
+        } else {
+          statisticsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder addStatistics(
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+        if (statisticsBuilder_ == null) {
+          ensureStatisticsIsMutable();
+          statistics_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          statisticsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder addAllStatistics(
+          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> values) {
+        if (statisticsBuilder_ == null) {
+          ensureStatisticsIsMutable();
+          super.addAll(values, statistics_);
+          onChanged();
+        } else {
+          statisticsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder clearStatistics() {
+        if (statisticsBuilder_ == null) {
+          statistics_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000080);
+          onChanged();
+        } else {
+          statisticsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public Builder removeStatistics(int index) {
+        if (statisticsBuilder_ == null) {
+          ensureStatisticsIsMutable();
+          statistics_.remove(index);
+          onChanged();
+        } else {
+          statisticsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder getStatisticsBuilder(
+          int index) {
+        return getStatisticsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+          int index) {
+        if (statisticsBuilder_ == null) {
+          return statistics_.get(index);  } else {
+          return statisticsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+           getStatisticsOrBuilderList() {
+        if (statisticsBuilder_ != null) {
+          return statisticsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(statistics_);
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder() {
+        return getStatisticsFieldBuilder().addBuilder(
+            edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder(
+          int index) {
+        return getStatisticsFieldBuilder().addBuilder(
+            index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
+       */
+      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder> 
+           getStatisticsBuilderList() {
+        return getStatisticsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+          getStatisticsFieldBuilder() {
+        if (statisticsBuilder_ == null) {
+          statisticsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder>(
+                  statistics_,
+                  ((bitField0_ & 0x00000080) == 0x00000080),
+                  getParentForChildren(),
+                  isClean());
+          statistics_ = null;
+        }
+        return statisticsBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.ClusterMerge)
@@ -5952,6 +3178,2044 @@ public final class Merge {
     // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.ClusterMerge)
   }
 
+  public interface UnmatchedNodeSummaryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // required int32 node_count = 1;
+    /**
+     * <code>required int32 node_count = 1;</code>
+     */
+    boolean hasNodeCount();
+    /**
+     * <code>required int32 node_count = 1;</code>
+     */
+    int getNodeCount();
+
+    // optional int32 eligible_node_count = 2;
+    /**
+     * <code>optional int32 eligible_node_count = 2;</code>
+     */
+    boolean hasEligibleNodeCount();
+    /**
+     * <code>optional int32 eligible_node_count = 2;</code>
+     */
+    int getEligibleNodeCount();
+
+    // optional int32 unreachable_node_count = 3;
+    /**
+     * <code>optional int32 unreachable_node_count = 3;</code>
+     */
+    boolean hasUnreachableNodeCount();
+    /**
+     * <code>optional int32 unreachable_node_count = 3;</code>
+     */
+    int getUnreachableNodeCount();
+
+    // optional int32 hash_exclusive_node_count = 4;
+    /**
+     * <code>optional int32 hash_exclusive_node_count = 4;</code>
+     */
+    boolean hasHashExclusiveNodeCount();
+    /**
+     * <code>optional int32 hash_exclusive_node_count = 4;</code>
+     */
+    int getHashExclusiveNodeCount();
+  }
+  /**
+   * Protobuf type {@code crowd_safe_data_analysis.UnmatchedNodeSummary}
+   */
+  public static final class UnmatchedNodeSummary extends
+      com.google.protobuf.GeneratedMessage
+      implements UnmatchedNodeSummaryOrBuilder {
+    // Use UnmatchedNodeSummary.newBuilder() to construct.
+    private UnmatchedNodeSummary(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private UnmatchedNodeSummary(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final UnmatchedNodeSummary defaultInstance;
+    public static UnmatchedNodeSummary getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public UnmatchedNodeSummary getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private UnmatchedNodeSummary(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              nodeCount_ = input.readInt32();
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              eligibleNodeCount_ = input.readInt32();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              unreachableNodeCount_ = input.readInt32();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              hashExclusiveNodeCount_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<UnmatchedNodeSummary> PARSER =
+        new com.google.protobuf.AbstractParser<UnmatchedNodeSummary>() {
+      public UnmatchedNodeSummary parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new UnmatchedNodeSummary(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<UnmatchedNodeSummary> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // required int32 node_count = 1;
+    public static final int NODE_COUNT_FIELD_NUMBER = 1;
+    private int nodeCount_;
+    /**
+     * <code>required int32 node_count = 1;</code>
+     */
+    public boolean hasNodeCount() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int32 node_count = 1;</code>
+     */
+    public int getNodeCount() {
+      return nodeCount_;
+    }
+
+    // optional int32 eligible_node_count = 2;
+    public static final int ELIGIBLE_NODE_COUNT_FIELD_NUMBER = 2;
+    private int eligibleNodeCount_;
+    /**
+     * <code>optional int32 eligible_node_count = 2;</code>
+     */
+    public boolean hasEligibleNodeCount() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int32 eligible_node_count = 2;</code>
+     */
+    public int getEligibleNodeCount() {
+      return eligibleNodeCount_;
+    }
+
+    // optional int32 unreachable_node_count = 3;
+    public static final int UNREACHABLE_NODE_COUNT_FIELD_NUMBER = 3;
+    private int unreachableNodeCount_;
+    /**
+     * <code>optional int32 unreachable_node_count = 3;</code>
+     */
+    public boolean hasUnreachableNodeCount() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int32 unreachable_node_count = 3;</code>
+     */
+    public int getUnreachableNodeCount() {
+      return unreachableNodeCount_;
+    }
+
+    // optional int32 hash_exclusive_node_count = 4;
+    public static final int HASH_EXCLUSIVE_NODE_COUNT_FIELD_NUMBER = 4;
+    private int hashExclusiveNodeCount_;
+    /**
+     * <code>optional int32 hash_exclusive_node_count = 4;</code>
+     */
+    public boolean hasHashExclusiveNodeCount() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional int32 hash_exclusive_node_count = 4;</code>
+     */
+    public int getHashExclusiveNodeCount() {
+      return hashExclusiveNodeCount_;
+    }
+
+    private void initFields() {
+      nodeCount_ = 0;
+      eligibleNodeCount_ = 0;
+      unreachableNodeCount_ = 0;
+      hashExclusiveNodeCount_ = 0;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      if (!hasNodeCount()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, nodeCount_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(2, eligibleNodeCount_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(3, unreachableNodeCount_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt32(4, hashExclusiveNodeCount_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, nodeCount_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, eligibleNodeCount_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, unreachableNodeCount_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, hashExclusiveNodeCount_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code crowd_safe_data_analysis.UnmatchedNodeSummary}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummaryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.Builder.class);
+      }
+
+      // Construct using edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        nodeCount_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        eligibleNodeCount_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        unreachableNodeCount_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        hashExclusiveNodeCount_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary getDefaultInstanceForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance();
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary build() {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary buildPartial() {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary result = new edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.nodeCount_ = nodeCount_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.eligibleNodeCount_ = eligibleNodeCount_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.unreachableNodeCount_ = unreachableNodeCount_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.hashExclusiveNodeCount_ = hashExclusiveNodeCount_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary) {
+          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary other) {
+        if (other == edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary.getDefaultInstance()) return this;
+        if (other.hasNodeCount()) {
+          setNodeCount(other.getNodeCount());
+        }
+        if (other.hasEligibleNodeCount()) {
+          setEligibleNodeCount(other.getEligibleNodeCount());
+        }
+        if (other.hasUnreachableNodeCount()) {
+          setUnreachableNodeCount(other.getUnreachableNodeCount());
+        }
+        if (other.hasHashExclusiveNodeCount()) {
+          setHashExclusiveNodeCount(other.getHashExclusiveNodeCount());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasNodeCount()) {
+          
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.UnmatchedNodeSummary) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // required int32 node_count = 1;
+      private int nodeCount_ ;
+      /**
+       * <code>required int32 node_count = 1;</code>
+       */
+      public boolean hasNodeCount() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required int32 node_count = 1;</code>
+       */
+      public int getNodeCount() {
+        return nodeCount_;
+      }
+      /**
+       * <code>required int32 node_count = 1;</code>
+       */
+      public Builder setNodeCount(int value) {
+        bitField0_ |= 0x00000001;
+        nodeCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 node_count = 1;</code>
+       */
+      public Builder clearNodeCount() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        nodeCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 eligible_node_count = 2;
+      private int eligibleNodeCount_ ;
+      /**
+       * <code>optional int32 eligible_node_count = 2;</code>
+       */
+      public boolean hasEligibleNodeCount() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int32 eligible_node_count = 2;</code>
+       */
+      public int getEligibleNodeCount() {
+        return eligibleNodeCount_;
+      }
+      /**
+       * <code>optional int32 eligible_node_count = 2;</code>
+       */
+      public Builder setEligibleNodeCount(int value) {
+        bitField0_ |= 0x00000002;
+        eligibleNodeCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 eligible_node_count = 2;</code>
+       */
+      public Builder clearEligibleNodeCount() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        eligibleNodeCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 unreachable_node_count = 3;
+      private int unreachableNodeCount_ ;
+      /**
+       * <code>optional int32 unreachable_node_count = 3;</code>
+       */
+      public boolean hasUnreachableNodeCount() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int32 unreachable_node_count = 3;</code>
+       */
+      public int getUnreachableNodeCount() {
+        return unreachableNodeCount_;
+      }
+      /**
+       * <code>optional int32 unreachable_node_count = 3;</code>
+       */
+      public Builder setUnreachableNodeCount(int value) {
+        bitField0_ |= 0x00000004;
+        unreachableNodeCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 unreachable_node_count = 3;</code>
+       */
+      public Builder clearUnreachableNodeCount() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        unreachableNodeCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 hash_exclusive_node_count = 4;
+      private int hashExclusiveNodeCount_ ;
+      /**
+       * <code>optional int32 hash_exclusive_node_count = 4;</code>
+       */
+      public boolean hasHashExclusiveNodeCount() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int32 hash_exclusive_node_count = 4;</code>
+       */
+      public int getHashExclusiveNodeCount() {
+        return hashExclusiveNodeCount_;
+      }
+      /**
+       * <code>optional int32 hash_exclusive_node_count = 4;</code>
+       */
+      public Builder setHashExclusiveNodeCount(int value) {
+        bitField0_ |= 0x00000008;
+        hashExclusiveNodeCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 hash_exclusive_node_count = 4;</code>
+       */
+      public Builder clearHashExclusiveNodeCount() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        hashExclusiveNodeCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.UnmatchedNodeSummary)
+    }
+
+    static {
+      defaultInstance = new UnmatchedNodeSummary(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.UnmatchedNodeSummary)
+  }
+
+  public interface TraceCompilationProfileOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // required int32 union = 1;
+    /**
+     * <code>required int32 union = 1;</code>
+     */
+    boolean hasUnion();
+    /**
+     * <code>required int32 union = 1;</code>
+     */
+    int getUnion();
+
+    // required int32 intersection = 2;
+    /**
+     * <code>required int32 intersection = 2;</code>
+     */
+    boolean hasIntersection();
+    /**
+     * <code>required int32 intersection = 2;</code>
+     */
+    int getIntersection();
+
+    // required int32 left = 3;
+    /**
+     * <code>required int32 left = 3;</code>
+     */
+    boolean hasLeft();
+    /**
+     * <code>required int32 left = 3;</code>
+     */
+    int getLeft();
+
+    // required int32 right = 4;
+    /**
+     * <code>required int32 right = 4;</code>
+     */
+    boolean hasRight();
+    /**
+     * <code>required int32 right = 4;</code>
+     */
+    int getRight();
+  }
+  /**
+   * Protobuf type {@code crowd_safe_data_analysis.TraceCompilationProfile}
+   */
+  public static final class TraceCompilationProfile extends
+      com.google.protobuf.GeneratedMessage
+      implements TraceCompilationProfileOrBuilder {
+    // Use TraceCompilationProfile.newBuilder() to construct.
+    private TraceCompilationProfile(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private TraceCompilationProfile(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final TraceCompilationProfile defaultInstance;
+    public static TraceCompilationProfile getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public TraceCompilationProfile getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private TraceCompilationProfile(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              union_ = input.readInt32();
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              intersection_ = input.readInt32();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              left_ = input.readInt32();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              right_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_TraceCompilationProfile_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_TraceCompilationProfile_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<TraceCompilationProfile> PARSER =
+        new com.google.protobuf.AbstractParser<TraceCompilationProfile>() {
+      public TraceCompilationProfile parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new TraceCompilationProfile(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TraceCompilationProfile> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // required int32 union = 1;
+    public static final int UNION_FIELD_NUMBER = 1;
+    private int union_;
+    /**
+     * <code>required int32 union = 1;</code>
+     */
+    public boolean hasUnion() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int32 union = 1;</code>
+     */
+    public int getUnion() {
+      return union_;
+    }
+
+    // required int32 intersection = 2;
+    public static final int INTERSECTION_FIELD_NUMBER = 2;
+    private int intersection_;
+    /**
+     * <code>required int32 intersection = 2;</code>
+     */
+    public boolean hasIntersection() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required int32 intersection = 2;</code>
+     */
+    public int getIntersection() {
+      return intersection_;
+    }
+
+    // required int32 left = 3;
+    public static final int LEFT_FIELD_NUMBER = 3;
+    private int left_;
+    /**
+     * <code>required int32 left = 3;</code>
+     */
+    public boolean hasLeft() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required int32 left = 3;</code>
+     */
+    public int getLeft() {
+      return left_;
+    }
+
+    // required int32 right = 4;
+    public static final int RIGHT_FIELD_NUMBER = 4;
+    private int right_;
+    /**
+     * <code>required int32 right = 4;</code>
+     */
+    public boolean hasRight() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>required int32 right = 4;</code>
+     */
+    public int getRight() {
+      return right_;
+    }
+
+    private void initFields() {
+      union_ = 0;
+      intersection_ = 0;
+      left_ = 0;
+      right_ = 0;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      if (!hasUnion()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasIntersection()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasLeft()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasRight()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, union_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(2, intersection_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(3, left_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt32(4, right_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, union_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, intersection_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, left_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, right_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code crowd_safe_data_analysis.TraceCompilationProfile}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfileOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_TraceCompilationProfile_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_TraceCompilationProfile_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.Builder.class);
+      }
+
+      // Construct using edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        union_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        intersection_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        left_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        right_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_TraceCompilationProfile_descriptor;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile getDefaultInstanceForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance();
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile build() {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile buildPartial() {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile result = new edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.union_ = union_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.intersection_ = intersection_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.left_ = left_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.right_ = right_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile) {
+          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile other) {
+        if (other == edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile.getDefaultInstance()) return this;
+        if (other.hasUnion()) {
+          setUnion(other.getUnion());
+        }
+        if (other.hasIntersection()) {
+          setIntersection(other.getIntersection());
+        }
+        if (other.hasLeft()) {
+          setLeft(other.getLeft());
+        }
+        if (other.hasRight()) {
+          setRight(other.getRight());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasUnion()) {
+          
+          return false;
+        }
+        if (!hasIntersection()) {
+          
+          return false;
+        }
+        if (!hasLeft()) {
+          
+          return false;
+        }
+        if (!hasRight()) {
+          
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.TraceCompilationProfile) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // required int32 union = 1;
+      private int union_ ;
+      /**
+       * <code>required int32 union = 1;</code>
+       */
+      public boolean hasUnion() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required int32 union = 1;</code>
+       */
+      public int getUnion() {
+        return union_;
+      }
+      /**
+       * <code>required int32 union = 1;</code>
+       */
+      public Builder setUnion(int value) {
+        bitField0_ |= 0x00000001;
+        union_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 union = 1;</code>
+       */
+      public Builder clearUnion() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        union_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // required int32 intersection = 2;
+      private int intersection_ ;
+      /**
+       * <code>required int32 intersection = 2;</code>
+       */
+      public boolean hasIntersection() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 intersection = 2;</code>
+       */
+      public int getIntersection() {
+        return intersection_;
+      }
+      /**
+       * <code>required int32 intersection = 2;</code>
+       */
+      public Builder setIntersection(int value) {
+        bitField0_ |= 0x00000002;
+        intersection_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 intersection = 2;</code>
+       */
+      public Builder clearIntersection() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        intersection_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // required int32 left = 3;
+      private int left_ ;
+      /**
+       * <code>required int32 left = 3;</code>
+       */
+      public boolean hasLeft() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required int32 left = 3;</code>
+       */
+      public int getLeft() {
+        return left_;
+      }
+      /**
+       * <code>required int32 left = 3;</code>
+       */
+      public Builder setLeft(int value) {
+        bitField0_ |= 0x00000004;
+        left_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 left = 3;</code>
+       */
+      public Builder clearLeft() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        left_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // required int32 right = 4;
+      private int right_ ;
+      /**
+       * <code>required int32 right = 4;</code>
+       */
+      public boolean hasRight() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required int32 right = 4;</code>
+       */
+      public int getRight() {
+        return right_;
+      }
+      /**
+       * <code>required int32 right = 4;</code>
+       */
+      public Builder setRight(int value) {
+        bitField0_ |= 0x00000008;
+        right_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 right = 4;</code>
+       */
+      public Builder clearRight() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        right_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.TraceCompilationProfile)
+    }
+
+    static {
+      defaultInstance = new TraceCompilationProfile(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.TraceCompilationProfile)
+  }
+
+  public interface MergeSummaryOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional int32 indirect_edges_matched = 1;
+    /**
+     * <code>optional int32 indirect_edges_matched = 1;</code>
+     */
+    boolean hasIndirectEdgesMatched();
+    /**
+     * <code>optional int32 indirect_edges_matched = 1;</code>
+     */
+    int getIndirectEdgesMatched();
+
+    // optional int32 pure_heuristic_matches = 2;
+    /**
+     * <code>optional int32 pure_heuristic_matches = 2;</code>
+     */
+    boolean hasPureHeuristicMatches();
+    /**
+     * <code>optional int32 pure_heuristic_matches = 2;</code>
+     */
+    int getPureHeuristicMatches();
+
+    // optional int32 call_continuation_edges_matched = 3;
+    /**
+     * <code>optional int32 call_continuation_edges_matched = 3;</code>
+     */
+    boolean hasCallContinuationEdgesMatched();
+    /**
+     * <code>optional int32 call_continuation_edges_matched = 3;</code>
+     */
+    int getCallContinuationEdgesMatched();
+
+    // optional int32 possibly_rewritten_blocks = 4;
+    /**
+     * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+     */
+    boolean hasPossiblyRewrittenBlocks();
+    /**
+     * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+     */
+    int getPossiblyRewrittenBlocks();
+
+    // optional int32 module_relative_tag_mismatches = 5;
+    /**
+     * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+     */
+    boolean hasModuleRelativeTagMismatches();
+    /**
+     * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+     */
+    int getModuleRelativeTagMismatches();
+  }
+  /**
+   * Protobuf type {@code crowd_safe_data_analysis.MergeSummary}
+   */
+  public static final class MergeSummary extends
+      com.google.protobuf.GeneratedMessage
+      implements MergeSummaryOrBuilder {
+    // Use MergeSummary.newBuilder() to construct.
+    private MergeSummary(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private MergeSummary(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final MergeSummary defaultInstance;
+    public static MergeSummary getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public MergeSummary getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private MergeSummary(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              indirectEdgesMatched_ = input.readInt32();
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              pureHeuristicMatches_ = input.readInt32();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              callContinuationEdgesMatched_ = input.readInt32();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              possiblyRewrittenBlocks_ = input.readInt32();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              moduleRelativeTagMismatches_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_MergeSummary_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_MergeSummary_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<MergeSummary> PARSER =
+        new com.google.protobuf.AbstractParser<MergeSummary>() {
+      public MergeSummary parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new MergeSummary(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MergeSummary> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional int32 indirect_edges_matched = 1;
+    public static final int INDIRECT_EDGES_MATCHED_FIELD_NUMBER = 1;
+    private int indirectEdgesMatched_;
+    /**
+     * <code>optional int32 indirect_edges_matched = 1;</code>
+     */
+    public boolean hasIndirectEdgesMatched() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int32 indirect_edges_matched = 1;</code>
+     */
+    public int getIndirectEdgesMatched() {
+      return indirectEdgesMatched_;
+    }
+
+    // optional int32 pure_heuristic_matches = 2;
+    public static final int PURE_HEURISTIC_MATCHES_FIELD_NUMBER = 2;
+    private int pureHeuristicMatches_;
+    /**
+     * <code>optional int32 pure_heuristic_matches = 2;</code>
+     */
+    public boolean hasPureHeuristicMatches() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int32 pure_heuristic_matches = 2;</code>
+     */
+    public int getPureHeuristicMatches() {
+      return pureHeuristicMatches_;
+    }
+
+    // optional int32 call_continuation_edges_matched = 3;
+    public static final int CALL_CONTINUATION_EDGES_MATCHED_FIELD_NUMBER = 3;
+    private int callContinuationEdgesMatched_;
+    /**
+     * <code>optional int32 call_continuation_edges_matched = 3;</code>
+     */
+    public boolean hasCallContinuationEdgesMatched() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int32 call_continuation_edges_matched = 3;</code>
+     */
+    public int getCallContinuationEdgesMatched() {
+      return callContinuationEdgesMatched_;
+    }
+
+    // optional int32 possibly_rewritten_blocks = 4;
+    public static final int POSSIBLY_REWRITTEN_BLOCKS_FIELD_NUMBER = 4;
+    private int possiblyRewrittenBlocks_;
+    /**
+     * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+     */
+    public boolean hasPossiblyRewrittenBlocks() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+     */
+    public int getPossiblyRewrittenBlocks() {
+      return possiblyRewrittenBlocks_;
+    }
+
+    // optional int32 module_relative_tag_mismatches = 5;
+    public static final int MODULE_RELATIVE_TAG_MISMATCHES_FIELD_NUMBER = 5;
+    private int moduleRelativeTagMismatches_;
+    /**
+     * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+     */
+    public boolean hasModuleRelativeTagMismatches() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+     */
+    public int getModuleRelativeTagMismatches() {
+      return moduleRelativeTagMismatches_;
+    }
+
+    private void initFields() {
+      indirectEdgesMatched_ = 0;
+      pureHeuristicMatches_ = 0;
+      callContinuationEdgesMatched_ = 0;
+      possiblyRewrittenBlocks_ = 0;
+      moduleRelativeTagMismatches_ = 0;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, indirectEdgesMatched_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(2, pureHeuristicMatches_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(3, callContinuationEdgesMatched_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt32(4, possiblyRewrittenBlocks_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(5, moduleRelativeTagMismatches_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, indirectEdgesMatched_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, pureHeuristicMatches_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, callContinuationEdgesMatched_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, possiblyRewrittenBlocks_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, moduleRelativeTagMismatches_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code crowd_safe_data_analysis.MergeSummary}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummaryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_MergeSummary_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_MergeSummary_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.class, edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.Builder.class);
+      }
+
+      // Construct using edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        indirectEdgesMatched_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        pureHeuristicMatches_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        callContinuationEdgesMatched_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        possiblyRewrittenBlocks_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        moduleRelativeTagMismatches_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.internal_static_crowd_safe_data_analysis_MergeSummary_descriptor;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary getDefaultInstanceForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance();
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary build() {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary buildPartial() {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary result = new edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.indirectEdgesMatched_ = indirectEdgesMatched_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.pureHeuristicMatches_ = pureHeuristicMatches_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.callContinuationEdgesMatched_ = callContinuationEdgesMatched_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.possiblyRewrittenBlocks_ = possiblyRewrittenBlocks_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.moduleRelativeTagMismatches_ = moduleRelativeTagMismatches_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary) {
+          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary other) {
+        if (other == edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary.getDefaultInstance()) return this;
+        if (other.hasIndirectEdgesMatched()) {
+          setIndirectEdgesMatched(other.getIndirectEdgesMatched());
+        }
+        if (other.hasPureHeuristicMatches()) {
+          setPureHeuristicMatches(other.getPureHeuristicMatches());
+        }
+        if (other.hasCallContinuationEdgesMatched()) {
+          setCallContinuationEdgesMatched(other.getCallContinuationEdgesMatched());
+        }
+        if (other.hasPossiblyRewrittenBlocks()) {
+          setPossiblyRewrittenBlocks(other.getPossiblyRewrittenBlocks());
+        }
+        if (other.hasModuleRelativeTagMismatches()) {
+          setModuleRelativeTagMismatches(other.getModuleRelativeTagMismatches());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge.MergeSummary) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional int32 indirect_edges_matched = 1;
+      private int indirectEdgesMatched_ ;
+      /**
+       * <code>optional int32 indirect_edges_matched = 1;</code>
+       */
+      public boolean hasIndirectEdgesMatched() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int32 indirect_edges_matched = 1;</code>
+       */
+      public int getIndirectEdgesMatched() {
+        return indirectEdgesMatched_;
+      }
+      /**
+       * <code>optional int32 indirect_edges_matched = 1;</code>
+       */
+      public Builder setIndirectEdgesMatched(int value) {
+        bitField0_ |= 0x00000001;
+        indirectEdgesMatched_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 indirect_edges_matched = 1;</code>
+       */
+      public Builder clearIndirectEdgesMatched() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        indirectEdgesMatched_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 pure_heuristic_matches = 2;
+      private int pureHeuristicMatches_ ;
+      /**
+       * <code>optional int32 pure_heuristic_matches = 2;</code>
+       */
+      public boolean hasPureHeuristicMatches() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int32 pure_heuristic_matches = 2;</code>
+       */
+      public int getPureHeuristicMatches() {
+        return pureHeuristicMatches_;
+      }
+      /**
+       * <code>optional int32 pure_heuristic_matches = 2;</code>
+       */
+      public Builder setPureHeuristicMatches(int value) {
+        bitField0_ |= 0x00000002;
+        pureHeuristicMatches_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 pure_heuristic_matches = 2;</code>
+       */
+      public Builder clearPureHeuristicMatches() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        pureHeuristicMatches_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 call_continuation_edges_matched = 3;
+      private int callContinuationEdgesMatched_ ;
+      /**
+       * <code>optional int32 call_continuation_edges_matched = 3;</code>
+       */
+      public boolean hasCallContinuationEdgesMatched() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int32 call_continuation_edges_matched = 3;</code>
+       */
+      public int getCallContinuationEdgesMatched() {
+        return callContinuationEdgesMatched_;
+      }
+      /**
+       * <code>optional int32 call_continuation_edges_matched = 3;</code>
+       */
+      public Builder setCallContinuationEdgesMatched(int value) {
+        bitField0_ |= 0x00000004;
+        callContinuationEdgesMatched_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 call_continuation_edges_matched = 3;</code>
+       */
+      public Builder clearCallContinuationEdgesMatched() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        callContinuationEdgesMatched_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 possibly_rewritten_blocks = 4;
+      private int possiblyRewrittenBlocks_ ;
+      /**
+       * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+       */
+      public boolean hasPossiblyRewrittenBlocks() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+       */
+      public int getPossiblyRewrittenBlocks() {
+        return possiblyRewrittenBlocks_;
+      }
+      /**
+       * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+       */
+      public Builder setPossiblyRewrittenBlocks(int value) {
+        bitField0_ |= 0x00000008;
+        possiblyRewrittenBlocks_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 possibly_rewritten_blocks = 4;</code>
+       */
+      public Builder clearPossiblyRewrittenBlocks() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        possiblyRewrittenBlocks_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // optional int32 module_relative_tag_mismatches = 5;
+      private int moduleRelativeTagMismatches_ ;
+      /**
+       * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+       */
+      public boolean hasModuleRelativeTagMismatches() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+       */
+      public int getModuleRelativeTagMismatches() {
+        return moduleRelativeTagMismatches_;
+      }
+      /**
+       * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+       */
+      public Builder setModuleRelativeTagMismatches(int value) {
+        bitField0_ |= 0x00000010;
+        moduleRelativeTagMismatches_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 module_relative_tag_mismatches = 5;</code>
+       */
+      public Builder clearModuleRelativeTagMismatches() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        moduleRelativeTagMismatches_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.MergeSummary)
+    }
+
+    static {
+      defaultInstance = new MergeSummary(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.MergeSummary)
+  }
+
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_crowd_safe_data_analysis_MergeResults_descriptor;
   private static
@@ -5963,20 +5227,20 @@ public final class Merge {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_crowd_safe_data_analysis_ClusterMerge_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_descriptor;
+    internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_fieldAccessorTable;
+      internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_descriptor;
+    internal_static_crowd_safe_data_analysis_TraceCompilationProfile_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_fieldAccessorTable;
+      internal_static_crowd_safe_data_analysis_TraceCompilationProfile_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_descriptor;
+    internal_static_crowd_safe_data_analysis_MergeSummary_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_fieldAccessorTable;
+      internal_static_crowd_safe_data_analysis_MergeSummary_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -5992,32 +5256,33 @@ public final class Merge {
       "fe_data_analysis.Process\0220\n\005right\030\002 \002(\0132" +
       "!.crowd_safe_data_analysis.Process\0227\n\007cl" +
       "uster\030\003 \003(\0132&.crowd_safe_data_analysis.C" +
-      "lusterMerge\"\256\007\n\014ClusterMerge\022\030\n\020distribu" +
-      "tionName\030\001 \002(\t\022R\n\rleftUnmatched\030\002 \001(\0132;." +
-      "crowd_safe_data_analysis.ClusterMerge.Un" +
-      "matchedNodeSummary\022S\n\016rightUnmatched\030\003 \001",
-      "(\0132;.crowd_safe_data_analysis.ClusterMer" +
-      "ge.UnmatchedNodeSummary\022S\n\013hashProfile\030\004" +
-      " \001(\0132>.crowd_safe_data_analysis.ClusterM" +
-      "erge.TraceCompilationProfile\022T\n\014graphPro" +
-      "file\030\005 \001(\0132>.crowd_safe_data_analysis.Cl" +
-      "usterMerge.TraceCompilationProfile\022I\n\014me" +
-      "rgeSummary\030\006 \003(\01323.crowd_safe_data_analy" +
-      "sis.ClusterMerge.MergeSummary\032\202\001\n\024Unmatc" +
-      "hedNodeSummary\022\021\n\tnodeCount\030\001 \002(\005\022\031\n\021eli" +
-      "gibleNodeCount\030\002 \001(\005\022\034\n\024unreachableNodeC",
-      "ount\030\003 \001(\005\022\036\n\026hashExclusiveNodeCount\030\004 \001" +
-      "(\005\032\212\001\n\027TraceCompilationProfile\022\r\n\005union\030" +
-      "\001 \002(\005\022\024\n\014intersection\030\002 \002(\005\022\014\n\004left\030\003 \002(" +
-      "\005\022\r\n\005right\030\004 \002(\005\022\025\n\rleftExclusive\030\005 \001(\005\022" +
-      "\026\n\016rightExclusive\030\006 \001(\005\032\322\001\n\014MergeSummary" +
-      "\022\n\n\002id\030\001 \002(\005\022\014\n\004name\030\002 \002(\t\022;\n\007intStat\030\003 " +
-      "\003(\0132*.crowd_safe_data_analysis.IntegerSt" +
-      "atistic\022;\n\tfloatStat\030\004 \003(\0132(.crowd_safe_" +
-      "data_analysis.FloatStatistic\022.\n\005ratio\030\005 " +
-      "\003(\0132\037.crowd_safe_data_analysis.RatioB8\n/",
-      "edu.uci.eecs.crowdsafe.merge.graph.data." +
-      "resultsB\005Merge"
+      "lusterMerge\"\245\004\n\014ClusterMerge\022\031\n\021distribu" +
+      "tion_name\030\001 \002(\t\022F\n\016left_unmatched\030\002 \001(\0132" +
+      "..crowd_safe_data_analysis.UnmatchedNode" +
+      "Summary\022G\n\017right_unmatched\030\003 \001(\0132..crowd",
+      "_safe_data_analysis.UnmatchedNodeSummary" +
+      "\022G\n\014hash_profile\030\004 \001(\01321.crowd_safe_data" +
+      "_analysis.TraceCompilationProfile\022H\n\rgra" +
+      "ph_profile\030\005 \001(\01321.crowd_safe_data_analy" +
+      "sis.TraceCompilationProfile\022Y\n\036graph_wit" +
+      "hin_hash_intersection\030\006 \001(\01321.crowd_safe" +
+      "_data_analysis.TraceCompilationProfile\022=" +
+      "\n\rmerge_summary\030\007 \001(\0132&.crowd_safe_data_" +
+      "analysis.MergeSummary\022<\n\nstatistics\030\010 \003(" +
+      "\0132(.crowd_safe_data_analysis.StatisticsT",
+      "ree\"\212\001\n\024UnmatchedNodeSummary\022\022\n\nnode_cou" +
+      "nt\030\001 \002(\005\022\033\n\023eligible_node_count\030\002 \001(\005\022\036\n" +
+      "\026unreachable_node_count\030\003 \001(\005\022!\n\031hash_ex" +
+      "clusive_node_count\030\004 \001(\005\"[\n\027TraceCompila" +
+      "tionProfile\022\r\n\005union\030\001 \002(\005\022\024\n\014intersecti" +
+      "on\030\002 \002(\005\022\014\n\004left\030\003 \002(\005\022\r\n\005right\030\004 \002(\005\"\302\001" +
+      "\n\014MergeSummary\022\036\n\026indirect_edges_matched" +
+      "\030\001 \001(\005\022\036\n\026pure_heuristic_matches\030\002 \001(\005\022\'" +
+      "\n\037call_continuation_edges_matched\030\003 \001(\005\022" +
+      "!\n\031possibly_rewritten_blocks\030\004 \001(\005\022&\n\036mo",
+      "dule_relative_tag_mismatches\030\005 \001(\005B8\n/ed" +
+      "u.uci.eecs.crowdsafe.merge.graph.data.re" +
+      "sultsB\005Merge"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -6035,25 +5300,25 @@ public final class Merge {
           internal_static_crowd_safe_data_analysis_ClusterMerge_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_crowd_safe_data_analysis_ClusterMerge_descriptor,
-              new java.lang.String[] { "DistributionName", "LeftUnmatched", "RightUnmatched", "HashProfile", "GraphProfile", "MergeSummary", });
-          internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_descriptor =
-            internal_static_crowd_safe_data_analysis_ClusterMerge_descriptor.getNestedTypes().get(0);
-          internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_fieldAccessorTable = new
+              new java.lang.String[] { "DistributionName", "LeftUnmatched", "RightUnmatched", "HashProfile", "GraphProfile", "GraphWithinHashIntersection", "MergeSummary", "Statistics", });
+          internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor =
+            getDescriptor().getMessageTypes().get(2);
+          internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_crowd_safe_data_analysis_ClusterMerge_UnmatchedNodeSummary_descriptor,
+              internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor,
               new java.lang.String[] { "NodeCount", "EligibleNodeCount", "UnreachableNodeCount", "HashExclusiveNodeCount", });
-          internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_descriptor =
-            internal_static_crowd_safe_data_analysis_ClusterMerge_descriptor.getNestedTypes().get(1);
-          internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_fieldAccessorTable = new
+          internal_static_crowd_safe_data_analysis_TraceCompilationProfile_descriptor =
+            getDescriptor().getMessageTypes().get(3);
+          internal_static_crowd_safe_data_analysis_TraceCompilationProfile_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_crowd_safe_data_analysis_ClusterMerge_TraceCompilationProfile_descriptor,
-              new java.lang.String[] { "Union", "Intersection", "Left", "Right", "LeftExclusive", "RightExclusive", });
-          internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_descriptor =
-            internal_static_crowd_safe_data_analysis_ClusterMerge_descriptor.getNestedTypes().get(2);
-          internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_fieldAccessorTable = new
+              internal_static_crowd_safe_data_analysis_TraceCompilationProfile_descriptor,
+              new java.lang.String[] { "Union", "Intersection", "Left", "Right", });
+          internal_static_crowd_safe_data_analysis_MergeSummary_descriptor =
+            getDescriptor().getMessageTypes().get(4);
+          internal_static_crowd_safe_data_analysis_MergeSummary_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_crowd_safe_data_analysis_ClusterMerge_MergeSummary_descriptor,
-              new java.lang.String[] { "Id", "Name", "IntStat", "FloatStat", "Ratio", });
+              internal_static_crowd_safe_data_analysis_MergeSummary_descriptor,
+              new java.lang.String[] { "IndirectEdgesMatched", "PureHeuristicMatches", "CallContinuationEdgesMatched", "PossiblyRewrittenBlocks", "ModuleRelativeTagMismatches", });
           return null;
         }
       };

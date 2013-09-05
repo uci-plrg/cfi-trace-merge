@@ -20,13 +20,9 @@ public class GraphMergeResults {
 	private static class Builder {
 		final Merge.MergeResults.Builder results = Merge.MergeResults.newBuilder();
 		final Merge.ClusterMerge.Builder cluster = Merge.ClusterMerge.newBuilder();
-		final Merge.ClusterMerge.UnmatchedNodeSummary.Builder unmatchedNodeSummary = Merge.ClusterMerge.UnmatchedNodeSummary
-				.newBuilder();
-		final Merge.ClusterMerge.TraceCompilationProfile.Builder traceProfile = Merge.ClusterMerge.TraceCompilationProfile
-				.newBuilder();
-		final Merge.ClusterMerge.MergeSummary.Builder summary = Merge.ClusterMerge.MergeSummary.newBuilder();
-		final Statistics.IntegerStatistic.Builder integer = Statistics.IntegerStatistic.newBuilder();
-		final Statistics.Ratio.Builder ratio = Statistics.Ratio.newBuilder();
+		final Merge.UnmatchedNodeSummary.Builder unmatchedNodeSummary = Merge.UnmatchedNodeSummary.newBuilder();
+		final Merge.TraceCompilationProfile.Builder traceProfile = Merge.TraceCompilationProfile.newBuilder();
+		final Merge.MergeSummary.Builder summary = Merge.MergeSummary.newBuilder();
 	}
 
 	private class ClusterResults {
@@ -44,6 +40,8 @@ public class GraphMergeResults {
 
 		ClusterResults(ClusterMergeSession session) {
 			this.session = session;
+
+			builder.cluster.clear().setDistributionName(session.left.cluster.distribution.name);
 		}
 
 		void mergeCompleted() {
@@ -111,76 +109,26 @@ public class GraphMergeResults {
 			builder.traceProfile.setIntersection(hashIntersectionSize);
 			builder.traceProfile.setLeft(session.left.cluster.getGraphData().nodesByHash.keySet().size());
 			builder.traceProfile.setRight(session.right.cluster.getGraphData().nodesByHash.keySet().size());
-			builder.traceProfile.setLeftExclusive(session.left.cluster.getGraphData().nodesByHash.keySet().size()
-					- hashIntersectionSize);
-			builder.traceProfile.setRightExclusive(session.right.cluster.getGraphData().nodesByHash.keySet().size()
-					- hashIntersectionSize);
 			builder.cluster.setHashProfile(builder.traceProfile.build());
 
-			builder.traceProfile.clear().setUnion(mergedGraphNodeCount);
+			builder.traceProfile.clear().setUnion(mergedGraphNodeCount); // simple node count of the entire merged graph
 			builder.traceProfile.setIntersection(session.matchedNodes.size());
 			builder.traceProfile.setLeft(session.left.cluster.getGraphData().nodesByKey.size());
 			builder.traceProfile.setRight(session.right.cluster.getGraphData().nodesByKey.size());
-			builder.traceProfile.setLeftExclusive(session.left.cluster.getGraphData().nodesByKey.size()
-					- session.matchedNodes.size());
-			builder.traceProfile.setRightExclusive(session.right.cluster.getGraphData().nodesByKey.size()
-					- session.matchedNodes.size());
-			builder.cluster.setHashProfile(builder.traceProfile.build());
+			builder.cluster.setGraphProfile(builder.traceProfile.build());
 
-			builder.summary.clear().setId(0);
-			builder.summary.setName("Merge Potential");
+			builder.traceProfile.clear().setUnion(mergedGraphNodeCount); // simple node count of the entire merged graph
+			builder.traceProfile.setIntersection(hashIntersectionBlockCount);
+			builder.traceProfile.setLeft(hashIntersectionLeftBlockCount);
+			builder.traceProfile.setRight(hashIntersectionRightBlockCount);
+			builder.cluster.setGraphWithinHashIntersection(builder.traceProfile.build());
 
-			builder.ratio.clear().setId("p-hash").setName("Hash Potential");
-			builder.ratio.setNumerator(hashIntersectionBlockCount).setDenominator(mergedGraphNodeCount);
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.ratio.clear().setId("t-left-int").setName("Left node intersection / total");
-			builder.ratio.setNumerator(session.matchedNodes.size()).setDenominator(
-					session.left.cluster.getGraphData().nodesByKey.size());
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.ratio.clear().setId("p-left-int").setName("Left node intersection / hash potential");
-			builder.ratio.setNumerator(session.matchedNodes.size()).setDenominator(hashIntersectionLeftBlockCount);
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.ratio.clear().setId("t-right-int").setName("Right node intersection / total");
-			builder.ratio.setNumerator(session.matchedNodes.size()).setDenominator(
-					session.right.cluster.getGraphData().nodesByKey.size());
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.ratio.clear().setId("p-right-int").setName("Right node intersection / hash potential");
-			builder.ratio.setNumerator(session.matchedNodes.size()).setDenominator(hashIntersectionRightBlockCount);
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.ratio.clear().setId("t-merged-int").setName("Merged node intersection / union");
-			builder.ratio.setNumerator(session.matchedNodes.size()).setDenominator(mergedGraphNodeCount);
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.ratio.clear().setId("p-merged-int").setName("Merged node intersection / hash potential");
-			builder.ratio.setNumerator(session.matchedNodes.size()).setDenominator(hashIntersectionBlockCount);
-			builder.summary.addRatio(builder.ratio.build());
-
-			builder.integer.clear().setId("ind-match").setName("Indirect edges matched");
-			builder.integer.setValue(session.statistics.getIndirectEdgeMatchCount());
-			builder.summary.addIntStat(builder.integer.build());
-
-			builder.integer.clear().setId("heur-match").setName("Pure heuristic node matches");
-			builder.integer.setValue(session.statistics.getPureHeuristicMatchCount());
-			builder.summary.addIntStat(builder.integer.build());
-
-			builder.integer.clear().setId("cc-match").setName("Call continuation edges matched");
-			builder.integer.setValue(session.statistics.getCallContinuationMatchCount());
-			builder.summary.addIntStat(builder.integer.build());
-
-			builder.integer.clear().setId("rewrites").setName("Possible rewrites");
-			builder.integer.setValue(session.statistics.getPossibleRewrites());
-			builder.summary.addIntStat(builder.integer.build());
-
-			builder.integer.clear().setId("miss-count").setName("Mismatches by module-relative tag");
-			builder.integer.setValue(session.matchedNodes.HACK_getMismatchCount());
-			builder.summary.addIntStat(builder.integer.build());
-
-			builder.cluster.addMergeSummary(builder.summary.build());
+			builder.summary.clear().setIndirectEdgesMatched(session.statistics.getIndirectEdgeMatchCount());
+			builder.summary.setPureHeuristicMatches(session.statistics.getPureHeuristicMatchCount());
+			builder.summary.setCallContinuationEdgesMatched(session.statistics.getCallContinuationMatchCount());
+			builder.summary.setPossiblyRewrittenBlocks(session.statistics.getPossibleRewrites());
+			builder.summary.setModuleRelativeTagMismatches(session.matchedNodes.HACK_getMismatchCount());
+			builder.cluster.setMergeSummary(builder.summary.build());
 		}
 	}
 
@@ -193,7 +141,7 @@ public class GraphMergeResults {
 		builder.results.setLeft(leftGraph.summarizeProcess());
 		builder.results.setRight(rightGraph.summarizeProcess());
 	}
-	
+
 	Merge.MergeResults getResults() {
 		return builder.results.build();
 	}
