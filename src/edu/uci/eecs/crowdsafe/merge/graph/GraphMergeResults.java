@@ -33,10 +33,9 @@ public class GraphMergeResults {
 		private int hashIntersectionBlockCount = 0;
 		private int hashIntersectionLeftBlockCount = 0;
 		private int hashIntersectionRightBlockCount = 0;
-		private float hashIntersectionRatio = 0f;
-
 		private int mergedGraphNodeCount = 0;
-		private float nodeIntersectionRatio = 0f;
+
+		private Set<Node.Key> HACK_moduleRelativeTagMisses = new HashSet<Node.Key>();
 
 		ClusterResults(ClusterMergeSession session) {
 			this.session = session;
@@ -60,7 +59,6 @@ public class GraphMergeResults {
 					session.right.cluster.getGraphData().nodesByHash.keySet());
 			hashIntersectionSize = hashIntersection.size();
 			hashUnionSize = hashUnion.size();
-			hashIntersectionRatio = hashIntersectionSize / (float) hashUnionSize;
 
 			for (Long hash : hashIntersection) {
 				hashIntersectionBlockCount += session.mergedGraph.nodesByHash.get(hash).size();
@@ -69,7 +67,6 @@ public class GraphMergeResults {
 			}
 
 			mergedGraphNodeCount = session.mergedGraph.nodesByHash.getNodeCount();
-			nodeIntersectionRatio = session.matchedNodes.size() / (float) mergedGraphNodeCount;
 		}
 
 		private void reportUnmatchedNodes() {
@@ -91,6 +88,9 @@ public class GraphMergeResults {
 			}
 			int hashExclusionCount = 0;
 			for (Node.Key unmatchedKey : new ArrayList<Node.Key>(unmatchedNodes)) {
+				if (oppositeCluster.getGraphData().nodesByKey.keySet().contains(unmatchedKey)) {
+					HACK_moduleRelativeTagMisses.add(unmatchedKey);
+				}
 				Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
 				if (!oppositeCluster.getGraphData().nodesByHash.keySet().contains(unmatchedNode.getHash())) {
 					unmatchedNodes.remove(unmatchedKey);
@@ -127,7 +127,8 @@ public class GraphMergeResults {
 			builder.summary.setPureHeuristicMatches(session.statistics.getPureHeuristicMatchCount());
 			builder.summary.setCallContinuationEdgesMatched(session.statistics.getCallContinuationMatchCount());
 			builder.summary.setPossiblyRewrittenBlocks(session.statistics.getPossibleRewrites());
-			builder.summary.setModuleRelativeTagMismatches(session.matchedNodes.HACK_getMismatchCount());
+			builder.summary.setModuleRelativeTagMismatches(session.matchedNodes.HACK_getMismatchCount()
+					+ HACK_moduleRelativeTagMisses.size());
 			builder.cluster.setMergeSummary(builder.summary.build());
 		}
 	}
