@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 
 public class ContextMatchRecord {
 
@@ -27,6 +28,7 @@ public class ContextMatchRecord {
 		private int matchedNodeCount;
 		private int comparedNodeCount;
 		private boolean fail;
+		private boolean mismatch;
 		private boolean reachedTargetDepth;
 		private boolean hasAmbiguity;
 		private boolean complete;
@@ -56,6 +58,9 @@ public class ContextMatchRecord {
 
 	private int stateIndex;
 	private final List<State> stateStack = new ArrayList<State>();
+	
+	private Node leftSubtreeRoot;
+	private Node rightSubtreeRoot;
 
 	public ContextMatchRecord() {
 		for (int i = 0; i < INITIAL_COMPARISON_COUNT; i++) {
@@ -64,15 +69,14 @@ public class ContextMatchRecord {
 		for (int i = 0; i < INITIAL_STATE_COUNT; i++) {
 			stateStack.add(new State());
 		}
-
-		reset();
 	}
 
-	public void reset() {
+	public void reset(Node leftSubtreeRoot, Node rightSubtreeRoot) {
 		currentState.index = 0;
 		currentState.matchedNodeCount = 0;
 		currentState.comparedNodeCount = 0;
 		currentState.fail = false;
+		currentState.mismatch = false;
 		currentState.reachedTargetDepth = false;
 		currentState.hasAmbiguity = false;
 		currentState.complete = true;
@@ -80,9 +84,15 @@ public class ContextMatchRecord {
 
 		comparedNodeSet.clear();
 		comparedNodeList.clear();
+		
+		this.leftSubtreeRoot = leftSubtreeRoot;
+		this.rightSubtreeRoot = rightSubtreeRoot;
 	}
 
 	public void fail() {
+		if ((leftSubtreeRoot.getKey().equals(rightSubtreeRoot.getKey())) && (stateIndex == 0))
+			currentState.mismatch = true; // could store location of mismatch by taking current L/R pair as args
+		
 		currentState.fail = true;
 	}
 

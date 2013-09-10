@@ -117,8 +117,8 @@ public class GraphMatchEngine {
 								matchCount++;
 						}
 					}
-					if (matchCount == Math.min(leftEdges.size(), rightEdges.size())) {
-						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
+					if (matchCount == Math.min(leftEdges.size(), rightEdges.size())) { 
+						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH); 
 					} else if ((leftEdges.size() > 1) || (rightEdges.size() > 1)) {
 						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
 					} else {
@@ -198,7 +198,7 @@ public class GraphMatchEngine {
 
 			// If the score is below the threshold, we just don't think it is
 			// a potential candidate
-			session.contextRecord.reset();
+			session.contextRecord.reset(leftNode, rightNode);
 			getContextSimilarity(leftNode, rightNode, PURE_SEARCH_DEPTH);
 			if (session.acceptContext(leftNode)) {
 				if ((leftNode.getType() != MetaNodeType.CLUSTER_EXIT) || !leftCandidates.contains(leftNode))
@@ -317,7 +317,7 @@ public class GraphMatchEngine {
 									"Method only expects edges of type direct, module entry and call continuation!");
 					}
 
-					session.contextRecord.reset();
+					session.contextRecord.reset(leftEdge.getToNode(), rightEdge.getToNode());
 					getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), DIRECT_SEARCH_DEPTH);
 					if (session.acceptContext(leftEdge.getToNode())) {
 						candidates.add(leftEdge.getToNode());
@@ -422,7 +422,7 @@ public class GraphMatchEngine {
 					// hash -8462398108006783394 [0x8a8f85c1a851665e]
 					// if (leftParentNode.getHash() == 0x2ae4fb2c244e43e2L)
 					// System.out.println("check it");
-					session.contextRecord.reset();
+					session.contextRecord.reset(leftParentEdge.getToNode(), rightToNode);
 					getContextSimilarity(leftParentEdge.getToNode(), rightToNode, INDIRECT_SEARCH_DEPTH);
 					if (session.acceptContext(leftParentEdge.getToNode())) {
 						leftCandidates.add(leftParentEdge.getToNode());
