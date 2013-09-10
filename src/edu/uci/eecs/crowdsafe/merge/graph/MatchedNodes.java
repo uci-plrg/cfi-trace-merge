@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +31,8 @@ public class MatchedNodes {
 	// If they are matched directly, then their score should be 0
 	private final Map<Node.Key, Integer> matchingScore = new HashMap<Node.Key, Integer>();
 
-	private int HACK_mismatchCount;
+	public final Set<Node.Key> HACK_leftMismatchedNodes = new HashSet<Node.Key>();
+	public final Set<Node.Key> HACK_rightMismatchedNodes = new HashSet<Node.Key>();
 
 	MatchedNodes(ClusterMergeSession session) {
 		this.session = session;
@@ -39,7 +41,8 @@ public class MatchedNodes {
 	public void clear() {
 		matchedNodesLeftRight.clear();
 		matchingScore.clear();
-		HACK_mismatchCount = 0;
+		HACK_leftMismatchedNodes.clear();
+		HACK_rightMismatchedNodes.clear();
 	}
 
 	public Set<Node.Key> getLeftKeySet() {
@@ -55,10 +58,6 @@ public class MatchedNodes {
 			return false;
 		}
 		return matchedNodesLeftRight.get(leftKey) == rightKey;
-	}
-
-	public int HACK_getMismatchCount() {
-		return HACK_mismatchCount;
 	}
 
 	public boolean addPair(Node left, Node right, int score) {
@@ -82,8 +81,10 @@ public class MatchedNodes {
 		matchedNodesLeftRight.put(leftKey, rightKey);
 		matchingScore.put(leftKey, score);
 
-		if (!left.getKey().equals(right.getKey()))
-			HACK_mismatchCount++;
+		if (!left.getKey().equals(right.getKey())) {
+			HACK_leftMismatchedNodes.add(left.getKey());
+			HACK_rightMismatchedNodes.add(right.getKey());
+		}
 
 		return true;
 	}

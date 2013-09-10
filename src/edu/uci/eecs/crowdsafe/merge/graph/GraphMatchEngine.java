@@ -75,10 +75,11 @@ public class GraphMatchEngine {
 					return;
 				}
 				// Check if leftEdge.toNode was already matched to another node; if so, fail
-				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey())
+				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()) 
 						&& !session.matchedNodes.hasPair(leftEdge.getToNode().getKey(), rightEdge.getToNode().getKey())) {
 					session.contextRecord.fail();
 					return;
+					// debug investigation: session.matchedNodes.getMatchByLeftKey(leftEdge.getToNode().getKey())
 				}
 				getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
 				if (session.contextRecord.isFailed())
@@ -117,8 +118,8 @@ public class GraphMatchEngine {
 								matchCount++;
 						}
 					}
-					if (matchCount == Math.min(leftEdges.size(), rightEdges.size())) { 
-						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH); 
+					if (matchCount == Math.min(leftEdges.size(), rightEdges.size())) {
+						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
 					} else if ((leftEdges.size() > 1) || (rightEdges.size() > 1)) {
 						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
 					} else {

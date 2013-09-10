@@ -1,16 +1,19 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.common.data.results.Statistics;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
@@ -35,7 +38,9 @@ public class GraphMergeResults {
 		private int hashIntersectionRightBlockCount = 0;
 		private int mergedGraphNodeCount = 0;
 
-		private Set<Node.Key> HACK_moduleRelativeTagMisses = new HashSet<Node.Key>();
+		private final Set<Node.Key> HACK_moduleRelativeTagMisses = new HashSet<Node.Key>();
+		private final Set<Set<Node.Key>> HACK_missedSubgraphs = new HashSet<Set<Node.Key>>();
+		private int averageMissedSubgraphSize = 0;
 
 		ClusterResults(ClusterMergeSession session) {
 			this.session = session;
@@ -46,6 +51,7 @@ public class GraphMergeResults {
 		void mergeCompleted() {
 			computeResults();
 			reportUnmatchedNodes();
+			computeMissedSubgraphs();
 			outputMergedGraphInfo();
 
 			builder.results.addCluster(builder.cluster.build());
@@ -104,6 +110,36 @@ public class GraphMergeResults {
 			builder.unmatchedNodeSummary.setHashExclusiveNodeCount(hashExclusionCount);
 		}
 
+		private void computeMissedSubgraphs() {
+			Set<Node.Key> leftMissed = new HashSet<Node.Key>(session.matchedNodes.HACK_leftMismatchedNodes);
+			leftMissed.addAll(HACK_moduleRelativeTagMisses);
+
+			for (Node.Key missed : new ArrayList<Node.Key>(leftMissed)) {
+				Set<Node.Key> currentSubgraph = new HashSet<Node.Key>();
+				currentSubgraph.add(missed);
+				HACK_missedSubgraphs.add(currentSubgraph);
+				boolean joined = false;
+				Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(missed);
+				for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
+					if (!leftMissed.contains(out.getToNode().getKey()))
+						continue;
+					for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs)) {
+						if (subgraph.contains(out.getToNode().getKey())) {
+							subgraph.addAll(currentSubgraph);
+							HACK_missedSubgraphs.remove(currentSubgraph);
+							currentSubgraph = subgraph;
+							joined = true;
+							break;
+						}
+					}
+					if (!joined)
+						currentSubgraph.add(out.getToNode().getKey());
+				}
+			}
+
+			averageMissedSubgraphSize = (int) Math.floor(leftMissed.size() / (double) HACK_missedSubgraphs.size());
+		}
+
 		private void outputMergedGraphInfo() {
 			builder.traceProfile.clear().setUnion(hashUnionSize);
 			builder.traceProfile.setIntersection(hashIntersectionSize);
@@ -127,8 +163,33 @@ public class GraphMergeResults {
 			builder.summary.setPureHeuristicMatches(session.statistics.getPureHeuristicMatchCount());
 			builder.summary.setCallContinuationEdgesMatched(session.statistics.getCallContinuationMatchCount());
 			builder.summary.setPossiblyRewrittenBlocks(session.statistics.getPossibleRewrites());
-			builder.summary.setModuleRelativeTagMismatches(session.matchedNodes.HACK_getMismatchCount()
+			builder.summary.setModuleRelativeTagMismatches(session.matchedNodes.HACK_leftMismatchedNodes.size()
 					+ HACK_moduleRelativeTagMisses.size());
+			builder.summary.setMismatchedSubgraphCount(HACK_missedSubgraphs.size());
+
+			List<Integer> missedSubgraphSizes = new ArrayList<Integer>();
+			for (Set<Node.Key> missedSubgraph : HACK_missedSubgraphs) {
+				missedSubgraphSizes.add(missedSubgraph.size());
+			}
+			Collections.sort(missedSubgraphSizes, new Comparator<Integer>() {
+				@Override
+				public int compare(Integer first, Integer second) {
+					return second - first;
+				}
+			});
+			Integer lastSize = null;
+			for (Integer missedSubgraphSize : missedSubgraphSizes) {
+				if (missedSubgraphSize <= averageMissedSubgraphSize) {
+					if (lastSize == null)
+						builder.summary.addLargestMismatchedSubgraphsSize(missedSubgraphSize);
+					break;
+				}
+				if (lastSize == missedSubgraphSize)
+					continue;
+				lastSize = missedSubgraphSize;
+				builder.summary.addLargestMismatchedSubgraphsSize(missedSubgraphSize);
+			}
+
 			builder.cluster.setMergeSummary(builder.summary.build());
 		}
 	}

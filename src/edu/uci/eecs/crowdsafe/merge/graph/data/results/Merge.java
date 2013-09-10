@@ -11,31 +11,31 @@ public final class Merge {
   public interface MergeResultsOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required .crowd_safe_data_analysis.Process left = 1;
+    // optional .crowd_safe_data_analysis.Process left = 1;
     /**
-     * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+     * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
     boolean hasLeft();
     /**
-     * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+     * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
     edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft();
     /**
-     * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+     * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
     edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder();
 
-    // required .crowd_safe_data_analysis.Process right = 2;
+    // optional .crowd_safe_data_analysis.Process right = 2;
     /**
-     * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
     boolean hasRight();
     /**
-     * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
     edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight();
     /**
-     * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
     edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder();
 
@@ -192,45 +192,45 @@ public final class Merge {
     }
 
     private int bitField0_;
-    // required .crowd_safe_data_analysis.Process left = 1;
+    // optional .crowd_safe_data_analysis.Process left = 1;
     public static final int LEFT_FIELD_NUMBER = 1;
     private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process left_;
     /**
-     * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+     * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
     public boolean hasLeft() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+     * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
     public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft() {
       return left_;
     }
     /**
-     * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+     * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
     public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
       return left_;
     }
 
-    // required .crowd_safe_data_analysis.Process right = 2;
+    // optional .crowd_safe_data_analysis.Process right = 2;
     public static final int RIGHT_FIELD_NUMBER = 2;
     private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process right_;
     /**
-     * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
     public boolean hasRight() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
     public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight() {
       return right_;
     }
     /**
-     * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+     * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
     public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
       return right_;
@@ -282,28 +282,6 @@ public final class Merge {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasLeft()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasRight()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!getLeft().isInitialized()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!getRight().isInitialized()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      for (int i = 0; i < getClusterCount(); i++) {
-        if (!getCluster(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -584,28 +562,6 @@ public final class Merge {
       }
 
       public final boolean isInitialized() {
-        if (!hasLeft()) {
-          
-          return false;
-        }
-        if (!hasRight()) {
-          
-          return false;
-        }
-        if (!getLeft().isInitialized()) {
-          
-          return false;
-        }
-        if (!getRight().isInitialized()) {
-          
-          return false;
-        }
-        for (int i = 0; i < getClusterCount(); i++) {
-          if (!getCluster(i).isInitialized()) {
-            
-            return false;
-          }
-        }
         return true;
       }
 
@@ -628,18 +584,18 @@ public final class Merge {
       }
       private int bitField0_;
 
-      // required .crowd_safe_data_analysis.Process left = 1;
+      // optional .crowd_safe_data_analysis.Process left = 1;
       private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> leftBuilder_;
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public boolean hasLeft() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft() {
         if (leftBuilder_ == null) {
@@ -649,7 +605,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public Builder setLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
         if (leftBuilder_ == null) {
@@ -665,7 +621,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public Builder setLeft(
           edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
@@ -679,7 +635,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public Builder mergeLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
         if (leftBuilder_ == null) {
@@ -698,7 +654,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public Builder clearLeft() {
         if (leftBuilder_ == null) {
@@ -711,7 +667,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getLeftBuilder() {
         bitField0_ |= 0x00000001;
@@ -719,7 +675,7 @@ public final class Merge {
         return getLeftFieldBuilder().getBuilder();
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
         if (leftBuilder_ != null) {
@@ -729,7 +685,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process left = 1;</code>
+       * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
@@ -745,18 +701,18 @@ public final class Merge {
         return leftBuilder_;
       }
 
-      // required .crowd_safe_data_analysis.Process right = 2;
+      // optional .crowd_safe_data_analysis.Process right = 2;
       private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> rightBuilder_;
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public boolean hasRight() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight() {
         if (rightBuilder_ == null) {
@@ -766,7 +722,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public Builder setRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
         if (rightBuilder_ == null) {
@@ -782,7 +738,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public Builder setRight(
           edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
@@ -796,7 +752,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public Builder mergeRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
         if (rightBuilder_ == null) {
@@ -815,7 +771,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public Builder clearRight() {
         if (rightBuilder_ == null) {
@@ -828,7 +784,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getRightBuilder() {
         bitField0_ |= 0x00000002;
@@ -836,7 +792,7 @@ public final class Merge {
         return getRightFieldBuilder().getBuilder();
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
         if (rightBuilder_ != null) {
@@ -846,7 +802,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required .crowd_safe_data_analysis.Process right = 2;</code>
+       * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
@@ -1116,17 +1072,17 @@ public final class Merge {
   public interface ClusterMergeOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required string distribution_name = 1;
+    // optional string distribution_name = 1;
     /**
-     * <code>required string distribution_name = 1;</code>
+     * <code>optional string distribution_name = 1;</code>
      */
     boolean hasDistributionName();
     /**
-     * <code>required string distribution_name = 1;</code>
+     * <code>optional string distribution_name = 1;</code>
      */
     java.lang.String getDistributionName();
     /**
-     * <code>required string distribution_name = 1;</code>
+     * <code>optional string distribution_name = 1;</code>
      */
     com.google.protobuf.ByteString
         getDistributionNameBytes();
@@ -1425,17 +1381,17 @@ public final class Merge {
     }
 
     private int bitField0_;
-    // required string distribution_name = 1;
+    // optional string distribution_name = 1;
     public static final int DISTRIBUTION_NAME_FIELD_NUMBER = 1;
     private java.lang.Object distributionName_;
     /**
-     * <code>required string distribution_name = 1;</code>
+     * <code>optional string distribution_name = 1;</code>
      */
     public boolean hasDistributionName() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required string distribution_name = 1;</code>
+     * <code>optional string distribution_name = 1;</code>
      */
     public java.lang.String getDistributionName() {
       java.lang.Object ref = distributionName_;
@@ -1452,7 +1408,7 @@ public final class Merge {
       }
     }
     /**
-     * <code>required string distribution_name = 1;</code>
+     * <code>optional string distribution_name = 1;</code>
      */
     public com.google.protobuf.ByteString
         getDistributionNameBytes() {
@@ -1651,46 +1607,6 @@ public final class Merge {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasDistributionName()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (hasLeftUnmatched()) {
-        if (!getLeftUnmatched().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasRightUnmatched()) {
-        if (!getRightUnmatched().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasHashProfile()) {
-        if (!getHashProfile().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasGraphProfile()) {
-        if (!getGraphProfile().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      if (hasGraphWithinHashIntersection()) {
-        if (!getGraphWithinHashIntersection().isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      for (int i = 0; i < getStatisticsCount(); i++) {
-        if (!getStatistics(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -2089,46 +2005,6 @@ public final class Merge {
       }
 
       public final boolean isInitialized() {
-        if (!hasDistributionName()) {
-          
-          return false;
-        }
-        if (hasLeftUnmatched()) {
-          if (!getLeftUnmatched().isInitialized()) {
-            
-            return false;
-          }
-        }
-        if (hasRightUnmatched()) {
-          if (!getRightUnmatched().isInitialized()) {
-            
-            return false;
-          }
-        }
-        if (hasHashProfile()) {
-          if (!getHashProfile().isInitialized()) {
-            
-            return false;
-          }
-        }
-        if (hasGraphProfile()) {
-          if (!getGraphProfile().isInitialized()) {
-            
-            return false;
-          }
-        }
-        if (hasGraphWithinHashIntersection()) {
-          if (!getGraphWithinHashIntersection().isInitialized()) {
-            
-            return false;
-          }
-        }
-        for (int i = 0; i < getStatisticsCount(); i++) {
-          if (!getStatistics(i).isInitialized()) {
-            
-            return false;
-          }
-        }
         return true;
       }
 
@@ -2151,16 +2027,16 @@ public final class Merge {
       }
       private int bitField0_;
 
-      // required string distribution_name = 1;
+      // optional string distribution_name = 1;
       private java.lang.Object distributionName_ = "";
       /**
-       * <code>required string distribution_name = 1;</code>
+       * <code>optional string distribution_name = 1;</code>
        */
       public boolean hasDistributionName() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required string distribution_name = 1;</code>
+       * <code>optional string distribution_name = 1;</code>
        */
       public java.lang.String getDistributionName() {
         java.lang.Object ref = distributionName_;
@@ -2174,7 +2050,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required string distribution_name = 1;</code>
+       * <code>optional string distribution_name = 1;</code>
        */
       public com.google.protobuf.ByteString
           getDistributionNameBytes() {
@@ -2190,7 +2066,7 @@ public final class Merge {
         }
       }
       /**
-       * <code>required string distribution_name = 1;</code>
+       * <code>optional string distribution_name = 1;</code>
        */
       public Builder setDistributionName(
           java.lang.String value) {
@@ -2203,7 +2079,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required string distribution_name = 1;</code>
+       * <code>optional string distribution_name = 1;</code>
        */
       public Builder clearDistributionName() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -2212,7 +2088,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required string distribution_name = 1;</code>
+       * <code>optional string distribution_name = 1;</code>
        */
       public Builder setDistributionNameBytes(
           com.google.protobuf.ByteString value) {
@@ -3181,13 +3057,13 @@ public final class Merge {
   public interface UnmatchedNodeSummaryOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required int32 node_count = 1;
+    // optional int32 node_count = 1;
     /**
-     * <code>required int32 node_count = 1;</code>
+     * <code>optional int32 node_count = 1;</code>
      */
     boolean hasNodeCount();
     /**
-     * <code>required int32 node_count = 1;</code>
+     * <code>optional int32 node_count = 1;</code>
      */
     int getNodeCount();
 
@@ -3332,17 +3208,17 @@ public final class Merge {
     }
 
     private int bitField0_;
-    // required int32 node_count = 1;
+    // optional int32 node_count = 1;
     public static final int NODE_COUNT_FIELD_NUMBER = 1;
     private int nodeCount_;
     /**
-     * <code>required int32 node_count = 1;</code>
+     * <code>optional int32 node_count = 1;</code>
      */
     public boolean hasNodeCount() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required int32 node_count = 1;</code>
+     * <code>optional int32 node_count = 1;</code>
      */
     public int getNodeCount() {
       return nodeCount_;
@@ -3407,10 +3283,6 @@ public final class Merge {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasNodeCount()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -3656,10 +3528,6 @@ public final class Merge {
       }
 
       public final boolean isInitialized() {
-        if (!hasNodeCount()) {
-          
-          return false;
-        }
         return true;
       }
 
@@ -3682,22 +3550,22 @@ public final class Merge {
       }
       private int bitField0_;
 
-      // required int32 node_count = 1;
+      // optional int32 node_count = 1;
       private int nodeCount_ ;
       /**
-       * <code>required int32 node_count = 1;</code>
+       * <code>optional int32 node_count = 1;</code>
        */
       public boolean hasNodeCount() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required int32 node_count = 1;</code>
+       * <code>optional int32 node_count = 1;</code>
        */
       public int getNodeCount() {
         return nodeCount_;
       }
       /**
-       * <code>required int32 node_count = 1;</code>
+       * <code>optional int32 node_count = 1;</code>
        */
       public Builder setNodeCount(int value) {
         bitField0_ |= 0x00000001;
@@ -3706,7 +3574,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required int32 node_count = 1;</code>
+       * <code>optional int32 node_count = 1;</code>
        */
       public Builder clearNodeCount() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -3828,43 +3696,43 @@ public final class Merge {
   public interface TraceCompilationProfileOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required int32 union = 1;
+    // optional int32 union = 1;
     /**
-     * <code>required int32 union = 1;</code>
+     * <code>optional int32 union = 1;</code>
      */
     boolean hasUnion();
     /**
-     * <code>required int32 union = 1;</code>
+     * <code>optional int32 union = 1;</code>
      */
     int getUnion();
 
-    // required int32 intersection = 2;
+    // optional int32 intersection = 2;
     /**
-     * <code>required int32 intersection = 2;</code>
+     * <code>optional int32 intersection = 2;</code>
      */
     boolean hasIntersection();
     /**
-     * <code>required int32 intersection = 2;</code>
+     * <code>optional int32 intersection = 2;</code>
      */
     int getIntersection();
 
-    // required int32 left = 3;
+    // optional int32 left = 3;
     /**
-     * <code>required int32 left = 3;</code>
+     * <code>optional int32 left = 3;</code>
      */
     boolean hasLeft();
     /**
-     * <code>required int32 left = 3;</code>
+     * <code>optional int32 left = 3;</code>
      */
     int getLeft();
 
-    // required int32 right = 4;
+    // optional int32 right = 4;
     /**
-     * <code>required int32 right = 4;</code>
+     * <code>optional int32 right = 4;</code>
      */
     boolean hasRight();
     /**
-     * <code>required int32 right = 4;</code>
+     * <code>optional int32 right = 4;</code>
      */
     int getRight();
   }
@@ -3979,65 +3847,65 @@ public final class Merge {
     }
 
     private int bitField0_;
-    // required int32 union = 1;
+    // optional int32 union = 1;
     public static final int UNION_FIELD_NUMBER = 1;
     private int union_;
     /**
-     * <code>required int32 union = 1;</code>
+     * <code>optional int32 union = 1;</code>
      */
     public boolean hasUnion() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required int32 union = 1;</code>
+     * <code>optional int32 union = 1;</code>
      */
     public int getUnion() {
       return union_;
     }
 
-    // required int32 intersection = 2;
+    // optional int32 intersection = 2;
     public static final int INTERSECTION_FIELD_NUMBER = 2;
     private int intersection_;
     /**
-     * <code>required int32 intersection = 2;</code>
+     * <code>optional int32 intersection = 2;</code>
      */
     public boolean hasIntersection() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required int32 intersection = 2;</code>
+     * <code>optional int32 intersection = 2;</code>
      */
     public int getIntersection() {
       return intersection_;
     }
 
-    // required int32 left = 3;
+    // optional int32 left = 3;
     public static final int LEFT_FIELD_NUMBER = 3;
     private int left_;
     /**
-     * <code>required int32 left = 3;</code>
+     * <code>optional int32 left = 3;</code>
      */
     public boolean hasLeft() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>required int32 left = 3;</code>
+     * <code>optional int32 left = 3;</code>
      */
     public int getLeft() {
       return left_;
     }
 
-    // required int32 right = 4;
+    // optional int32 right = 4;
     public static final int RIGHT_FIELD_NUMBER = 4;
     private int right_;
     /**
-     * <code>required int32 right = 4;</code>
+     * <code>optional int32 right = 4;</code>
      */
     public boolean hasRight() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>required int32 right = 4;</code>
+     * <code>optional int32 right = 4;</code>
      */
     public int getRight() {
       return right_;
@@ -4054,22 +3922,6 @@ public final class Merge {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasUnion()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasIntersection()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasLeft()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasRight()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -4315,22 +4167,6 @@ public final class Merge {
       }
 
       public final boolean isInitialized() {
-        if (!hasUnion()) {
-          
-          return false;
-        }
-        if (!hasIntersection()) {
-          
-          return false;
-        }
-        if (!hasLeft()) {
-          
-          return false;
-        }
-        if (!hasRight()) {
-          
-          return false;
-        }
         return true;
       }
 
@@ -4353,22 +4189,22 @@ public final class Merge {
       }
       private int bitField0_;
 
-      // required int32 union = 1;
+      // optional int32 union = 1;
       private int union_ ;
       /**
-       * <code>required int32 union = 1;</code>
+       * <code>optional int32 union = 1;</code>
        */
       public boolean hasUnion() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required int32 union = 1;</code>
+       * <code>optional int32 union = 1;</code>
        */
       public int getUnion() {
         return union_;
       }
       /**
-       * <code>required int32 union = 1;</code>
+       * <code>optional int32 union = 1;</code>
        */
       public Builder setUnion(int value) {
         bitField0_ |= 0x00000001;
@@ -4377,7 +4213,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required int32 union = 1;</code>
+       * <code>optional int32 union = 1;</code>
        */
       public Builder clearUnion() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -4386,22 +4222,22 @@ public final class Merge {
         return this;
       }
 
-      // required int32 intersection = 2;
+      // optional int32 intersection = 2;
       private int intersection_ ;
       /**
-       * <code>required int32 intersection = 2;</code>
+       * <code>optional int32 intersection = 2;</code>
        */
       public boolean hasIntersection() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required int32 intersection = 2;</code>
+       * <code>optional int32 intersection = 2;</code>
        */
       public int getIntersection() {
         return intersection_;
       }
       /**
-       * <code>required int32 intersection = 2;</code>
+       * <code>optional int32 intersection = 2;</code>
        */
       public Builder setIntersection(int value) {
         bitField0_ |= 0x00000002;
@@ -4410,7 +4246,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required int32 intersection = 2;</code>
+       * <code>optional int32 intersection = 2;</code>
        */
       public Builder clearIntersection() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -4419,22 +4255,22 @@ public final class Merge {
         return this;
       }
 
-      // required int32 left = 3;
+      // optional int32 left = 3;
       private int left_ ;
       /**
-       * <code>required int32 left = 3;</code>
+       * <code>optional int32 left = 3;</code>
        */
       public boolean hasLeft() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required int32 left = 3;</code>
+       * <code>optional int32 left = 3;</code>
        */
       public int getLeft() {
         return left_;
       }
       /**
-       * <code>required int32 left = 3;</code>
+       * <code>optional int32 left = 3;</code>
        */
       public Builder setLeft(int value) {
         bitField0_ |= 0x00000004;
@@ -4443,7 +4279,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required int32 left = 3;</code>
+       * <code>optional int32 left = 3;</code>
        */
       public Builder clearLeft() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -4452,22 +4288,22 @@ public final class Merge {
         return this;
       }
 
-      // required int32 right = 4;
+      // optional int32 right = 4;
       private int right_ ;
       /**
-       * <code>required int32 right = 4;</code>
+       * <code>optional int32 right = 4;</code>
        */
       public boolean hasRight() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>required int32 right = 4;</code>
+       * <code>optional int32 right = 4;</code>
        */
       public int getRight() {
         return right_;
       }
       /**
-       * <code>required int32 right = 4;</code>
+       * <code>optional int32 right = 4;</code>
        */
       public Builder setRight(int value) {
         bitField0_ |= 0x00000008;
@@ -4476,7 +4312,7 @@ public final class Merge {
         return this;
       }
       /**
-       * <code>required int32 right = 4;</code>
+       * <code>optional int32 right = 4;</code>
        */
       public Builder clearRight() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -4548,6 +4384,30 @@ public final class Merge {
      * <code>optional int32 module_relative_tag_mismatches = 5;</code>
      */
     int getModuleRelativeTagMismatches();
+
+    // optional int32 mismatched_subgraph_count = 6;
+    /**
+     * <code>optional int32 mismatched_subgraph_count = 6;</code>
+     */
+    boolean hasMismatchedSubgraphCount();
+    /**
+     * <code>optional int32 mismatched_subgraph_count = 6;</code>
+     */
+    int getMismatchedSubgraphCount();
+
+    // repeated int32 largest_mismatched_subgraphs_size = 7;
+    /**
+     * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+     */
+    java.util.List<java.lang.Integer> getLargestMismatchedSubgraphsSizeList();
+    /**
+     * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+     */
+    int getLargestMismatchedSubgraphsSizeCount();
+    /**
+     * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+     */
+    int getLargestMismatchedSubgraphsSize(int index);
   }
   /**
    * Protobuf type {@code crowd_safe_data_analysis.MergeSummary}
@@ -4625,6 +4485,32 @@ public final class Merge {
               moduleRelativeTagMismatches_ = input.readInt32();
               break;
             }
+            case 48: {
+              bitField0_ |= 0x00000020;
+              mismatchedSubgraphCount_ = input.readInt32();
+              break;
+            }
+            case 56: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+                largestMismatchedSubgraphsSize_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              largestMismatchedSubgraphsSize_.add(input.readInt32());
+              break;
+            }
+            case 58: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+                largestMismatchedSubgraphsSize_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                largestMismatchedSubgraphsSize_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -4633,6 +4519,9 @@ public final class Merge {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+          largestMismatchedSubgraphsSize_ = java.util.Collections.unmodifiableList(largestMismatchedSubgraphsSize_);
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -4745,12 +4634,53 @@ public final class Merge {
       return moduleRelativeTagMismatches_;
     }
 
+    // optional int32 mismatched_subgraph_count = 6;
+    public static final int MISMATCHED_SUBGRAPH_COUNT_FIELD_NUMBER = 6;
+    private int mismatchedSubgraphCount_;
+    /**
+     * <code>optional int32 mismatched_subgraph_count = 6;</code>
+     */
+    public boolean hasMismatchedSubgraphCount() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional int32 mismatched_subgraph_count = 6;</code>
+     */
+    public int getMismatchedSubgraphCount() {
+      return mismatchedSubgraphCount_;
+    }
+
+    // repeated int32 largest_mismatched_subgraphs_size = 7;
+    public static final int LARGEST_MISMATCHED_SUBGRAPHS_SIZE_FIELD_NUMBER = 7;
+    private java.util.List<java.lang.Integer> largestMismatchedSubgraphsSize_;
+    /**
+     * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getLargestMismatchedSubgraphsSizeList() {
+      return largestMismatchedSubgraphsSize_;
+    }
+    /**
+     * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+     */
+    public int getLargestMismatchedSubgraphsSizeCount() {
+      return largestMismatchedSubgraphsSize_.size();
+    }
+    /**
+     * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+     */
+    public int getLargestMismatchedSubgraphsSize(int index) {
+      return largestMismatchedSubgraphsSize_.get(index);
+    }
+
     private void initFields() {
       indirectEdgesMatched_ = 0;
       pureHeuristicMatches_ = 0;
       callContinuationEdgesMatched_ = 0;
       possiblyRewrittenBlocks_ = 0;
       moduleRelativeTagMismatches_ = 0;
+      mismatchedSubgraphCount_ = 0;
+      largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -4778,6 +4708,12 @@ public final class Merge {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt32(5, moduleRelativeTagMismatches_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeInt32(6, mismatchedSubgraphCount_);
+      }
+      for (int i = 0; i < largestMismatchedSubgraphsSize_.size(); i++) {
+        output.writeInt32(7, largestMismatchedSubgraphsSize_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -4807,6 +4743,19 @@ public final class Merge {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(5, moduleRelativeTagMismatches_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(6, mismatchedSubgraphCount_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < largestMismatchedSubgraphsSize_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(largestMismatchedSubgraphsSize_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getLargestMismatchedSubgraphsSizeList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4934,6 +4883,10 @@ public final class Merge {
         bitField0_ = (bitField0_ & ~0x00000008);
         moduleRelativeTagMismatches_ = 0;
         bitField0_ = (bitField0_ & ~0x00000010);
+        mismatchedSubgraphCount_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000020);
+        largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -4982,6 +4935,15 @@ public final class Merge {
           to_bitField0_ |= 0x00000010;
         }
         result.moduleRelativeTagMismatches_ = moduleRelativeTagMismatches_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.mismatchedSubgraphCount_ = mismatchedSubgraphCount_;
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          largestMismatchedSubgraphsSize_ = java.util.Collections.unmodifiableList(largestMismatchedSubgraphsSize_);
+          bitField0_ = (bitField0_ & ~0x00000040);
+        }
+        result.largestMismatchedSubgraphsSize_ = largestMismatchedSubgraphsSize_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5012,6 +4974,19 @@ public final class Merge {
         }
         if (other.hasModuleRelativeTagMismatches()) {
           setModuleRelativeTagMismatches(other.getModuleRelativeTagMismatches());
+        }
+        if (other.hasMismatchedSubgraphCount()) {
+          setMismatchedSubgraphCount(other.getMismatchedSubgraphCount());
+        }
+        if (!other.largestMismatchedSubgraphsSize_.isEmpty()) {
+          if (largestMismatchedSubgraphsSize_.isEmpty()) {
+            largestMismatchedSubgraphsSize_ = other.largestMismatchedSubgraphsSize_;
+            bitField0_ = (bitField0_ & ~0x00000040);
+          } else {
+            ensureLargestMismatchedSubgraphsSizeIsMutable();
+            largestMismatchedSubgraphsSize_.addAll(other.largestMismatchedSubgraphsSize_);
+          }
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -5205,6 +5180,105 @@ public final class Merge {
         return this;
       }
 
+      // optional int32 mismatched_subgraph_count = 6;
+      private int mismatchedSubgraphCount_ ;
+      /**
+       * <code>optional int32 mismatched_subgraph_count = 6;</code>
+       */
+      public boolean hasMismatchedSubgraphCount() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional int32 mismatched_subgraph_count = 6;</code>
+       */
+      public int getMismatchedSubgraphCount() {
+        return mismatchedSubgraphCount_;
+      }
+      /**
+       * <code>optional int32 mismatched_subgraph_count = 6;</code>
+       */
+      public Builder setMismatchedSubgraphCount(int value) {
+        bitField0_ |= 0x00000020;
+        mismatchedSubgraphCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 mismatched_subgraph_count = 6;</code>
+       */
+      public Builder clearMismatchedSubgraphCount() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        mismatchedSubgraphCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // repeated int32 largest_mismatched_subgraphs_size = 7;
+      private java.util.List<java.lang.Integer> largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
+      private void ensureLargestMismatchedSubgraphsSizeIsMutable() {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          largestMismatchedSubgraphsSize_ = new java.util.ArrayList<java.lang.Integer>(largestMismatchedSubgraphsSize_);
+          bitField0_ |= 0x00000040;
+         }
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getLargestMismatchedSubgraphsSizeList() {
+        return java.util.Collections.unmodifiableList(largestMismatchedSubgraphsSize_);
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public int getLargestMismatchedSubgraphsSizeCount() {
+        return largestMismatchedSubgraphsSize_.size();
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public int getLargestMismatchedSubgraphsSize(int index) {
+        return largestMismatchedSubgraphsSize_.get(index);
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public Builder setLargestMismatchedSubgraphsSize(
+          int index, int value) {
+        ensureLargestMismatchedSubgraphsSizeIsMutable();
+        largestMismatchedSubgraphsSize_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public Builder addLargestMismatchedSubgraphsSize(int value) {
+        ensureLargestMismatchedSubgraphsSizeIsMutable();
+        largestMismatchedSubgraphsSize_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public Builder addAllLargestMismatchedSubgraphsSize(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureLargestMismatchedSubgraphsSizeIsMutable();
+        super.addAll(values, largestMismatchedSubgraphsSize_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 largest_mismatched_subgraphs_size = 7;</code>
+       */
+      public Builder clearLargestMismatchedSubgraphsSize() {
+        largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.MergeSummary)
     }
 
@@ -5252,12 +5326,12 @@ public final class Merge {
     java.lang.String[] descriptorData = {
       "\n\023merge-results.proto\022\030crowd_safe_data_a" +
       "nalysis\032\013graph.proto\032\020statistics.proto\"\252" +
-      "\001\n\014MergeResults\022/\n\004left\030\001 \002(\0132!.crowd_sa" +
-      "fe_data_analysis.Process\0220\n\005right\030\002 \002(\0132" +
+      "\001\n\014MergeResults\022/\n\004left\030\001 \001(\0132!.crowd_sa" +
+      "fe_data_analysis.Process\0220\n\005right\030\002 \001(\0132" +
       "!.crowd_safe_data_analysis.Process\0227\n\007cl" +
       "uster\030\003 \003(\0132&.crowd_safe_data_analysis.C" +
       "lusterMerge\"\245\004\n\014ClusterMerge\022\031\n\021distribu" +
-      "tion_name\030\001 \002(\t\022F\n\016left_unmatched\030\002 \001(\0132" +
+      "tion_name\030\001 \001(\t\022F\n\016left_unmatched\030\002 \001(\0132" +
       "..crowd_safe_data_analysis.UnmatchedNode" +
       "Summary\022G\n\017right_unmatched\030\003 \001(\0132..crowd",
       "_safe_data_analysis.UnmatchedNodeSummary" +
@@ -5271,18 +5345,20 @@ public final class Merge {
       "analysis.MergeSummary\022<\n\nstatistics\030\010 \003(" +
       "\0132(.crowd_safe_data_analysis.StatisticsT",
       "ree\"\212\001\n\024UnmatchedNodeSummary\022\022\n\nnode_cou" +
-      "nt\030\001 \002(\005\022\033\n\023eligible_node_count\030\002 \001(\005\022\036\n" +
+      "nt\030\001 \001(\005\022\033\n\023eligible_node_count\030\002 \001(\005\022\036\n" +
       "\026unreachable_node_count\030\003 \001(\005\022!\n\031hash_ex" +
       "clusive_node_count\030\004 \001(\005\"[\n\027TraceCompila" +
-      "tionProfile\022\r\n\005union\030\001 \002(\005\022\024\n\014intersecti" +
-      "on\030\002 \002(\005\022\014\n\004left\030\003 \002(\005\022\r\n\005right\030\004 \002(\005\"\302\001" +
+      "tionProfile\022\r\n\005union\030\001 \001(\005\022\024\n\014intersecti" +
+      "on\030\002 \001(\005\022\014\n\004left\030\003 \001(\005\022\r\n\005right\030\004 \001(\005\"\220\002" +
       "\n\014MergeSummary\022\036\n\026indirect_edges_matched" +
       "\030\001 \001(\005\022\036\n\026pure_heuristic_matches\030\002 \001(\005\022\'" +
       "\n\037call_continuation_edges_matched\030\003 \001(\005\022" +
       "!\n\031possibly_rewritten_blocks\030\004 \001(\005\022&\n\036mo",
-      "dule_relative_tag_mismatches\030\005 \001(\005B8\n/ed" +
-      "u.uci.eecs.crowdsafe.merge.graph.data.re" +
-      "sultsB\005Merge"
+      "dule_relative_tag_mismatches\030\005 \001(\005\022!\n\031mi" +
+      "smatched_subgraph_count\030\006 \001(\005\022)\n!largest" +
+      "_mismatched_subgraphs_size\030\007 \003(\005B8\n/edu." +
+      "uci.eecs.crowdsafe.merge.graph.data.resu" +
+      "ltsB\005Merge"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -5318,7 +5394,7 @@ public final class Merge {
           internal_static_crowd_safe_data_analysis_MergeSummary_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_crowd_safe_data_analysis_MergeSummary_descriptor,
-              new java.lang.String[] { "IndirectEdgesMatched", "PureHeuristicMatches", "CallContinuationEdgesMatched", "PossiblyRewrittenBlocks", "ModuleRelativeTagMismatches", });
+              new java.lang.String[] { "IndirectEdgesMatched", "PureHeuristicMatches", "CallContinuationEdgesMatched", "PossiblyRewrittenBlocks", "ModuleRelativeTagMismatches", "MismatchedSubgraphCount", "LargestMismatchedSubgraphsSize", });
           return null;
         }
       };
