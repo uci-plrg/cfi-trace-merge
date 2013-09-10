@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class GraphMergeResults {
 		private int mergedGraphNodeCount = 0;
 
 		private final Set<Node.Key> HACK_moduleRelativeTagMisses = new HashSet<Node.Key>();
-		private final Set<Set<Node.Key>> HACK_missedSubgraphs = new HashSet<Set<Node.Key>>();
+		private final Map<Set<Node.Key>, Set<Node.Key>> HACK_missedSubgraphs = new IdentityHashMap<Set<Node.Key>, Set<Node.Key>>();
 		private int averageMissedSubgraphSize = 0;
 
 		ClusterResults(ClusterMergeSession session) {
@@ -117,13 +118,13 @@ public class GraphMergeResults {
 			for (Node.Key missed : new ArrayList<Node.Key>(leftMissed)) {
 				Set<Node.Key> currentSubgraph = new HashSet<Node.Key>();
 				currentSubgraph.add(missed);
-				HACK_missedSubgraphs.add(currentSubgraph);
+				HACK_missedSubgraphs.put(currentSubgraph, currentSubgraph);
 				boolean joined = false;
 				Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(missed);
 				for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
 					if (!leftMissed.contains(out.getToNode().getKey()))
 						continue;
-					for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs)) {
+					for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs.keySet())) {
 						if (subgraph == currentSubgraph)
 							continue;
 						if (subgraph.contains(out.getToNode().getKey())) {
@@ -170,7 +171,7 @@ public class GraphMergeResults {
 			builder.summary.setMismatchedSubgraphCount(HACK_missedSubgraphs.size());
 
 			List<Integer> missedSubgraphSizes = new ArrayList<Integer>();
-			for (Set<Node.Key> missedSubgraph : HACK_missedSubgraphs) {
+			for (Set<Node.Key> missedSubgraph : HACK_missedSubgraphs.keySet()) {
 				missedSubgraphSizes.add(missedSubgraph.size());
 			}
 			Collections.sort(missedSubgraphSizes, new Comparator<Integer>() {
@@ -191,6 +192,13 @@ public class GraphMergeResults {
 				lastSize = missedSubgraphSize;
 				builder.summary.addLargestMismatchedSubgraphsSize(missedSubgraphSize);
 			}
+
+			int total = 0;
+			for (Integer size : missedSubgraphSizes) {
+				total += size;
+			}
+			Log.log("Aggregate subset size: %d; initial set: %d", total,
+					(session.matchedNodes.HACK_leftMismatchedNodes.size() + HACK_moduleRelativeTagMisses.size()));
 
 			builder.cluster.setMergeSummary(builder.summary.build());
 		}
