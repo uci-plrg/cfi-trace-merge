@@ -124,6 +124,8 @@ public class GraphMergeResults {
 					if (!leftMissed.contains(out.getToNode().getKey()))
 						continue;
 					for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs)) {
+						if (subgraph == currentSubgraph)
+							continue;
 						if (subgraph.contains(out.getToNode().getKey())) {
 							subgraph.addAll(currentSubgraph);
 							HACK_missedSubgraphs.remove(currentSubgraph);
