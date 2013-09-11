@@ -81,7 +81,9 @@ public class MatchedNodes {
 		matchedNodesLeftRight.put(leftKey, rightKey);
 		matchingScore.put(leftKey, score);
 
-		if (!left.getKey().equals(right.getKey())) {
+		ExecutionNode.Key eLeft = (ExecutionNode.Key) leftKey;
+		ExecutionNode.Key eRight = (ExecutionNode.Key) rightKey;
+		if ((eLeft.relativeTag != eRight.relativeTag) || !eLeft.module.equals(eRight.module)) {
 			HACK_leftMismatchedNodes.add(left.getKey());
 			HACK_rightMismatchedNodes.add(right.getKey());
 		}

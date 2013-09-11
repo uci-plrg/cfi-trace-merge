@@ -1,14 +1,15 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
@@ -62,17 +63,45 @@ class GraphMergeEngine {
 
 	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622", 16).longValue();
 	private static final long beginHash = 0x5eee92;
+	private final List<Long> unmatchedEntryPoints = new ArrayList<Long>();
 
 	public GraphMergeEngine(ClusterMergeSession session) {
 		this.session = session;
 		matcher = new GraphMatchEngine(session);
+
+		unmatchedEntryPoints.add(0x11784L);
+		unmatchedEntryPoints.add(0x10a70L);
+		unmatchedEntryPoints.add(0x1181fL);
+		unmatchedEntryPoints.add(0x11235L);
+		unmatchedEntryPoints.add(0xcb5cL);
+		unmatchedEntryPoints.add(0xdee8L);
+		unmatchedEntryPoints.add(0xdf68L);
+		unmatchedEntryPoints.add(0x6a7fL);
+		unmatchedEntryPoints.add(0xfd84L);
+		unmatchedEntryPoints.add(0xfcdeL);
+		unmatchedEntryPoints.add(0xe131L);
+		unmatchedEntryPoints.add(0xe0d7L);
+		unmatchedEntryPoints.add(0x69b9L);
+		unmatchedEntryPoints.add(0x62b7L);
+		unmatchedEntryPoints.add(0xc8c8L);
+		unmatchedEntryPoints.add(0xff25L);
+		unmatchedEntryPoints.add(0xe0d4L);
 	}
 
-	protected void addUnmatchedNode2Queue(Node node2, int level) {
-		if (node2 == null) {
+	private void checkUnmatchedEntryPoint(Node node) {
+		ExecutionNode executionNode = (ExecutionNode) node;
+		if (unmatchedEntryPoints.contains(executionNode.getKey().relativeTag)
+				&& (executionNode.getModule().unit.name.equals("explorer.exe") || executionNode.getModule().unit.name
+						.equals("wscinterop.dll")))
+			System.out.println("wait!");
+	}
+
+	protected void addUnmatchedNode2Queue(Node rightNode, int level) {
+		if (rightNode == null) {
 			throw new NullPointerException("There is a bug here!");
 		}
-		session.matchState.enqueueUnmatch(new PairNode(null, node2, level));
+		checkUnmatchedEntryPoint(rightNode);
+		session.matchState.enqueueUnmatch(new PairNode(null, rightNode, level));
 	}
 
 	public void mergeGraph() throws WrongEdgeTypeException {
@@ -117,6 +146,8 @@ class GraphMergeEngine {
 
 		Node<? extends Node> leftNode = pairNode.getLeftNode();
 		Node<? extends Node> rightNode = pairNode.getRightNode();
+		checkUnmatchedEntryPoint(leftNode);
+		checkUnmatchedEntryPoint(rightNode);
 		if (session.right.visitedNodes.contains(rightNode))
 			return;
 		session.right.visitedNodes.add(rightNode);
@@ -172,6 +203,8 @@ class GraphMergeEngine {
 		PairNodeEdge nodeEdgePair = session.matchState.dequeueIndirectEdge();
 		Node leftParentNode = nodeEdgePair.getLeftParentNode();
 		Edge<? extends Node> rightEdge = nodeEdgePair.getRightEdge();
+		checkUnmatchedEntryPoint(leftParentNode);
+		checkUnmatchedEntryPoint(rightEdge.getToNode());
 
 		Node leftChild = matcher.getCorrespondingIndirectChildNode(leftParentNode, rightEdge);
 		if (leftChild != null) {

@@ -3,6 +3,7 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -10,8 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.common.MutableInteger;
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
@@ -87,6 +91,7 @@ public class GraphMergeResults {
 		private void reportUnmatchedNodes(ModuleGraphCluster cluster, ModuleGraphCluster oppositeCluster, String side) {
 			Set<Node.Key> unmatchedNodes = new HashSet<Node.Key>(cluster.getGraphData().nodesByKey.keySet());
 			unmatchedNodes.removeAll(session.matchedNodes.getLeftKeySet());
+			unmatchedNodes.removeAll(session.matchedNodes.getRightKeySet());
 			int totalUnmatchedCount = unmatchedNodes.size();
 			int unreachableUnmatchedCount = 0;
 			for (Node unreachable : cluster.getUnreachableNodes()) {
@@ -95,7 +100,7 @@ public class GraphMergeResults {
 			}
 			int hashExclusionCount = 0;
 			for (Node.Key unmatchedKey : new ArrayList<Node.Key>(unmatchedNodes)) {
-				if (oppositeCluster.getGraphData().nodesByKey.keySet().contains(unmatchedKey)) {
+				if (oppositeCluster.getGraphData().nodesByKey.keySet().contains(unmatchedKey)) { // phony versions!!
 					HACK_moduleRelativeTagMisses.add(unmatchedKey);
 				}
 				Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
@@ -115,10 +120,14 @@ public class GraphMergeResults {
 			Set<Node.Key> leftMissed = new HashSet<Node.Key>(session.matchedNodes.HACK_leftMismatchedNodes);
 			leftMissed.addAll(HACK_moduleRelativeTagMisses);
 
+			Map<Node.Key, Set<Node.Key>> pendingSubgraphs = new HashMap<Node.Key, Set<Node.Key>>();
 			for (Node.Key missed : new ArrayList<Node.Key>(leftMissed)) {
-				Set<Node.Key> currentSubgraph = new HashSet<Node.Key>();
-				currentSubgraph.add(missed);
-				HACK_missedSubgraphs.put(currentSubgraph, currentSubgraph);
+				Set<Node.Key> currentSubgraph = pendingSubgraphs.remove(missed);
+				if (currentSubgraph == null) {
+					currentSubgraph = new HashSet<Node.Key>();
+					currentSubgraph.add(missed);
+					HACK_missedSubgraphs.put(currentSubgraph, currentSubgraph);
+				}
 				boolean joined = false;
 				Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(missed);
 				for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
@@ -130,15 +139,86 @@ public class GraphMergeResults {
 						if (subgraph.contains(out.getToNode().getKey())) {
 							subgraph.addAll(currentSubgraph);
 							HACK_missedSubgraphs.remove(currentSubgraph);
+							for (Node.Key member : currentSubgraph) {
+								if (pendingSubgraphs.remove(member) != null)
+									pendingSubgraphs.put(member, subgraph);
+							}
 							currentSubgraph = subgraph;
 							joined = true;
 							break;
 						}
 					}
-					if (!joined)
+					if (!joined) {
 						currentSubgraph.add(out.getToNode().getKey());
+						pendingSubgraphs.put(out.getToNode().getKey(), currentSubgraph);
+					}
 				}
 			}
+
+			for (Set<Node.Key> subgraph : HACK_missedSubgraphs.keySet()) {
+				if (subgraph.size() < 2)
+					continue;
+				for (Node.Key key : subgraph) {
+					boolean connected = false;
+					Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(key);
+					for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
+						if (subgraph.contains(out.getToNode().getKey())) {
+							connected = true;
+							break;
+						}
+					}
+					if (connected)
+						continue;
+					for (Edge<? extends Node> in : missedNode.getIncomingEdges()) {
+						if (subgraph.contains(in.getFromNode().getKey())) {
+							connected = true;
+							break;
+						}
+					}
+					if (connected)
+						continue;
+					Log.log("Error! Found a disconnected node in a subgraph of size %d!", subgraph.size());
+				}
+
+				if (subgraph.size() > 12) {
+					Map<MetaNodeType, MutableInteger> nodeTypeCounts = new EnumMap(MetaNodeType.class);
+					for (MetaNodeType type : MetaNodeType.values())
+						nodeTypeCounts.put(type, new MutableInteger(0));
+					Map<EdgeType, MutableInteger> edgeTypeCounts = new EnumMap(EdgeType.class);
+					for (EdgeType type : EdgeType.values())
+						edgeTypeCounts.put(type, new MutableInteger(0));
+					List<Node> entryPoints = new ArrayList<Node>();
+					List<Node> nodes = new ArrayList<Node>();
+					for (Node.Key key : subgraph) {
+						Node<?> node = session.left.cluster.getGraphData().nodesByKey.get(key);
+						nodes.add(node);
+						nodeTypeCounts.get(node.getType()).increment();
+
+						boolean subgraphContainsEntry = false;
+						for (Edge<? extends Node> edge : node.getIncomingEdges()) {
+							if (subgraph.contains(edge.getFromNode().getKey())) {
+								subgraphContainsEntry = true;
+								edgeTypeCounts.get(edge.getEdgeType()).increment();
+							}
+						}
+						if (!subgraphContainsEntry)
+							entryPoints.add(node);
+					}
+					Log.log("Mismatched subgraph of %d nodes", subgraph.size());
+					for (MetaNodeType type : MetaNodeType.values())
+						if (nodeTypeCounts.get(type).getVal() > 0)
+							Log.log("\tNode type %s: %d", type, nodeTypeCounts.get(type).getVal());
+					for (EdgeType type : EdgeType.values())
+						if (edgeTypeCounts.get(type).getVal() > 0)
+							Log.log("\tEdge type %s: %d", type, edgeTypeCounts.get(type).getVal());
+					Log.log("\tEntry points:");
+					for (Node entryPoint : entryPoints)
+						Log.log("\t\t%s (%s)", entryPoint, session.matchedNodes.HACK_leftMismatchedNodes
+								.contains(entryPoint.getKey()) ? "mismatched" : "missed");
+					// System.out.println("check this"); // nodes.get(4).getIncomingEdges().size()
+					// nodes.get(4).getOutgoingEdges().size()
+				} // subgraph.contains(((Edge)nodes.get(4).getIncomingEdges().get(0)).getFromNode().getKey())
+			} // subgraph.contains(((Edge)nodes.get(3).getOutgoingEdges().get(0)).getToNode().getKey())
 
 			averageMissedSubgraphSize = (int) Math.floor(leftMissed.size() / (double) HACK_missedSubgraphs.size());
 		}
@@ -192,13 +272,6 @@ public class GraphMergeResults {
 				lastSize = missedSubgraphSize;
 				builder.summary.addLargestMismatchedSubgraphsSize(missedSubgraphSize);
 			}
-
-			int total = 0;
-			for (Integer size : missedSubgraphSizes) {
-				total += size;
-			}
-			Log.log("Aggregate subset size: %d; initial set: %d", total,
-					(session.matchedNodes.HACK_leftMismatchedNodes.size() + HACK_moduleRelativeTagMisses.size()));
 
 			builder.cluster.setMergeSummary(builder.summary.build());
 		}
