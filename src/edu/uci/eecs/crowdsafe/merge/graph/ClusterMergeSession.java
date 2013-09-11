@@ -79,7 +79,8 @@ public class ClusterMergeSession {
 	}
 
 	public void initializeMerge() {
-		right.visitedNodes.clear();
+		right.visitedEdges.clear();
+		right.visitedAsUnmatched.clear();
 		matchedNodes.clear();
 		matchState.clear();
 		speculativeScoreList.clear();

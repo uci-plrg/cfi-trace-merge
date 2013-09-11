@@ -83,7 +83,7 @@ public class MatchedNodes {
 
 		ExecutionNode.Key eLeft = (ExecutionNode.Key) leftKey;
 		ExecutionNode.Key eRight = (ExecutionNode.Key) rightKey;
-		if ((eLeft.relativeTag != eRight.relativeTag) || !eLeft.module.equals(eRight.module)) {
+		if (!left.isEquivalent(right)) {
 			HACK_leftMismatchedNodes.add(left.getKey());
 			HACK_rightMismatchedNodes.add(right.getKey());
 		}

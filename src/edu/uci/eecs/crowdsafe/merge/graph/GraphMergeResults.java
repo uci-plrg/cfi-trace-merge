@@ -17,6 +17,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
@@ -100,10 +101,10 @@ public class GraphMergeResults {
 			}
 			int hashExclusionCount = 0;
 			for (Node.Key unmatchedKey : new ArrayList<Node.Key>(unmatchedNodes)) {
-				if (oppositeCluster.getGraphData().nodesByKey.keySet().contains(unmatchedKey)) { // phony versions!!
+				Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
+				if (oppositeCluster.getGraphData().HACK_containsEquivalent((ExecutionNode) unmatchedNode)) {
 					HACK_moduleRelativeTagMisses.add(unmatchedKey);
 				}
-				Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
 				if (!oppositeCluster.getGraphData().nodesByHash.keySet().contains(unmatchedNode.getHash())) {
 					unmatchedNodes.remove(unmatchedKey);
 					hashExclusionCount++;
@@ -180,7 +181,7 @@ public class GraphMergeResults {
 					Log.log("Error! Found a disconnected node in a subgraph of size %d!", subgraph.size());
 				}
 
-				if (subgraph.size() > 12) {
+				if (subgraph.size() > 4) {
 					Map<MetaNodeType, MutableInteger> nodeTypeCounts = new EnumMap(MetaNodeType.class);
 					for (MetaNodeType type : MetaNodeType.values())
 						nodeTypeCounts.put(type, new MutableInteger(0));

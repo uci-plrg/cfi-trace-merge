@@ -25,6 +25,9 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		}
 
 		TrackedNodeKey(int pageOffset, long hash) {
+			if (pageOffset > 0xfff)
+				Log.log("Warning: page offset 0x%x exceeds page size of 0x1000!", pageOffset);
+
 			this.pageOffset = pageOffset;
 			this.hash = hash;
 		}
@@ -75,17 +78,14 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 	public GraphMergeDebug() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
-		// __unknown__(0x1c3d1903-v0|0x1fe439402a) has no incoming edges
-		// trackedNodes.add(new TrackedNodeKey(0x903, 0x1fe439402aL));
+		// kernelbase.dll(0x8f9b-v0|0x5432162d15) (missed)
+		// trackedNodes.add(new TrackedNodeKey(0xf9b, 0x5432162d15L));
 
-		// __unknown__(0x1c3d21fd-v0|0x1fe3123f2a) has no incoming edges
-		// trackedNodes.add(new TrackedNodeKey(0x1fd, 0x1fe3123f2aL));
+		// kernelbase.dll(0xd850-v0|0x1cfef59cd2)
+		// trackedNodes.add(new TrackedNodeKey(0x850, 0x1cfef59cd2L));
 
-		// __unknown__(0x1c3d2011-v0|0x1fe4e7c22a) has no incoming edges
-		// trackedNodes.add(new TrackedNodeKey(0x011, 0x1fe4e7c22aL));
-
-		// msys-1.0.dll(0x11bd-v0|0x29f156) has no incoming edges
-		// trackedNodes.add(new TrackedNodeKey(0x1bd, 0x29f156L));
+		// kernel32.dll(0x47335-v0|0x368189a1f)
+		// trackedNodes.add(new TrackedNodeKey(0x335, 0x368189a1fL));
 	}
 
 	void setSession(ClusterMergeSession session) {

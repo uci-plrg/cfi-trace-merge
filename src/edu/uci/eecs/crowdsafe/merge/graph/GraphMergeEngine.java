@@ -69,38 +69,45 @@ class GraphMergeEngine {
 		this.session = session;
 		matcher = new GraphMatchEngine(session);
 
-		unmatchedEntryPoints.add(0x11784L);
-		unmatchedEntryPoints.add(0x10a70L);
-		unmatchedEntryPoints.add(0x1181fL);
-		unmatchedEntryPoints.add(0x11235L);
-		unmatchedEntryPoints.add(0xcb5cL);
-		unmatchedEntryPoints.add(0xdee8L);
-		unmatchedEntryPoints.add(0xdf68L);
-		unmatchedEntryPoints.add(0x6a7fL);
-		unmatchedEntryPoints.add(0xfd84L);
-		unmatchedEntryPoints.add(0xfcdeL);
-		unmatchedEntryPoints.add(0xe131L);
-		unmatchedEntryPoints.add(0xe0d7L);
-		unmatchedEntryPoints.add(0x69b9L);
-		unmatchedEntryPoints.add(0x62b7L);
-		unmatchedEntryPoints.add(0xc8c8L);
-		unmatchedEntryPoints.add(0xff25L);
-		unmatchedEntryPoints.add(0xe0d4L);
+		// unmatchedEntryPoints.add(0x8f9bL);
+		// unmatchedEntryPoints.add(0xd850L);
+		// unmatchedEntryPoints.add(0x1181fL);
+		// unmatchedEntryPoints.add(0x11235L);
+		// unmatchedEntryPoints.add(0xcb5cL);
+		// unmatchedEntryPoints.add(0xdee8L);
+		// unmatchedEntryPoints.add(0xdf68L);
+		// unmatchedEntryPoints.add(0x6a7fL);
+		// unmatchedEntryPoints.add(0xfd84L);
+		// unmatchedEntryPoints.add(0xfcdeL);
+		// unmatchedEntryPoints.add(0xe131L);
+		// unmatchedEntryPoints.add(0xe0d7L);
+		// unmatchedEntryPoints.add(0x69b9L);
+		// unmatchedEntryPoints.add(0x62b7L);
+		// unmatchedEntryPoints.add(0xc8c8L);
+		// unmatchedEntryPoints.add(0xff25L);
+		// unmatchedEntryPoints.add(0xe0d4L);
 	}
 
-	private void checkUnmatchedEntryPoint(Node node) {
+	/**
+	 * <pre>
+	private void  checkUnmatchedEntryPoint(Node node) {
 		ExecutionNode executionNode = (ExecutionNode) node;
 		if (unmatchedEntryPoints.contains(executionNode.getKey().relativeTag)
-				&& (executionNode.getModule().unit.name.equals("explorer.exe") || executionNode.getModule().unit.name
-						.equals("wscinterop.dll")))
+				&& (executionNode.getModule().unit.name.equals("kernelbase.dll")))
 			System.out.println("wait!");
 	}
+	 */
 
 	protected void addUnmatchedNode2Queue(Node rightNode, int level) {
 		if (rightNode == null) {
 			throw new NullPointerException("There is a bug here!");
 		}
-		checkUnmatchedEntryPoint(rightNode);
+
+		if (session.right.visitedAsUnmatched.contains(rightNode))
+			return;
+
+		// checkUnmatchedEntryPoint(rightNode);
+		session.right.visitedAsUnmatched.add(rightNode);
 		session.matchState.enqueueUnmatch(new PairNode(null, rightNode, level));
 	}
 
@@ -146,14 +153,11 @@ class GraphMergeEngine {
 
 		Node<? extends Node> leftNode = pairNode.getLeftNode();
 		Node<? extends Node> rightNode = pairNode.getRightNode();
-		checkUnmatchedEntryPoint(leftNode);
-		checkUnmatchedEntryPoint(rightNode);
-		if (session.right.visitedNodes.contains(rightNode))
-			return;
-		session.right.visitedNodes.add(rightNode);
+		// checkUnmatchedEntryPoint(leftNode);
+		// checkUnmatchedEntryPoint(rightNode);
 
 		for (Edge<? extends Node> rightEdge : rightNode.getOutgoingEdges()) {
-			if (session.right.visitedNodes.contains(rightEdge.getToNode()))
+			if (session.right.visitedEdges.contains(rightEdge))
 				continue;
 
 			// Find out the next matched node
@@ -166,6 +170,7 @@ class GraphMergeEngine {
 					session.statistics.tryDirectMatch();
 
 					leftChild = matcher.getCorrespondingDirectChildNode(leftNode, rightEdge);
+					session.right.visitedEdges.add(rightEdge);
 
 					if (leftChild != null) {
 						if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
@@ -203,8 +208,9 @@ class GraphMergeEngine {
 		PairNodeEdge nodeEdgePair = session.matchState.dequeueIndirectEdge();
 		Node leftParentNode = nodeEdgePair.getLeftParentNode();
 		Edge<? extends Node> rightEdge = nodeEdgePair.getRightEdge();
-		checkUnmatchedEntryPoint(leftParentNode);
-		checkUnmatchedEntryPoint(rightEdge.getToNode());
+		// checkUnmatchedEntryPoint(leftParentNode);
+		// checkUnmatchedEntryPoint(rightEdge.getToNode());
+		session.right.visitedEdges.add(rightEdge);
 
 		Node leftChild = matcher.getCorrespondingIndirectChildNode(leftParentNode, rightEdge);
 		if (leftChild != null) {
@@ -231,8 +237,6 @@ class GraphMergeEngine {
 	private void exploreHeuristicMatch() {
 		PairNode pairNode = session.matchState.dequeueUnmatch();
 		Node<? extends Node> rightNode = pairNode.getRightNode();
-		if (session.right.visitedNodes.contains(rightNode))
-			return;
 
 		Node leftChild = null;
 		// For nodes that are already known not to match,
@@ -249,12 +253,12 @@ class GraphMergeEngine {
 			// Simply push unvisited neighbors to unmatchedQueue
 			for (int k = 0; k < rightNode.getOutgoingEdges().size(); k++) {
 				Edge<? extends Node> rightEdge = rightNode.getOutgoingEdges().get(k);
-				if (session.right.visitedNodes.contains(rightEdge.getToNode()))
+				if (session.right.visitedEdges.contains(rightEdge))
 					continue;
 
 				addUnmatchedNode2Queue(rightEdge.getToNode(), pairNode.level + 1);
 			}
-			session.right.visitedNodes.add(rightNode);
+			// checkUnmatchedEntryPoint(rightNode);
 		}
 	}
 
