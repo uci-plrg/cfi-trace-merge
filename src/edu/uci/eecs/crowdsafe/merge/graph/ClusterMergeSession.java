@@ -19,6 +19,7 @@ import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
+import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
 import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
@@ -99,9 +100,11 @@ public class ClusterMergeSession {
 				ExecutionNode leftNode = leftEntryPoints.get(sigHash);
 				ExecutionNode rightNode = rightEntryPoints.get(sigHash);
 
+				debugLog.checkUnmatchedEntryPoint(leftNode);
+				debugLog.checkUnmatchedEntryPoint(rightNode);
+
 				if (leftNode.hasCompatibleEdges(rightNode)) {
-					PairNode pairNode = new PairNode(leftNode, rightNode, 0);
-					matchState.enqueueMatch(pairNode);
+					matchState.enqueueMatch(new PairNode(leftNode, rightNode, MatchType.ENTRY_POINT));
 					matchedNodes.addPair(leftNode, rightNode, 0);
 
 					statistics.directMatch();
@@ -111,7 +114,7 @@ public class ClusterMergeSession {
 					}
 
 					if (DebugUtils.debug) {
-						DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(0, leftNode.getKey(), rightNode
+						DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(leftNode.getKey(), rightNode
 								.getKey(), MatchingType.SignatureNode, null));
 					}
 					continue;
@@ -120,10 +123,10 @@ public class ClusterMergeSession {
 
 			// Push new signature node to prioritize the speculation to the
 			// beginning of the graph
-			ExecutionNode n2 = rightEntryPoints.get(sigHash);
+			ExecutionNode rightEntryPoint = rightEntryPoints.get(sigHash);
 			// TODO: guessing that the third arg "level" should be 0
-			matchState.enqueueUnmatch(new PairNode(null, n2, 0));
-			engine.addUnmatchedNode2Queue(n2, -1);
+			matchState.enqueueUnmatch(rightEntryPoint);
+			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
 
 		debugLog.initializeMerge(left.cluster, right.cluster);
@@ -131,7 +134,7 @@ public class ClusterMergeSession {
 
 	boolean acceptContext(Node candidate) {
 		int score = contextRecord.evaluate();
-		if (score < 0)
+		if (score < 7)
 			return false;
 		setScore(candidate, score);
 		return true;

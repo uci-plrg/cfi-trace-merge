@@ -2,11 +2,15 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.util.LinkedList;
 
+import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
+import edu.uci.eecs.crowdsafe.common.log.Log;
+
 class GraphMatchState {
 	private final ClusterMergeSession session;
 
 	private final LinkedList<PairNode> matchedQueue = new LinkedList<PairNode>();
-	private final LinkedList<PairNode> unmatchedQueue = new LinkedList<PairNode>();
+	private final LinkedList<Node> unmatchedQueue = new LinkedList<Node>();
 	private final LinkedList<PairNodeEdge> indirectChildren = new LinkedList<PairNodeEdge>();
 
 	GraphMatchState(ClusterMergeSession session) {
@@ -22,6 +26,10 @@ class GraphMatchState {
 	void enqueueMatch(PairNode match) {
 		matchedQueue.add(match);
 		session.debugLog.matchEnqueued(match);
+
+		if (!match.isValid()) {
+			Log.log("Mismatch: %s to %s on %s!", match.getLeftNode(), match.getRightNode(), match.type);
+		}
 	}
 
 	PairNode dequeueMatch() {
@@ -34,13 +42,13 @@ class GraphMatchState {
 		return !matchedQueue.isEmpty();
 	}
 
-	void enqueueUnmatch(PairNode unmatch) {
+	void enqueueUnmatch(Node unmatch) {
 		unmatchedQueue.add(unmatch);
 		session.debugLog.unmatchEnqueued(unmatch);
 	}
 
-	PairNode dequeueUnmatch() {
-		PairNode unmatch = unmatchedQueue.remove();
+	Node dequeueUnmatch() {
+		Node unmatch = unmatchedQueue.remove();
 		session.debugLog.unmatchDequeued(unmatch);
 		return unmatch;
 	}

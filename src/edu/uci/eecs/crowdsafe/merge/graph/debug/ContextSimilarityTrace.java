@@ -26,7 +26,7 @@ public class ContextSimilarityTrace {
 	public void printTrace() {
 		for (int i = index; i >= 0; i--) {
 			MatchingInstance inst = traces.get(i);
-			Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey);
+			Log.log(inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey);
 		}
 	}
 }

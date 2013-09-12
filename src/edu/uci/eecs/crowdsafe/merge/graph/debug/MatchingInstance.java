@@ -9,14 +9,12 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
  * 
  */
 public class MatchingInstance {
-	public final int level;
 	public final Node.Key leftKey, rightKey;
 	public final MatchingType matchingType;
 	public final Node.Key parentKey;
 
-	public MatchingInstance(int level, Node.Key leftKey, Node.Key rightKey, MatchingType matchingType,
+	public MatchingInstance(Node.Key leftKey, Node.Key rightKey, MatchingType matchingType,
 			Node.Key parentKey) {
-		this.level = level;
 		this.leftKey = leftKey;
 		this.rightKey = rightKey;
 		this.matchingType = matchingType;

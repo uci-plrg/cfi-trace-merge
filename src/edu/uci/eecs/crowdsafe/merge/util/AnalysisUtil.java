@@ -267,6 +267,8 @@ public class AnalysisUtil {
 		for (ExecutionNode leftNode : left.getGraphData().nodesByKey.values()) {
 			if (leftNode.getTagVersion() > 0)
 				continue; // can't be sure about these re-written things
+			if (leftNode.getKey().module.unit.isDynamic())
+				continue; // make no assumptions about these
 			ExecutionNode rightNode = right.getGraphData().nodesByKey.get(leftNode.getKey());
 			if (rightNode == null) {
 				continue;

@@ -2,7 +2,6 @@ package edu.uci.eecs.crowdsafe.merge.graph.data;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeSet;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
@@ -44,16 +43,24 @@ public class MergedNode extends Node<MergedNode> {
 
 	private final Key key;
 
+	private final MergedModule module;
+	
 	private final MetaNodeType type;
 
-	MergedNode(long hash, int instanceId, MetaNodeType type) {
+	MergedNode(long hash, int instanceId, MergedModule module, MetaNodeType type) {
 		this.key = new Key(hash, instanceId);
+		this.module = module;
 		this.type = type;
 	}
 
 	@Override
 	public MergedNode.Key getKey() {
 		return key;
+	}
+	
+	@Override
+	public MergedModule getModule() {
+		return module;
 	}
 
 	public MetaNodeType getType() {

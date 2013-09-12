@@ -1,41 +1,37 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
+import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
 public class PairNode {
-	private Node node1, node2;
+	public enum MatchType {
+		ENTRY_POINT,
+		DIRECT_BRANCH,
+		INDIRECT_BRANCH,
+		HEURISTIC
+	}
+
+	private Node leftNode, rightNode;
+	public final MatchType type;
+
 	// The level of the BFS traverse
-	public final int level;
-	// Marker for whether this node should be matched anymore
-	// It's only used in unmatched queue
-	public final boolean neverMatched;
 
-	public PairNode(Node node1, Node node2, int level) {
-		this.node1 = node1;
-		this.node2 = node2;
-		this.level = level;
-		this.neverMatched = false;
-	}
-
-	public PairNode(Node node1, Node node2, int level, boolean neverMatched) {
-		this.node1 = node1;
-		this.node2 = node2;
-		this.level = level;
-		this.neverMatched = neverMatched;
-	}
-
-	public String toString() {
-		String node1Str = node1 == null ? "null" : node1.getKey().toString(), node2Str = node2 == null ? "null" : node2
-				.getKey().toString();
-		return node1Str + "<->" + node2Str;
+	public PairNode(Node node1, Node node2, MatchType type) {
+		this.leftNode = node1;
+		this.rightNode = node2;
+		this.type = type;
 	}
 
 	public Node getLeftNode() {
-		return node1;
+		return leftNode;
 	}
 
 	public Node getRightNode() {
-		return node2;
+		return rightNode;
+	}
+
+	public boolean isValid() {
+		return !leftNode.isModuleRelativeMismatch(rightNode);
 	}
 
 	public boolean equals(Object o) {
@@ -44,13 +40,19 @@ public class PairNode {
 		if (o.getClass() != PairNode.class)
 			return false;
 		PairNode pairNode = (PairNode) o;
-		if (pairNode.node1.equals(node1) && pairNode.node2.equals(node2))
+		if (pairNode.leftNode.equals(leftNode) && pairNode.rightNode.equals(rightNode))
 			return true;
 		else
 			return false;
 	}
 
 	public int hashCode() {
-		return node1.hashCode() << 5 ^ node2.hashCode();
+		return leftNode.hashCode() << 5 ^ rightNode.hashCode();
+	}
+
+	public String toString() {
+		String node1Str = leftNode == null ? "null" : leftNode.getKey().toString(), node2Str = rightNode == null ? "null"
+				: rightNode.getKey().toString();
+		return node1Str + "<->" + node2Str;
 	}
 }

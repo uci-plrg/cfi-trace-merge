@@ -3,7 +3,6 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.eecs.crowdsafe.common.MutableInteger;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
@@ -11,6 +10,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.ContextMatchRecord.EdgeMatchType;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
@@ -75,7 +75,7 @@ public class GraphMatchEngine {
 					return;
 				}
 				// Check if leftEdge.toNode was already matched to another node; if so, fail
-				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()) 
+				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey())
 						&& !session.matchedNodes.hasPair(leftEdge.getToNode().getKey(), rightEdge.getToNode().getKey())) {
 					session.contextRecord.fail();
 					return;
@@ -189,6 +189,18 @@ public class GraphMatchEngine {
 		for (int i = 0; i < leftNodes.size(); i++) {
 			Node leftNode = leftNodes.get(i);
 
+			if (leftNode.getType() == MetaNodeType.CLUSTER_EXIT)
+				continue;
+
+			if (leftNode.isModuleRelativeEquivalent(rightNode)) {
+				if (session.matchedNodes.containsLeftKey(leftNode.getKey()))
+					continue; // doh!
+				return leftNode;
+			}
+
+			if (!leftNode.getModule().isEquivalent(rightNode.getModule()))
+				continue;
+
 			// If the node is already merged, skip it
 			if (session.matchedNodes.containsLeftKey(leftNode.getKey()))
 				continue;
@@ -202,8 +214,10 @@ public class GraphMatchEngine {
 			session.contextRecord.reset(leftNode, rightNode);
 			getContextSimilarity(leftNode, rightNode, PURE_SEARCH_DEPTH);
 			if (session.acceptContext(leftNode)) {
-				if ((leftNode.getType() != MetaNodeType.CLUSTER_EXIT) || !leftCandidates.contains(leftNode))
-					leftCandidates.add(leftNode);
+				if (leftNode.isModuleRelativeMismatch(rightNode))
+					Log.log("Mismatch candidate %s accepted for %s with score %d", leftNode, rightNode,
+							session.getScore(leftNode));
+				leftCandidates.add(leftNode);
 			}
 		}
 
@@ -274,6 +288,8 @@ public class GraphMatchEngine {
 			throws WrongEdgeTypeException {
 		Node rightToNode = rightEdge.getToNode();
 
+		session.debugLog.checkUnmatchedEntryPoint(rightToNode);
+
 		if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
 			Edge<? extends Node> callContinuation = leftParent.getCallContinuation();
 			if (callContinuation != null) {
@@ -303,7 +319,9 @@ public class GraphMatchEngine {
 				if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
 
 					if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()))
-						return leftEdge.getToNode();
+						continue;
+					// && leftEdge.getEdgeType() != EdgeType.MODULE_ENTRY)
+					// return leftEdge.getToNode();
 
 					switch (leftEdge.getEdgeType()) {
 						case DIRECT:
@@ -408,34 +426,29 @@ public class GraphMatchEngine {
 		}
 
 		List<Node> leftCandidates = new ArrayList<Node>();
-
 		for (Edge<? extends Node> leftParentEdge : leftParentNode.getOutgoingEdges(rightEdge.getOrdinal())) {
-			if (leftParentEdge.getEdgeType() == rightEdge.getEdgeType()) {
-				if (leftParentEdge.getToNode().getHash() == rightToNode.getHash()) {
-					if (session.matchedNodes.containsLeftKey(leftParentEdge.getToNode().getKey()))
-						continue;
+			Node leftChild = leftParentEdge.getToNode();
+			if (leftChild.isModuleRelativeEquivalent(rightToNode)) {
+				if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
+					continue; // doh!
+				return leftChild;
+			}
+			if ((leftChild.getHash() == rightToNode.getHash())
+					&& leftChild.getModule().isEquivalent(rightToNode.getModule())) {
+				if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
+					continue;
 
-					int score = -1;
-
-					if (DebugUtils.debug) {
-						DebugUtils.searchDepth = INDIRECT_SEARCH_DEPTH;
-					}
-					// hash -8462398108006783394 [0x8a8f85c1a851665e]
-					// if (leftParentNode.getHash() == 0x2ae4fb2c244e43e2L)
-					// System.out.println("check it");
-					session.contextRecord.reset(leftParentEdge.getToNode(), rightToNode);
-					getContextSimilarity(leftParentEdge.getToNode(), rightToNode, INDIRECT_SEARCH_DEPTH);
-					if (session.acceptContext(leftParentEdge.getToNode())) {
-						leftCandidates.add(leftParentEdge.getToNode());
-					}
+				if (DebugUtils.debug) {
+					DebugUtils.searchDepth = INDIRECT_SEARCH_DEPTH;
 				}
-			} else {
-				return null;
-				/*
-				 * ExecutionNode lp = (ExecutionNode) leftParentNode; Edge<ExecutionNode> lpe = (Edge<ExecutionNode>)
-				 * leftParentEdge; String msg = String.format("%s -> %s (%s -> %s)", lp, lpe.getToNode(),
-				 * leftParentEdge.getEdgeType(), rightEdge.getEdgeType()); throw new WrongEdgeTypeException(msg);
-				 */
+				session.contextRecord.reset(leftChild, rightToNode);
+				getContextSimilarity(leftChild, rightToNode, INDIRECT_SEARCH_DEPTH);
+				if (session.acceptContext(leftChild)) {
+					if (leftChild.isModuleRelativeMismatch(rightToNode))
+						Log.log("Mismatch candidate %s accepted for %s with score %d", leftChild, rightToNode,
+								session.getScore(leftChild));
+					leftCandidates.add(leftChild);
+				}
 			}
 		}
 

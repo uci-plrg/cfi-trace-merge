@@ -1,19 +1,17 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
+import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
 import edu.uci.eecs.crowdsafe.merge.graph.data.MergedNode;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
@@ -63,42 +61,13 @@ class GraphMergeEngine {
 
 	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622", 16).longValue();
 	private static final long beginHash = 0x5eee92;
-	private final List<Long> unmatchedEntryPoints = new ArrayList<Long>();
 
 	public GraphMergeEngine(ClusterMergeSession session) {
 		this.session = session;
 		matcher = new GraphMatchEngine(session);
-
-		// unmatchedEntryPoints.add(0x8f9bL);
-		// unmatchedEntryPoints.add(0xd850L);
-		// unmatchedEntryPoints.add(0x1181fL);
-		// unmatchedEntryPoints.add(0x11235L);
-		// unmatchedEntryPoints.add(0xcb5cL);
-		// unmatchedEntryPoints.add(0xdee8L);
-		// unmatchedEntryPoints.add(0xdf68L);
-		// unmatchedEntryPoints.add(0x6a7fL);
-		// unmatchedEntryPoints.add(0xfd84L);
-		// unmatchedEntryPoints.add(0xfcdeL);
-		// unmatchedEntryPoints.add(0xe131L);
-		// unmatchedEntryPoints.add(0xe0d7L);
-		// unmatchedEntryPoints.add(0x69b9L);
-		// unmatchedEntryPoints.add(0x62b7L);
-		// unmatchedEntryPoints.add(0xc8c8L);
-		// unmatchedEntryPoints.add(0xff25L);
-		// unmatchedEntryPoints.add(0xe0d4L);
 	}
 
-	/**
-	 * <pre>
-	private void  checkUnmatchedEntryPoint(Node node) {
-		ExecutionNode executionNode = (ExecutionNode) node;
-		if (unmatchedEntryPoints.contains(executionNode.getKey().relativeTag)
-				&& (executionNode.getModule().unit.name.equals("kernelbase.dll")))
-			System.out.println("wait!");
-	}
-	 */
-
-	protected void addUnmatchedNode2Queue(Node rightNode, int level) {
+	protected void addUnmatchedNode2Queue(Node rightNode) {
 		if (rightNode == null) {
 			throw new NullPointerException("There is a bug here!");
 		}
@@ -106,9 +75,9 @@ class GraphMergeEngine {
 		if (session.right.visitedAsUnmatched.contains(rightNode))
 			return;
 
-		// checkUnmatchedEntryPoint(rightNode);
+		session.debugLog.checkUnmatchedEntryPoint(rightNode);
 		session.right.visitedAsUnmatched.add(rightNode);
-		session.matchState.enqueueUnmatch(new PairNode(null, rightNode, level));
+		session.matchState.enqueueUnmatch(rightNode);
 	}
 
 	public void mergeGraph() throws WrongEdgeTypeException {
@@ -153,8 +122,8 @@ class GraphMergeEngine {
 
 		Node<? extends Node> leftNode = pairNode.getLeftNode();
 		Node<? extends Node> rightNode = pairNode.getRightNode();
-		// checkUnmatchedEntryPoint(leftNode);
-		// checkUnmatchedEntryPoint(rightNode);
+		session.debugLog.checkUnmatchedEntryPoint(leftNode);
+		session.debugLog.checkUnmatchedEntryPoint(rightNode);
 
 		for (Edge<? extends Node> rightEdge : rightNode.getOutgoingEdges()) {
 			if (session.right.visitedEdges.contains(rightEdge))
@@ -177,7 +146,7 @@ class GraphMergeEngine {
 							continue;
 
 						session.matchState.enqueueMatch(new PairNode(leftChild, rightEdge.getToNode(),
-								pairNode.level + 1));
+								MatchType.DIRECT_BRANCH));
 
 						// Update matched relationship
 						if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
@@ -190,15 +159,14 @@ class GraphMergeEngine {
 							DebugUtils.debug_directUnmatchedCnt++;
 						}
 
-						addUnmatchedNode2Queue(rightEdge.getToNode(), pairNode.level + 1);
+						addUnmatchedNode2Queue(rightEdge.getToNode());
 					}
 					break;
 				default:
 					// Add the indirect node to the queue
 					// to delay its matching
 					if (!session.matchedNodes.containsRightKey(rightEdge.getToNode().getKey())) {
-						session.matchState.enqueueIndirectEdge(new PairNodeEdge(leftNode, rightEdge, rightNode,
-								pairNode.level));
+						session.matchState.enqueueIndirectEdge(new PairNodeEdge(leftNode, rightEdge, rightNode));
 					}
 			}
 		}
@@ -208,13 +176,13 @@ class GraphMergeEngine {
 		PairNodeEdge nodeEdgePair = session.matchState.dequeueIndirectEdge();
 		Node leftParentNode = nodeEdgePair.getLeftParentNode();
 		Edge<? extends Node> rightEdge = nodeEdgePair.getRightEdge();
-		// checkUnmatchedEntryPoint(leftParentNode);
-		// checkUnmatchedEntryPoint(rightEdge.getToNode());
+		session.debugLog.checkUnmatchedEntryPoint(leftParentNode);
+		session.debugLog.checkUnmatchedEntryPoint(rightEdge.getToNode());
 		session.right.visitedEdges.add(rightEdge);
 
 		Node leftChild = matcher.getCorrespondingIndirectChildNode(leftParentNode, rightEdge);
 		if (leftChild != null) {
-			session.matchState.enqueueMatch(new PairNode(leftChild, rightEdge.getToNode(), nodeEdgePair.level + 1));
+			session.matchState.enqueueMatch(new PairNode(leftChild, rightEdge.getToNode(), MatchType.INDIRECT_BRANCH));
 
 			// Update matched relationship
 			if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
@@ -230,25 +198,19 @@ class GraphMergeEngine {
 				DebugUtils.debug_indirectHeuristicUnmatchedCnt++;
 			}
 
-			addUnmatchedNode2Queue(rightEdge.getToNode(), nodeEdgePair.level + 1);
+			addUnmatchedNode2Queue(rightEdge.getToNode());
 		}
 	}
 
 	private void exploreHeuristicMatch() {
-		PairNode pairNode = session.matchState.dequeueUnmatch();
-		Node<? extends Node> rightNode = pairNode.getRightNode();
+		Node<?> rightNode = session.matchState.dequeueUnmatch();
 
-		Node leftChild = null;
-		// For nodes that are already known not to match,
-		// simply don't match them
-		if (!pairNode.neverMatched) {
-			leftChild = matcher.matchByHashThenContext(rightNode);
-		}
+		session.debugLog.checkUnmatchedEntryPoint(rightNode);
 
+		Node leftChild = matcher.matchByHashThenContext(rightNode);
 		if (leftChild != null) {
-			session.debugLog.heuristicMatch(pairNode, leftChild);
-
-			session.matchState.enqueueMatch(new PairNode(leftChild, rightNode, pairNode.level, true));
+			session.debugLog.heuristicMatch(rightNode, leftChild);
+			session.matchState.enqueueMatch(new PairNode(leftChild, rightNode, MatchType.HEURISTIC));
 		} else {
 			// Simply push unvisited neighbors to unmatchedQueue
 			for (int k = 0; k < rightNode.getOutgoingEdges().size(); k++) {
@@ -256,9 +218,8 @@ class GraphMergeEngine {
 				if (session.right.visitedEdges.contains(rightEdge))
 					continue;
 
-				addUnmatchedNode2Queue(rightEdge.getToNode(), pairNode.level + 1);
+				addUnmatchedNode2Queue(rightEdge.getToNode());
 			}
-			// checkUnmatchedEntryPoint(rightNode);
 		}
 	}
 
@@ -267,7 +228,8 @@ class GraphMergeEngine {
 
 		// Copy nodes from left
 		for (Node leftNode : session.left.cluster.getGraphData().nodesByKey.values()) {
-			MergedNode mergedNode = session.mergedGraph.addNode(leftNode.getHash(), leftNode.getType());
+			MergedNode mergedNode = session.mergedGraph.addNode(leftNode.getHash(), leftNode.getModule(),
+					leftNode.getType());
 			leftNode2MergedNode.put(leftNode, mergedNode);
 			session.debugLog.nodeMergedFromLeft(leftNode);
 		}
@@ -291,7 +253,8 @@ class GraphMergeEngine {
 		Map<Node, MergedNode> rightNode2MergedNode = new HashMap<Node, MergedNode>();
 		for (Node rightNode : session.right.cluster.getGraphData().nodesByKey.values()) {
 			if (!session.matchedNodes.containsRightKey(rightNode.getKey())) {
-				MergedNode mergedNode = session.mergedGraph.addNode(rightNode.getHash(), rightNode.getType());
+				MergedNode mergedNode = session.mergedGraph.addNode(rightNode.getHash(), rightNode.getModule(),
+						rightNode.getType());
 				rightNode2MergedNode.put(rightNode, mergedNode);
 				session.debugLog.nodeMergedFromRight(rightNode);
 			}

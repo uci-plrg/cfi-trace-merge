@@ -1,6 +1,8 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
@@ -74,18 +76,17 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 
 	private final Set<TrackedNodeKey> trackedNodes = new HashSet<TrackedNodeKey>();
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
+	private final List<Long> unmatchedEntryPoints = new ArrayList<Long>();
 
 	public GraphMergeDebug() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
-		// kernelbase.dll(0x8f9b-v0|0x5432162d15) (missed)
-		// trackedNodes.add(new TrackedNodeKey(0xf9b, 0x5432162d15L));
+		// shell32.dll(0x1ac59c-v0|0x380ddc8bc5ee128b) (missed)
+		// trackedNodes.add(new TrackedNodeKey(0x59c, 0x380ddc8bc5ee128bL));
 
-		// kernelbase.dll(0xd850-v0|0x1cfef59cd2)
-		// trackedNodes.add(new TrackedNodeKey(0x850, 0x1cfef59cd2L));
-
-		// kernel32.dll(0x47335-v0|0x368189a1f)
-		// trackedNodes.add(new TrackedNodeKey(0x335, 0x368189a1fL));
+		// unmatchedEntryPoints.add(0x1181fL);
+		// unmatchedEntryPoints.add(0x11235L);
+		// unmatchedEntryPoints.add(0x1ac59cL);
 	}
 
 	void setSession(ClusterMergeSession session) {
@@ -128,8 +129,8 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		if (DebugUtils.debug) {
 			MatchingType matchType = rightEdge.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
 					: MatchingType.CallingContinuation;
-			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(pairNode.level, leftChild.getKey(),
-					rightEdge.getToNode().getKey(), matchType, rightEdge.getToNode().getKey()));
+			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(leftChild.getKey(), rightEdge.getToNode()
+					.getKey(), matchType, rightEdge.getToNode().getKey()));
 		}
 
 		if (DebugUtils.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
@@ -142,9 +143,8 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 
 	void indirectMatch(PairNodeEdge nodeEdgePair, Edge<? extends Node> rightEdge, Node leftChild) {
 		if (DebugUtils.debug) {
-			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(nodeEdgePair.level, leftChild.getKey(),
-					rightEdge.getToNode().getKey(), MatchingType.IndirectBranch, nodeEdgePair.getRightParentNode()
-							.getKey()));
+			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(leftChild.getKey(), rightEdge.getToNode()
+					.getKey(), MatchingType.IndirectBranch, nodeEdgePair.getRightParentNode().getKey()));
 		}
 
 		if (DebugUtils.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
@@ -157,7 +157,9 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		}
 	}
 
-	void heuristicMatch(PairNode pairNode, Node leftChild) {
+	void heuristicMatch(Node rightNode, Node leftChild) {
+		/**
+		 * <pre>
 		if (DebugUtils.debug) {
 			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(pairNode.level, leftChild.getKey(),
 					pairNode.getRightNode().getKey(), MatchingType.PureHeuristic, null));
@@ -169,6 +171,14 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 			Log.log("PureHeuristic: " + leftChild.getKey() + "<->" + pairNode.getRightNode().getKey()
 					+ "(by pure heuristic)");
 		}
+		 */
+	}
+
+	void checkUnmatchedEntryPoint(Node node) {
+		ExecutionNode executionNode = (ExecutionNode) node;
+		if (unmatchedEntryPoints.contains(executionNode.getKey().relativeTag)
+				&& executionNode.getModule().unit.filename.equals("shell32.dll"))
+			node.getClass();// System.out.println("wait!");
 	}
 
 	private boolean isTracked(Node node) {
@@ -193,14 +203,14 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 			Log.log("Dequeue matched pair %s and %s", match.getLeftNode(), match.getRightNode());
 	}
 
-	void unmatchEnqueued(PairNode unmatch) {
-		if (isTracked(unmatch.getLeftNode()) || isTracked(unmatch.getRightNode()))
-			Log.log("Enqueue unmatched pair %s and %s", unmatch.getLeftNode(), unmatch.getRightNode());
+	void unmatchEnqueued(Node unmatch) {
+		if (isTracked(unmatch))
+			Log.log("Enqueue unmatched node %s", unmatch);
 	}
 
-	void unmatchDequeued(PairNode unmatch) {
-		if (isTracked(unmatch.getLeftNode()) || isTracked(unmatch.getRightNode()))
-			Log.log("Dequeue unmatched pair %s and %s", unmatch.getLeftNode(), unmatch.getRightNode());
+	void unmatchDequeued(Node unmatch) {
+		if (isTracked(unmatch))
+			Log.log("Dequeue unmatched node %s", unmatch);
 	}
 
 	void indirectEdgeEnqueued(PairNodeEdge rightEdge) {

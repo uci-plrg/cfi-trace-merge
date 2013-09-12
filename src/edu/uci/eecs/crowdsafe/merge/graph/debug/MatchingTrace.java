@@ -25,21 +25,21 @@ public class MatchingTrace {
 
 	public void printTrace(int index) {
 		MatchingInstance inst = key2MatchingInstance.get(index);
-		Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey);
+		Log.log(inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey);
 		while (inst.parentKey != null) {
 			inst = key2MatchingInstance.get(inst.parentKey);
 			MatchingInstance parentInst = key2MatchingInstance.get(inst.parentKey);
 			Node.Key leftParentKey = parentInst == null ? null : parentInst.leftKey;
 			Node.Key parentIdx2 = parentInst == null ? null : parentInst.rightKey;
-			Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey + "(By "
-					+ leftParentKey + "<->" + parentIdx2 + ")");
+			Log.log(inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey + "(By " + leftParentKey + "<->"
+					+ parentIdx2 + ")");
 		}
 	}
 
 	public void printTrace() {
 		for (int i = 0; i < matchingInstances.size(); i++) {
 			MatchingInstance inst = matchingInstances.get(i);
-			Log.log(inst.level + ":" + inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey);
+			Log.log(inst.matchingType + ":" + inst.leftKey + "<->" + inst.rightKey);
 		}
 	}
 

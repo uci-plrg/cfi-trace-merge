@@ -161,8 +161,10 @@ public class ContextMatchRecord {
 		if (currentState.complete) {
 			if (currentState.reachedTargetDepth)
 				return 10000;
-			else
+			else if (currentState.reachedTargetDepth)
 				return 1000;
+			else
+				return currentState.matchedNodeCount * 3;
 		}
 
 		if (currentState.reachedTargetDepth) {
