@@ -75,7 +75,7 @@ class GraphMergeEngine {
 		if (session.right.visitedAsUnmatched.contains(rightNode))
 			return;
 
-		session.debugLog.checkUnmatchedEntryPoint(rightNode);
+		session.debugLog.debugCheck(rightNode);
 		session.right.visitedAsUnmatched.add(rightNode);
 		session.matchState.enqueueUnmatch(rightNode);
 	}
@@ -122,8 +122,8 @@ class GraphMergeEngine {
 
 		Node<? extends Node> leftNode = pairNode.getLeftNode();
 		Node<? extends Node> rightNode = pairNode.getRightNode();
-		session.debugLog.checkUnmatchedEntryPoint(leftNode);
-		session.debugLog.checkUnmatchedEntryPoint(rightNode);
+		session.debugLog.debugCheck(leftNode);
+		session.debugLog.debugCheck(rightNode);
 
 		for (Edge<? extends Node> rightEdge : rightNode.getOutgoingEdges()) {
 			if (session.right.visitedEdges.contains(rightEdge))
@@ -143,7 +143,7 @@ class GraphMergeEngine {
 
 					if (leftChild != null) {
 						if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
-							continue;
+							continue; // session.matchedNodes.containsLeftKey(rightEdge.getToNode().getKey())
 
 						session.matchState.enqueueMatch(new PairNode(leftChild, rightEdge.getToNode(),
 								MatchType.DIRECT_BRANCH));
@@ -176,8 +176,8 @@ class GraphMergeEngine {
 		PairNodeEdge nodeEdgePair = session.matchState.dequeueIndirectEdge();
 		Node leftParentNode = nodeEdgePair.getLeftParentNode();
 		Edge<? extends Node> rightEdge = nodeEdgePair.getRightEdge();
-		session.debugLog.checkUnmatchedEntryPoint(leftParentNode);
-		session.debugLog.checkUnmatchedEntryPoint(rightEdge.getToNode());
+		session.debugLog.debugCheck(leftParentNode);
+		session.debugLog.debugCheck(rightEdge.getToNode());
 		session.right.visitedEdges.add(rightEdge);
 
 		Node leftChild = matcher.getCorrespondingIndirectChildNode(leftParentNode, rightEdge);
@@ -205,7 +205,7 @@ class GraphMergeEngine {
 	private void exploreHeuristicMatch() {
 		Node<?> rightNode = session.matchState.dequeueUnmatch();
 
-		session.debugLog.checkUnmatchedEntryPoint(rightNode);
+		session.debugLog.debugCheck(rightNode);
 
 		Node leftChild = matcher.matchByHashThenContext(rightNode);
 		if (leftChild != null) {
@@ -228,6 +228,7 @@ class GraphMergeEngine {
 
 		// Copy nodes from left
 		for (Node leftNode : session.left.cluster.getGraphData().nodesByKey.values()) {
+			session.debugLog.debugCheck(leftNode);
 			MergedNode mergedNode = session.mergedGraph.addNode(leftNode.getHash(), leftNode.getModule(),
 					leftNode.getType());
 			leftNode2MergedNode.put(leftNode, mergedNode);

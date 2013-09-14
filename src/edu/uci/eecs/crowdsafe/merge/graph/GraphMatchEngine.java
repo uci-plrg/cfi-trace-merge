@@ -40,8 +40,16 @@ public class GraphMatchEngine {
 	}
 
 	public void getContextSimilarity(Node<? extends Node> leftNode, Node<? extends Node> rightNode, int depth) {
+		// Check if either node was already matched to another node; if so, fail
+		if ((session.matchedNodes.containsLeftKey(leftNode.getKey()) || session.matchedNodes.containsRightKey(rightNode
+				.getKey())) && !session.matchedNodes.hasPair(leftNode.getKey(), rightNode.getKey())) {
+			session.contextRecord.fail();
+			return;
+		}
+
 		if (depth <= 0)
 			return;
+
 		// In order to avoid cyclic graph
 		if (session.contextRecord.isAlreadyCompared(rightNode))
 			return;
@@ -73,13 +81,6 @@ public class GraphMatchEngine {
 				if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
 					session.contextRecord.fail();
 					return;
-				}
-				// Check if leftEdge.toNode was already matched to another node; if so, fail
-				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey())
-						&& !session.matchedNodes.hasPair(leftEdge.getToNode().getKey(), rightEdge.getToNode().getKey())) {
-					session.contextRecord.fail();
-					return;
-					// debug investigation: session.matchedNodes.getMatchByLeftKey(leftEdge.getToNode().getKey())
 				}
 				getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
 				if (session.contextRecord.isFailed())
@@ -288,7 +289,7 @@ public class GraphMatchEngine {
 			throws WrongEdgeTypeException {
 		Node rightToNode = rightEdge.getToNode();
 
-		session.debugLog.checkUnmatchedEntryPoint(rightToNode);
+		session.debugLog.debugCheck(rightToNode);
 
 		if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
 			Edge<? extends Node> callContinuation = leftParent.getCallContinuation();

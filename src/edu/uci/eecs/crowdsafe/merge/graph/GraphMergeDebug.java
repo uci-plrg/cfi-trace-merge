@@ -76,17 +76,17 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 
 	private final Set<TrackedNodeKey> trackedNodes = new HashSet<TrackedNodeKey>();
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
-	private final List<Long> unmatchedEntryPoints = new ArrayList<Long>();
+	private final List<Long> debugRelativeTags = new ArrayList<Long>();
 
 	public GraphMergeDebug() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
+		// shell32.dll(0x12ed32-v0|0xb5d)
 		// shell32.dll(0x1ac59c-v0|0x380ddc8bc5ee128b) (missed)
-		// trackedNodes.add(new TrackedNodeKey(0x59c, 0x380ddc8bc5ee128bL));
+		// trackedNodes.add(new TrackedNodeKey(0xd32, 0xb5d));
 
-		// unmatchedEntryPoints.add(0x1181fL);
-		// unmatchedEntryPoints.add(0x11235L);
-		// unmatchedEntryPoints.add(0x1ac59cL);
+		// shell32.dll(0x936fe-v0|0x11b8963216d79f)
+		// debugRelativeTags.add(0x936feL);
 	}
 
 	void setSession(ClusterMergeSession session) {
@@ -174,11 +174,11 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		 */
 	}
 
-	void checkUnmatchedEntryPoint(Node node) {
+	void debugCheck(Node node) {
 		ExecutionNode executionNode = (ExecutionNode) node;
-		if (unmatchedEntryPoints.contains(executionNode.getKey().relativeTag)
+		if (debugRelativeTags.contains(executionNode.getKey().relativeTag)
 				&& executionNode.getModule().unit.filename.equals("shell32.dll"))
-			node.getClass();// System.out.println("wait!");
+			node.getClass();
 	}
 
 	private boolean isTracked(Node node) {

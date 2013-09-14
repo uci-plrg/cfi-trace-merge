@@ -100,8 +100,8 @@ public class ClusterMergeSession {
 				ExecutionNode leftNode = leftEntryPoints.get(sigHash);
 				ExecutionNode rightNode = rightEntryPoints.get(sigHash);
 
-				debugLog.checkUnmatchedEntryPoint(leftNode);
-				debugLog.checkUnmatchedEntryPoint(rightNode);
+				debugLog.debugCheck(leftNode);
+				debugLog.debugCheck(rightNode);
 
 				if (leftNode.hasCompatibleEdges(rightNode)) {
 					matchState.enqueueMatch(new PairNode(leftNode, rightNode, MatchType.ENTRY_POINT));

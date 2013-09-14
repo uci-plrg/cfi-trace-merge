@@ -131,6 +131,9 @@ public class GraphMergeResults {
 				}
 				boolean joined = false;
 				Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(missed);
+				if (missedNode == null) {
+					missedNode = session.right.cluster.getGraphData().nodesByKey.get(missed);
+				}
 				for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
 					if (!leftMissed.contains(out.getToNode().getKey()))
 						continue;

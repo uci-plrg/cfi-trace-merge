@@ -57,7 +57,7 @@ public class MatchedNodes {
 		if (!matchedNodesLeftRight.containsKey(leftKey)) {
 			return false;
 		}
-		return matchedNodesLeftRight.get(leftKey) == rightKey;
+		return matchedNodesLeftRight.get(leftKey).equals(rightKey);
 	}
 
 	public boolean addPair(Node left, Node right, int score) {
