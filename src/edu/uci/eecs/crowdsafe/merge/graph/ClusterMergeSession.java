@@ -209,6 +209,11 @@ public class ClusterMergeSession {
 
 			for (ModuleGraphCluster leftCluster : leftGraph.getAutonomousClusters()) {
 				ModuleGraphCluster rightCluster = rightGraph.getModuleGraphCluster(leftCluster.distribution);
+				if (rightCluster == null) {
+					Log.log("Skipping cluster %s because it does not appear in the right side.",
+							leftCluster.distribution.name);
+					continue;
+				}
 
 				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
 					AnalysisUtil.filteroutImmeAddr(leftCluster, rightCluster);
