@@ -1,36 +1,27 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
 
-import edu.uci.eecs.crowdsafe.common.config.CrowdSafeConfiguration;
-import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
-import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceStreamType;
-import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
 import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
-import edu.uci.eecs.crowdsafe.merge.graph.main.GraphMergeEngine;
-import gnu.getopt.Getopt;
 
 public class ClusterMergeSession {
+
+	public static void mergeTwoGraphs(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeResults results,
+			GraphMergeDebug debugLog) {
+		ClusterMergeSession session = new ClusterMergeSession(left, right, results, debugLog);
+
+		GraphMergeEngine engine = new GraphMergeEngine(session);
+		engine.mergeGraph();
+		session.results.clusterMergeCompleted();
+	}
 
 	enum State {
 		INITIALIZATION,
@@ -147,11 +138,5 @@ public class ClusterMergeSession {
 		if (score != null)
 			return score;
 		return 0;
-	}
-
-	public void mergeTwoGraphs() {
-		GraphMergeEngine engine = new GraphMergeEngine(this);
-		engine.mergeGraph();
-		results.clusterMergeCompleted();
 	}
 }

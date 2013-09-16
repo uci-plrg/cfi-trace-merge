@@ -18,6 +18,7 @@ import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceStreamType;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
+import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.merge.graph.ClusterMergeSession;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeDebug;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeResults;
@@ -29,49 +30,42 @@ public class MergeTwoExecutionGraphs {
 			ProcessTraceStreamType.GRAPH_HASH, ProcessTraceStreamType.MODULE_GRAPH,
 			ProcessTraceStreamType.CROSS_MODULE_GRAPH);
 
-	void run(String[] args, int iterationCount) {
+	void run(ArgumentStack args, int iterationCount) {
+		boolean parsingArguments = true;
+
 		try {
-			int optionArgCount = 0;
 			String restrictedClusterArg = null;
 			String crowdSafeCommonDir = null;
-			try {
-				Getopt options = new Getopt("", args, "c:d:");
-				options.setOpterr(false);
-				int c;
-				while ((c = options.getopt()) != -1) {
-					switch ((char) c) {
-						case 'c':
-							restrictedClusterArg = options.getOptarg();
-							optionArgCount += 2;
-							break;
-						case 'd':
-							crowdSafeCommonDir = options.getOptarg();
-							optionArgCount += 2;
-							break;
-					}
+
+			Getopt options = args.parseOptions("c:d:");
+			int c;
+			while ((c = options.getopt()) != -1) {
+				switch ((char) c) {
+					case 'c':
+						restrictedClusterArg = options.getOptarg();
+						break;
+					case 'd':
+						crowdSafeCommonDir = options.getOptarg();
+						break;
 				}
-			} catch (Throwable t) {
-				printUsageAndExit();
 			}
 
+			args.popOptions();
+
+			String leftPath = args.pop();
+			String rightPath = args.pop();
+
 			File logFile = null;
-			if ((args.length - optionArgCount) > 2) {
-				try {
-					logFile = LogFile.create(args[optionArgCount + 2], LogFile.CollisionMode.AVOID,
-							LogFile.NoSuchPathMode.ERROR);
-					Log.addOutput(logFile);
-					System.out.println("Logging to " + logFile.getName());
-				} catch (LogFile.Exception e) {
-					e.printStackTrace(System.err);
-				}
+			if (args.size() > 0) {
+				logFile = LogFile.create(args.pop(), LogFile.CollisionMode.AVOID, LogFile.NoSuchPathMode.ERROR);
+				Log.addOutput(logFile);
+				System.out.println("Logging to " + logFile.getName());
 			} else {
+				System.out.println("Logging to system out");
 				Log.addOutput(System.out);
 			}
 
-			if ((args.length - optionArgCount) < 2) {
-				Log.log("Illegal arguments: please specify the two run directories as relative or absolute paths.");
-				printUsageAndExit();
-			}
+			parsingArguments = false;
 
 			CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
 			if (crowdSafeCommonDir == null) {
@@ -98,15 +92,15 @@ public class MergeTwoExecutionGraphs {
 				}
 			}
 
-			File leftRun = new File(args[optionArgCount]);
-			File rightRun = new File(args[optionArgCount + 1]);
+			File leftRun = new File(leftPath);
+			File rightRun = new File(rightPath);
 
 			if (!(leftRun.exists() && leftRun.isDirectory())) {
-				Log.log("Illegal argument '" + args[optionArgCount] + "'; no such directory.");
+				Log.log("Illegal argument '" + leftPath + "'; no such directory.");
 				printUsageAndExit();
 			}
 			if (!(rightRun.exists() && rightRun.isDirectory())) {
-				Log.log("Illegal argument '" + args[optionArgCount + 1] + "'; no such directory.");
+				Log.log("Illegal argument '" + rightPath + "'; no such directory.");
 				printUsageAndExit();
 			}
 
@@ -128,7 +122,9 @@ public class MergeTwoExecutionGraphs {
 			Log.log("\nGraph loaded in %f seconds.", ((merge - start) / 1000.));
 
 			for (int i = 0; i < iterationCount; i++) {
-				System.out.println("Entering merge loop iteration");
+				if (iterationCount > 1)
+					System.out.println("Entering merge loop iteration");
+
 				try {
 					for (ModuleGraphCluster leftCluster : leftGraph.getAutonomousClusters()) {
 						if (!clusterMergeSet.contains(leftCluster.distribution))
@@ -141,9 +137,7 @@ public class MergeTwoExecutionGraphs {
 							continue;
 						}
 
-						ClusterMergeSession session = new ClusterMergeSession(leftCluster, rightCluster, results,
-								debugLog);
-						session.mergeTwoGraphs();
+						ClusterMergeSession.mergeTwoGraphs(leftCluster, rightCluster, results, debugLog);
 					}
 				} catch (Throwable t) {
 					t.printStackTrace();
@@ -166,9 +160,14 @@ public class MergeTwoExecutionGraphs {
 				Log.log("Results logging skipped.");
 			}
 		} catch (Throwable t) {
-			Log.log("\t@@@@ Merge failed with %s @@@@", t.getClass().getSimpleName());
-			Log.log(t);
-			System.err.println(String.format("!! Merge failed with %s !!", t.getClass().getSimpleName()));
+			if (parsingArguments) {
+				t.printStackTrace();
+				printUsageAndExit();
+			} else {
+				Log.log("\t@@@@ Merge failed with %s @@@@", t.getClass().getSimpleName());
+				Log.log(t);
+				System.err.println(String.format("!! Merge failed with %s !!", t.getClass().getSimpleName()));
+			}
 		}
 	}
 
@@ -182,6 +181,6 @@ public class MergeTwoExecutionGraphs {
 
 	public static void main(String[] args) {
 		MergeTwoExecutionGraphs main = new MergeTwoExecutionGraphs();
-		main.run(args, 1);
+		main.run(new ArgumentStack(args), 1);
 	}
 }

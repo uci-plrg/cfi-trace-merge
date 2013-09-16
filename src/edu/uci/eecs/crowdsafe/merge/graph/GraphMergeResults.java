@@ -291,7 +291,7 @@ public class GraphMergeResults {
 		builder.results.setRight(rightGraph.summarizeProcess());
 	}
 
-	Merge.MergeResults getResults() {
+	public Merge.MergeResults getResults() {
 		return builder.results.build();
 	}
 
