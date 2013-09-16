@@ -8,15 +8,69 @@ function print_usage() {
   echo "    round-robin-merge <logdir> <run-listing> (file of <run-dir>*)"
   echo "    -r : resume (skip completed executions)"
   echo "    -v : verbose output"
+  echo "    -p : pair of run dirs, comparing runs of dir1 only with runs of dir2, never to other runs of dir1"
 }
 
 check_help $1 print_usage
 
-while getopts "rv" Option
+function merge() {
+  a=$1
+  b=$2
+  logfile=$logdir"/"$(basename $a)"~"$(basename $b)".merge.log"
+  [ ! -z $skip ] && [ -e $logfile ] && { [ ! -z $verbose ] && \
+    echo "Skipping completed merge "$logfile; continue; }
+
+  cs-merge $clusters $a $b $logfile
+}
+
+function universal_merge() {
+  targets=$1
+  runs=($(find -L $targets -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
+
+  echo "Found "${#runs[@]}" runs"
+  for ((i = 0; (i + 1) < ${#runs[@]}; i++))
+  do
+    if [ ${runs[$i]} == ${runs[$i+1]} ] 
+    then
+      echo "Multiple runs found in directory "${runs[$i]}
+      echo "Merging requires each run to be in its own directory"
+      exit
+    fi
+  done
+
+  for ((i = 0; (i + 1) < ${#runs[@]}; i++))
+  do
+    for ((j = ($i + 1); j < ${#runs[@]}; j++))
+    do
+      merge ${runs[$i]} ${runs[$j]}
+    done
+  done
+}
+
+function pair_merge() {
+  left=$1
+  right=$2
+
+  left_runs=($(find -L $left -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
+  right_runs=($(find -L $right -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
+
+  echo "Found "${#left_runs[@]}" runs on the left and "${#right_runs[@]}" runs on the right"
+  for ((i = 0; i < ${#left_runs[@]}; i++))
+  do
+    for ((j = 0; j < ${#right_runs[@]}; j++))
+    do
+      merge ${left_runs[$i]} ${right_runs[$j]}
+    done
+  done
+}
+
+while getopts "rvc:p" Option
 do
   case $Option in
     r ) skip=true;;
     v ) verbose=true;;
+    c ) clusters="-c "$OPTARG;;
+    p ) pairs=true;;
     * ) usage; exit;;
   esac
 done
@@ -25,37 +79,22 @@ shift $(($OPTIND - 1))
 logdir=${1%/}
 shift
 
-if [ -f "$1" ]
+if [ -z $pairs ]
 then
-  targets=$(cat $1)
+  if [ -f "$1" ]
+  then
+    targets=$(cat $1)
+  else
+    for d in $@
+    do
+      targets=$targets" "$d
+    done
+  fi
+  universal_merge $targets
 else
-  for d in $@
-  do
-    targets=$targets" "$d
-  done
+  [ ! -z $1 ] && [ ! -z $2 ] && [ -z $3 ] || \
+    { echo "Pair merging requires exactly two run directories. Exiting now" && exit 1; }
+  
+  pair_merge $1 $2
 fi
 
-runs=($(find -L $targets -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
-
-echo "Found "${#runs[@]}" runs"
-for ((i = 0; (i + 1) < ${#runs[@]}; i++))
-do
-  if [ ${runs[$i]} == ${runs[$i+1]} ] 
-  then
-    echo "Multiple runs found in directory "${runs[$i]}
-    echo "Merging requires each run to be in its own directory"
-    exit
-  fi
-done
-
-for ((i = 0; (i + 1) < ${#runs[@]}; i++))
-do
-  for ((j = ($i + 1); j < ${#runs[@]}; j++))
-  do
-    a=${runs[$i]}
-    b=${runs[$j]}
-    logfile=$logdir"/"`echo $a | egrep -o "[^\/]+$"`"~"`echo $b | egrep -o "[^\/]+$"`".merge.log"
-    [ ! -z $skip ] && [ -e $logfile ] && { [ ! -z $verbose ] && echo "Skipping completed merge "$logfile; continue; }
-    cs-merge $a $b $logfile
-  done
-done

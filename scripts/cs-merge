@@ -16,5 +16,5 @@ append_classpath "CROWD_SAFE_COMMON_DIR"
 
 main_class="edu.uci.eecs.crowdsafe.merge.graph.ClusterMergeSession"
 
-java -cp $cp $main_class $1 $2 $3
+java -cp $cp $main_class $@
   
