@@ -72,37 +72,6 @@ public class AnalysisUtil {
 		return runDirs;
 	}
 
-	public static ArrayList<String> getStringPerline(String filename) {
-		ArrayList<String> list = new ArrayList<String>();
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(filename));
-			String str = null;
-			while ((str = br.readLine()) != null) {
-				list.add(str);
-			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-
-	public static void saveStringPerline(String filename, ArrayList<String> list, boolean append) {
-		try {
-			PrintWriter pw = new PrintWriter(new FileOutputStream(filename, append));
-			for (String str : list) {
-				pw.println(str);
-			}
-			pw.flush();
-			pw.close();
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static Set<Long> minus(Set<Long> s1, Set<Long> s2) {
 		Set<Long> res = new HashSet<Long>(s1);
 		for (Long elem : s2)
@@ -131,69 +100,16 @@ public class AnalysisUtil {
 		return resSet;
 	}
 
-	public static Set<Long> mergeSet(File... hashFiles) {
-		Set<Long> resSet = new HashSet<Long>();
-		for (int i = 0; i < hashFiles.length; i++) {
-			resSet.addAll(loadHashFile(hashFiles[i]));
-		}
-		return resSet;
-	}
-
-	public static List<Long> loadHashFile(File hashFile) {
-		FileInputStream in = null;
-		FileChannel channel = null;
-		try {
-			in = new FileInputStream(hashFile);
-			channel = in.getChannel();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		ByteBuffer buffer = ByteBuffer.allocate(0x8);
-		buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-		ArrayList<Long> allInstances = new ArrayList<Long>();
-
-		try {
-			// int bytesLeft = in.available() / 8;
-			Long hashCode;
-			while (true) {
-				if (channel.read(buffer) < 0)
-					break;
-				buffer.flip();
-				hashCode = buffer.getLong();
-				buffer.compact();
-				allInstances.add(hashCode);
-			}
-		} catch (EOFException e) {
-			// end of line
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return allInstances;
-	}
-
-	public static Set<Long> loadHashSet(File hashFile) {
-		FileInputStream in = null;
-		FileChannel channel = null;
-		try {
-			in = new FileInputStream(hashFile);
-			channel = in.getChannel();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		ByteBuffer buffer = ByteBuffer.allocate(0x8);
-		buffer.order(ByteOrder.LITTLE_ENDIAN);
-
+	public static Set<Long> loadHashSet(File hashFile) throws IOException {
+		FileInputStream in = new FileInputStream(hashFile);
 		HashSet<Long> set = new HashSet<Long>();
 
 		try {
+			FileChannel channel = in.getChannel();
+
+			ByteBuffer buffer = ByteBuffer.allocate(0x8);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+
 			// int bytesLeft = in.available() / 8;
 			Long hashCode;
 			while (true) {
@@ -204,91 +120,10 @@ public class AnalysisUtil {
 				buffer.compact();
 				set.add(hashCode);
 			}
-		} catch (EOFException e) {
-			// end of line
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
+		} finally {
 			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		return set;
-	}
-
-	public static void writeSetToFile(File outputFile, Set<Long> hashset) {
-		try {
-			if (!outputFile.exists()) {
-				outputFile.createNewFile();
-			}
-
-			FileOutputStream outputStream = new FileOutputStream(outputFile, false);
-			DataOutputStream dataOutput = new DataOutputStream(outputStream);
-
-			Log.log("Start outputting hash set to " + outputFile.getAbsolutePath() + " file.");
-
-			Log.log("Finish outputting hash set to " + outputFile.getAbsolutePath() + " file.");
-			outputStream.close();
-			dataOutput.close();
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Take advantage of the relative tag to filter out the immediate address
-	 * 
-	 * @param left
-	 * @param right
-	 */
-
-	public static void filteroutImmeAddr(ModuleGraphCluster left, ModuleGraphCluster right) {
-		int modificationCnt = 0;
-
-		PrintWriter pw = null;
-		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
-			try {
-				String fileName = left.getGraphData().containingGraph.dataSource.getProcessName() + ".imme-addr."
-						+ left.getGraphData().containingGraph.dataSource.getProcessId() + "-"
-						+ right.getGraphData().containingGraph.dataSource.getProcessId() + ".txt";
-				String absolutePath = DebugUtils.MODIFIED_HASH_DIR + "/" + fileName;
-				File f = new File(DebugUtils.MODIFIED_HASH_DIR);
-				f.mkdirs();
-				pw = new PrintWriter(absolutePath);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-
-		for (ExecutionNode leftNode : left.getGraphData().nodesByKey.values()) {
-			if (leftNode.getTagVersion() > 0)
-				continue; // can't be sure about these re-written things
-			if (leftNode.getKey().module.unit.isDynamic())
-				continue; // make no assumptions about these
-			ExecutionNode rightNode = right.getGraphData().nodesByKey.get(leftNode.getKey());
-			if (rightNode == null) {
-				continue;
-			}
-			if (leftNode.getHash() != rightNode.getHash()) {
-				// replace the right node with a copy having the left node's hash
-				right.getGraphData().nodesByKey.put(rightNode.getKey(), rightNode.changeHashCode(leftNode.getHash()));
-				modificationCnt++;
-				if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
-					pw.println("leftNode: " + leftNode);
-					pw.println("rightNode: " + rightNode);
-				}
-			}
-		}
-		if (DebugUtils.debug_decision(DebugUtils.DUMP_MODIFIED_HASH)) {
-			pw.flush();
-			pw.close();
-		}
-
-		Log.log("Total number of hash modification: " + modificationCnt);
 	}
 
 	/**

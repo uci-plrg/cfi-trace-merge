@@ -93,21 +93,6 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		this.session = session;
 	}
 
-	void initializeMerge(ModuleGraphCluster left, ModuleGraphCluster right) {
-		// In the OUTPUT_SCORE debug mode, initialize the PrintWriter for this
-		// merging process
-		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-			if (DebugUtils.getScorePW() != null) {
-				DebugUtils.getScorePW().flush();
-				DebugUtils.getScorePW().close();
-			}
-			String fileName = left.getGraphData().containingGraph.dataSource.getProcessName() + ".score-"
-					+ left.getGraphData().containingGraph.dataSource.getProcessId() + "-"
-					+ right.getGraphData().containingGraph.dataSource.getProcessId() + ".txt";
-			DebugUtils.setScorePW(fileName);
-		}
-	}
-
 	void mergeCompleted() {
 		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
 			Log.log("All pure heuristic: " + DebugUtils.debug_pureHeuristicCnt);

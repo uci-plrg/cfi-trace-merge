@@ -2,13 +2,16 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import edu.uci.eecs.crowdsafe.common.config.CrowdSafeConfiguration;
+import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
@@ -24,7 +27,7 @@ import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
-import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
+import gnu.getopt.Getopt;
 
 public class ClusterMergeSession {
 
@@ -128,8 +131,6 @@ public class ClusterMergeSession {
 			matchState.enqueueUnmatch(rightEntryPoint);
 			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
-
-		debugLog.initializeMerge(left.cluster, right.cluster);
 	}
 
 	boolean acceptContext(Node candidate) {
@@ -152,18 +153,43 @@ public class ClusterMergeSession {
 	}
 
 	private static void printUsageAndExit() {
-		Log.log("Arguments: <left-trace-dir> <right-trace-dir> [<log-output>]");
+		System.out
+				.println(String
+						.format("Usage: %s [ -c <cluster-name>,... ] [ -d <crowd-safe-common-dir> ] <left-trace-dir> <right-trace-dir> [<log-output>]",
+								ClusterMergeSession.class.getSimpleName()));
 		System.exit(1);
 	}
 
 	public static void main(String[] args) {
 		try {
-			CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
+			int optionArgCount = 0;
+			String restrictedClusterArg = null;
+			String crowdSafeCommonDir = null;
+			try {
+				Getopt options = new Getopt(ClusterMergeSession.class.getSimpleName(), args, "c:d:");
+				options.setOpterr(false);
+				int c;
+				while ((c = options.getopt()) != -1) {
+					switch ((char) c) {
+						case 'c':
+							restrictedClusterArg = options.getOptarg();
+							optionArgCount += 2;
+							break;
+						case 'd':
+							crowdSafeCommonDir = options.getOptarg();
+							optionArgCount += 2;
+							break;
+					}
+				}
+			} catch (Throwable t) {
+				printUsageAndExit();
+			}
 
 			File logFile = null;
-			if (args.length > 2) {
+			if ((args.length - optionArgCount) > 2) {
 				try {
-					logFile = LogFile.create(args[2], LogFile.CollisionMode.AVOID, LogFile.NoSuchPathMode.ERROR);
+					logFile = LogFile.create(args[optionArgCount + 2], LogFile.CollisionMode.AVOID,
+							LogFile.NoSuchPathMode.ERROR);
 					Log.addOutput(logFile);
 					System.out.println("Logging to " + logFile.getName());
 				} catch (LogFile.Exception e) {
@@ -173,20 +199,45 @@ public class ClusterMergeSession {
 				Log.addOutput(System.out);
 			}
 
-			if (args.length < 2) {
+			if ((args.length - optionArgCount) < 2) {
 				Log.log("Illegal arguments: please specify the two run directories as relative or absolute paths.");
 				printUsageAndExit();
 			}
 
-			File leftRun = new File(args[0]);
-			File rightRun = new File(args[1]);
+			CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
+			if (crowdSafeCommonDir == null) {
+				ConfiguredSoftwareDistributions.initialize();
+			} else {
+				ConfiguredSoftwareDistributions.initialize(new File(crowdSafeCommonDir));
+			}
+
+			Set clusterMergeSet = new HashSet<AutonomousSoftwareDistribution>();
+			if (restrictedClusterArg == null) {
+				clusterMergeSet.addAll(ConfiguredSoftwareDistributions.getInstance().distributions.values());
+			} else {
+				StringTokenizer clusterNames = new StringTokenizer(restrictedClusterArg, ",");
+				while (clusterNames.hasMoreTokens()) {
+					String clusterName = clusterNames.nextToken();
+					AutonomousSoftwareDistribution cluster = ConfiguredSoftwareDistributions.getInstance().distributions
+							.get(clusterName);
+					if (cluster == null) {
+						throw new IllegalArgumentException(String.format(
+								"Restricted cluster element %s cannot be found in cluster configuration directory %s.",
+								clusterName, ConfiguredSoftwareDistributions.getInstance().configDir.getAbsolutePath()));
+					}
+					clusterMergeSet.add(cluster);
+				}
+			}
+
+			File leftRun = new File(args[optionArgCount]);
+			File rightRun = new File(args[optionArgCount + 1]);
 
 			if (!(leftRun.exists() && leftRun.isDirectory())) {
-				Log.log("Illegal argument '" + args[0] + "'; no such directory.");
+				Log.log("Illegal argument '" + args[optionArgCount] + "'; no such directory.");
 				printUsageAndExit();
 			}
 			if (!(rightRun.exists() && rightRun.isDirectory())) {
-				Log.log("Illegal argument '" + args[1] + "'; no such directory.");
+				Log.log("Illegal argument '" + args[optionArgCount + 1] + "'; no such directory.");
 				printUsageAndExit();
 			}
 
@@ -207,24 +258,32 @@ public class ClusterMergeSession {
 			long merge = System.currentTimeMillis();
 			Log.log("\nGraph loaded in %f seconds.", ((merge - start) / 1000.));
 
-			for (ModuleGraphCluster leftCluster : leftGraph.getAutonomousClusters()) {
-				ModuleGraphCluster rightCluster = rightGraph.getModuleGraphCluster(leftCluster.distribution);
-				if (rightCluster == null) {
-					Log.log("Skipping cluster %s because it does not appear in the right side.",
-							leftCluster.distribution.name);
-					continue;
+			while (leftGraph != null) {
+				System.out.println("Entering merge loop iteration");
+				try {
+					for (ModuleGraphCluster leftCluster : leftGraph.getAutonomousClusters()) {
+						if (!clusterMergeSet.contains(leftCluster.distribution))
+							continue;
+
+						ModuleGraphCluster rightCluster = rightGraph.getModuleGraphCluster(leftCluster.distribution);
+						if (rightCluster == null) {
+							Log.log("Skipping cluster %s because it does not appear in the right side.",
+									leftCluster.distribution.name);
+							continue;
+						}
+
+						ClusterMergeSession session = new ClusterMergeSession(leftCluster, rightCluster, results,
+								debugLog);
+						GraphMergeEngine engine = new GraphMergeEngine(session);
+
+						engine.mergeGraph();
+						session.results.clusterMergeCompleted();
+					}
+				} catch (Throwable t) {
+					t.printStackTrace();
 				}
-
-				if (DebugUtils.debug_decision(DebugUtils.FILTER_OUT_IMME_ADDR)) {
-					AnalysisUtil.filteroutImmeAddr(leftCluster, rightCluster);
-				}
-
-				ClusterMergeSession session = new ClusterMergeSession(leftCluster, rightCluster, results, debugLog);
-				GraphMergeEngine engine = new GraphMergeEngine(session);
-
-				engine.mergeGraph();
-				session.results.clusterMergeCompleted();
 			}
+
 			Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - merge) / 1000.));
 
 			if (logFile != null) {
@@ -241,8 +300,9 @@ public class ClusterMergeSession {
 				Log.log("Results logging skipped.");
 			}
 		} catch (Throwable t) {
+			Log.log("\t@@@@ Merge failed with %s @@@@", t.getClass().getSimpleName());
 			Log.log(t);
-			t.printStackTrace();
+			System.err.println(String.format("!! Merge failed with %s !!", t.getClass().getSimpleName()));
 		}
 	}
 }

@@ -39,17 +39,6 @@ public class DebugUtils {
 		return scorePW;
 	}
 
-	public static void setScorePW(String fileName) {
-		try {
-			String absolutePath = SCORE_FILE_DIR + fileName;
-			File f = new File(SCORE_FILE_DIR);
-			f.mkdirs();
-			scorePW = new PrintWriter(absolutePath);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static int chageHashLimit = 138 * 3;
 	public static int chageHashCnt = 0;
 	public static final int commonBitNum = 4;

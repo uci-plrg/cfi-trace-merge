@@ -80,22 +80,10 @@ class GraphMergeEngine {
 		session.matchState.enqueueUnmatch(rightNode);
 	}
 
-	public void mergeGraph() throws WrongEdgeTypeException {
+	public void mergeGraph() {
 		session.initializeMerge();
-
-		try {
-			findCommonSubgraphs();
-		} catch (MergedFailedException e) {
-			Log.log(e);
-			session.hasConflict = true;
-		}
-
-		if (session.hasConflict) {
-			Log.log("Can't merge the two graphs!!");
-		} else {
-			Log.log("The two graphs merge!!");
-			buildMergedGraph();
-		}
+		findCommonSubgraphs();
+		buildMergedGraph();
 
 		// Count and print out the statistical results of each speculative
 		// matching case
@@ -295,7 +283,9 @@ class GraphMergeEngine {
 							break;
 						}
 					}
-					if (alreadyMergedEdge == null) {
+					if ((alreadyMergedEdge == null)
+							|| ((alreadyMergedEdge.getEdgeType() == EdgeType.DIRECT && rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) || (alreadyMergedEdge
+									.getEdgeType() == EdgeType.CALL_CONTINUATION && rightEdge.getEdgeType() == EdgeType.DIRECT))) {
 						mergedEdge = new Edge<MergedNode>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					} else {
