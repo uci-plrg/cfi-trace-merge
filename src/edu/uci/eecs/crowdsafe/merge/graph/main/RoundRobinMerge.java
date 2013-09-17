@@ -35,12 +35,36 @@ public class RoundRobinMerge {
 		}
 	}
 
+	private class GraphLoadThread extends Thread {
+		private final ProcessGraphLoadSession session = new ProcessGraphLoadSession();
+		private final GraphMergeDebug debugLog = new GraphMergeDebug();
+		private final List<String> workList;
+		private final List<ProcessExecutionGraph> graphs = new ArrayList<ProcessExecutionGraph>();
+
+		GraphLoadThread(List<String> workList) {
+			this.workList = workList;
+		}
+
+		@Override
+		public void run() {
+			try {
+				for (String graphPath : workList) {
+					ProcessTraceDataSource dataSource = new ProcessTraceDirectory(new File(graphPath),
+							MergeTwoExecutionGraphs.MERGE_FILE_TYPES);
+					graphs.add(session.loadGraph(dataSource, debugLog));
+				}
+			} catch (Throwable t) {
+				fail(t);
+			}
+		}
+	}
+
 	private class MergeThread extends Thread {
 		private final MergeTwoExecutionGraphs executor;
 		private final GraphMergeDebug debugLog = new GraphMergeDebug();
 		private final List<MergePair> workList;
 
-		public MergeThread(List<MergePair> workList) {
+		MergeThread(List<MergePair> workList) {
 			this.workList = workList;
 
 			executor = new MergeTwoExecutionGraphs(commonOptions, debugLog);
@@ -112,45 +136,64 @@ public class RoundRobinMerge {
 			GraphMergeDebug debugLog = new GraphMergeDebug();
 
 			String graphListPath = args.pop();
-			Collection<String> graphPaths = loadGraphList(graphListPath);
+			List<String> graphPaths = new ArrayList<String>(loadGraphList(graphListPath));
 
-			ProcessGraphLoadSession loadSession = new ProcessGraphLoadSession();
+			int threadCount = Integer.parseInt(threadCountOption.getValue());
+			int partitionSize = graphPaths.size() / threadCount;
 			List<ProcessExecutionGraph> graphs = new ArrayList<ProcessExecutionGraph>();
-			for (String graphPath : graphPaths) {
-				ProcessTraceDataSource dataSource = new ProcessTraceDirectory(new File(graphPath),
-						MergeTwoExecutionGraphs.MERGE_FILE_TYPES);
-				graphs.add(loadSession.loadGraph(dataSource, debugLog));
+
+			{
+				Log.log("Starting %d threads to load ~%d graphs each.", threadCount, partitionSize);
+				
+				List<GraphLoadThread> threads = new ArrayList<GraphLoadThread>();
+				Collections.shuffle(graphPaths);
+				ProcessGraphLoadSession loadSession = new ProcessGraphLoadSession();
+				for (int i = 0; i < threadCount; i++) {
+					int start = i * partitionSize;
+					int end = (i + 1) * partitionSize;
+					if (end > graphPaths.size())
+						end = graphPaths.size();
+
+					List<String> threadWorkList = graphPaths.subList(start, end);
+					GraphLoadThread thread = new GraphLoadThread(threadWorkList);
+					thread.start();
+					threads.add(thread);
+				}
+
+				for (GraphLoadThread thread : threads) {
+					thread.join();
+					graphs.addAll(thread.graphs);
+				}
 			}
 
 			long mergeStart = System.currentTimeMillis();
 			Log.log("Loaded %d graphs in %f seconds.", graphs.size(), ((mergeStart - startTime) / 1000.));
 
-			List<MergePair> workList = expandWorkList(graphs);
+			{
+				List<MergePair> workList = expandWorkList(graphs);
+				List<MergeThread> threads = new ArrayList<MergeThread>();
 
-			List<MergeThread> threads = new ArrayList<MergeThread>();
-			int threadCount = Integer.parseInt(threadCountOption.getValue());
-			int partitionSize = workList.size() / threadCount;
+				Log.log("Starting %d threads to process ~%d merges each", threadCount, partitionSize);
 
-			Log.log("Starting %d threads to process ~%d merges each", threadCount, partitionSize);
+				for (int i = 0; i < threadCount; i++) {
+					int start = i * partitionSize;
+					int end = (i + 1) * partitionSize;
+					if (end > workList.size())
+						end = workList.size();
 
-			for (int i = 0; i < threadCount; i++) {
-				int start = i * partitionSize;
-				int end = (i + 1) * partitionSize;
-				if (end > workList.size())
-					end = workList.size();
+					List<MergePair> threadWorkList = workList.subList(start, end);
+					MergeThread thread = new MergeThread(threadWorkList);
+					thread.start();
+					threads.add(thread);
+				}
 
-				List<MergePair> threadWorkList = workList.subList(start, end);
-				MergeThread thread = new MergeThread(threadWorkList);
-				thread.start();
-				threads.add(thread);
-			}
-
-			for (MergeThread thread : threads) {
-				thread.join();
+				for (MergeThread thread : threads) {
+					thread.join();
+				}
 			}
 
 			Log.log("\nRound-robin merge of %d graphs (%d merges) on %d threads in %f seconds.", graphs.size(),
-					workList.size(), threadCount, ((System.currentTimeMillis() - mergeStart) / 1000.));
+					graphPaths.size(), threadCount, ((System.currentTimeMillis() - mergeStart) / 1000.));
 
 		} catch (Throwable t) {
 			if (parsingArguments) {
