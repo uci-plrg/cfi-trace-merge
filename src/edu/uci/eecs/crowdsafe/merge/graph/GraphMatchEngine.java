@@ -206,10 +206,6 @@ public class GraphMatchEngine {
 			if (session.matchedNodes.containsLeftKey(leftNode.getKey()))
 				continue;
 
-			if (DebugUtils.debug) {
-				DebugUtils.searchDepth = PURE_SEARCH_DEPTH;
-			}
-
 			// If the score is below the threshold, we just don't think it is
 			// a potential candidate
 			session.contextRecord.reset(leftNode, rightNode);
@@ -439,9 +435,6 @@ public class GraphMatchEngine {
 				if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
 					continue;
 
-				if (DebugUtils.debug) {
-					DebugUtils.searchDepth = INDIRECT_SEARCH_DEPTH;
-				}
 				session.contextRecord.reset(leftChild, rightToNode);
 				getContextSimilarity(leftChild, rightToNode, INDIRECT_SEARCH_DEPTH);
 				if (session.acceptContext(leftChild)) {

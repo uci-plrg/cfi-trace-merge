@@ -79,11 +79,6 @@ public class ClusterMergeSession {
 		statistics.reset();
 		hasConflict = false;
 
-		// Initialize debugging info before merging the graph
-		if (DebugUtils.debug) {
-			DebugUtils.debug_init();
-		}
-
 		Map<Long, ExecutionNode> leftEntryPoints = left.cluster.getEntryPoints();
 		Map<Long, ExecutionNode> rightEntryPoints = right.cluster.getEntryPoints();
 		for (long sigHash : rightEntryPoints.keySet()) {
@@ -97,17 +92,7 @@ public class ClusterMergeSession {
 				if (leftNode.hasCompatibleEdges(rightNode)) {
 					matchState.enqueueMatch(new PairNode(leftNode, rightNode, MatchType.ENTRY_POINT));
 					matchedNodes.addPair(leftNode, rightNode, 0);
-
 					statistics.directMatch();
-
-					if (DebugUtils.debug) {
-						// AnalysisUtil.outputIndirectNodesInfo(n1, n2);
-					}
-
-					if (DebugUtils.debug) {
-						DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(leftNode.getKey(), rightNode
-								.getKey(), MatchingType.SignatureNode, null));
-					}
 					continue;
 				}
 			}

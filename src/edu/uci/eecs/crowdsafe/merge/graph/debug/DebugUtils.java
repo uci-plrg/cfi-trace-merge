@@ -61,7 +61,7 @@ public class DebugUtils {
 	public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION1 | FILTER_OUT_IMME_ADDR;
 	// public static int DEBUG_OPTION = USEFUL_DEBUG_OPTION0;
 
-	public static boolean debug = true;
+	public static boolean debug = false;
 
 	public static int debug_option(int... options) {
 		int opt = 0;

@@ -110,55 +110,6 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 		}
 	}
 
-	void directMatch(PairNode pairNode, Edge<? extends Node> rightEdge, Node leftChild) {
-		if (DebugUtils.debug) {
-			MatchingType matchType = rightEdge.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
-					: MatchingType.CallingContinuation;
-			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(leftChild.getKey(), rightEdge.getToNode()
-					.getKey(), matchType, rightEdge.getToNode().getKey()));
-		}
-
-		if (DebugUtils.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
-			MatchingType matchType = rightEdge.getEdgeType() == EdgeType.DIRECT ? MatchingType.DirectBranch
-					: MatchingType.CallingContinuation;
-			Log.log(matchType + ": " + leftChild.getKey() + "<->" + rightEdge.getToNode().getKey() + "(by "
-					+ pairNode.getLeftNode().getKey() + "<->" + rightEdge.getToNode().getKey() + ")");
-		}
-	}
-
-	void indirectMatch(PairNodeEdge nodeEdgePair, Edge<? extends Node> rightEdge, Node leftChild) {
-		if (DebugUtils.debug) {
-			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(leftChild.getKey(), rightEdge.getToNode()
-					.getKey(), MatchingType.IndirectBranch, nodeEdgePair.getRightParentNode().getKey()));
-		}
-
-		if (DebugUtils.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
-			// Print out indirect nodes that must be decided by
-			// heuristic
-			System.out.print("Indirect: " + leftChild.getKey() + "<->" + rightEdge.getToNode().getKey() + "(by "
-					+ nodeEdgePair.getLeftParentNode().getKey() + "<->" + nodeEdgePair.getRightParentNode().getKey()
-					+ ")");
-			Log.log();
-		}
-	}
-
-	void heuristicMatch(Node rightNode, Node leftChild) {
-		/**
-		 * <pre>
-		if (DebugUtils.debug) {
-			DebugUtils.debug_matchingTrace.addInstance(new MatchingInstance(pairNode.level, leftChild.getKey(),
-					pairNode.getRightNode().getKey(), MatchingType.PureHeuristic, null));
-		}
-
-		if (DebugUtils.debug_decision(DebugUtils.PRINT_MATCHING_HISTORY)) {
-			// Print out indirect nodes that must be decided by
-			// heuristic
-			Log.log("PureHeuristic: " + leftChild.getKey() + "<->" + pairNode.getRightNode().getKey()
-					+ "(by pure heuristic)");
-		}
-		 */
-	}
-
 	void debugCheck(Node node) {
 		ExecutionNode executionNode = (ExecutionNode) node;
 		if (debugRelativeTags.contains(executionNode.getKey().relativeTag)
@@ -230,6 +181,7 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 			Log.log("Merge edge %s from the right graph.", edge.toString());
 	}
 
+	// 2% hot during load!
 	@Override
 	public void nodeLoadReference(long tag, long hash, LoadTarget target) {
 		if (trackedNodes.contains(trackedNodeLookupKey.assign(tag, hash)))
@@ -248,6 +200,7 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 			Log.log("Node %s created.", node.toString());
 	}
 
+	// 5% hot during load!
 	@Override
 	public void edgeCreation(Edge edge) {
 		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode())) {

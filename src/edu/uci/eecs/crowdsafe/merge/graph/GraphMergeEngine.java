@@ -139,8 +139,6 @@ class GraphMergeEngine {
 						// Update matched relationship
 						if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
 							session.matchedNodes.addPair(leftChild, rightEdge.getToNode(), session.getScore(leftChild));
-
-							session.debugLog.directMatch(pairNode, rightEdge, leftChild);
 						}
 					} else {
 						if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
@@ -178,8 +176,6 @@ class GraphMergeEngine {
 					Log.log("Node " + leftChild.getKey() + " of the left graph is already matched!");
 					return;
 				}
-
-				session.debugLog.indirectMatch(nodeEdgePair, rightEdge, leftChild);
 			}
 		} else {
 			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
@@ -197,7 +193,6 @@ class GraphMergeEngine {
 
 		Node leftChild = matcher.matchByHashThenContext(rightNode);
 		if (leftChild != null) {
-			session.debugLog.heuristicMatch(rightNode, leftChild);
 			session.matchState.enqueueMatch(new PairNode(leftChild, rightNode, MatchType.HEURISTIC));
 		} else {
 			// Simply push unvisited neighbors to unmatchedQueue
