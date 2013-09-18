@@ -50,7 +50,7 @@ public class RoundRobinMerge {
 			try {
 				for (String graphPath : workList) {
 					ProcessTraceDataSource dataSource = new ProcessTraceDirectory(new File(graphPath),
-							MergeTwoExecutionGraphs.MERGE_FILE_TYPES);
+							ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
 					graphs.add(session.loadGraph(dataSource, debugLog));
 				}
 			} catch (Throwable t) {
@@ -144,7 +144,7 @@ public class RoundRobinMerge {
 
 			{
 				Log.log("Starting %d threads to load ~%d graphs each.", threadCount, partitionSize);
-				
+
 				List<GraphLoadThread> threads = new ArrayList<GraphLoadThread>();
 				Collections.shuffle(graphPaths);
 				ProcessGraphLoadSession loadSession = new ProcessGraphLoadSession();

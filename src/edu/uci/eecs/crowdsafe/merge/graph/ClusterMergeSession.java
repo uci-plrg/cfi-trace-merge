@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
-import edu.uci.eecs.crowdsafe.merge.graph.data.MergedClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
@@ -34,7 +34,7 @@ public class ClusterMergeSession {
 
 	final GraphMergeTarget left;
 	final GraphMergeTarget right;
-	final MergedClusterGraph mergedGraph;
+	final ClusterGraph mergedGraph;
 
 	final GraphMergeStatistics statistics;
 	final GraphMergeResults results;
@@ -67,7 +67,7 @@ public class ClusterMergeSession {
 		matchedNodes = new MatchedNodes(this);
 		matchState = new GraphMatchState(this);
 		statistics = new GraphMergeStatistics(this);
-		mergedGraph = new MergedClusterGraph();
+		mergedGraph = new ClusterGraph();
 	}
 
 	public void initializeMerge() {

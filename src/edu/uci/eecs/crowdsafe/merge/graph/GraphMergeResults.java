@@ -21,7 +21,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
-import edu.uci.eecs.crowdsafe.merge.graph.data.results.Merge;
+import edu.uci.eecs.crowdsafe.merge.graph.results.Merge;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 
 public class GraphMergeResults {

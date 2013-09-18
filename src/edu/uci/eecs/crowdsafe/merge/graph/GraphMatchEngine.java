@@ -322,7 +322,7 @@ public class GraphMatchEngine {
 
 					switch (leftEdge.getEdgeType()) {
 						case DIRECT:
-						case MODULE_ENTRY:
+						case CLUSTER_ENTRY:
 							session.statistics.directMatch();
 							break;
 						case CALL_CONTINUATION:
@@ -338,7 +338,7 @@ public class GraphMatchEngine {
 					if (session.acceptContext(leftEdge.getToNode())) {
 						candidates.add(leftEdge.getToNode());
 					}
-				} else if (rightEdge.getEdgeType() != EdgeType.MODULE_ENTRY) {
+				} else if (rightEdge.getEdgeType() != EdgeType.CLUSTER_ENTRY) {
 					// hashes differ on a matching direct edge!
 					session.statistics.possibleRewrite();
 				}

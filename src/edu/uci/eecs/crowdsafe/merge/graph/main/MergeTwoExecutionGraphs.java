@@ -21,10 +21,6 @@ import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeResults;
 
 public class MergeTwoExecutionGraphs {
 
-	static final EnumSet<ProcessTraceStreamType> MERGE_FILE_TYPES = EnumSet.of(ProcessTraceStreamType.MODULE,
-			ProcessTraceStreamType.GRAPH_HASH, ProcessTraceStreamType.MODULE_GRAPH,
-			ProcessTraceStreamType.CROSS_MODULE_GRAPH);
-
 	private static void printUsageAndExit() {
 		System.out
 				.println(String
@@ -70,14 +66,18 @@ public class MergeTwoExecutionGraphs {
 				printUsageAndExit();
 			}
 
-			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(leftRun, MERGE_FILE_TYPES);
-			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(rightRun, MERGE_FILE_TYPES);
+			ProcessTraceDataSource leftDataSource = new ProcessTraceDirectory(leftRun,
+					ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
+			ProcessTraceDataSource rightDataSource = new ProcessTraceDirectory(rightRun,
+					ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
 
 			long start = System.currentTimeMillis();
 			GraphMergeDebug debugLog = new GraphMergeDebug();
 
 			ProcessGraphLoadSession loadSession = new ProcessGraphLoadSession();
+			Log.log("Loading graph %s", leftRun.getAbsolutePath());
 			ProcessExecutionGraph leftGraph = loadSession.loadGraph(leftDataSource, debugLog);
+			Log.log("Loading graph %s", rightRun.getAbsolutePath());
 			ProcessExecutionGraph rightGraph = loadSession.loadGraph(rightDataSource, debugLog);
 
 			Log.log("\nGraph loaded in %f seconds.", ((System.currentTimeMillis() - start) / 1000.));

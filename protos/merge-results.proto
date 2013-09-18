@@ -3,7 +3,7 @@ package crowd_safe_data_analysis;
 import "graph.proto";
 import "statistics.proto";
 
-option java_package = "edu.uci.eecs.crowdsafe.merge.graph.data.results";
+option java_package = "edu.uci.eecs.crowdsafe.merge.graph.results";
 option java_outer_classname = "Merge";
 
 message MergeResults {

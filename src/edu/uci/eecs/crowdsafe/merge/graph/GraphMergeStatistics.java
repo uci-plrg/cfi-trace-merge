@@ -210,7 +210,7 @@ public class GraphMergeStatistics {
 						case UNEXPECTED_RETURN:
 							branchType = "u";
 							break;
-						case MODULE_ENTRY:
+						case CLUSTER_ENTRY:
 							branchType = "xk";
 							break;
 						default:
@@ -218,7 +218,7 @@ public class GraphMergeStatistics {
 							break;
 					}
 					String edgeLabel = i + "->" + e.getToNode().getKey() + "[label=\"" + branchType + "_";
-					if (e.getEdgeType() == EdgeType.MODULE_ENTRY) {
+					if (e.getEdgeType() == EdgeType.CLUSTER_ENTRY) {
 						edgeLabel = edgeLabel + e.getFromNode().getRelativeTag() + "->"
 								+ e.getToNode().getRelativeTag() + "\"]";
 					} else {
