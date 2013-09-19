@@ -6,18 +6,15 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener;
+import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener.LoadTarget;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession.LoadTarget;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
 
-public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListener {
+public class MergeDebugLog implements GraphLoadEventListener {
 
 	private static class TrackedNodeKey {
 		int pageOffset;
@@ -78,7 +75,7 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
 	private final List<Long> debugRelativeTags = new ArrayList<Long>();
 
-	public GraphMergeDebug() {
+	public MergeDebugLog() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
 		// shell32.dll(0x12ed32-v0|0xb5d)
@@ -211,7 +208,7 @@ public class GraphMergeDebug implements ProcessGraphLoadSession.LoadEventListene
 	@Override
 	public void graphAddition(Node node, ModuleGraphCluster cluster) {
 		if (isTracked(node)) {
-			Log.log("Node %s added to cluster %s.", node.toString(), cluster.distribution.name);
+			Log.log("Node %s added to cluster %s.", node.toString(), cluster.cluster.name);
 		}
 	}
 }

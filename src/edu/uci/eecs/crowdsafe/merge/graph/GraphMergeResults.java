@@ -19,6 +19,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
 import edu.uci.eecs.crowdsafe.merge.graph.results.Merge;
@@ -51,7 +52,7 @@ public class GraphMergeResults {
 		ClusterResults(ClusterMergeSession session) {
 			this.session = session;
 
-			builder.cluster.clear().setDistributionName(session.left.cluster.distribution.name);
+			builder.cluster.clear().setDistributionName(session.left.cluster.cluster.name);
 		}
 
 		void mergeCompleted() {
@@ -73,12 +74,12 @@ public class GraphMergeResults {
 			hashUnionSize = hashUnion.size();
 
 			for (Long hash : hashIntersection) {
-				hashIntersectionBlockCount += session.mergedGraph.nodesByHash.get(hash).size();
+				hashIntersectionBlockCount += session.mergedGraph.getGraphData().nodesByHash.get(hash).size();
 				hashIntersectionLeftBlockCount += session.left.cluster.getGraphData().nodesByHash.get(hash).size();
 				hashIntersectionRightBlockCount += session.right.cluster.getGraphData().nodesByHash.get(hash).size();
 			}
 
-			mergedGraphNodeCount = session.mergedGraph.nodesByHash.getNodeCount();
+			mergedGraphNodeCount = session.mergedGraph.getGraphData().nodesByHash.getNodeCount();
 		}
 
 		private void reportUnmatchedNodes() {
@@ -89,7 +90,8 @@ public class GraphMergeResults {
 			builder.cluster.setRightUnmatched(builder.unmatchedNodeSummary.build());
 		}
 
-		private void reportUnmatchedNodes(ModuleGraphCluster cluster, ModuleGraphCluster oppositeCluster, String side) {
+		private void reportUnmatchedNodes(ModuleGraphCluster<? extends Node> cluster,
+				ModuleGraphCluster oppositeCluster, String side) {
 			Set<Node.Key> unmatchedNodes = new HashSet<Node.Key>(cluster.getGraphData().nodesByKey.keySet());
 			unmatchedNodes.removeAll(session.matchedNodes.getLeftKeySet());
 			unmatchedNodes.removeAll(session.matchedNodes.getRightKeySet());
@@ -286,9 +288,9 @@ public class GraphMergeResults {
 
 	private ClusterResults currentCluster = null;
 
-	public GraphMergeResults(ProcessExecutionGraph leftGraph, ProcessExecutionGraph rightGraph) {
-		builder.results.setLeft(leftGraph.summarizeProcess());
-		builder.results.setRight(rightGraph.summarizeProcess());
+	public GraphMergeResults(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary) {
+		builder.results.setLeft(leftGraphSummary);
+		builder.results.setRight(rightGraphSummary);
 	}
 
 	public Merge.MergeResults getResults() {
@@ -297,9 +299,9 @@ public class GraphMergeResults {
 
 	void beginCluster(ClusterMergeSession session) {
 		currentCluster = new ClusterResults(session);
-		resultsByCluster.put(session.left.cluster.distribution, currentCluster);
+		resultsByCluster.put(session.left.cluster.cluster, currentCluster);
 
-		Log.log("\n  === Merging cluster %s ===", session.left.cluster.distribution.name);
+		Log.log("\n  === Merging cluster %s ===", session.left.cluster.cluster.name);
 	}
 
 	void clusterMergeCompleted() {

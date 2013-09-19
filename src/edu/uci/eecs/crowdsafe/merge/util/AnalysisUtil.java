@@ -145,7 +145,7 @@ public class AnalysisUtil {
 			return MatchResult.Unknown;
 		}
 
-		Node leftCorrespondingToRight = left.getGraphData().HACK_relativeTagLookup(rightNode);
+		Node leftCorrespondingToRight = null; // left.getGraphData().HACK_relativeTagLookup(rightNode);
 		if (leftCorrespondingToRight == null) {
 			// The corresponding node does not exist in graph1
 			// 1. n1 == null, non-existing correct match

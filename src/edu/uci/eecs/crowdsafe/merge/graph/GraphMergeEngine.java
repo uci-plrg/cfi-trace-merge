@@ -222,9 +222,9 @@ class GraphMergeEngine {
 		// Traverse edges by outgoing edges
 		for (Node<? extends Node> leftNode : session.left.cluster.getGraphData().nodesByKey.values()) {
 			for (Edge<? extends Node> leftEdge : leftNode.getOutgoingEdges()) {
-				ClusterNode mergedFromNode = session.mergedGraph.nodesByKey.get(leftNode2MergedNode.get(leftNode)
-						.getKey());
-				ClusterNode mergedToNode = session.mergedGraph.nodesByKey.get(leftNode2MergedNode.get(
+				ClusterNode mergedFromNode = session.mergedGraph.getGraphData().nodesByKey.get(leftNode2MergedNode.get(
+						leftNode).getKey());
+				ClusterNode mergedToNode = session.mergedGraph.getGraphData().nodesByKey.get(leftNode2MergedNode.get(
 						leftEdge.getToNode()).getKey());
 				Edge<ClusterNode> mergedEdge = new Edge<ClusterNode>(mergedFromNode, mergedToNode,
 						leftEdge.getEdgeType(), leftEdge.getOrdinal());
@@ -252,7 +252,7 @@ class GraphMergeEngine {
 		}
 	}
 
-	private boolean addEdgesFromRight(ModuleGraphCluster right, Map<Node, ClusterNode> leftNode2MergedNode,
+	private boolean addEdgesFromRight(ModuleGraphCluster<? extends Node> right, Map<Node, ClusterNode> leftNode2MergedNode,
 			Map<Node, ClusterNode> rightNode2MergedNode) {
 
 		// Merge edges from right

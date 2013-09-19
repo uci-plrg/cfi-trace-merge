@@ -5,17 +5,13 @@ import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingInstance;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.MatchingType;
 
 public class ClusterMergeSession {
 
 	public static void mergeTwoGraphs(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeResults results,
-			GraphMergeDebug debugLog) {
+			MergeDebugLog debugLog) {
 		ClusterMergeSession session = new ClusterMergeSession(left, right, results, debugLog);
 
 		GraphMergeEngine engine = new GraphMergeEngine(session);
@@ -38,7 +34,7 @@ public class ClusterMergeSession {
 
 	final GraphMergeStatistics statistics;
 	final GraphMergeResults results;
-	final GraphMergeDebug debugLog;
+	final MergeDebugLog debugLog;
 
 	final MatchedNodes matchedNodes;
 	final GraphMatchState matchState;
@@ -56,7 +52,7 @@ public class ClusterMergeSession {
 	final GraphMergeEngine engine = new GraphMergeEngine(this);
 
 	ClusterMergeSession(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeResults results,
-			GraphMergeDebug debugLog) {
+			MergeDebugLog debugLog) {
 		this.left = new GraphMergeTarget(this, left);
 		this.right = new GraphMergeTarget(this, right);
 		this.results = results;
@@ -67,7 +63,7 @@ public class ClusterMergeSession {
 		matchedNodes = new MatchedNodes(this);
 		matchState = new GraphMatchState(this);
 		statistics = new GraphMergeStatistics(this);
-		mergedGraph = new ClusterGraph();
+		mergedGraph = new ClusterGraph(left.cluster);
 	}
 
 	public void initializeMerge() {
@@ -79,12 +75,12 @@ public class ClusterMergeSession {
 		statistics.reset();
 		hasConflict = false;
 
-		Map<Long, ExecutionNode> leftEntryPoints = left.cluster.getEntryPoints();
-		Map<Long, ExecutionNode> rightEntryPoints = right.cluster.getEntryPoints();
+		Map<Long, ? extends Node> leftEntryPoints = left.cluster.getEntryPoints();
+		Map<Long, ? extends Node> rightEntryPoints = right.cluster.getEntryPoints();
 		for (long sigHash : rightEntryPoints.keySet()) {
 			if (leftEntryPoints.containsKey(sigHash)) {
-				ExecutionNode leftNode = leftEntryPoints.get(sigHash);
-				ExecutionNode rightNode = rightEntryPoints.get(sigHash);
+				Node leftNode = leftEntryPoints.get(sigHash);
+				Node rightNode = rightEntryPoints.get(sigHash);
 
 				debugLog.debugCheck(leftNode);
 				debugLog.debugCheck(rightNode);
@@ -99,7 +95,7 @@ public class ClusterMergeSession {
 
 			// Push new signature node to prioritize the speculation to the
 			// beginning of the graph
-			ExecutionNode rightEntryPoint = rightEntryPoints.get(sigHash);
+			Node rightEntryPoint = rightEntryPoints.get(sigHash);
 			// TODO: guessing that the third arg "level" should be 0
 			matchState.enqueueUnmatch(rightEntryPoint);
 			engine.addUnmatchedNode2Queue(rightEntryPoint);

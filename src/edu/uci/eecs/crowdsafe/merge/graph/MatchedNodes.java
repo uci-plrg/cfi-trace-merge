@@ -69,7 +69,6 @@ public class MatchedNodes {
 			return true;
 		if ((matchedNodesLeftRight.containsKey(leftKey) || matchedNodesLeftRight.containsValue(rightKey))
 				&& !(left.isMetaNode() && right.isMetaNode())) {
-			Log.log("In execution " + session.left.getProcessId() + " & " + session.right.getProcessId());
 			Log.log("Node " + left.getKey() + " of the left graph is already matched!");
 			Log.log("Node pair need to be matched: " + left.getKey() + "<->" + right.getKey());
 			Log.log("Prematched nodes: " + left.getKey() + "<->"

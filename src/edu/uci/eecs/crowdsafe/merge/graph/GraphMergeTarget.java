@@ -11,21 +11,13 @@ public class GraphMergeTarget {
 
 	private final ClusterMergeSession session;
 
-	final ModuleGraphCluster cluster;
+	final ModuleGraphCluster<? extends Node> cluster;
 
 	final Set<Edge<? extends Node>> visitedEdges = new HashSet<Edge<? extends Node>>();
 	final Set<Node> visitedAsUnmatched = new HashSet<Node>();
 
-	GraphMergeTarget(ClusterMergeSession session, ModuleGraphCluster cluster) {
+	GraphMergeTarget(ClusterMergeSession session, ModuleGraphCluster<? extends Node> cluster) {
 		this.session = session;
 		this.cluster = cluster;
-	}
-
-	int getProcessId() {
-		return cluster.getGraphData().containingGraph.dataSource.getProcessId();
-	}
-
-	String getProcessName() {
-		return cluster.getGraphData().containingGraph.dataSource.getProcessName();
 	}
 }

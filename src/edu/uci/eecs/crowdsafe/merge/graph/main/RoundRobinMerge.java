@@ -13,13 +13,13 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.datasource.ProcessTraceDirectory;
+import edu.uci.eecs.crowdsafe.common.datasource.execution.ExecutionTraceDataSource;
+import edu.uci.eecs.crowdsafe.common.datasource.execution.ExecutionTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeDebug;
+import edu.uci.eecs.crowdsafe.merge.graph.MergeDebugLog;
 
 public class RoundRobinMerge {
 
@@ -37,7 +37,7 @@ public class RoundRobinMerge {
 
 	private class GraphLoadThread extends Thread {
 		private final ProcessGraphLoadSession session = new ProcessGraphLoadSession();
-		private final GraphMergeDebug debugLog = new GraphMergeDebug();
+		private final MergeDebugLog debugLog = new MergeDebugLog();
 		private final List<String> workList;
 		private final List<ProcessExecutionGraph> graphs = new ArrayList<ProcessExecutionGraph>();
 
@@ -49,7 +49,7 @@ public class RoundRobinMerge {
 		public void run() {
 			try {
 				for (String graphPath : workList) {
-					ProcessTraceDataSource dataSource = new ProcessTraceDirectory(new File(graphPath),
+					ExecutionTraceDataSource dataSource = new ExecutionTraceDirectory(new File(graphPath),
 							ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
 					graphs.add(session.loadGraph(dataSource, debugLog));
 				}
@@ -60,14 +60,14 @@ public class RoundRobinMerge {
 	}
 
 	private class MergeThread extends Thread {
-		private final MergeTwoExecutionGraphs executor;
-		private final GraphMergeDebug debugLog = new GraphMergeDebug();
+		private final MergeTwoGraphs executor;
+		private final MergeDebugLog debugLog = new MergeDebugLog();
 		private final List<MergePair> workList;
 
 		MergeThread(List<MergePair> workList) {
 			this.workList = workList;
 
-			executor = new MergeTwoExecutionGraphs(commonOptions, debugLog);
+			executor = new MergeTwoGraphs(commonOptions);
 		}
 
 		@Override
@@ -78,7 +78,9 @@ public class RoundRobinMerge {
 					Log.clearThreadOutputs();
 					Log.addThreadOutput(logFile);
 
-					executor.merge(merge.left, merge.right, logFile);
+					GraphMergeCandidate leftCandidate = new GraphMergeCandidate.Execution(merge.left, debugLog);
+					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.Execution(merge.right, debugLog);
+					executor.merge(leftCandidate, rightCandidate, logFile);
 				}
 			} catch (Throwable t) {
 				fail(t);
@@ -94,9 +96,10 @@ public class RoundRobinMerge {
 
 	private static final String MAIN_LOG_FILENAME = "rr.log";
 
-	private final OptionArgumentMap.StringOption logPathOption = OptionArgumentMap.createStringOption('l');
+	private final OptionArgumentMap.StringOption logPathOption = OptionArgumentMap.createStringOption('l', true);
 	private final OptionArgumentMap.StringOption threadCountOption = OptionArgumentMap.createStringOption('t');
 	private final OptionArgumentMap.BooleanOption unityOption = OptionArgumentMap.createBooleanOption('u');
+	private final OptionArgumentMap.BooleanOption clusterGraphOption = OptionArgumentMap.createBooleanOption('y');
 
 	private File logDir;
 	private final ArgumentStack args;
@@ -113,8 +116,9 @@ public class RoundRobinMerge {
 		try {
 			commonOptions.parseOptions();
 
-			if (logPathOption.getValue() == null) {
-				throw new IllegalArgumentException("The log direction option '-l' is required! Exiting now.");
+			if (clusterGraphOption.getValue()) {
+				throw new UnsupportedOperationException(String.format(
+						"%s merge does not yet support cluster graphs :-(", getClass().getSimpleName()));
 			}
 
 			logDir = new File(logPathOption.getValue());
@@ -133,7 +137,7 @@ public class RoundRobinMerge {
 			commonOptions.initializeMerge();
 
 			long startTime = System.currentTimeMillis();
-			GraphMergeDebug debugLog = new GraphMergeDebug();
+			MergeDebugLog debugLog = new MergeDebugLog();
 
 			String graphListPath = args.pop();
 			List<String> graphPaths = new ArrayList<String>(loadGraphList(graphListPath));

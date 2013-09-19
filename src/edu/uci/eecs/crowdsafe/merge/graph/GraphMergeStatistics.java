@@ -50,19 +50,19 @@ public class GraphMergeStatistics {
 		callContinuationMatchCount = 0;
 		possibleRewrites = 0;
 	}
-	
+
 	public int getCallContinuationMatchCount() {
 		return callContinuationMatchCount;
 	}
-	
+
 	public int getIndirectEdgeMatchCount() {
 		return indirectEdgeMatchCount;
 	}
-	
+
 	public int getPossibleRewrites() {
 		return possibleRewrites;
 	}
-	
+
 	public int getPureHeuristicMatchCount() {
 		return pureHeuristicMatchCount;
 	}
@@ -99,9 +99,9 @@ public class GraphMergeStatistics {
 		possibleRewrites++;
 	}
 
-	public ArrayList<ExecutionNode> unmatchedGraph1Nodes() {
-		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (ExecutionNode n : session.left.cluster.getGraphData().nodesByKey.values()) {
+	public ArrayList<Node<?>> unmatchedGraph1Nodes() {
+		ArrayList<Node<?>> unmatchedNodes = new ArrayList<Node<?>>();
+		for (Node<?> n : session.left.cluster.getGraphData().nodesByKey.values()) {
 			if (!session.matchedNodes.containsLeftKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
@@ -109,9 +109,9 @@ public class GraphMergeStatistics {
 		return unmatchedNodes;
 	}
 
-	public ArrayList<ExecutionNode> unmatchedGraph2Nodes() {
-		ArrayList<ExecutionNode> unmatchedNodes = new ArrayList<ExecutionNode>();
-		for (ExecutionNode n : session.right.cluster.getGraphData().nodesByKey.values()) {
+	public ArrayList<Node<?>> unmatchedGraph2Nodes() {
+		ArrayList<Node<?>> unmatchedNodes = new ArrayList<Node<?>>();
+		for (Node<?> n : session.right.cluster.getGraphData().nodesByKey.values()) {
 			if (!session.matchedNodes.containsRightKey(n.getKey())) {
 				unmatchedNodes.add(n);
 			}
@@ -153,7 +153,7 @@ public class GraphMergeStatistics {
 			pwRelationFile.close();
 	}
 
-	public static void dumpGraph(ModuleGraphCluster graph, String fileName) {
+	public static void dumpGraph(ModuleGraphCluster<? extends Node> graph, String fileName) {
 		Log.log("Dump the graph for " + graph + " to " + fileName);
 		File file = new File(fileName);
 		if (!file.getParentFile().exists()) {
@@ -183,19 +183,18 @@ public class GraphMergeStatistics {
 
 			// This file contains the analysis info for the graph
 			pwNodeFile = new PrintWriter(fileName + ".node");
-			Set<ExecutionNode> unreachableNodes = graph.getUnreachableNodes();
-			for (ExecutionNode n : unreachableNodes) {
+			Set<? extends Node> unreachableNodes = graph.getUnreachableNodes();
+			for (Node<?> n : unreachableNodes) {
 				pwNodeFile.println(n);
 			}
 
 			pwDotFile.println("digraph runGraph {");
 			int i = 0;
-			for (ExecutionNode n : graph.getGraphData().nodesByKey.values()) {
+			for (Node<? extends Node> n : graph.getGraphData().nodesByKey.values()) {
 				pwDotFile.println(i + "[label=\"" + n + "\"]");
 				i++;
 
-				List<Edge<ExecutionNode>> edges = n.getOutgoingEdges();
-				for (Edge<ExecutionNode> e : edges) {
+				for (Edge<? extends Node> e : n.getOutgoingEdges()) {
 					String branchType;
 					switch (e.getEdgeType()) {
 						case INDIRECT:
@@ -265,7 +264,8 @@ public class GraphMergeStatistics {
 
 		MatchResult matchResult = AnalysisUtil.getMatchResult(session.left.cluster, session.right.cluster, maxNode,
 				(ExecutionNode) rightNode, isIndirect);
-		Node trueLeftNode = session.left.cluster.getGraphData().HACK_relativeTagLookup((ExecutionNode) rightNode);
+		Node trueLeftNode = null; // session.left.cluster.getGraphData().HACK_relativeTagLookup((ExecutionNode)
+								  // rightNode);
 		if (maxNode == null) {
 			if (matchResult == MatchResult.IndirectExistingUnfoundMismatch
 					|| matchResult == MatchResult.PureHeuristicsExistingUnfoundMismatch) {

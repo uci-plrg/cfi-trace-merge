@@ -5,6 +5,9 @@ import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 public class InfinitelyMergeTwoExecutionGraphs {
 
 	public static void main(String[] args) {
-		MergeTwoExecutionGraphs.run(new ArgumentStack(args), Integer.MAX_VALUE);
+		ArgumentStack stack = new ArgumentStack(args);
+		CommonMergeOptions options = new CommonMergeOptions(stack);
+		MergeTwoGraphs executor = new MergeTwoGraphs(options);
+		executor.run(stack, Integer.MAX_VALUE);
 	}
 }
