@@ -104,7 +104,7 @@ public class GraphMergeResults {
 			int hashExclusionCount = 0;
 			for (Node.Key unmatchedKey : new ArrayList<Node.Key>(unmatchedNodes)) {
 				Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
-				if (oppositeCluster.getGraphData().HACK_containsEquivalent((ExecutionNode) unmatchedNode)) {
+				if (oppositeCluster.getGraphData().HACK_containsEquivalent(unmatchedNode)) {
 					HACK_moduleRelativeTagMisses.add(unmatchedKey);
 				}
 				if (!oppositeCluster.getGraphData().nodesByHash.keySet().contains(unmatchedNode.getHash())) {

@@ -75,12 +75,10 @@ public class ClusterMergeSession {
 		statistics.reset();
 		hasConflict = false;
 
-		Map<Long, ? extends Node> leftEntryPoints = left.cluster.getEntryPoints();
-		Map<Long, ? extends Node> rightEntryPoints = right.cluster.getEntryPoints();
-		for (long sigHash : rightEntryPoints.keySet()) {
-			if (leftEntryPoints.containsKey(sigHash)) {
-				Node leftNode = leftEntryPoints.get(sigHash);
-				Node rightNode = rightEntryPoints.get(sigHash);
+		for (long hash : right.cluster.getEntryHashes()) {
+			if (left.cluster.getEntryHashes().contains(hash)) {
+				Node leftNode = left.cluster.getEntryPoint(hash);
+				Node rightNode = right.cluster.getEntryPoint(hash);
 
 				debugLog.debugCheck(leftNode);
 				debugLog.debugCheck(rightNode);
@@ -95,7 +93,7 @@ public class ClusterMergeSession {
 
 			// Push new signature node to prioritize the speculation to the
 			// beginning of the graph
-			Node rightEntryPoint = rightEntryPoints.get(sigHash);
+			Node rightEntryPoint = right.cluster.getEntryPoint(hash);
 			// TODO: guessing that the third arg "level" should be 0
 			matchState.enqueueUnmatch(rightEntryPoint);
 			engine.addUnmatchedNode2Queue(rightEntryPoint);

@@ -16,7 +16,8 @@ import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeResults;
 
 public class MergeTwoGraphs {
 
-	private static final OptionArgumentMap.StringOption logFilename = OptionArgumentMap.createStringOption('l');
+	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l');
+	private static final OptionArgumentMap.BooleanOption verboseOption = OptionArgumentMap.createBooleanOption('v');
 
 	private final CommonMergeOptions options;
 	private final MergeDebugLog debugLog = new MergeDebugLog();
@@ -31,12 +32,15 @@ public class MergeTwoGraphs {
 		try {
 			options.parseOptions();
 
+			if (verboseOption.getValue())
+				Log.addOutput(System.out);
+
 			String leftPath = args.pop();
 			String rightPath = args.pop();
 
 			File logFile = null;
-			if (logFilename.getValue() != null) {
-				logFile = LogFile.create(logFilename.getValue(), LogFile.CollisionMode.AVOID,
+			if (logFilenameOption.getValue() != null) {
+				logFile = LogFile.create(logFilenameOption.getValue(), LogFile.CollisionMode.AVOID,
 						LogFile.NoSuchPathMode.ERROR);
 				Log.addOutput(logFile);
 				System.out.println("Logging to " + logFile.getAbsolutePath());
@@ -67,7 +71,6 @@ public class MergeTwoGraphs {
 				Log.log("\t@@@@ Merge failed with %s @@@@", t.getClass().getSimpleName());
 				Log.log(t);
 				System.err.println(String.format("!! Merge failed with %s !!", t.getClass().getSimpleName()));
-				t.printStackTrace();
 			}
 		}
 	}
@@ -143,7 +146,7 @@ public class MergeTwoGraphs {
 
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
-		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, logFilename));
+		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, logFilenameOption, verboseOption));
 		main.run(stack, 1);
 	}
 }

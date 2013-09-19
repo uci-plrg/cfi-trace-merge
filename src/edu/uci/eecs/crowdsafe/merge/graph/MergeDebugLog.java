@@ -7,7 +7,6 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener;
-import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener.LoadTarget;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
@@ -108,9 +107,7 @@ public class MergeDebugLog implements GraphLoadEventListener {
 	}
 
 	void debugCheck(Node node) {
-		ExecutionNode executionNode = (ExecutionNode) node;
-		if (debugRelativeTags.contains(executionNode.getKey().relativeTag)
-				&& executionNode.getModule().unit.filename.equals("shell32.dll"))
+		if (debugRelativeTags.contains(node.getRelativeTag()) && node.getModule().unit.filename.equals("shell32.dll"))
 			node.getClass();
 	}
 
