@@ -3,15 +3,15 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
 public class PairEdge {
-	private Node parent, child;
+	private Node<?> parent, child;
 	private boolean isDirect;
 	private int ordinal;
 
-	public Node getParent() {
+	public Node<?> getParent() {
 		return parent;
 	}
 
-	public Node getChild() {
+	public Node<?> getChild() {
 		return child;
 	}
 
@@ -23,7 +23,7 @@ public class PairEdge {
 		return ordinal;
 	}
 
-	public PairEdge(Node parent, Node child, boolean isDirect, int ordinal) {
+	public PairEdge(Node<?> parent, Node<?> child, boolean isDirect, int ordinal) {
 		this.parent = parent;
 		this.child = child;
 		this.isDirect = isDirect;

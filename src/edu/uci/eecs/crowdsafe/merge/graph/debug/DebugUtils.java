@@ -1,7 +1,5 @@
 package edu.uci.eecs.crowdsafe.merge.graph.debug;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
@@ -88,7 +86,6 @@ public class DebugUtils {
 	public static boolean debug_decision(int... options) {
 		if (!debug)
 			return false;
-		int opt = debug_option(options);
 		// Check all the debug options
 		for (int i = 0; i < options.length; i++) {
 			if ((options[i] & DEBUG_OPTION) == 0)

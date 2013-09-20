@@ -243,7 +243,7 @@ public class ClusteringAnalysisSet {
 
 		float maxSameProg = 0.0f, minDiffProg = 100000.0f;
 		int maxIndex = 0, minIndexI = 0, minIndexJ = 0;
-		int maxInstanceI = 0, maxInstanceJ = 0, minInstanceI = 0, minInstanceJ = 0;
+		int maxInstanceJ = 0, minInstanceJ = 0;
 		float[] maxDistSameProgs = new float[numProgs];
 		float[] sumDistSameProgs = new float[numProgs];
 		int[] numSameProgs = new int[numProgs];
@@ -274,7 +274,6 @@ public class ClusteringAnalysisSet {
 						if (maxSameProg < maxDistSameProg[indexI]) {
 							maxSameProg = maxDistSameProg[indexI];
 							maxIndex = indexI;
-							maxInstanceI = i;
 							maxInstanceJ = j;
 						}
 					}
@@ -294,7 +293,6 @@ public class ClusteringAnalysisSet {
 							minDiffProg = minDistDiffProg[indexI][indexJ];
 							minIndexI = indexI;
 							minIndexJ = indexJ;
-							minInstanceI = i;
 							minInstanceJ = j;
 						}
 					}
@@ -332,6 +330,7 @@ public class ClusteringAnalysisSet {
 		return 2 / (interScore / scores[i] + interScore / scores[j]) - 1;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void init() {
 		distMatrix = new float[paths.length][paths.length];
 		scores = new float[paths.length];
@@ -362,6 +361,7 @@ public class ClusteringAnalysisSet {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static HashMap<Long, Integer> loadFreqTableFromFile(String fileName) {
 		try {
 			FileInputStream fileIn = new FileInputStream(fileName);
@@ -381,16 +381,10 @@ public class ClusteringAnalysisSet {
 
 		Getopt g = new Getopt("ClusteringAnalysis", argvs, "xonf:d:t:m:");
 		int c;
-		int numThreads = 4;
-		boolean append = true, isAnalyzing = true, error = false;
-		String dir4Files = null, dir4Runs = null, recordFile = null, freqFile = null;
-		String dir4Hashset1 = null, dir4Hashset2 = null;
-		boolean isDistance = false;
+		boolean error = false;
+		String dir4Files = null, dir4Runs = null;
 		while ((c = g.getopt()) != -1) {
 			switch (c) {
-				case 'o':
-					append = false;
-					break;
 				case 'f':
 					dir4Files = g.getOptarg();
 					if (dir4Files.startsWith("-"))
@@ -400,20 +394,6 @@ public class ClusteringAnalysisSet {
 					dir4Runs = g.getOptarg();
 					if (dir4Runs.startsWith("-"))
 						error = true;
-					break;
-				case 't':
-					numThreads = Integer.parseInt(g.getOptarg());
-					break;
-				case 'n':
-					isAnalyzing = false;
-					break;
-				case 'm':
-					freqFile = g.getOptarg();
-					break;
-				case 'x':
-					// this option is used to compute the distance of two sets
-					// it should work with -m option
-					isDistance = true;
 					break;
 				case '?':
 					error = true;
@@ -427,16 +407,7 @@ public class ClusteringAnalysisSet {
 		if (error)
 			return;
 		int index = g.getOptind();
-		HashMap<Long, Integer> freqTable = null;
-		if (isDistance) {
-			freqTable = loadFreqTableFromFile(freqFile);
-			if (index < argvs.length)
-				dir4Hashset1 = argvs[index++];
-			if (index < argvs.length)
-				dir4Hashset2 = argvs[index++];
-		} else if (index < argvs.length) {
-			recordFile = argvs[index];
-		} else {
+		if (index >= argvs.length) {
 			Log.log("Usage: ClusteringAnalysis [-o][-f dir][-d dir] file");
 			return;
 		}

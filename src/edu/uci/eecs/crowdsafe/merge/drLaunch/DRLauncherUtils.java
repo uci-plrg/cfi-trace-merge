@@ -28,7 +28,6 @@ public class DRLauncherUtils {
 		HashMap<String, Integer> serverInfo = DRConfiguration.getConfig().getServerInfo();
 		String generatedScriptsPath = DRConfiguration.getConfig().getGeneratedScriptsPath();
 
-		int subscriptNum = serverInfo.size();
 		HashMap<String, StringBuilder> server2StrBuilder = new HashMap<String, StringBuilder>();
 		// Initialize the string builder of each subscripts
 		int totalProcessorNum = 0;
@@ -41,7 +40,7 @@ public class DRLauncherUtils {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(scriptName));
 
-			int metaIndex0 = -1, metaIndex1 = -1, lineIdx = 0, headerEnd = -1, lastMetaRunIdx = -1;
+			int lineIdx = 0, headerEnd = -1;
 			int executionSize = 0;
 			String curLine;
 			// Get the size of each execution body
@@ -49,14 +48,10 @@ public class DRLauncherUtils {
 				lineIdx++;
 				lines.add(curLine);
 				if (curLine.startsWith("# meta run ")) {
-					lastMetaRunIdx = lineIdx;
 					executionSize++;
 				}
 				if (curLine.equals("# meta run 0")) {
 					headerEnd = lineIdx - 1;
-					metaIndex0 = lineIdx;
-				} else if (curLine.equals("# meta run 1")) {
-					metaIndex1 = lineIdx;
 				}
 			}
 

@@ -3,14 +3,13 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.util.LinkedList;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 
 class GraphMatchState {
 	private final ClusterMergeSession session;
 
 	private final LinkedList<PairNode> matchedQueue = new LinkedList<PairNode>();
-	private final LinkedList<Node> unmatchedQueue = new LinkedList<Node>();
+	private final LinkedList<Node<?>> unmatchedQueue = new LinkedList<Node<?>>();
 	private final LinkedList<PairNodeEdge> indirectChildren = new LinkedList<PairNodeEdge>();
 
 	GraphMatchState(ClusterMergeSession session) {
@@ -42,13 +41,13 @@ class GraphMatchState {
 		return !matchedQueue.isEmpty();
 	}
 
-	void enqueueUnmatch(Node unmatch) {
+	void enqueueUnmatch(Node<?> unmatch) {
 		unmatchedQueue.add(unmatch);
 		session.debugLog.unmatchEnqueued(unmatch);
 	}
 
-	Node dequeueUnmatch() {
-		Node unmatch = unmatchedQueue.remove();
+	Node<?> dequeueUnmatch() {
+		Node<?> unmatch = unmatchedQueue.remove();
 		session.debugLog.unmatchDequeued(unmatch);
 		return unmatch;
 	}

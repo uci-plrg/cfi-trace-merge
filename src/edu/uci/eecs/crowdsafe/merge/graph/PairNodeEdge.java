@@ -12,25 +12,25 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
  * 
  */
 public class PairNodeEdge {
-	private Node leftParentNode;
-	private Edge<? extends Node> rightEdge;
-	private Node rightParentNode;
+	private Node<?> leftParentNode;
+	private Edge<? extends Node<?>> rightEdge;
+	private Node<?> rightParentNode;
 
-	public PairNodeEdge(Node leftParentNode, Edge<? extends Node> rightEdge, Node rightParentNode) {
+	public PairNodeEdge(Node<?> leftParentNode, Edge<? extends Node<?>> rightEdge, Node<?> rightParentNode) {
 		this.leftParentNode = leftParentNode;
 		this.rightEdge = rightEdge;
 		this.rightParentNode = rightParentNode;
 	}
 
-	public Node getLeftParentNode() {
+	public Node<?> getLeftParentNode() {
 		return leftParentNode;
 	}
 
-	public Edge<? extends Node> getRightEdge() {
+	public Edge<? extends Node<?>> getRightEdge() {
 		return rightEdge;
 	}
 
-	public Node getRightParentNode() {
+	public Node<?> getRightParentNode() {
 		return rightParentNode;
 	}
 

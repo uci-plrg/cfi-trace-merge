@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 
 public class ContextMatchRecord {
 
@@ -53,14 +52,14 @@ public class ContextMatchRecord {
 
 	// In case of recursively compute the similarity of cyclic graph, record
 	// the compared nodes every time getContextSimilarity is called
-	private final Set<Node> comparedNodeSet = new HashSet<Node>();
-	private final List<Node> comparedNodeList = new ArrayList<Node>();
+	private final Set<Node<?>> comparedNodeSet = new HashSet<Node<?>>();
+	private final List<Node<?>> comparedNodeList = new ArrayList<Node<?>>();
 
 	private int stateIndex;
 	private final List<State> stateStack = new ArrayList<State>();
 	
-	private Node leftSubtreeRoot;
-	private Node rightSubtreeRoot;
+	private Node<?> leftSubtreeRoot;
+	private Node<?> rightSubtreeRoot;
 
 	public ContextMatchRecord() {
 		for (int i = 0; i < INITIAL_COMPARISON_COUNT; i++) {
@@ -71,7 +70,7 @@ public class ContextMatchRecord {
 		}
 	}
 
-	public void reset(Node leftSubtreeRoot, Node rightSubtreeRoot) {
+	public void reset(Node<?> leftSubtreeRoot, Node<?> rightSubtreeRoot) {
 		currentState.index = 0;
 		currentState.matchedNodeCount = 0;
 		currentState.comparedNodeCount = 0;
@@ -100,12 +99,12 @@ public class ContextMatchRecord {
 		return currentState.fail;
 	}
 
-	public void addComparedNode(Node node) {
+	public void addComparedNode(Node<?> node) {
 		comparedNodeSet.add(node);
 		comparedNodeList.add(node);
 	}
 
-	public boolean isAlreadyCompared(Node node) {
+	public boolean isAlreadyCompared(Node<?> node) {
 		return comparedNodeSet.contains(node);
 	}
 

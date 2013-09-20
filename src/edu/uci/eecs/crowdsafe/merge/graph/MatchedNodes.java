@@ -59,7 +59,7 @@ public class MatchedNodes {
 		return matchedNodesLeftRight.get(leftKey).equals(rightKey);
 	}
 
-	public boolean addPair(Node left, Node right, int score) {
+	public boolean addPair(Node<?> left, Node<?> right, int score) {
 		session.debugLog.nodesMatched(left, right);
 
 		Node.Key leftKey = left.getKey();

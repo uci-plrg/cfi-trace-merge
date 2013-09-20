@@ -3,14 +3,14 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
 
 public class ClusterMergeSession {
 
-	public static void mergeTwoGraphs(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeResults results,
+	public static void mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, GraphMergeResults results,
 			MergeDebugLog debugLog) {
 		ClusterMergeSession session = new ClusterMergeSession(left, right, results, debugLog);
 
@@ -45,13 +45,13 @@ public class ClusterMergeSession {
 
 	final ContextMatchRecord contextRecord = new ContextMatchRecord();
 
-	private final Map<Node, Integer> scoresByLeftNode = new HashMap<Node, Integer>();
+	private final Map<Node<?>, Integer> scoresByLeftNode = new HashMap<Node<?>, Integer>();
 
 	boolean hasConflict;
 
 	final GraphMergeEngine engine = new GraphMergeEngine(this);
 
-	ClusterMergeSession(ModuleGraphCluster left, ModuleGraphCluster right, GraphMergeResults results,
+	ClusterMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, GraphMergeResults results,
 			MergeDebugLog debugLog) {
 		this.left = new GraphMergeTarget(this, left);
 		this.right = new GraphMergeTarget(this, right);
@@ -77,8 +77,8 @@ public class ClusterMergeSession {
 
 		for (long hash : right.cluster.getEntryHashes()) {
 			if (left.cluster.getEntryHashes().contains(hash)) {
-				Node leftNode = left.cluster.getEntryPoint(hash);
-				Node rightNode = right.cluster.getEntryPoint(hash);
+				Node<?> leftNode = left.cluster.getEntryPoint(hash);
+				Node<?> rightNode = right.cluster.getEntryPoint(hash);
 
 				debugLog.debugCheck(leftNode);
 				debugLog.debugCheck(rightNode);
@@ -91,16 +91,13 @@ public class ClusterMergeSession {
 				}
 			}
 
-			// Push new signature node to prioritize the speculation to the
-			// beginning of the graph
-			Node rightEntryPoint = right.cluster.getEntryPoint(hash);
-			// TODO: guessing that the third arg "level" should be 0
+			Node<?> rightEntryPoint = right.cluster.getEntryPoint(hash);
 			matchState.enqueueUnmatch(rightEntryPoint);
 			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
 	}
 
-	boolean acceptContext(Node candidate) {
+	boolean acceptContext(Node<?> candidate) {
 		int score = contextRecord.evaluate();
 		if (score < 7)
 			return false;
@@ -108,11 +105,11 @@ public class ClusterMergeSession {
 		return true;
 	}
 
-	void setScore(Node leftNode, int score) {
+	void setScore(Node<?> leftNode, int score) {
 		scoresByLeftNode.put(leftNode, score);
 	}
 
-	int getScore(Node leftNode) {
+	int getScore(Node<?> leftNode) {
 		Integer score = scoresByLeftNode.get(leftNode);
 		if (score != null)
 			return score;

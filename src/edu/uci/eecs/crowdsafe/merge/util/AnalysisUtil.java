@@ -1,31 +1,22 @@
 package edu.uci.eecs.crowdsafe.merge.util;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareDistributionUnit;
+import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.MatchResult;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
 public class AnalysisUtil {
 	public static final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -136,7 +127,7 @@ public class AnalysisUtil {
 	 * @param n2
 	 * @return
 	 */
-	public static MatchResult getMatchResult(ModuleGraphCluster left, ModuleGraphCluster right, Node leftNode,
+	public static MatchResult getMatchResult(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, Node<?> leftNode,
 			ExecutionNode rightNode, boolean isIndirect) {
 		SoftwareDistributionUnit rightUnit = rightNode.getModule().unit;
 
@@ -145,8 +136,7 @@ public class AnalysisUtil {
 			return MatchResult.Unknown;
 		}
 
-		Node leftCorrespondingToRight = null; // left.getGraphData().HACK_relativeTagLookup(rightNode);
-		if (leftCorrespondingToRight == null) {
+		if (left.getGraphData().HACK_containsEquivalent(rightNode)) {
 			// The corresponding node does not exist in graph1
 			// 1. n1 == null, non-existing correct match
 			// 2. n1 != null, non-existing mismatch
@@ -175,12 +165,14 @@ public class AnalysisUtil {
 					return MatchResult.PureHeuristicsExistingUnfoundMismatch;
 				}
 			} else {
-				if (leftCorrespondingToRight.getKey().equals(rightNode.getKey())) {
-					if (isIndirect) {
-						return MatchResult.IndirectExistingCorrectMatch;
-					} else {
-						return MatchResult.PureHeuristicsExistingCorrectMatch;
-					}
+				// if (leftCorrespondingToRight.getKey().equals(rightNode.getKey())) {
+				if (isIndirect) {
+					return MatchResult.IndirectExistingCorrectMatch;
+				} else {
+					return MatchResult.PureHeuristicsExistingCorrectMatch;
+				}
+				/**
+				 * <pre>
 				} else {
 					if (isIndirect) {
 						return MatchResult.IndirectExistingMismatch;
@@ -188,6 +180,7 @@ public class AnalysisUtil {
 						return MatchResult.PureHeuristicsExistingMismatch;
 					}
 				}
+				 */
 			}
 		}
 	}

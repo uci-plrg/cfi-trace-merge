@@ -15,10 +15,8 @@ import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
+import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
@@ -90,20 +88,20 @@ public class GraphMergeResults {
 			builder.cluster.setRightUnmatched(builder.unmatchedNodeSummary.build());
 		}
 
-		private void reportUnmatchedNodes(ModuleGraphCluster<? extends Node> cluster,
-				ModuleGraphCluster oppositeCluster, String side) {
-			Set<Node.Key> unmatchedNodes = new HashSet<Node.Key>(cluster.getGraphData().nodesByKey.keySet());
+		private void reportUnmatchedNodes(ModuleGraphCluster<?> cluster, ModuleGraphCluster<?> oppositeCluster,
+				String side) {
+			Set<Node.Key> unmatchedNodes = new HashSet<Node.Key>(cluster.getAllKeys());
 			unmatchedNodes.removeAll(session.matchedNodes.getLeftKeySet());
 			unmatchedNodes.removeAll(session.matchedNodes.getRightKeySet());
 			int totalUnmatchedCount = unmatchedNodes.size();
 			int unreachableUnmatchedCount = 0;
-			for (Node unreachable : cluster.getUnreachableNodes()) {
+			for (Node<?> unreachable : cluster.getUnreachableNodes()) {
 				unmatchedNodes.remove(unreachable.getKey());
 				unreachableUnmatchedCount++;
 			}
 			int hashExclusionCount = 0;
 			for (Node.Key unmatchedKey : new ArrayList<Node.Key>(unmatchedNodes)) {
-				Node unmatchedNode = cluster.getGraphData().nodesByKey.get(unmatchedKey);
+				Node<?> unmatchedNode = cluster.getNode(unmatchedKey);
 				if (oppositeCluster.getGraphData().HACK_containsEquivalent(unmatchedNode)) {
 					HACK_moduleRelativeTagMisses.add(unmatchedKey);
 				}
@@ -132,11 +130,11 @@ public class GraphMergeResults {
 					HACK_missedSubgraphs.put(currentSubgraph, currentSubgraph);
 				}
 				boolean joined = false;
-				Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(missed);
+				Node<?> missedNode = session.left.cluster.getNode(missed);
 				if (missedNode == null) {
-					missedNode = session.right.cluster.getGraphData().nodesByKey.get(missed);
+					missedNode = session.right.cluster.getNode(missed);
 				}
-				for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
+				for (Edge<?> out : missedNode.getOutgoingEdges()) {
 					if (!leftMissed.contains(out.getToNode().getKey()))
 						continue;
 					for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs.keySet())) {
@@ -166,8 +164,8 @@ public class GraphMergeResults {
 					continue;
 				for (Node.Key key : subgraph) {
 					boolean connected = false;
-					Node<?> missedNode = session.left.cluster.getGraphData().nodesByKey.get(key);
-					for (Edge<? extends Node> out : missedNode.getOutgoingEdges()) {
+					Node<?> missedNode = session.left.cluster.getNode(key);
+					for (Edge<?> out : missedNode.getOutgoingEdges()) {
 						if (subgraph.contains(out.getToNode().getKey())) {
 							connected = true;
 							break;
@@ -175,7 +173,7 @@ public class GraphMergeResults {
 					}
 					if (connected)
 						continue;
-					for (Edge<? extends Node> in : missedNode.getIncomingEdges()) {
+					for (Edge<?> in : missedNode.getIncomingEdges()) {
 						if (subgraph.contains(in.getFromNode().getKey())) {
 							connected = true;
 							break;
@@ -187,21 +185,22 @@ public class GraphMergeResults {
 				}
 
 				if (subgraph.size() > 4) {
-					Map<MetaNodeType, MutableInteger> nodeTypeCounts = new EnumMap(MetaNodeType.class);
+					Map<MetaNodeType, MutableInteger> nodeTypeCounts = new EnumMap<MetaNodeType, MutableInteger>(
+							MetaNodeType.class);
 					for (MetaNodeType type : MetaNodeType.values())
 						nodeTypeCounts.put(type, new MutableInteger(0));
-					Map<EdgeType, MutableInteger> edgeTypeCounts = new EnumMap(EdgeType.class);
+					Map<EdgeType, MutableInteger> edgeTypeCounts = new EnumMap<EdgeType, MutableInteger>(EdgeType.class);
 					for (EdgeType type : EdgeType.values())
 						edgeTypeCounts.put(type, new MutableInteger(0));
-					List<Node> entryPoints = new ArrayList<Node>();
-					List<Node> nodes = new ArrayList<Node>();
+					List<Node<?>> entryPoints = new ArrayList<Node<?>>();
+					List<Node<?>> nodes = new ArrayList<Node<?>>();
 					for (Node.Key key : subgraph) {
-						Node<?> node = session.left.cluster.getGraphData().nodesByKey.get(key);
+						Node<?> node = session.left.cluster.getNode(key);
 						nodes.add(node);
 						nodeTypeCounts.get(node.getType()).increment();
 
 						boolean subgraphContainsEntry = false;
-						for (Edge<? extends Node> edge : node.getIncomingEdges()) {
+						for (Edge<?> edge : node.getIncomingEdges()) {
 							if (subgraph.contains(edge.getFromNode().getKey())) {
 								subgraphContainsEntry = true;
 								edgeTypeCounts.get(edge.getEdgeType()).increment();
@@ -218,7 +217,7 @@ public class GraphMergeResults {
 						if (edgeTypeCounts.get(type).getVal() > 0)
 							Log.log("\tEdge type %s: %d", type, edgeTypeCounts.get(type).getVal());
 					Log.log("\tEntry points:");
-					for (Node entryPoint : entryPoints)
+					for (Node<?> entryPoint : entryPoints)
 						Log.log("\t\t%s (%s)", entryPoint, session.matchedNodes.HACK_leftMismatchedNodes
 								.contains(entryPoint.getKey()) ? "mismatched" : "missed");
 					// System.out.println("check this"); // nodes.get(4).getIncomingEdges().size()
@@ -238,8 +237,8 @@ public class GraphMergeResults {
 
 			builder.traceProfile.clear().setUnion(mergedGraphNodeCount); // simple node count of the entire merged graph
 			builder.traceProfile.setIntersection(session.matchedNodes.size());
-			builder.traceProfile.setLeft(session.left.cluster.getGraphData().nodesByKey.size());
-			builder.traceProfile.setRight(session.right.cluster.getGraphData().nodesByKey.size());
+			builder.traceProfile.setLeft(session.left.cluster.getNodeCount());
+			builder.traceProfile.setRight(session.right.cluster.getNodeCount());
 			builder.cluster.setGraphProfile(builder.traceProfile.build());
 
 			builder.traceProfile.clear().setUnion(mergedGraphNodeCount); // simple node count of the entire merged graph
@@ -301,7 +300,7 @@ public class GraphMergeResults {
 		currentCluster = new ClusterResults(session);
 		resultsByCluster.put(session.left.cluster.cluster, currentCluster);
 
-		Log.log("\n  === Merging cluster %s ===", session.left.cluster.cluster.name);
+		Log.log("\n  === Merging cluster %s ===\n", session.left.cluster.cluster.name);
 	}
 
 	void clusterMergeCompleted() {

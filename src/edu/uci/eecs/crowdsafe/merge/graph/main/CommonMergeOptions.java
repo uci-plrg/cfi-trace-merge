@@ -21,7 +21,7 @@ class CommonMergeOptions {
 
 	private final OptionArgumentMap map;
 
-	private final Set<AutonomousSoftwareDistribution> clusterMergeSet = new HashSet<AutonomousSoftwareDistribution>();
+	public final Set<AutonomousSoftwareDistribution> clusterMergeSet = new HashSet<AutonomousSoftwareDistribution>();
 
 	CommonMergeOptions(ArgumentStack args, OptionArgumentMap.Option<?>... options) {
 		List<OptionArgumentMap.Option<?>> allOptions = new ArrayList<OptionArgumentMap.Option<?>>();

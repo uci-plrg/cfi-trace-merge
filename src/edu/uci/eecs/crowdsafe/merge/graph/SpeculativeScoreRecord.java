@@ -70,13 +70,13 @@ public class SpeculativeScoreRecord {
 	public final MatchResult matchResult;
 
 	// Record the matched nodes, leftNode can be null
-	public final Node leftNode, rightNode;
+	public final Node<?> leftNode, rightNode;
 
 	// The actual chosen leftNode
-	public final Node tagMappedLeftNode;
+	public final Node<?> tagMappedLeftNode;
 
 	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType, boolean isIndirectSpeculation,
-			int matchingScore, Node leftNode, Node rightNode, Node tagMappedLeftNode, MatchResult matchResult) {
+			int matchingScore, Node<?> leftNode, Node<?> rightNode, Node<?> tagMappedLeftNode, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;
 		this.matchingScore = matchingScore;

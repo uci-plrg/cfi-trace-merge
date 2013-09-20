@@ -23,7 +23,7 @@ public class Heap<Type> {
 		elems.add(null);
 	}
 
-	public void setComparator(Comparator comparator) {
+	public void setComparator(Comparator<Type> comparator) {
 		this.comparator = comparator;
 	}
 

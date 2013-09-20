@@ -5,11 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.MatchResult;
 import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
 public class SpeculativeScoreList {
 

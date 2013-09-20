@@ -1,6 +1,5 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
-import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareDistributionUnit;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
 public class PairNode {
@@ -11,22 +10,22 @@ public class PairNode {
 		HEURISTIC
 	}
 
-	private Node leftNode, rightNode;
+	private Node<?> leftNode, rightNode;
 	public final MatchType type;
 
 	// The level of the BFS traverse
 
-	public PairNode(Node node1, Node node2, MatchType type) {
-		this.leftNode = node1;
-		this.rightNode = node2;
+	public PairNode(Node<?> left, Node<?> right, MatchType type) {
+		this.leftNode = left;
+		this.rightNode = right;
 		this.type = type;
 	}
 
-	public Node getLeftNode() {
+	public Node<?> getLeftNode() {
 		return leftNode;
 	}
 
-	public Node getRightNode() {
+	public Node<?> getRightNode() {
 		return rightNode;
 	}
 

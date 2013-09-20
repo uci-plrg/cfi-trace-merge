@@ -20,16 +20,10 @@ public class GraphAnalyzer {
 		Getopt g = new Getopt("GraphAnalyzer", argvs, "msd:t:");
 		int c;
 		// By default we will have numThreads number of threads
-		boolean error = false, sameProg = false, merge = false;
+		boolean error = false;
 		String runDirs = null;
 		while ((c = g.getopt()) != -1) {
 			switch (c) {
-				case 'm':
-					merge = true;
-					break;
-				case 's':
-					sameProg = true;
-					break;
 				case 'd':
 					runDirs = g.getOptarg();
 					break;

@@ -3,11 +3,12 @@ package edu.uci.eecs.crowdsafe.merge.graph.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.loader.ClusterGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
@@ -32,8 +33,7 @@ abstract class GraphMergeCandidate {
 
 	abstract Collection<AutonomousSoftwareDistribution> getRepresentedClusters();
 
-	abstract ModuleGraphCluster<? extends Node> getClusterGraph(AutonomousSoftwareDistribution cluster)
-			throws IOException;
+	abstract ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException;
 
 	static class Execution extends GraphMergeCandidate {
 
@@ -76,7 +76,7 @@ abstract class GraphMergeCandidate {
 		}
 
 		@Override
-		public ModuleGraphCluster<? extends Node> getClusterGraph(AutonomousSoftwareDistribution cluster) {
+		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) {
 			return graph.getModuleGraphCluster(cluster);
 		}
 	}
@@ -108,9 +108,41 @@ abstract class GraphMergeCandidate {
 		}
 
 		@Override
-		public ModuleGraphCluster<? extends Node> getClusterGraph(AutonomousSoftwareDistribution cluster)
-				throws IOException {
+		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			return loadSession.loadClusterGraph(cluster);
+		}
+	}
+
+	static class LoadedClusters extends GraphMergeCandidate {
+
+		private Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs;
+		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
+
+		public LoadedClusters(Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs,
+				MergeDebugLog debugLog) {
+			super(debugLog);
+
+			this.graphs = graphs;
+		}
+
+		@Override
+		public void loadData(File directory) throws IOException {
+			throw new UnsupportedOperationException("The clusters are already loaded.");
+		}
+
+		@Override
+		public Graph.Process summarizeGraph() {
+			return summaryBuilder.buildPartial();
+		}
+
+		@Override
+		public Collection<AutonomousSoftwareDistribution> getRepresentedClusters() {
+			return graphs.keySet();
+		}
+
+		@Override
+		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
+			return graphs.get(cluster);
 		}
 	}
 }

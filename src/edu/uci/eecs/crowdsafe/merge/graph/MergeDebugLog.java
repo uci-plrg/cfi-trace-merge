@@ -7,9 +7,9 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener;
+import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
@@ -106,19 +106,19 @@ public class MergeDebugLog implements GraphLoadEventListener {
 		}
 	}
 
-	void debugCheck(Node node) {
+	void debugCheck(Node<?> node) {
 		if (debugRelativeTags.contains(node.getRelativeTag()) && node.getModule().unit.filename.equals("shell32.dll"))
 			node.getClass();
 	}
 
-	private boolean isTracked(Node node) {
+	private boolean isTracked(Node<?> node) {
 		if (node instanceof ExecutionNode) {
 			return trackedNodes.contains(trackedNodeLookupKey.assign((ExecutionNode) node));
 		}
 		return false;
 	}
 
-	void nodesMatched(Node left, Node right) {
+	void nodesMatched(Node<?> left, Node<?> right) {
 		if (isTracked(left) || isTracked(right))
 			Log.log("Node %s matched with node %s", left.toString(), right.toString());
 	}
@@ -133,12 +133,12 @@ public class MergeDebugLog implements GraphLoadEventListener {
 			Log.log("Dequeue matched pair %s and %s", match.getLeftNode(), match.getRightNode());
 	}
 
-	void unmatchEnqueued(Node unmatch) {
+	void unmatchEnqueued(Node<?> unmatch) {
 		if (isTracked(unmatch))
 			Log.log("Enqueue unmatched node %s", unmatch);
 	}
 
-	void unmatchDequeued(Node unmatch) {
+	void unmatchDequeued(Node<?> unmatch) {
 		if (isTracked(unmatch))
 			Log.log("Dequeue unmatched node %s", unmatch);
 	}
@@ -155,22 +155,22 @@ public class MergeDebugLog implements GraphLoadEventListener {
 					rightEdge.getRightParentNode());
 	}
 
-	void nodeMergedFromLeft(Node leftNode) {
+	void nodeMergedFromLeft(Node<?> leftNode) {
 		if (isTracked(leftNode))
 			Log.log("Merge node %s from the left graph.", leftNode.toString());
 	}
 
-	void nodeMergedFromRight(Node rightNode) {
+	void nodeMergedFromRight(Node<?> rightNode) {
 		if (isTracked(rightNode))
 			Log.log("Merge node %s from the right graph.", rightNode.toString());
 	}
 
-	void edgeMergedFromLeft(Edge<? extends Node> edge) {
+	void edgeMergedFromLeft(Edge<?> edge) {
 		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode()))
 			Log.log("Merge edge %s from the left graph.", edge.toString());
 	}
 
-	void edgeMergedFromRight(Edge<? extends Node> edge) {
+	void edgeMergedFromRight(Edge<?> edge) {
 		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode()))
 			Log.log("Merge edge %s from the right graph.", edge.toString());
 	}
@@ -183,27 +183,27 @@ public class MergeDebugLog implements GraphLoadEventListener {
 	}
 
 	@Override
-	public void nodeLoadReference(Node node, LoadTarget target) {
+	public void nodeLoadReference(Node<?> node, LoadTarget target) {
 		if (isTracked(node))
 			Log.log("Node %s referenced during %s load.", node.toString(), target.displayName);
 	}
 
 	@Override
-	public void nodeCreation(Node node) {
+	public void nodeCreation(Node<?> node) {
 		if (isTracked(node))
 			Log.log("Node %s created.", node.toString());
 	}
 
 	// 5% hot during load!
 	@Override
-	public void edgeCreation(Edge edge) {
+	public void edgeCreation(Edge<?> edge) {
 		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode())) {
 			Log.log("Edge %s created.", edge.toString());
 		}
 	}
 
 	@Override
-	public void graphAddition(Node node, ModuleGraphCluster cluster) {
+	public void graphAddition(Node<?> node, ModuleGraphCluster<?> cluster) {
 		if (isTracked(node)) {
 			Log.log("Node %s added to cluster %s.", node.toString(), cluster.cluster.name);
 		}

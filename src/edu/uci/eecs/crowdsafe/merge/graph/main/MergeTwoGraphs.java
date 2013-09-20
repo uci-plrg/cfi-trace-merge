@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
@@ -84,12 +84,12 @@ public class MergeTwoGraphs {
 			if (!options.includeCluster(leftCluster))
 				continue;
 
-			ModuleGraphCluster rightGraph = rightData.getClusterGraph(leftCluster);
+			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
 			if (rightGraph == null) {
 				Log.log("Skipping cluster %s because it does not appear in the right side.", leftCluster.name);
 				continue;
 			}
-			ModuleGraphCluster leftGraph = leftData.getClusterGraph(leftCluster);
+			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
 
 			ClusterMergeSession.mergeTwoGraphs(leftGraph, rightGraph, results, debugLog);
 		}
