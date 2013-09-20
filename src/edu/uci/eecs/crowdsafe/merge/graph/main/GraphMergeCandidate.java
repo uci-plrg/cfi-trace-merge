@@ -95,11 +95,13 @@ abstract class GraphMergeCandidate {
 		public void loadData(File directory) throws IOException {
 			dataSource = new ClusterTraceDirectory(directory);
 			loadSession = new ClusterGraphLoadSession(dataSource);
+
+			summaryBuilder.setName(directory.getName());
 		}
 
 		@Override
 		public Graph.Process summarizeGraph() {
-			return summaryBuilder.buildPartial();
+			return summaryBuilder.build();
 		}
 
 		@Override
@@ -109,7 +111,9 @@ abstract class GraphMergeCandidate {
 
 		@Override
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
-			return loadSession.loadClusterGraph(cluster);
+			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster);
+			summaryBuilder.addCluster(graph.summarize());
+			return graph;
 		}
 	}
 
@@ -118,11 +122,12 @@ abstract class GraphMergeCandidate {
 		private Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		public LoadedClusters(Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs,
-				MergeDebugLog debugLog) {
+		public LoadedClusters(String name,
+				Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs, MergeDebugLog debugLog) {
 			super(debugLog);
 
 			this.graphs = graphs;
+			summaryBuilder.setName(name);
 		}
 
 		@Override
@@ -132,6 +137,9 @@ abstract class GraphMergeCandidate {
 
 		@Override
 		public Graph.Process summarizeGraph() {
+			for (ModuleGraphCluster<ClusterNode<?>> graph : graphs.values()) {
+				summaryBuilder.addCluster(graph.summarize());
+			}
 			return summaryBuilder.buildPartial();
 		}
 

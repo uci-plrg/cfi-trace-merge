@@ -78,7 +78,7 @@ public class MergeTwoGraphs {
 	void merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, File logFile) throws IOException {
 		long mergeStart = System.currentTimeMillis();
 
-		GraphMergeResults results = new GraphMergeResults(leftData.summarizeGraph(), rightData.summarizeGraph());
+		GraphMergeResults results = new GraphMergeResults();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (!options.includeCluster(leftCluster))
@@ -93,6 +93,8 @@ public class MergeTwoGraphs {
 
 			ClusterMergeSession.mergeTwoGraphs(leftGraph, rightGraph, results, debugLog);
 		}
+
+		results.setGraphSummaries(leftData.summarizeGraph(), rightData.summarizeGraph());
 
 		Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - mergeStart) / 1000.));
 

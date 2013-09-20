@@ -104,10 +104,10 @@ public class RoundRobinMerge {
 					Log.clearThreadOutputs();
 					Log.addThreadOutput(logFile);
 
-					GraphMergeCandidate leftCandidate = new GraphMergeCandidate.LoadedClusters(merge.left.clusters,
-							debugLog);
-					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedClusters(merge.right.clusters,
-							debugLog);
+					GraphMergeCandidate leftCandidate = new GraphMergeCandidate.LoadedClusters(merge.left.name,
+							merge.left.clusters, debugLog);
+					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedClusters(merge.right.name,
+							merge.right.clusters, debugLog);
 					executor.merge(leftCandidate, rightCandidate, logFile);
 				}
 			} catch (Throwable t) {
@@ -221,7 +221,7 @@ public class RoundRobinMerge {
 				for (MergeThread thread : threads) {
 					thread.join();
 				}
-				
+
 				Log.log("\nRound-robin merge of %d graphs (%d merges) on %d threads in %f seconds.", graphs.size(),
 						workList.size(), threadCount, ((System.currentTimeMillis() - mergeStart) / 1000.));
 			}

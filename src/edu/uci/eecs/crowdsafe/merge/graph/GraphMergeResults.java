@@ -287,7 +287,7 @@ public class GraphMergeResults {
 
 	private ClusterResults currentCluster = null;
 
-	public GraphMergeResults(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary) {
+	public void setGraphSummaries(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary) {
 		builder.results.setLeft(leftGraphSummary);
 		builder.results.setRight(rightGraphSummary);
 	}
