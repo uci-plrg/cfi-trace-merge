@@ -63,6 +63,8 @@ public class MergeTwoGraphs {
 			for (int i = 0; i < iterationCount; i++) {
 				merge(leftCandidate, rightCandidate, logFile);
 			}
+			
+			toString();
 		} catch (Throwable t) {
 			if (parsingArguments) {
 				t.printStackTrace();
@@ -150,5 +152,7 @@ public class MergeTwoGraphs {
 		ArgumentStack stack = new ArgumentStack(args);
 		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, logFilenameOption, verboseOption));
 		main.run(stack, 1);
+		
+		main.toString();
 	}
 }

@@ -17,6 +17,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
@@ -134,28 +135,33 @@ public class GraphMergeResults {
 				if (missedNode == null) {
 					missedNode = session.right.cluster.getNode(missed);
 				}
-				for (Edge<?> out : missedNode.getOutgoingEdges()) {
-					if (!leftMissed.contains(out.getToNode().getKey()))
-						continue;
-					for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs.keySet())) {
-						if (subgraph == currentSubgraph)
+				OrdinalEdgeList<?> edgeList = missedNode.getOutgoingEdges();
+				try {
+					for (Edge<?> out : edgeList) {
+						if (!leftMissed.contains(out.getToNode().getKey()))
 							continue;
-						if (subgraph.contains(out.getToNode().getKey())) {
-							subgraph.addAll(currentSubgraph);
-							HACK_missedSubgraphs.remove(currentSubgraph);
-							for (Node.Key member : currentSubgraph) {
-								if (pendingSubgraphs.remove(member) != null)
-									pendingSubgraphs.put(member, subgraph);
+						for (Set<Node.Key> subgraph : new ArrayList<Set<Node.Key>>(HACK_missedSubgraphs.keySet())) {
+							if (subgraph == currentSubgraph)
+								continue;
+							if (subgraph.contains(out.getToNode().getKey())) {
+								subgraph.addAll(currentSubgraph);
+								HACK_missedSubgraphs.remove(currentSubgraph);
+								for (Node.Key member : currentSubgraph) {
+									if (pendingSubgraphs.remove(member) != null)
+										pendingSubgraphs.put(member, subgraph);
+								}
+								currentSubgraph = subgraph;
+								joined = true;
+								break;
 							}
-							currentSubgraph = subgraph;
-							joined = true;
-							break;
+						}
+						if (!joined) {
+							currentSubgraph.add(out.getToNode().getKey());
+							pendingSubgraphs.put(out.getToNode().getKey(), currentSubgraph);
 						}
 					}
-					if (!joined) {
-						currentSubgraph.add(out.getToNode().getKey());
-						pendingSubgraphs.put(out.getToNode().getKey(), currentSubgraph);
-					}
+				} finally {
+					edgeList.release();
 				}
 			}
 
@@ -173,11 +179,16 @@ public class GraphMergeResults {
 					}
 					if (connected)
 						continue;
-					for (Edge<?> in : missedNode.getIncomingEdges()) {
-						if (subgraph.contains(in.getFromNode().getKey())) {
-							connected = true;
-							break;
+					OrdinalEdgeList<?> edgeList = missedNode.getIncomingEdges();
+					try {
+						for (Edge<?> in : edgeList) {
+							if (subgraph.contains(in.getFromNode().getKey())) {
+								connected = true;
+								break;
+							}
 						}
+					} finally {
+						edgeList.release();
 					}
 					if (connected)
 						continue;
@@ -200,11 +211,16 @@ public class GraphMergeResults {
 						nodeTypeCounts.get(node.getType()).increment();
 
 						boolean subgraphContainsEntry = false;
-						for (Edge<?> edge : node.getIncomingEdges()) {
-							if (subgraph.contains(edge.getFromNode().getKey())) {
-								subgraphContainsEntry = true;
-								edgeTypeCounts.get(edge.getEdgeType()).increment();
+						OrdinalEdgeList<?> edgeList = node.getIncomingEdges();
+						try {
+							for (Edge<?> edge : edgeList) {
+								if (subgraph.contains(edge.getFromNode().getKey())) {
+									subgraphContainsEntry = true;
+									edgeTypeCounts.get(edge.getEdgeType()).increment();
+								}
 							}
+						} finally {
+							edgeList.release();
 						}
 						if (!subgraphContainsEntry)
 							entryPoints.add(node);

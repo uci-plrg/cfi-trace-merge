@@ -8,11 +8,10 @@ import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
+import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.ContextMatchRecord.EdgeMatchType;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
 public class GraphMatchEngine {
 
@@ -64,11 +63,19 @@ public class GraphMatchEngine {
 		// At least one node has no outgoing edges!!
 		if (!leftNode.hasOutgoingEdges() || !rightNode.hasOutgoingEdges()) {
 			// Just think that they might be similar...
-			for (int i = 0; i < leftNode.getOutgoingEdges().size(); i++) {
-				session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
-			}
-			for (int i = 0; i < rightNode.getOutgoingEdges().size(); i++) {
-				session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
+
+			OrdinalEdgeList<?> leftEdges = leftNode.getOutgoingEdges();
+			OrdinalEdgeList<?> rightEdges = rightNode.getOutgoingEdges();
+			try {
+				for (int i = 0; i < leftEdges.size(); i++) {
+					session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
+				}
+				for (int i = 0; i < rightEdges.size(); i++) {
+					session.contextRecord.addEdge(depth, EdgeMatchType.ONE_SIDE_ONLY);
+				}
+			} finally {
+				leftEdges.release();
+				rightEdges.release();
 			}
 		}
 
@@ -167,9 +174,6 @@ public class GraphMatchEngine {
 	// exceeds the PureHeuristicsSpeculationThreshold
 	Node<?> matchByHashThenContext(Node<?> rightNode) {
 		session.statistics.tryPureHeuristicMatch();
-		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-			DebugUtils.debug_pureHeuristicCnt++;
-		}
 
 		// First check if this is a node already merged
 		Node.Key leftNodeKey = session.matchedNodes.getMatchByRightKey(rightNode.getKey());
@@ -180,9 +184,6 @@ public class GraphMatchEngine {
 		// This node is not in the left graph and is not yet merged
 		NodeList<?> leftNodes = session.left.cluster.getGraphData().nodesByHash.get(rightNode.getHash());
 		if (leftNodes == null || leftNodes.size() == 0) {
-			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-				DebugUtils.debug_pureHeuristicNotPresentCnt++;
-			}
 			return null;
 		}
 
@@ -218,12 +219,6 @@ public class GraphMatchEngine {
 			}
 		}
 
-		// Collect the matching score record for pure heuristics
-		// Only in OUTPUT_SCORE debug mode
-		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-			session.statistics.collectScoreRecord(leftCandidates, rightNode, false);
-		}
-
 		if (leftCandidates.size() > 1) {
 			// Returns the candidate with highest score
 			int pos = 0, score = 0, highestScoreCnt = 0;
@@ -236,20 +231,6 @@ public class GraphMatchEngine {
 				} else if (candidateScore == score) {
 					highestScoreCnt++;
 				}
-			}
-
-			// In the OUTPUT_SCORE debug mode, output the completely speculative
-			// matching score to a file
-			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				ExecutionNode r = (ExecutionNode) rightNode;
-				DebugUtils.getScorePW().print(String.format("PureHeuristic_%s:\t", r));
-				for (int i = 0; i < leftCandidates.size(); i++) {
-					int candidateScore = session.getScore(leftCandidates.get(i));
-					if (candidateScore > 0) {
-						DebugUtils.getScorePW().print(candidateScore + "\t");
-					}
-				}
-				DebugUtils.getScorePW().println();
 			}
 
 			// Ambiguous high score, cannot make any decision
@@ -281,8 +262,7 @@ public class GraphMatchEngine {
 	 * @return The node that matched; Null if no matched node found
 	 * @throws WrongEdgeTypeException
 	 */
-	Node<?> getCorrespondingDirectChildNode(Node<?> leftParent, Edge<?> rightEdge)
-			throws WrongEdgeTypeException {
+	Node<?> getCorrespondingDirectChildNode(Node<?> leftParent, Edge<?> rightEdge) throws WrongEdgeTypeException {
 		Node<?> rightToNode = rightEdge.getToNode();
 
 		session.debugLog.debugCheck(rightToNode);
@@ -350,21 +330,6 @@ public class GraphMatchEngine {
 		if (candidates.size() == 0) {
 			return null;
 		} else {
-			// In the OUTPUT_SCORE debug mode, output the speculative
-			// matching score of indirect edges to a file
-			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				ExecutionNode r = (ExecutionNode) rightToNode;
-				DebugUtils.getScorePW().print(String.format("Direct_%s:\t", r));
-				for (int i = 0; i < candidates.size(); i++) {
-					int candidateScore = session.getScore(candidates.get(i));
-					if (candidateScore > 0) {
-						DebugUtils.getScorePW().print(candidateScore + "\t");
-					}
-
-				}
-				DebugUtils.getScorePW().println();
-			}
-
 			int pos = 0, highestScoreCnt = 0;
 			int score = -1;
 			for (int i = 0; i < candidates.size(); i++) {
@@ -376,12 +341,6 @@ public class GraphMatchEngine {
 				} else if (candidateScore == score) {
 					highestScoreCnt++;
 				}
-			}
-
-			// Collect the matching score record for indirect speculation
-			// Only in OUTPUT_SCORE debug mode
-			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				session.statistics.collectScoreRecord(candidates, rightToNode, true);
 			}
 
 			// Ambiguous high score, cannot make any decision
@@ -407,18 +366,14 @@ public class GraphMatchEngine {
 	// exceeds the IndirectSpeculationThreshold
 	Node<?> getCorrespondingIndirectChildNode(Node<? extends Node<?>> leftParentNode, Edge<? extends Node<?>> rightEdge)
 			throws WrongEdgeTypeException {
-		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-			DebugUtils.debug_indirectHeuristicCnt++;
-		}
-
 		session.statistics.tryIndirectMatch();
 
 		Node<?> rightToNode = rightEdge.getToNode();
 
 		// First check if the current node is already matched
 		if (session.matchedNodes.containsRightKey(rightToNode.getKey())) {
-			Node<?> alreadyMatched = session.left.cluster.getNode(session.matchedNodes
-					.getMatchByRightKey(rightToNode.getKey()));
+			Node<?> alreadyMatched = session.left.cluster.getNode(session.matchedNodes.getMatchByRightKey(rightToNode
+					.getKey()));
 			return alreadyMatched;
 		}
 
@@ -449,20 +404,6 @@ public class GraphMatchEngine {
 		if (leftCandidates.size() == 0) {
 			return null;
 		} else {
-			// In the OUTPUT_SCORE debug mode, output the speculative
-			// matching score of indirect edges to a file
-			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				ExecutionNode r = (ExecutionNode) rightToNode;
-				DebugUtils.getScorePW().print(String.format("Indirect_%s:\t", r));
-				for (int i = 0; i < leftCandidates.size(); i++) {
-					int candidateScore = session.getScore(leftCandidates.get(i));
-
-					if (candidateScore > 0) {
-						DebugUtils.getScorePW().print(candidateScore + "\t");
-					}
-				}
-				DebugUtils.getScorePW().println();
-			}
 
 			List<Node<?>> topCandidates = new ArrayList<Node<?>>();
 			int score = -1;
@@ -477,19 +418,18 @@ public class GraphMatchEngine {
 				}
 			}
 
-			// Collect the matching score record for indirect speculation
-			// Only in OUTPUT_SCORE debug mode
-			if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-				session.statistics.collectScoreRecord(leftCandidates, rightToNode, true);
-			}
-
 			// Ambiguous match, multiple ndoes have the same high score
 			if (topCandidates.size() > 1) {
 				// Bail if any incoming edge has an unmatched source node
 				for (Node<? extends Node<?>> candidate : topCandidates) {
-					for (Edge<? extends Node<?>> incoming : candidate.getIncomingEdges()) {
-						if (!session.matchedNodes.containsLeftKey(incoming.getFromNode().getKey()))
-							return null;
+					OrdinalEdgeList<?> edgeList = candidate.getIncomingEdges();
+					try {
+						for (Edge<? extends Node<?>> incoming : edgeList) {
+							if (!session.matchedNodes.containsLeftKey(incoming.getFromNode().getKey()))
+								return null;
+						}
+					} finally {
+						edgeList.release();
 					}
 				}
 				// All incoming edges are from matches, so randomly pick a match

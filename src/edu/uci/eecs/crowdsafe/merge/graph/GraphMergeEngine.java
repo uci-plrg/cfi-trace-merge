@@ -8,12 +8,12 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
 import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
 /**
  * <p>
@@ -107,48 +107,50 @@ class GraphMergeEngine {
 		session.debugLog.debugCheck(leftNode);
 		session.debugLog.debugCheck(rightNode);
 
-		for (Edge<? extends Node<?>> rightEdge : rightNode.getOutgoingEdges()) {
-			if (session.right.visitedEdges.contains(rightEdge))
-				continue;
+		OrdinalEdgeList<?> rightEdges = rightNode.getOutgoingEdges();
+		try {
+			for (Edge<? extends Node<?>> rightEdge : rightEdges) {
+				if (session.right.visitedEdges.contains(rightEdge))
+					continue;
 
-			// Find out the next matched node
-			// Prioritize direct edge and call continuation edge
-			Node<?> leftChild;
-			switch (rightEdge.getEdgeType()) {
-				case DIRECT:
-				case CALL_CONTINUATION:
-				case CLUSTER_ENTRY:
-					session.statistics.tryDirectMatch();
+				// Find out the next matched node
+				// Prioritize direct edge and call continuation edge
+				Node<?> leftChild;
+				switch (rightEdge.getEdgeType()) {
+					case DIRECT:
+					case CALL_CONTINUATION:
+					case CLUSTER_ENTRY:
+						session.statistics.tryDirectMatch();
 
-					leftChild = matcher.getCorrespondingDirectChildNode(leftNode, rightEdge);
-					session.right.visitedEdges.add(rightEdge);
+						leftChild = matcher.getCorrespondingDirectChildNode(leftNode, rightEdge);
+						session.right.visitedEdges.add(rightEdge);
 
-					if (leftChild != null) {
-						if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
-							continue; // session.matchedNodes.containsLeftKey(rightEdge.getToNode().getKey())
+						if (leftChild != null) {
+							if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
+								continue; // session.matchedNodes.containsLeftKey(rightEdge.getToNode().getKey())
 
-						session.matchState.enqueueMatch(new PairNode(leftChild, rightEdge.getToNode(),
-								MatchType.DIRECT_BRANCH));
+							session.matchState.enqueueMatch(new PairNode(leftChild, rightEdge.getToNode(),
+									MatchType.DIRECT_BRANCH));
 
-						// Update matched relationship
-						if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
-							session.matchedNodes.addPair(leftChild, rightEdge.getToNode(), session.getScore(leftChild));
+							// Update matched relationship
+							if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
+								session.matchedNodes.addPair(leftChild, rightEdge.getToNode(),
+										session.getScore(leftChild));
+							}
+						} else {
+							addUnmatchedNode2Queue(rightEdge.getToNode());
 						}
-					} else {
-						if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-							DebugUtils.debug_directUnmatchedCnt++;
+						break;
+					default:
+						// Add the indirect node to the queue
+						// to delay its matching
+						if (!session.matchedNodes.containsRightKey(rightEdge.getToNode().getKey())) {
+							session.matchState.enqueueIndirectEdge(new PairNodeEdge(leftNode, rightEdge, rightNode));
 						}
-
-						addUnmatchedNode2Queue(rightEdge.getToNode());
-					}
-					break;
-				default:
-					// Add the indirect node to the queue
-					// to delay its matching
-					if (!session.matchedNodes.containsRightKey(rightEdge.getToNode().getKey())) {
-						session.matchState.enqueueIndirectEdge(new PairNodeEdge(leftNode, rightEdge, rightNode));
-					}
+				}
 			}
+		} finally {
+			rightEdges.release();
 		}
 	}
 
@@ -172,10 +174,6 @@ class GraphMergeEngine {
 				}
 			}
 		} else {
-			if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-				DebugUtils.debug_indirectHeuristicUnmatchedCnt++;
-			}
-
 			addUnmatchedNode2Queue(rightEdge.getToNode());
 		}
 	}
@@ -190,12 +188,17 @@ class GraphMergeEngine {
 			session.matchState.enqueueMatch(new PairNode(leftChild, rightNode, MatchType.HEURISTIC));
 		} else {
 			// Simply push unvisited neighbors to unmatchedQueue
-			for (int k = 0; k < rightNode.getOutgoingEdges().size(); k++) {
-				Edge<? extends Node<?>> rightEdge = rightNode.getOutgoingEdges().get(k);
-				if (session.right.visitedEdges.contains(rightEdge))
-					continue;
+			OrdinalEdgeList<?> edgeList = rightNode.getOutgoingEdges();
+			try {
+				for (int k = 0; k < edgeList.size(); k++) {
+					Edge<? extends Node<?>> rightEdge = rightNode.getOutgoingEdges().get(k);
+					if (session.right.visitedEdges.contains(rightEdge))
+						continue;
 
-				addUnmatchedNode2Queue(rightEdge.getToNode());
+					addUnmatchedNode2Queue(rightEdge.getToNode());
+				}
+			} finally {
+				edgeList.release();
 			}
 		}
 	}
@@ -215,19 +218,25 @@ class GraphMergeEngine {
 		// Copy edges from left
 		// Traverse edges by outgoing edges
 		for (Node<? extends Node<?>> leftNode : session.left.cluster.getAllNodes()) {
-			for (Edge<? extends Node<?>> leftEdge : leftNode.getOutgoingEdges()) {
-				ClusterNode<?> mergedFromNode = session.mergedGraph.getNode(leftNode2MergedNode.get(leftNode).getKey());
+			OrdinalEdgeList<?> leftEdges = leftNode.getOutgoingEdges();
+			try {
+				for (Edge<? extends Node<?>> leftEdge : leftEdges) {
+					ClusterNode<?> mergedFromNode = session.mergedGraph.getNode(leftNode2MergedNode.get(leftNode)
+							.getKey());
 
-				if (leftNode2MergedNode.get(leftEdge.getToNode()) == null)
-					toString();
+					if (leftNode2MergedNode.get(leftEdge.getToNode()) == null)
+						toString();
 
-				ClusterNode<?> mergedToNode = session.mergedGraph.getNode(leftNode2MergedNode.get(leftEdge.getToNode())
-						.getKey());
-				Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
-						leftEdge.getEdgeType(), leftEdge.getOrdinal());
-				mergedFromNode.addOutgoingEdge(mergedEdge);
-				mergedToNode.addIncomingEdge(mergedEdge);
-				session.debugLog.edgeMergedFromLeft(leftEdge);
+					ClusterNode<?> mergedToNode = session.mergedGraph.getNode(leftNode2MergedNode.get(
+							leftEdge.getToNode()).getKey());
+					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
+							leftEdge.getEdgeType(), leftEdge.getOrdinal());
+					mergedFromNode.addOutgoingEdge(mergedEdge);
+					mergedToNode.addIncomingEdge(mergedEdge);
+					session.debugLog.edgeMergedFromLeft(leftEdge);
+				}
+			} finally {
+				leftEdges.release();
 			}
 		}
 
@@ -257,70 +266,81 @@ class GraphMergeEngine {
 		for (Node<? extends Node<?>> rightFromNode : right.getAllNodes()) {
 			// New fromNode and toNode in the merged graph
 			Edge<ClusterNode<?>> mergedEdge;
-			for (Edge<? extends Node<?>> rightEdge : rightFromNode.getOutgoingEdges()) {
+			OrdinalEdgeList<?> rightEdges = rightFromNode.getOutgoingEdges();
+			try {
+				for (Edge<? extends Node<?>> rightEdge : rightEdges) {
 
-				mergedEdge = null;
-				Node<?> rightToNode = rightEdge.getToNode();
-				ClusterNode<?> mergedFromNode = leftNode2MergedNode.get(session.left.cluster
-						.getNode(session.matchedNodes.getMatchByRightKey(rightFromNode.getKey())));
-				ClusterNode<?> mergedToNode = leftNode2MergedNode.get(session.left.cluster.getNode(session.matchedNodes
-						.getMatchByRightKey(rightToNode.getKey())));
-				// rightNode2MergedNode.get(rightToNode .getKey());
-				if ((mergedFromNode != null) && (mergedToNode != null)) {
-					// Both are shared nodes, need to check if there are
-					// conflicts again!
-					Edge<? extends ClusterNode<?>> alreadyMergedEdge = null;
-					for (Edge<? extends ClusterNode<?>> mergedFromEdge : mergedFromNode.getOutgoingEdges()) {
-						if (mergedFromEdge.getToNode().getKey().equals(mergedToNode.getKey())) {
-							alreadyMergedEdge = mergedFromEdge;
-							break;
+					mergedEdge = null;
+					Node<?> rightToNode = rightEdge.getToNode();
+					ClusterNode<?> mergedFromNode = leftNode2MergedNode.get(session.left.cluster
+							.getNode(session.matchedNodes.getMatchByRightKey(rightFromNode.getKey())));
+					ClusterNode<?> mergedToNode = leftNode2MergedNode.get(session.left.cluster
+							.getNode(session.matchedNodes.getMatchByRightKey(rightToNode.getKey())));
+					// rightNode2MergedNode.get(rightToNode .getKey());
+					if ((mergedFromNode != null) && (mergedToNode != null)) {
+						// Both are shared nodes, need to check if there are
+						// conflicts again!
+						Edge<? extends ClusterNode<?>> alreadyMergedEdge = null;
+						OrdinalEdgeList<? extends ClusterNode<?>> mergedEdges = mergedFromNode.getOutgoingEdges();
+						try {
+							for (Edge<? extends ClusterNode<?>> mergedFromEdge : mergedEdges) {
+								if (mergedFromEdge.getToNode().getKey().equals(mergedToNode.getKey())) {
+									alreadyMergedEdge = mergedFromEdge;
+									break;
+								}
+							}
+						} finally {
+							mergedEdges.release();
 						}
-					}
-					if ((alreadyMergedEdge == null)
-							|| ((alreadyMergedEdge.getEdgeType() == EdgeType.DIRECT && rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) || (alreadyMergedEdge
-									.getEdgeType() == EdgeType.CALL_CONTINUATION && rightEdge.getEdgeType() == EdgeType.DIRECT))) {
+						if ((alreadyMergedEdge == null)
+								|| ((alreadyMergedEdge.getEdgeType() == EdgeType.DIRECT && rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) || (alreadyMergedEdge
+										.getEdgeType() == EdgeType.CALL_CONTINUATION && rightEdge.getEdgeType() == EdgeType.DIRECT))) {
+							mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
+									rightEdge.getEdgeType(), rightEdge.getOrdinal());
+						} else {
+							if (alreadyMergedEdge.getEdgeType() != rightEdge.getEdgeType()
+									|| alreadyMergedEdge.getOrdinal() != rightEdge.getOrdinal()) {
+								throw new MergedFailedException(
+										"Edge from %s to %s was merged with type %s and ordinal %d, but has type %s and ordinal %d in the right graph",
+										rightEdge.getFromNode(), rightEdge.getToNode(),
+										alreadyMergedEdge.getEdgeType(), alreadyMergedEdge.getOrdinal(), rightEdge
+												.getEdgeType(), rightEdge.getOrdinal());
+							}
+							continue;
+						}
+					} else if (mergedFromNode != null) {
+						// First node is a shared node
+						mergedToNode = rightNode2MergedNode.get(rightToNode);
+						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
+								rightEdge.getOrdinal());
+					} else if (mergedToNode != null) {
+						// Second node is a shared node
+						mergedFromNode = rightNode2MergedNode.get(rightFromNode);
 						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					} else {
-						if (alreadyMergedEdge.getEdgeType() != rightEdge.getEdgeType()
-								|| alreadyMergedEdge.getOrdinal() != rightEdge.getOrdinal()) {
-							throw new MergedFailedException(
-									"Edge from %s to %s was merged with type %s and ordinal %d, but has type %s and ordinal %d in the right graph",
-									rightEdge.getFromNode(), rightEdge.getToNode(), alreadyMergedEdge.getEdgeType(),
-									alreadyMergedEdge.getOrdinal(), rightEdge.getEdgeType(), rightEdge.getOrdinal());
-						}
+						// Both are new nodes from G2
+						mergedFromNode = rightNode2MergedNode.get(rightFromNode);
+						mergedToNode = rightNode2MergedNode.get(rightToNode);
+						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
+								rightEdge.getOrdinal());
+					}
+
+					if ((mergedEdge.getEdgeType() == EdgeType.CALL_CONTINUATION)
+							&& (mergedFromNode.getCallContinuation() != null))
+						continue;
+
+					mergedFromNode.addOutgoingEdge(mergedEdge);
+
+					if (mergedToNode == null) {
+						Log.log(String.format("Error: merged node %s cannot be found", rightToNode));
 						continue;
 					}
-				} else if (mergedFromNode != null) {
-					// First node is a shared node
-					mergedToNode = rightNode2MergedNode.get(rightToNode);
-					mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
-							rightEdge.getOrdinal());
-				} else if (mergedToNode != null) {
-					// Second node is a shared node
-					mergedFromNode = rightNode2MergedNode.get(rightFromNode);
-					mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
-							rightEdge.getOrdinal());
-				} else {
-					// Both are new nodes from G2
-					mergedFromNode = rightNode2MergedNode.get(rightFromNode);
-					mergedToNode = rightNode2MergedNode.get(rightToNode);
-					mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
-							rightEdge.getOrdinal());
+
+					mergedToNode.addIncomingEdge(mergedEdge);
 				}
-
-				if ((mergedEdge.getEdgeType() == EdgeType.CALL_CONTINUATION)
-						&& (mergedFromNode.getCallContinuation() != null))
-					continue;
-
-				mergedFromNode.addOutgoingEdge(mergedEdge);
-
-				if (mergedToNode == null) {
-					Log.log(String.format("Error: merged node %s cannot be found", rightToNode));
-					continue;
-				}
-
-				mergedToNode.addIncomingEdge(mergedEdge);
+			} finally {
+				rightEdges.release();
 			}
 		}
 		return true;

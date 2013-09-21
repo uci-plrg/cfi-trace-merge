@@ -11,7 +11,6 @@ import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
 
 public class MergeDebugLog implements GraphLoadEventListener {
 
@@ -68,8 +67,6 @@ public class MergeDebugLog implements GraphLoadEventListener {
 		}
 	}
 
-	private ClusterMergeSession session;
-
 	private final Set<TrackedNodeKey> trackedNodes = new HashSet<TrackedNodeKey>();
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
 	private final List<Long> debugRelativeTags = new ArrayList<Long>();
@@ -83,27 +80,6 @@ public class MergeDebugLog implements GraphLoadEventListener {
 
 		// shell32.dll(0x936fe-v0|0x11b8963216d79f)
 		// debugRelativeTags.add(0x936feL);
-	}
-
-	void setSession(ClusterMergeSession session) {
-		this.session = session;
-	}
-
-	void mergeCompleted() {
-		if (DebugUtils.debug_decision(DebugUtils.TRACE_HEURISTIC)) {
-			Log.log("All pure heuristic: " + DebugUtils.debug_pureHeuristicCnt);
-			Log.log("Pure heuristic not present: " + DebugUtils.debug_pureHeuristicNotPresentCnt);
-			Log.log("All direct unsmatched: " + DebugUtils.debug_directUnmatchedCnt);
-			Log.log("All indirect heuristic: " + DebugUtils.debug_indirectHeuristicCnt);
-			Log.log("Indirect heuristic unmatched: " + DebugUtils.debug_indirectHeuristicUnmatchedCnt);
-		}
-
-		// In the OUTPUT_SCORE debug mode, close the PrintWriter when merging
-		// finishes, also print out the score statistics
-		if (DebugUtils.debug_decision(DebugUtils.OUTPUT_SCORE)) {
-			DebugUtils.getScorePW().flush();
-			DebugUtils.getScorePW().close();
-		}
 	}
 
 	void debugCheck(Node<?> node) {

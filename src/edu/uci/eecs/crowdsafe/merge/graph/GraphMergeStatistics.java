@@ -1,26 +1,5 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.common.util.CrowdSafeTraceUtil;
-import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.MatchResult;
-import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
-import edu.uci.eecs.crowdsafe.merge.graph.debug.DebugUtils;
-import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
-
 public class GraphMergeStatistics {
 
 	public static final float LOW_MATCHING_TRHESHOLD = 0.15f;
@@ -99,6 +78,8 @@ public class GraphMergeStatistics {
 		possibleRewrites++;
 	}
 
+	/**
+	 * <pre>
 	public ArrayList<Node<?>> unmatchedGraph1Nodes() {
 		ArrayList<Node<?>> unmatchedNodes = new ArrayList<Node<?>>();
 		for (Node<?> n : session.left.cluster.getAllNodes()) {
@@ -323,4 +304,5 @@ public class GraphMergeStatistics {
 			}
 		}
 	}
+	 */
 }

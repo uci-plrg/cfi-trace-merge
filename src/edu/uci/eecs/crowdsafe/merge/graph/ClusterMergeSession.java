@@ -39,10 +39,6 @@ public class ClusterMergeSession {
 	final MatchedNodes matchedNodes;
 	final GraphMatchState matchState;
 
-	// The speculativeScoreList, which records the detail of the scoring of
-	// all the possible cases
-	final SpeculativeScoreList speculativeScoreList = new SpeculativeScoreList(this);
-
 	final ContextMatchRecord contextRecord = new ContextMatchRecord();
 
 	private final Map<Node<?>, Integer> scoresByLeftNode = new HashMap<Node<?>, Integer>();
@@ -58,7 +54,6 @@ public class ClusterMergeSession {
 		this.results = results;
 		results.beginCluster(this);
 		this.debugLog = debugLog;
-		debugLog.setSession(this);
 
 		matchedNodes = new MatchedNodes(this);
 		matchState = new GraphMatchState(this);
@@ -71,7 +66,6 @@ public class ClusterMergeSession {
 		right.visitedAsUnmatched.clear();
 		matchedNodes.clear();
 		matchState.clear();
-		speculativeScoreList.clear();
 		statistics.reset();
 		hasConflict = false;
 
@@ -96,7 +90,7 @@ public class ClusterMergeSession {
 			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
 	}
-
+	
 	boolean acceptContext(Node<?> candidate) {
 		int score = contextRecord.evaluate();
 		if (score < 7)
