@@ -9,6 +9,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 
@@ -29,8 +30,8 @@ public class MergeDebugLog implements GraphLoadEventListener {
 			this.hash = hash;
 		}
 
-		TrackedNodeKey assign(ExecutionNode node) {
-			this.pageOffset = (int) (node.getKey().relativeTag & 0xfff);
+		TrackedNodeKey assign(Node<?> node) {
+			this.pageOffset = (int) (node.getRelativeTag() & 0xfff);
 			this.hash = node.getHash();
 			return this;
 		}
@@ -74,24 +75,30 @@ public class MergeDebugLog implements GraphLoadEventListener {
 	public MergeDebugLog() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
-		// shell32.dll(0x12ed32-v0|0xb5d)
-		// shell32.dll(0x1ac59c-v0|0x380ddc8bc5ee128b) (missed)
-		// trackedNodes.add(new TrackedNodeKey(0xd32, 0xb5d));
+		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
+		// trackedNodes.add(new TrackedNodeKey(0x5b9, 0x2674f8aff4f1L));
 
-		// shell32.dll(0x936fe-v0|0x11b8963216d79f)
-		// debugRelativeTags.add(0x936feL);
+		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
+		// debugRelativeTags.add(0x5b5b9L);
 	}
 
 	void debugCheck(Node<?> node) {
-		if (debugRelativeTags.contains(node.getRelativeTag()) && node.getModule().unit.filename.equals("shell32.dll"))
-			node.getClass();
+		if (node.getModule().unit.filename.equals("kernel32.dll"))
+			return;
+
+		switch (node.getType()) {
+			case CLUSTER_ENTRY:
+			case CLUSTER_EXIT:
+				if (debugRelativeTags.contains(node.getHash()))
+					node.getClass();
+			default:
+				if (debugRelativeTags.contains(node.getRelativeTag()))
+					node.getClass();
+		}
 	}
 
 	private boolean isTracked(Node<?> node) {
-		if (node instanceof ExecutionNode) {
-			return trackedNodes.contains(trackedNodeLookupKey.assign((ExecutionNode) node));
-		}
-		return false;
+		return trackedNodes.contains(trackedNodeLookupKey.assign(node));
 	}
 
 	void nodesMatched(Node<?> left, Node<?> right) {
@@ -141,9 +148,19 @@ public class MergeDebugLog implements GraphLoadEventListener {
 			Log.log("Merge node %s from the right graph.", rightNode.toString());
 	}
 
+	void mergingEdgesFromLeft(Node<?> leftNode) {
+		if (isTracked(leftNode))
+			Log.log("Merging edges from left node %s.", leftNode.toString());
+	}
+
 	void edgeMergedFromLeft(Edge<?> edge) {
 		if (isTracked(edge.getFromNode()) || isTracked(edge.getToNode()))
 			Log.log("Merge edge %s from the left graph.", edge.toString());
+	}
+
+	void mergingEdgesFromRight(Node<?> rightNode) {
+		if (isTracked(rightNode))
+			Log.log("Merging edges from right node %s.", rightNode.toString());
 	}
 
 	void edgeMergedFromRight(Edge<?> edge) {

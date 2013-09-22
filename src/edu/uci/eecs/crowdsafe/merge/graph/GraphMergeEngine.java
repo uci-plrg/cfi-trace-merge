@@ -220,13 +220,10 @@ class GraphMergeEngine {
 		for (Node<? extends Node<?>> leftNode : session.left.cluster.getAllNodes()) {
 			OrdinalEdgeList<?> leftEdges = leftNode.getOutgoingEdges();
 			try {
+				session.debugLog.mergingEdgesFromLeft(leftNode);
 				for (Edge<? extends Node<?>> leftEdge : leftEdges) {
 					ClusterNode<?> mergedFromNode = session.mergedGraph.getNode(leftNode2MergedNode.get(leftNode)
 							.getKey());
-
-					if (leftNode2MergedNode.get(leftEdge.getToNode()) == null)
-						toString();
-
 					ClusterNode<?> mergedToNode = session.mergedGraph.getNode(leftNode2MergedNode.get(
 							leftEdge.getToNode()).getKey());
 					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
@@ -239,6 +236,8 @@ class GraphMergeEngine {
 				leftEdges.release();
 			}
 		}
+
+		session.right.cluster.removeUnreachableNodes(session.left.cluster.getUnreachableNodes());
 
 		// Copy nodes from right
 		Map<Node<?>, ClusterNode<?>> rightNode2MergedNode = new HashMap<Node<?>, ClusterNode<?>>();
@@ -264,6 +263,7 @@ class GraphMergeEngine {
 		// Merge edges from right
 		// Traverse edges in right by outgoing edges
 		for (Node<? extends Node<?>> rightFromNode : right.getAllNodes()) {
+			session.debugLog.mergingEdgesFromRight(rightFromNode);
 			// New fromNode and toNode in the merged graph
 			Edge<ClusterNode<?>> mergedEdge;
 			OrdinalEdgeList<?> rightEdges = rightFromNode.getOutgoingEdges();

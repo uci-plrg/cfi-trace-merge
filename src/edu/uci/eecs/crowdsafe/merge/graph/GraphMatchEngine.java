@@ -267,89 +267,93 @@ public class GraphMatchEngine {
 
 		session.debugLog.debugCheck(rightToNode);
 
-		if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-			Edge<? extends Node<?>> callContinuation = leftParent.getCallContinuation();
-			if (callContinuation != null) {
-				if (callContinuation.getToNode().getHash() == rightEdge.getToNode().getHash()) {
-					return callContinuation.getToNode();
+		OrdinalEdgeList<? extends Node<?>> leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
+		try {
+			if (leftEdges.size() == 1) {
+				Node<?> leftChild = leftEdges.get(0).getToNode();
+				if ((leftChild.getHash() == rightToNode.getHash())
+						&& leftChild.hasCompatibleEdges(rightEdge.getToNode())) {
+					return leftChild;
+				} else {
+					return null;
 				}
 			}
-		}
 
-		List<? extends Edge<?>> leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
-
-		if (leftEdges.size() == 1) {
-			Node<?> leftChild = leftEdges.get(0).getToNode();
-			if ((leftChild.getHash() == rightToNode.getHash()) && leftChild.hasCompatibleEdges(rightEdge.getToNode())) {
-				return leftChild;
-			} else {
-				return null;
-			}
-		}
-
-		// Direct edges will also have multiple possible match because of the
-		// existence of code re-writing
-		ArrayList<Node<?>> candidates = new ArrayList<Node<?>>();
-
-		for (Edge<? extends Node<?>> leftEdge : leftEdges) {
-			if (leftEdge.getEdgeType() == rightEdge.getEdgeType()) {
-				if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
-
-					if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()))
-						continue;
-					// && leftEdge.getEdgeType() != EdgeType.MODULE_ENTRY)
-					// return leftEdge.getToNode();
-
-					switch (leftEdge.getEdgeType()) {
-						case DIRECT:
-						case CLUSTER_ENTRY:
-							session.statistics.directMatch();
-							break;
-						case CALL_CONTINUATION:
-							session.statistics.callContinuationMatch();
-							break;
-						default:
-							throw new IllegalArgumentException(
-									"Method only expects edges of type direct, module entry and call continuation!");
+			if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
+				Edge<? extends Node<?>> callContinuation = leftParent.getCallContinuation();
+				if (callContinuation != null) {
+					if (callContinuation.getToNode().getHash() == rightEdge.getToNode().getHash()) {
+						return callContinuation.getToNode();
 					}
+				}
+			}
+			
+			// Direct edges will also have multiple possible match because of the
+			// existence of code re-writing
+			ArrayList<Node<?>> candidates = new ArrayList<Node<?>>();
 
-					session.contextRecord.reset(leftEdge.getToNode(), rightEdge.getToNode());
-					getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), DIRECT_SEARCH_DEPTH);
-					if (session.acceptContext(leftEdge.getToNode())) {
-						candidates.add(leftEdge.getToNode());
+			for (Edge<? extends Node<?>> leftEdge : leftEdges) {
+				if (leftEdge.getEdgeType() == rightEdge.getEdgeType()) {
+					if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
+
+						if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()))
+							continue;
+						// && leftEdge.getEdgeType() != EdgeType.MODULE_ENTRY)
+						// return leftEdge.getToNode();
+
+						switch (leftEdge.getEdgeType()) {
+							case DIRECT:
+							case CLUSTER_ENTRY:
+								session.statistics.directMatch();
+								break;
+							case CALL_CONTINUATION:
+								session.statistics.callContinuationMatch();
+								break;
+							default:
+								throw new IllegalArgumentException(
+										"Method only expects edges of type direct, module entry and call continuation!");
+						}
+
+						session.contextRecord.reset(leftEdge.getToNode(), rightEdge.getToNode());
+						getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), DIRECT_SEARCH_DEPTH);
+						if (session.acceptContext(leftEdge.getToNode())) {
+							candidates.add(leftEdge.getToNode());
+						}
+					} else if (rightEdge.getEdgeType() != EdgeType.CLUSTER_ENTRY) {
+						// hashes differ on a matching direct edge!
+						session.statistics.possibleRewrite();
 					}
-				} else if (rightEdge.getEdgeType() != EdgeType.CLUSTER_ENTRY) {
-					// hashes differ on a matching direct edge!
-					session.statistics.possibleRewrite();
-				}
-			} else {
-				return null; // nothing good here, the edge structure differs
-			}
-		}
-
-		if (candidates.size() == 0) {
-			return null;
-		} else {
-			int pos = 0, highestScoreCnt = 0;
-			int score = -1;
-			for (int i = 0; i < candidates.size(); i++) {
-				int candidateScore = session.getScore(candidates.get(i));
-				if (candidateScore > score) {
-					score = candidateScore;
-					pos = i;
-					highestScoreCnt = 1;
-				} else if (candidateScore == score) {
-					highestScoreCnt++;
+				} else {
+					return null; // nothing good here, the edge structure differs
 				}
 			}
 
-			// Ambiguous high score, cannot make any decision
-			if (highestScoreCnt > 1) {
+			if (candidates.size() == 0) {
 				return null;
-			}
+			} else {
+				int pos = 0, highestScoreCnt = 0;
+				int score = -1;
+				for (int i = 0; i < candidates.size(); i++) {
+					int candidateScore = session.getScore(candidates.get(i));
+					if (candidateScore > score) {
+						score = candidateScore;
+						pos = i;
+						highestScoreCnt = 1;
+					} else if (candidateScore == score) {
+						highestScoreCnt++;
+					}
+				}
 
-			session.statistics.directMatch();
-			return candidates.get(pos);
+				// Ambiguous high score, cannot make any decision
+				if (highestScoreCnt > 1) {
+					return null;
+				}
+
+				session.statistics.directMatch();
+				return candidates.get(pos);
+			}
+		} finally {
+			leftEdges.release();
 		}
 	}
 

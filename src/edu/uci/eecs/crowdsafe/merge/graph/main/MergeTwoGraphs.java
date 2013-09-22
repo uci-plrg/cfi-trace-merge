@@ -111,6 +111,8 @@ public class MergeTwoGraphs {
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (!options.includeCluster(leftCluster))
 				continue;
+			
+			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
 
 			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
 			if (rightGraph == null) {
@@ -119,7 +121,12 @@ public class MergeTwoGraphs {
 			}
 			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
 
-			mergedGraphs.add(ClusterMergeSession.mergeTwoGraphs(leftGraph, rightGraph, results, debugLog));
+			ClusterGraph mergedGraph = ClusterMergeSession.mergeTwoGraphs(leftGraph, rightGraph, results, debugLog);
+			
+			Log.log("Checking reachability on the merged graph.");
+			mergedGraph.findUnreachableNodes();
+			
+			mergedGraphs.add(mergedGraph);
 		}
 
 		results.setGraphSummaries(leftData.summarizeGraph(), rightData.summarizeGraph());

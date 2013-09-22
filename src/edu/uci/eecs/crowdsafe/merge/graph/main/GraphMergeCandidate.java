@@ -111,7 +111,7 @@ abstract class GraphMergeCandidate {
 
 		@Override
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
-			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster);
+			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
 			summaryBuilder.addCluster(graph.summarize());
 			return graph;
 		}
