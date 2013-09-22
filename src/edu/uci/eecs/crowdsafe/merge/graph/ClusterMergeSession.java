@@ -10,13 +10,14 @@ import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
 
 public class ClusterMergeSession {
 
-	public static void mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, GraphMergeResults results,
+	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, GraphMergeResults results,
 			MergeDebugLog debugLog) {
 		ClusterMergeSession session = new ClusterMergeSession(left, right, results, debugLog);
 
 		GraphMergeEngine engine = new GraphMergeEngine(session);
 		engine.mergeGraph();
 		session.results.clusterMergeCompleted();
+		return session.mergedGraph;
 	}
 
 	enum State {

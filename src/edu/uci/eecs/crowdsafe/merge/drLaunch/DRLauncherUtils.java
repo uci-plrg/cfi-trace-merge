@@ -40,85 +40,88 @@ public class DRLauncherUtils {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(scriptName));
 
-			int lineIdx = 0, headerEnd = -1;
-			int executionSize = 0;
-			String curLine;
-			// Get the size of each execution body
-			while ((curLine = br.readLine()) != null) {
-				lineIdx++;
-				lines.add(curLine);
-				if (curLine.startsWith("# meta run ")) {
-					executionSize++;
+			try {
+				int lineIdx = 0, headerEnd = -1;
+				int executionSize = 0;
+				String curLine;
+				// Get the size of each execution body
+				while ((curLine = br.readLine()) != null) {
+					lineIdx++;
+					lines.add(curLine);
+					if (curLine.startsWith("# meta run ")) {
+						executionSize++;
+					}
+					if (curLine.equals("# meta run 0")) {
+						headerEnd = lineIdx - 1;
+					}
 				}
-				if (curLine.equals("# meta run 0")) {
-					headerEnd = lineIdx - 1;
+
+				ListIterator<String> iter = lines.listIterator();
+				// Copy the header of the script to all subscript string builders
+				int cnt = 0;
+				while (cnt < headerEnd) {
+					cnt++;
+					curLine = iter.next();
+					for (String serverName : server2StrBuilder.keySet()) {
+						server2StrBuilder.get(serverName).append(curLine + "\n");
+					}
 				}
-			}
 
-			ListIterator<String> iter = lines.listIterator();
-			// Copy the header of the script to all subscript string builders
-			int cnt = 0;
-			while (cnt < headerEnd) {
-				cnt++;
-				curLine = iter.next();
-				for (String serverName : server2StrBuilder.keySet()) {
-					server2StrBuilder.get(serverName).append(curLine + "\n");
-				}
-			}
+				// Split the executions into many files
+				int serverIdx = 0;
+				for (String serverName : serverInfo.keySet()) {
+					serverIdx++;
+					StringBuilder strBuilder = server2StrBuilder.get(serverName);
+					int processorNum = serverInfo.get(serverName);
+					if (serverIdx != serverInfo.size()) {
 
-			// Split the executions into many files
-			int serverIdx = 0;
-			for (String serverName : serverInfo.keySet()) {
-				serverIdx++;
-				StringBuilder strBuilder = server2StrBuilder.get(serverName);
-				int processorNum = serverInfo.get(serverName);
-				if (serverIdx != serverInfo.size()) {
-
-					int subScriptsSize = (int) ((float) processorNum / totalProcessorNum * executionSize);
-					for (int i = 0; i < subScriptsSize; i++) {
-						curLine = iter.next();
-						strBuilder.append(curLine + "\n");
-						while (!(curLine = iter.next()).startsWith("# meta run")) {
+						int subScriptsSize = (int) ((float) processorNum / totalProcessorNum * executionSize);
+						for (int i = 0; i < subScriptsSize; i++) {
+							curLine = iter.next();
+							strBuilder.append(curLine + "\n");
+							while (!(curLine = iter.next()).startsWith("# meta run")) {
+								if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
+									strBuilder.append(curLine + " &\n");
+								} else {
+									strBuilder.append(curLine + "\n");
+								}
+							}
+							iter.previous();
+							if (i % processorNum == 0) {
+								strBuilder.append("wait\n");
+							}
+						}
+					} else {
+						// Should read to the end
+						cnt = 0;
+						while (iter.hasNext()) {
+							curLine = iter.next();
+							if (curLine.startsWith("# meta run")) {
+								cnt++;
+								if (cnt % processorNum == 0) {
+									strBuilder.append("wait\n");
+								}
+							}
 							if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
 								strBuilder.append(curLine + " &\n");
 							} else {
 								strBuilder.append(curLine + "\n");
 							}
 						}
-						iter.previous();
-						if (i % processorNum == 0) {
-							strBuilder.append("wait\n");
-						}
-					}
-				} else {
-					// Should read to the end
-					cnt = 0;
-					while (iter.hasNext()) {
-						curLine = iter.next();
-						if (curLine.startsWith("# meta run")) {
-							cnt++;
-							if (cnt % processorNum == 0) {
-								strBuilder.append("wait\n");
-							}
-						}
-						if (curLine.startsWith("$runcs") || curLine.startsWith("($runcs")) {
-							strBuilder.append(curLine + " &\n");
-						} else {
-							strBuilder.append(curLine + "\n");
-						}
 					}
 				}
-			}
 
-			// Write pieces of files back to disks
-			for (String serverName : serverInfo.keySet()) {
-				String subscriptName = generatedScriptsPath + "/" + serverName + "/";
-				// + AnalysisUtil.getBaseNameFromPath(scriptName, "/");
-				// TODO: file handling refactor
-				Log.log("Writing " + subscriptName + " ...");
-				writeSubScript(subscriptName, server2StrBuilder.get(serverName));
+				// Write pieces of files back to disks
+				for (String serverName : serverInfo.keySet()) {
+					String subscriptName = generatedScriptsPath + "/" + serverName + "/";
+					// + AnalysisUtil.getBaseNameFromPath(scriptName, "/");
+					// TODO: file handling refactor
+					Log.log("Writing " + subscriptName + " ...");
+					writeSubScript(subscriptName, server2StrBuilder.get(serverName));
+				}
+			} finally {
+				br.close();
 			}
-
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

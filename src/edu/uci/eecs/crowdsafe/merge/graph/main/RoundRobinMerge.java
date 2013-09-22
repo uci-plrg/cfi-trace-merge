@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,17 +52,16 @@ public class RoundRobinMerge {
 
 	private class GraphLoadThread extends Thread {
 		private final MergeDebugLog debugLog = new MergeDebugLog();
-		private final List<String> workList;
-		private final List<ProcessClusterGraph> graphs = new ArrayList<ProcessClusterGraph>();
-
-		GraphLoadThread(List<String> workList) {
-			this.workList = workList;
-		}
+		private final List<ProcessClusterGraph> loadedGraphs = new ArrayList<ProcessClusterGraph>();
 
 		@Override
 		public void run() {
 			try {
-				for (String graphPath : workList) {
+				while (true) {
+					String graphPath = getNextGraphPath();
+					if (graphPath == null)
+						break;
+
 					ClusterTraceDataSource dataSource = new ClusterTraceDirectory(new File(graphPath),
 							ClusterGraph.CLUSTER_GRAPH_STREAM_TYPES);
 					ClusterGraphLoadSession session = new ClusterGraphLoadSession(dataSource);
@@ -77,7 +75,7 @@ public class RoundRobinMerge {
 					int lastSlash = graphName.lastIndexOf(File.separatorChar);
 					if (lastSlash >= 0)
 						graphName = graphName.substring(lastSlash + 1);
-					graphs.add(new ProcessClusterGraph(graphName, graphsByCluster));
+					loadedGraphs.add(new ProcessClusterGraph(graphName, graphsByCluster));
 				}
 			} catch (Throwable t) {
 				fail(t);
@@ -86,20 +84,21 @@ public class RoundRobinMerge {
 	}
 
 	private class MergeThread extends Thread {
-		private final MergeTwoGraphs executor;
+		private final int index = THREAD_INDEX++;
+		private final MergeTwoGraphs executor = new MergeTwoGraphs(commonOptions);
 		private final MergeDebugLog debugLog = new MergeDebugLog();
-		private final List<MergePair> workList;
-
-		MergeThread(List<MergePair> workList) {
-			this.workList = workList;
-
-			executor = new MergeTwoGraphs(commonOptions);
-		}
 
 		@Override
 		public void run() {
 			try {
-				for (MergePair merge : workList) {
+				while (true) {
+					MergePair merge = getNextMergePair();
+					if (merge == null)
+						break;
+
+					Log.sharedLog("Thread %d starting merge %s", index,
+							merge.logFilename.substring(0, merge.logFilename.length() - ".merge.log".length()));
+
 					File logFile = new File(logDir, merge.logFilename);
 					Log.clearThreadOutputs();
 					Log.addThreadOutput(logFile);
@@ -124,6 +123,8 @@ public class RoundRobinMerge {
 
 	private static final String MAIN_LOG_FILENAME = "rr.log";
 
+	private static int THREAD_INDEX = 0;
+
 	private final OptionArgumentMap.StringOption logPathOption = OptionArgumentMap.createStringOption('l', true);
 	private final OptionArgumentMap.StringOption threadCountOption = OptionArgumentMap.createStringOption('t');
 	private final OptionArgumentMap.BooleanOption unityOption = OptionArgumentMap.createBooleanOption('u');
@@ -132,6 +133,9 @@ public class RoundRobinMerge {
 	private File logDir;
 	private final ArgumentStack args;
 	private final CommonMergeOptions commonOptions;
+
+	private final List<String> graphPaths = new ArrayList<String>();
+	private final List<MergePair> mergePairs = new ArrayList<MergePair>();
 
 	public RoundRobinMerge(ArgumentStack args) {
 		this.args = args;
@@ -167,32 +171,26 @@ public class RoundRobinMerge {
 			long startTime = System.currentTimeMillis();
 
 			String graphListPath = args.pop();
-			List<String> graphPaths = new ArrayList<String>(loadGraphList(graphListPath));
+			graphPaths.addAll(loadGraphList(graphListPath));
 
 			int threadCount = Integer.parseInt(threadCountOption.getValue());
 			int partitionSize = graphPaths.size() / threadCount;
 			List<ProcessClusterGraph> graphs = new ArrayList<ProcessClusterGraph>();
 
 			{
-				Log.log("Starting %d threads to load ~%d graphs each.", threadCount, partitionSize);
+				Log.log("Starting %d threads to load %d graphs (~%d each).", threadCount, graphPaths.size(),
+						partitionSize);
 
 				List<GraphLoadThread> threads = new ArrayList<GraphLoadThread>();
-				Collections.shuffle(graphPaths);
 				for (int i = 0; i < threadCount; i++) {
-					int start = i * partitionSize;
-					int end = (i + 1) * partitionSize;
-					if (end > graphPaths.size())
-						end = graphPaths.size();
-
-					List<String> threadWorkList = graphPaths.subList(start, end);
-					GraphLoadThread thread = new GraphLoadThread(threadWorkList);
+					GraphLoadThread thread = new GraphLoadThread();
 					thread.start();
 					threads.add(thread);
 				}
 
 				for (GraphLoadThread thread : threads) {
 					thread.join();
-					graphs.addAll(thread.graphs);
+					graphs.addAll(thread.loadedGraphs);
 				}
 			}
 
@@ -200,20 +198,15 @@ public class RoundRobinMerge {
 			Log.log("Loaded %d graphs in %f seconds.", graphs.size(), ((mergeStart - startTime) / 1000.));
 
 			{
-				List<MergePair> workList = expandWorkList(graphs);
+				expandMergePairs(graphs);
 				List<MergeThread> threads = new ArrayList<MergeThread>();
-				partitionSize = workList.size() / threadCount;
+				int mergeCount = mergePairs.size();
+				partitionSize = mergeCount / threadCount;
 
-				Log.log("Starting %d threads to process ~%d merges each", threadCount, partitionSize);
+				Log.log("Starting %d threads to process %d merges (~%d each)", threadCount, mergeCount, partitionSize);
 
 				for (int i = 0; i < threadCount; i++) {
-					int start = i * partitionSize;
-					int end = (i + 1) * partitionSize;
-					if (end > workList.size())
-						end = workList.size();
-
-					List<MergePair> threadWorkList = workList.subList(start, end);
-					MergeThread thread = new MergeThread(threadWorkList);
+					MergeThread thread = new MergeThread();
 					thread.start();
 					threads.add(thread);
 				}
@@ -223,7 +216,7 @@ public class RoundRobinMerge {
 				}
 
 				Log.log("\nRound-robin merge of %d graphs (%d merges) on %d threads in %f seconds.", graphs.size(),
-						workList.size(), threadCount, ((System.currentTimeMillis() - mergeStart) / 1000.));
+						mergeCount, threadCount, ((System.currentTimeMillis() - mergeStart) / 1000.));
 			}
 
 		} catch (Throwable t) {
@@ -236,9 +229,7 @@ public class RoundRobinMerge {
 		}
 	}
 
-	private List<MergePair> expandWorkList(List<ProcessClusterGraph> graphs) {
-		List<MergePair> workList = new ArrayList<MergePair>();
-
+	private void expandMergePairs(List<ProcessClusterGraph> graphs) {
 		Set<String> logFilenames = new HashSet<String>();
 		boolean includeUnityMerges = unityOption.getValue();
 		String disambiguator = "";
@@ -257,14 +248,15 @@ public class RoundRobinMerge {
 					logFilename = String.format("%s~%s%s.merge.log", left.name, right.name, disambiguator);
 					disambiguator = "_" + disambiguatorIndex;
 				} while (logFilenames.contains(logFilename));
+
+				logFilenames.add(logFilename);
+
 				disambiguator = "";
 				disambiguatorIndex = 0;
 
-				workList.add(new MergePair(graphs.get(i), graphs.get(j), logFilename));
+				mergePairs.add(new MergePair(graphs.get(i), graphs.get(j), logFilename));
 			}
 		}
-
-		return workList;
 	}
 
 	private Collection<String> loadGraphList(String listPath) throws IOException {
@@ -273,19 +265,35 @@ public class RoundRobinMerge {
 			throw new IllegalStateException(String.format("The graph list file %s does not exist!",
 					listFile.getAbsolutePath()));
 
-		BufferedReader in = new BufferedReader(new FileReader(listFile));
 		Set<String> graphPaths = new HashSet<String>();
-		while (in.ready()) {
-			String graphPath = in.readLine();
-			if (graphPath.length() > 0) {
-				if (graphPaths.contains(graphPath))
-					throw new IllegalStateException(String.format("Found multiple runs in directory %s. Exiting now.",
-							graphPath));
-				graphPaths.add(graphPath);
+		BufferedReader in = new BufferedReader(new FileReader(listFile));
+		try {
+			while (in.ready()) {
+				String graphPath = in.readLine();
+				if (graphPath.length() > 0) {
+					if (graphPaths.contains(graphPath))
+						throw new IllegalStateException(String.format(
+								"Found multiple runs in directory %s. Exiting now.", graphPath));
+					graphPaths.add(graphPath);
+				}
 			}
+		} finally {
+			in.close();
 		}
 
 		return graphPaths;
+	}
+
+	private synchronized String getNextGraphPath() {
+		if (graphPaths.isEmpty())
+			return null;
+		return graphPaths.remove(graphPaths.size() - 1);
+	}
+
+	private synchronized MergePair getNextMergePair() {
+		if (mergePairs.isEmpty())
+			return null;
+		return mergePairs.remove(mergePairs.size() - 1);
 	}
 
 	private void printUsageAndExit() {

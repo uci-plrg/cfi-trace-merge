@@ -53,21 +53,25 @@ public class Configuration {
 
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(configFile));
-			String curLine;
-			while ((curLine = br.readLine()) != null) {
-				if (curLine.startsWith("#"))
-					continue;
-				String key = curLine.substring(0, curLine.indexOf('=')), value = curLine
-						.substring(curLine.indexOf('=') + 1);
-				if (key.equals("Server_Info")) {
-					if (!readServerInfo(DEFAULT_RUNDR_HOME + "/" + value)) {
-						Log.log("Wrong configuration file for servers!");
+			try {
+				String curLine;
+				while ((curLine = br.readLine()) != null) {
+					if (curLine.startsWith("#"))
+						continue;
+					String key = curLine.substring(0, curLine.indexOf('=')), value = curLine.substring(curLine
+							.indexOf('=') + 1);
+					if (key.equals("Server_Info")) {
+						if (!readServerInfo(DEFAULT_RUNDR_HOME + "/" + value)) {
+							Log.log("Wrong configuration file for servers!");
+						}
+					} else if (key.equals("Generated_Script_Dir")) {
+						generatedScriptsPath = value;
+					} else {
+						Log.log("Unrecognized field in config file: " + key);
 					}
-				} else if (key.equals("Generated_Script_Dir")) {
-					generatedScriptsPath = value;
-				} else {
-					Log.log("Unrecognized field in config file: " + key);
 				}
+			} finally {
+				br.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -79,23 +83,27 @@ public class Configuration {
 	private boolean readServerInfo(String fileName) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(fileName));
-			String curLine;
-			while ((curLine = br.readLine()) != null) {
-				if (curLine.startsWith("#") || curLine.startsWith("\n"))
-					continue;
-				String serverName = curLine.substring(0, curLine.indexOf('\t')), processorNumStr = curLine
-						.substring(curLine.indexOf('\t') + 1);
-				int processorNum = 0;
-				try {
-					processorNum = Integer.parseInt(processorNumStr);
-					if (server2ProcessorNum.containsKey(serverName)) {
-						Log.log("Duplicate servers in server config file!");
-					} else {
-						server2ProcessorNum.put(serverName, processorNum);
+			try {
+				String curLine;
+				while ((curLine = br.readLine()) != null) {
+					if (curLine.startsWith("#") || curLine.startsWith("\n"))
+						continue;
+					String serverName = curLine.substring(0, curLine.indexOf('\t')), processorNumStr = curLine
+							.substring(curLine.indexOf('\t') + 1);
+					int processorNum = 0;
+					try {
+						processorNum = Integer.parseInt(processorNumStr);
+						if (server2ProcessorNum.containsKey(serverName)) {
+							Log.log("Duplicate servers in server config file!");
+						} else {
+							server2ProcessorNum.put(serverName, processorNum);
+						}
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
 					}
-				} catch (NumberFormatException e) {
-					e.printStackTrace();
 				}
+			} finally {
+				br.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

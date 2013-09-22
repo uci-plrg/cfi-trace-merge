@@ -353,7 +353,11 @@ public class ClusteringAnalysisSet {
 		try {
 			FileOutputStream fileOut = new FileOutputStream(fileName);
 			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-			objectOut.writeObject(freqTable);
+			try {
+				objectOut.writeObject(freqTable);
+			} finally {
+				objectOut.close();
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -366,7 +370,11 @@ public class ClusteringAnalysisSet {
 		try {
 			FileInputStream fileIn = new FileInputStream(fileName);
 			ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-			return (HashMap<Long, Integer>) objectIn.readObject();
+			try {
+				return (HashMap<Long, Integer>) objectIn.readObject();
+			} finally {
+				objectIn.close();
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
