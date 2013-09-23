@@ -17,8 +17,8 @@ import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.loader.ClusterGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.datasource.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.datasource.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSource;
+import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
@@ -54,22 +54,24 @@ public class RoundRobinMerge {
 		private final MergeDebugLog debugLog = new MergeDebugLog();
 		private final List<ProcessClusterGraph> loadedGraphs = new ArrayList<ProcessClusterGraph>();
 
+		private String currentGraphPath;
+
 		@Override
 		public void run() {
 			try {
 				while (true) {
-					String graphPath = getNextGraphPath();
-					if (graphPath == null)
+					currentGraphPath = getNextGraphPath();
+					if (currentGraphPath == null)
 						break;
 
-					ClusterTraceDataSource dataSource = new ClusterTraceDirectory(new File(graphPath),
-							ClusterGraph.CLUSTER_GRAPH_STREAM_TYPES);
+					ClusterTraceDataSource dataSource = new ClusterTraceDirectory(new File(currentGraphPath),
+							ClusterGraph.CLUSTER_GRAPH_STREAM_TYPES).loadExistingFiles();
 					ClusterGraphLoadSession session = new ClusterGraphLoadSession(dataSource);
 					Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphsByCluster = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>>();
 					for (AutonomousSoftwareDistribution cluster : commonOptions.clusterMergeSet) {
 						graphsByCluster.put(cluster, session.loadClusterGraph(cluster, debugLog));
 					}
-					String graphName = graphPath;
+					String graphName = currentGraphPath;
 					if (graphName.endsWith(File.separator))
 						graphName = graphName.substring(0, graphName.length() - 1);
 					int lastSlash = graphName.lastIndexOf(File.separatorChar);
@@ -78,7 +80,8 @@ public class RoundRobinMerge {
 					loadedGraphs.add(new ProcessClusterGraph(graphName, graphsByCluster));
 				}
 			} catch (Throwable t) {
-				fail(t);
+				fail(t, String.format("\t@@@@ Loading graph '%s' failed with %s @@@@", currentGraphPath, t.getClass()
+						.getSimpleName()));
 			}
 		}
 	}
@@ -88,6 +91,8 @@ public class RoundRobinMerge {
 		private final MergeTwoGraphs executor = new MergeTwoGraphs(commonOptions);
 		private final MergeDebugLog debugLog = new MergeDebugLog();
 
+		private String currentMergeName;
+
 		@Override
 		public void run() {
 			try {
@@ -96,8 +101,9 @@ public class RoundRobinMerge {
 					if (merge == null)
 						break;
 
-					Log.sharedLog("Thread %d starting merge %s", index,
-							merge.logFilename.substring(0, merge.logFilename.length() - ".merge.log".length()));
+					currentMergeName = merge.logFilename.substring(0,
+							merge.logFilename.length() - ".merge.log".length());
+					Log.sharedLog("Thread %d starting merge %s", index, currentMergeName);
 
 					File logFile = new File(logDir, merge.logFilename);
 					Log.clearThreadOutputs();
@@ -110,12 +116,16 @@ public class RoundRobinMerge {
 					executor.merge(leftCandidate, rightCandidate, logFile);
 				}
 			} catch (Throwable t) {
-				fail(t);
+				fail(t, String.format("\t@@@@ Merge %s on thread %d failed with %s @@@@", currentMergeName, index, t
+						.getClass().getSimpleName()));
 			}
 		}
 	}
 
-	private static void fail(Throwable t) {
+	private static void fail(Throwable t, String sharedLogMessage) {
+		Log.sharedLog(sharedLogMessage);
+		Log.sharedLog(t);
+
 		Log.log("\t@@@@ Merge failed with %s @@@@", t.getClass().getSimpleName());
 		Log.log(t);
 		System.err.println(String.format("!! Merge failed with %s !!", t.getClass().getSimpleName()));
@@ -224,7 +234,7 @@ public class RoundRobinMerge {
 				t.printStackTrace();
 				printUsageAndExit();
 			} else {
-				fail(t);
+				fail(t, "Round-robin main thread failed.");
 			}
 		}
 	}

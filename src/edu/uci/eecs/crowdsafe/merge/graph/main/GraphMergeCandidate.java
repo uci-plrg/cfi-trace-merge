@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.sql.CommonDataSource;
+
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
@@ -12,10 +14,10 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.loader.ClusterGraphLoadS
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
-import edu.uci.eecs.crowdsafe.common.datasource.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.datasource.cluster.ClusterTraceDirectory;
-import edu.uci.eecs.crowdsafe.common.datasource.execution.ExecutionTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.datasource.execution.ExecutionTraceDirectory;
+import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSource;
+import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.common.io.execution.ExecutionTraceDataSource;
+import edu.uci.eecs.crowdsafe.common.io.execution.ExecutionTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeDebugLog;
 
@@ -27,7 +29,9 @@ abstract class GraphMergeCandidate {
 		this.debugLog = debugLog;
 	}
 
-	abstract void loadData(File directory) throws IOException;
+	abstract void loadData() throws IOException;
+
+	abstract String parseTraceName();
 
 	abstract Graph.Process summarizeGraph();
 
@@ -37,32 +41,38 @@ abstract class GraphMergeCandidate {
 
 	static class Execution extends GraphMergeCandidate {
 
+		private final ExecutionTraceDataSource dataSource;
+
 		private ProcessExecutionGraph graph;
 
-		public Execution(MergeDebugLog debugLog) {
+		public Execution(File directory, MergeDebugLog debugLog) {
 			super(debugLog);
+			dataSource = new ExecutionTraceDirectory(directory, ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
 		}
 
 		public Execution(ProcessExecutionGraph graph, MergeDebugLog debugLog) {
 			super(debugLog);
 			this.graph = graph;
+			dataSource = null;
 		}
 
 		@Override
-		public void loadData(File directory) throws IOException {
+		public void loadData() throws IOException {
 			if (graph != null)
 				return;
-
-			ExecutionTraceDataSource dataSource = new ExecutionTraceDirectory(directory,
-					ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
 
 			long start = System.currentTimeMillis();
 
 			ProcessGraphLoadSession loadSession = new ProcessGraphLoadSession();
-			Log.log("Loading graph %s", directory.getAbsolutePath());
+			Log.log("Loading graph from data source %s", dataSource);
 			graph = loadSession.loadGraph(dataSource, debugLog);
 
 			Log.log("\nGraph loaded in %f seconds.", ((System.currentTimeMillis() - start) / 1000.));
+		}
+
+		@Override
+		String parseTraceName() {
+			return dataSource.getProcessName() + "." + dataSource.getProcessId();
 		}
 
 		@Override
@@ -87,16 +97,26 @@ abstract class GraphMergeCandidate {
 		private ClusterGraphLoadSession loadSession;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		public Cluster(MergeDebugLog debugLog) {
+		public Cluster(File directory, MergeDebugLog debugLog) {
 			super(debugLog);
+			dataSource = new ClusterTraceDirectory(directory).loadExistingFiles();
+			summaryBuilder.setName(directory.getName());
+		}
+
+		public Cluster(ClusterTraceDataSource dataSource, String name, MergeDebugLog debugLog) {
+			super(debugLog);
+			this.dataSource = dataSource;
+			summaryBuilder.setName(name);
 		}
 
 		@Override
-		public void loadData(File directory) throws IOException {
-			dataSource = new ClusterTraceDirectory(directory);
+		public void loadData() throws IOException {
 			loadSession = new ClusterGraphLoadSession(dataSource);
+		}
 
-			summaryBuilder.setName(directory.getName());
+		@Override
+		String parseTraceName() {
+			return dataSource.parseTraceName();
 		}
 
 		@Override
@@ -112,13 +132,15 @@ abstract class GraphMergeCandidate {
 		@Override
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
-			summaryBuilder.addCluster(graph.summarize());
+			if (graph != null) 
+				summaryBuilder.addCluster(graph.summarize());
 			return graph;
 		}
 	}
 
 	static class LoadedClusters extends GraphMergeCandidate {
 
+		private String name;
 		private Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
@@ -126,13 +148,18 @@ abstract class GraphMergeCandidate {
 				Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs, MergeDebugLog debugLog) {
 			super(debugLog);
 
+			this.name = name;
 			this.graphs = graphs;
 			summaryBuilder.setName(name);
 		}
 
 		@Override
-		public void loadData(File directory) throws IOException {
-			throw new UnsupportedOperationException("The clusters are already loaded.");
+		public void loadData() throws IOException {
+		}
+
+		@Override
+		String parseTraceName() {
+			return name;
 		}
 
 		@Override

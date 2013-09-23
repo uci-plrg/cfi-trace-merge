@@ -3,7 +3,14 @@
 . $csc/scripts/cs-common
 
 function print_usage() {
-  echo "Usage: cs-merge <left-run-dir> <right-run-dir> <log-file-basename>"
+  echo "Usage: cs-merge <left-run-dir> <right-run-dir>"
+  echo "Usage: cs-merge -n <output-name> -o <output-dir> <left-run-dir> <right-run-dir>"
+  echo "Usage: cs-merge -i <in-place-dir> <other-run-dir>"
+  echo "\t-l <log-file-basename>"
+  echo "\t-c <cluster-name>,... (include only these clusters)"
+  echo "\t-x <cluster-name>,... (exclude these clusters)"
+  echo "\t-d <crowd-safe-common-dir>"
+  echo "\tRun-dir must be preceded by c: (for cluster graph) or e: (for execution graph)"
   exit
 }
 
@@ -14,7 +21,7 @@ append_classpath "CROWD_SAFE_COMMON_DIR"
 
 # echo "classpath: $cp"
 
-main_class="edu.uci.eecs.crowdsafe.merge.graph.main.MergeTwoExecutionGraphs"
+main_class="edu.uci.eecs.crowdsafe.merge.graph.main.MergeTwoGraphs"
 
 java -cp $cp $main_class $@
   
