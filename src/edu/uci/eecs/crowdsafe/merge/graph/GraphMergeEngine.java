@@ -237,32 +237,33 @@ class GraphMergeEngine {
 			}
 		}
 
-		session.right.cluster.removeUnreachableNodes(session.left.cluster.getUnreachableNodes());
-
 		// Copy nodes from right
 		Map<Node<?>, ClusterNode<?>> rightNode2MergedNode = new HashMap<Node<?>, ClusterNode<?>>();
 		for (Node<?> rightNode : session.right.cluster.getAllNodes()) {
+			if (session.isMutuallyUnreachable(rightNode))
+				continue;
+
 			if (!session.matchedNodes.containsRightKey(rightNode.getKey())) {
 				ClusterNode<?> mergedNode = session.mergedGraph.addNode(rightNode.getHash(), rightNode.getModule(),
 						rightNode.getRelativeTag(), rightNode.getType());
+				// TODO: fails to add the corresponding edges when creating a new version of a node
 				rightNode2MergedNode.put(rightNode, mergedNode);
 				session.debugLog.nodeMergedFromRight(rightNode);
 			}
 		}
 
-		// Add edges from right
-		if (!addEdgesFromRight(session.right.cluster, leftNode2MergedNode, rightNode2MergedNode)) {
-			Log.log("There are conflicts when merging edges!");
-			return;
-		}
+		addEdgesFromRight(session.right.cluster, leftNode2MergedNode, rightNode2MergedNode);
 	}
 
-	private boolean addEdgesFromRight(ModuleGraphCluster<? extends Node<?>> right,
+	private void addEdgesFromRight(ModuleGraphCluster<? extends Node<?>> right,
 			Map<Node<?>, ClusterNode<?>> leftNode2MergedNode, Map<Node<?>, ClusterNode<?>> rightNode2MergedNode) {
 
 		// Merge edges from right
 		// Traverse edges in right by outgoing edges
 		for (Node<? extends Node<?>> rightFromNode : right.getAllNodes()) {
+			if (session.isMutuallyUnreachable(rightFromNode))
+				continue;
+
 			session.debugLog.mergingEdgesFromRight(rightFromNode);
 			// New fromNode and toNode in the merged graph
 			Edge<ClusterNode<?>> mergedEdge;
@@ -272,6 +273,10 @@ class GraphMergeEngine {
 
 					mergedEdge = null;
 					Node<?> rightToNode = rightEdge.getToNode();
+
+					if (session.isMutuallyUnreachable(rightToNode))
+						continue;
+
 					ClusterNode<?> mergedFromNode = leftNode2MergedNode.get(session.left.cluster
 							.getNode(session.matchedNodes.getMatchByRightKey(rightFromNode.getKey())));
 					ClusterNode<?> mergedToNode = leftNode2MergedNode.get(session.left.cluster
@@ -310,7 +315,7 @@ class GraphMergeEngine {
 						}
 					} else if (mergedFromNode != null) {
 						// First node is a shared node
-						mergedToNode = rightNode2MergedNode.get(rightToNode);
+						mergedToNode = rightNode2MergedNode.get(rightToNode); 
 						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					} else if (mergedToNode != null) {
@@ -343,7 +348,6 @@ class GraphMergeEngine {
 				rightEdges.release();
 			}
 		}
-		return true;
 	}
 
 	/**

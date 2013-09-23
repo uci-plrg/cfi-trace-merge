@@ -269,6 +269,15 @@ public class GraphMatchEngine {
 
 		OrdinalEdgeList<? extends Node<?>> leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
 		try {
+			if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
+				Edge<? extends Node<?>> callContinuation = leftParent.getCallContinuation();
+				if (callContinuation != null) {
+					if (callContinuation.getToNode().getHash() == rightEdge.getToNode().getHash()) {
+						return callContinuation.getToNode();
+					}
+				}
+			}
+			
 			if (leftEdges.size() == 1) {
 				Node<?> leftChild = leftEdges.get(0).getToNode();
 				if ((leftChild.getHash() == rightToNode.getHash())
@@ -279,15 +288,6 @@ public class GraphMatchEngine {
 				}
 			}
 
-			if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-				Edge<? extends Node<?>> callContinuation = leftParent.getCallContinuation();
-				if (callContinuation != null) {
-					if (callContinuation.getToNode().getHash() == rightEdge.getToNode().getHash()) {
-						return callContinuation.getToNode();
-					}
-				}
-			}
-			
 			// Direct edges will also have multiple possible match because of the
 			// existence of code re-writing
 			ArrayList<Node<?>> candidates = new ArrayList<Node<?>>();

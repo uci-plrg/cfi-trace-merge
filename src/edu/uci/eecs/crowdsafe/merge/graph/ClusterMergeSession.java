@@ -10,8 +10,8 @@ import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
 
 public class ClusterMergeSession {
 
-	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, GraphMergeResults results,
-			MergeDebugLog debugLog) {
+	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
+			GraphMergeResults results, MergeDebugLog debugLog) {
 		ClusterMergeSession session = new ClusterMergeSession(left, right, results, debugLog);
 
 		GraphMergeEngine engine = new GraphMergeEngine(session);
@@ -91,7 +91,7 @@ public class ClusterMergeSession {
 			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
 	}
-	
+
 	boolean acceptContext(Node<?> candidate) {
 		int score = contextRecord.evaluate();
 		if (score < 7)
@@ -109,5 +109,9 @@ public class ClusterMergeSession {
 		if (score != null)
 			return score;
 		return 0;
+	}
+
+	boolean isMutuallyUnreachable(Node<?> node) {
+		return right.cluster.getUnreachableNodes().contains(node) && left.cluster.getUnreachableNodes().contains(node);
 	}
 }

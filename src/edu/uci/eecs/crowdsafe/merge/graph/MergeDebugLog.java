@@ -78,6 +78,9 @@ public class MergeDebugLog implements GraphLoadEventListener {
 		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
 		// trackedNodes.add(new TrackedNodeKey(0x5b9, 0x2674f8aff4f1L));
 
+		// No entry points into wscinterop.dll(0xc4fc-i1|0x875b331922)
+		// trackedNodes.add(new TrackedNodeKey(0x4fc, 0x875b331922L));
+
 		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
 		// debugRelativeTags.add(0x5b5b9L);
 	}
