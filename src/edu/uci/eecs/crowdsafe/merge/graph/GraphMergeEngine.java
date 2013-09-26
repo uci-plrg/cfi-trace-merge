@@ -168,10 +168,7 @@ class GraphMergeEngine {
 
 			// Update matched relationship
 			if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
-				if (!session.matchedNodes.addPair(leftChild, rightEdge.getToNode(), session.getScore(leftChild))) {
-					Log.log("Node " + leftChild.getKey() + " of the left graph is already matched!");
-					return;
-				}
+				session.matchedNodes.addPair(leftChild, rightEdge.getToNode(), session.getScore(leftChild));
 			}
 		} else {
 			addUnmatchedNode2Queue(rightEdge.getToNode());
@@ -315,7 +312,7 @@ class GraphMergeEngine {
 						}
 					} else if (mergedFromNode != null) {
 						// First node is a shared node
-						mergedToNode = rightNode2MergedNode.get(rightToNode); 
+						mergedToNode = rightNode2MergedNode.get(rightToNode);
 						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					} else if (mergedToNode != null) {

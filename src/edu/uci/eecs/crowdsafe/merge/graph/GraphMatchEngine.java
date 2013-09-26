@@ -30,6 +30,8 @@ public class GraphMatchEngine {
 	public final static int INDIRECT_SEARCH_DEPTH = 10;
 	public final static int PURE_SEARCH_DEPTH = 15;
 
+	private static final int MAXIMUM_HASH_IDENTICAL_SUBGRAPH = 15;
+
 	private static final float VALID_SCORE_LIMIT = 0.5f;
 
 	private final ClusterMergeSession session;
@@ -190,6 +192,10 @@ public class GraphMatchEngine {
 		List<Node<?>> leftCandidates = new ArrayList<Node<?>>();
 		for (int i = 0; i < leftNodes.size(); i++) {
 			Node<?> leftNode = leftNodes.get(i);
+			
+			// narrow by tag
+			if (leftNode.isModuleRelativeMismatch(rightNode))
+				continue;
 
 			if (leftNode.getType() == MetaNodeType.CLUSTER_EXIT)
 				continue;
@@ -277,7 +283,7 @@ public class GraphMatchEngine {
 					}
 				}
 			}
-			
+
 			if (leftEdges.size() == 1) {
 				Node<?> leftChild = leftEdges.get(0).getToNode();
 				if ((leftChild.getHash() == rightToNode.getHash())
@@ -393,6 +399,10 @@ public class GraphMatchEngine {
 					&& leftChild.getModule().isEquivalent(rightToNode.getModule())) {
 				if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
 					continue;
+				
+				// narrow by tag
+				if (leftChild.isModuleRelativeMismatch(rightToNode))
+					continue;
 
 				session.contextRecord.reset(leftChild, rightToNode);
 				getContextSimilarity(leftChild, rightToNode, INDIRECT_SEARCH_DEPTH);
@@ -445,129 +455,62 @@ public class GraphMatchEngine {
 			return topCandidates.get(0);
 		}
 	}
-	/**
-	 * This is used only for debugging to analyze the aliasing problem. Don't ever use it to merge the graph!!!
-	 * 
-	 * @param leftNode
-	 * @param rightNode
-	 * @param depth
-	 * @return
-	 */
-	/**
-	 * <pre> Why not just use a graph iterator?
-	public int debug_getContextSimilarity(ExecutionNode leftNode,
-			ExecutionNode rightNode, int depth) {
-		if (depth <= 0)
-			return 0;
 
-		if (session.comparedNodes.contains(rightNode)) {
-			return 1;
-		} else {
-			session.comparedNodes.add(rightNode);
-		}
-		Node<?> trueLeftNode = session.left.cluster.getGraphData()
-				.HACK_relativeTagLookup(rightNode);
-		if (leftNode.equals(trueLeftNode)) {
-			return 1;
-		}
-
-		int score = 0;
-		List<Edge<ExecutionNode>> leftEdges = leftNode.getOutgoingEdges();
-		List<Edge<ExecutionNode>> rightEdges = rightNode.getOutgoingEdges();
-		// At least one node has no outgoing edges!!
-		if (leftEdges.size() == 0 || rightEdges.size() == 0) {
-			// Just think that they might be similar...
-			if (leftEdges.size() == 0 && rightEdges.size() == 0) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-
-		int res = -1;
-		// First consider the CallContinuation edge
-		Edge<ExecutionNode> leftEdge, rightEdge;
-		if ((rightEdge = rightNode.getContinuationEdge()) != null
-				&& (leftEdge = leftNode.getContinuationEdge()) != null) {
-			if (leftEdge.getToNode().getHash() != rightEdge.getToNode()
-					.getHash()) {
-				return -1;
-			} else {
-				// Check if e1.toNode was already matched to another node; if
-				// so, it should return -1 to indicate a conflict
-				if (session.matchedNodes.containsLeftKey(leftEdge.getToNode()
-						.getKey())
-						&& !session.matchedNodes.hasPair(leftEdge.getToNode()
-								.getKey(), rightEdge.getToNode().getKey())) {
-					return -1;
-				}
-				score = debug_getContextSimilarity(leftEdge.getToNode(),
-						rightEdge.getToNode(), depth - 1);
-				if (score == -1)
-					return -1;
-			}
-		}
-
-		for (int i = 0; i < leftEdges.size(); i++) {
-			for (int j = 0; j < rightEdges.size(); j++) {
-				leftEdge = leftEdges.get(i);
-				rightEdge = rightEdges.get(j);
-				if (leftEdge.getOrdinal() == rightEdge.getOrdinal()) {
-					if (leftEdge.getEdgeType() != rightEdge.getEdgeType()) {
-						// Need to treat the edge type specially here
-						// because the ordinal of CallContinuation and
-						// DirectEdge usually have the same ordinal 0
-						continue;
-					}
-					// This case was considered previously
-					if (leftEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-						continue;
-					}
-					if (leftEdge.getEdgeType() == EdgeType.DIRECT) {
-						if (leftEdge.getToNode().getHash() != rightEdge
-								.getToNode().getHash()) {
-							return -1;
-						} else {
-							// Check if e1.toNode was already matched to another
-							// node; if so, it should return -1 to indicate a
-							// conflict
-							if (session.matchedNodes.containsLeftKey(leftEdge
-									.getToNode().getKey())
-									&& !session.matchedNodes.hasPair(leftEdge
-											.getToNode().getKey(), rightEdge
-											.getToNode().getKey())) {
-								return -1;
-							}
-
-							res = debug_getContextSimilarity(
-									leftEdge.getToNode(),
-									rightEdge.getToNode(), depth - 1);
-							if (res == -1) {
-								return -1;
-							} else {
-								score += res + 1;
-							}
-						}
-					} else {
-						// Either indirect or unexpected edges, keep tracing
-						// down. If the pair of node does not match, that does
-						// not mean the context is different.
-						if (leftEdge.getToNode().getHash() == rightEdge
-								.getToNode().getHash()) {
-							res = debug_getContextSimilarity(
-									leftEdge.getToNode(),
-									rightEdge.getToNode(), depth - 1);
-							// In the case of res == -1, just leave it alone
-							// because of lack of information
-							if (res != -1) {
-								score += res + 1;
-							}
-						}
-					}
-				}
-			}
-		}
-		return score;
+	public boolean isHashIdenticalSubgraph(Node<?> left, Node<?> right) {
+		return isHashIdenticalSubgraph(left, right, MAXIMUM_HASH_IDENTICAL_SUBGRAPH);
 	}
-	 */
+
+	boolean isHashIdenticalSubgraph(Node<?> left, Node<?> right, int depth) {
+		if (depth == 0)
+			return false;
+
+		if (left.getHash() != right.getHash())
+			return false;
+
+		if (!left.hasCompatibleEdges(right))
+			return false;
+
+		if (left.getCallContinuation() != null) {
+			if (!isHashIdenticalSubgraph(left.getCallContinuation().getToNode(), right.getCallContinuation()
+					.getToNode(), depth - 1))
+				return false;
+		}
+
+		for (int ordinal = 0; ordinal < left.getOutgoingOrdinalCount(); ordinal++) {
+			OrdinalEdgeList<?> leftEdges = left.getOutgoingEdges(ordinal);
+			OrdinalEdgeList<?> rightEdges = null;
+			try {
+				if (leftEdges.isEmpty())
+					continue;
+
+				rightEdges = right.getOutgoingEdges(ordinal);
+
+				for (int i = 0; i < leftEdges.size(); i++) {
+					if (!isHashIdenticalSubgraph(leftEdges.get(i).getToNode(), rightEdges.get(i).getToNode(),
+							depth - 1))
+						return false;
+				}
+				
+				/*
+				switch (left.getOrdinalEdgeType(ordinal)) {
+					case DIRECT:
+						for (int i = 0; i < leftEdges.size(); i++) {
+							if (!isHashIdenticalSubgraph(leftEdges.get(i).getToNode(), rightEdges.get(i).getToNode(),
+									depth - 1))
+								return false;
+						}
+						break;
+					case INDIRECT:
+					case UNEXPECTED_RETURN:
+				}
+				*/
+			} finally {
+				leftEdges.release();
+				if (rightEdges != null)
+					rightEdges.release();
+			}
+		}
+
+		return true;
+	}
 }
