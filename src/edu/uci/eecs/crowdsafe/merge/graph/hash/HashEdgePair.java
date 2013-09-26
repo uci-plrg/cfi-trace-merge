@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
@@ -11,12 +11,12 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
  * @author peizhaoo
  * 
  */
-public class PairNodeEdge {
+public class HashEdgePair {
 	private Node<?> leftParentNode;
 	private Edge<? extends Node<?>> rightEdge;
 	private Node<?> rightParentNode;
 
-	public PairNodeEdge(Node<?> leftParentNode, Edge<? extends Node<?>> rightEdge, Node<?> rightParentNode) {
+	public HashEdgePair(Node<?> leftParentNode, Edge<? extends Node<?>> rightEdge, Node<?> rightParentNode) {
 		this.leftParentNode = leftParentNode;
 		this.rightEdge = rightEdge;
 		this.rightParentNode = rightParentNode;
@@ -37,9 +37,9 @@ public class PairNodeEdge {
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
-		if (o.getClass() != PairNodeEdge.class)
+		if (o.getClass() != HashEdgePair.class)
 			return false;
-		PairNodeEdge pairNodeEdge = (PairNodeEdge) o;
+		HashEdgePair pairNodeEdge = (HashEdgePair) o;
 		if (pairNodeEdge.leftParentNode.equals(leftParentNode) && pairNodeEdge.rightParentNode.equals(rightEdge)
 				&& pairNodeEdge.rightEdge.equals(rightEdge))
 			return true;

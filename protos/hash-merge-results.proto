@@ -4,22 +4,22 @@ import "graph.proto";
 import "statistics.proto";
 
 option java_package = "edu.uci.eecs.crowdsafe.merge.graph.results";
-option java_outer_classname = "Merge";
+option java_outer_classname = "HashMerge";
 
-message MergeResults {
+message HashMergeResults {
   optional Process left = 1;
   optional Process right = 2;
-  repeated ClusterMerge cluster = 3;
+  repeated HashClusterMerge cluster = 3;
 }
 
-message ClusterMerge {
+message HashClusterMerge {
   optional string distribution_name = 1;
   optional UnmatchedNodeSummary left_unmatched = 2;
   optional UnmatchedNodeSummary right_unmatched = 3;
   optional TraceCompilationProfile hash_profile = 4;
   optional TraceCompilationProfile graph_profile = 5;
   optional TraceCompilationProfile graph_within_hash_intersection = 6;
-  optional MergeSummary merge_summary = 7;
+  optional HashMergeSummary merge_summary = 7;
   repeated StatisticsTree statistics = 8;
 }
 
@@ -37,7 +37,7 @@ message TraceCompilationProfile {
   optional int32 right = 4;
 }
 
-message MergeSummary {
+message HashMergeSummary {
   optional int32 indirect_edges_matched = 1;
   optional int32 pure_heuristic_matches = 2;
   optional int32 call_continuation_edges_matched = 3;

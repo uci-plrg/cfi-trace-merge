@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.ArrayList;
 import java.util.HashSet;

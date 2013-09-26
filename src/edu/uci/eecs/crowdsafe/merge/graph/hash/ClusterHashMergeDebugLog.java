@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,11 +9,9 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 
-public class MergeDebugLog implements GraphLoadEventListener {
+public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
 
 	private static class TrackedNodeKey {
 		int pageOffset;
@@ -72,7 +70,7 @@ public class MergeDebugLog implements GraphLoadEventListener {
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
 	private final List<Long> debugRelativeTags = new ArrayList<Long>();
 
-	public MergeDebugLog() {
+	public ClusterHashMergeDebugLog() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
 		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
@@ -94,6 +92,7 @@ public class MergeDebugLog implements GraphLoadEventListener {
 			case CLUSTER_EXIT:
 				if (debugRelativeTags.contains(node.getHash()))
 					node.getClass();
+				break;
 			default:
 				if (debugRelativeTags.contains(node.getRelativeTag()))
 					node.getClass();
@@ -109,12 +108,12 @@ public class MergeDebugLog implements GraphLoadEventListener {
 			Log.log("Node %s matched with node %s", left.toString(), right.toString());
 	}
 
-	void matchEnqueued(PairNode match) {
+	void matchEnqueued(HashNodeMatch match) {
 		if (isTracked(match.getLeftNode()) || isTracked(match.getRightNode()))
 			Log.log("Enqueue matched pair %s and %s", match.getLeftNode(), match.getRightNode());
 	}
 
-	void matchDequeued(PairNode match) {
+	void matchDequeued(HashNodeMatch match) {
 		if (isTracked(match.getLeftNode()) || isTracked(match.getRightNode()))
 			Log.log("Dequeue matched pair %s and %s", match.getLeftNode(), match.getRightNode());
 	}
@@ -129,13 +128,13 @@ public class MergeDebugLog implements GraphLoadEventListener {
 			Log.log("Dequeue unmatched node %s", unmatch);
 	}
 
-	void indirectEdgeEnqueued(PairNodeEdge rightEdge) {
+	void indirectEdgeEnqueued(HashEdgePair rightEdge) {
 		if (isTracked(rightEdge.getLeftParentNode()) || isTracked(rightEdge.getRightParentNode()))
 			Log.log("Enqueue indirect edge from %s to %s", rightEdge.getLeftParentNode(),
 					rightEdge.getRightParentNode());
 	}
 
-	void indirectEdgeDequeued(PairNodeEdge rightEdge) {
+	void indirectEdgeDequeued(HashEdgePair rightEdge) {
 		if (isTracked(rightEdge.getLeftParentNode()) || isTracked(rightEdge.getRightParentNode()))
 			Log.log("Dequeue indirect edge from %s to %s", rightEdge.getLeftParentNode(),
 					rightEdge.getRightParentNode());

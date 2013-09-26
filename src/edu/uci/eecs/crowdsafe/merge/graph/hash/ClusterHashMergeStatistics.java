@@ -1,10 +1,10 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
-public class GraphMergeStatistics {
+public class ClusterHashMergeStatistics {
 
 	public static final float LOW_MATCHING_TRHESHOLD = 0.15f;
 
-	private final ClusterMergeSession session;
+	private final ClusterHashMergeSession session;
 
 	private int directEdgeTrialCnt = 0;
 	private int indirectEdgeTrialCnt = 0;
@@ -15,7 +15,7 @@ public class GraphMergeStatistics {
 	private int callContinuationMatchCount = 0;
 	private int possibleRewrites = 0;
 
-	public GraphMergeStatistics(ClusterMergeSession session) {
+	public ClusterHashMergeStatistics(ClusterHashMergeSession session) {
 		this.session = session;
 	}
 

@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,18 +6,19 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.merge.graph.PairNode.MatchType;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
-public class ClusterMergeSession {
+public class ClusterHashMergeSession {
 
 	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
-			GraphMergeResults results, MergeDebugLog debugLog) {
-		ClusterMergeSession session = new ClusterMergeSession(left, right, results, debugLog);
+			ClusterHashMergeResults results, ClusterHashMergeDebugLog debugLog) {
+		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
 
-		GraphMergeEngine engine = new GraphMergeEngine(session);
+		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
 		engine.mergeGraph();
 		session.results.clusterMergeCompleted();
-		return session.mergedGraph;
+		return session.mergedGraphBuilder;
 	}
 
 	enum State {
@@ -29,16 +30,16 @@ public class ClusterMergeSession {
 
 	State state = State.INITIALIZATION;
 
-	final GraphMergeTarget left;
-	final GraphMergeTarget right;
-	final ClusterGraph mergedGraph;
+	final ClusterHashMergeTarget left;
+	final ClusterHashMergeTarget right;
+	final ClusterGraph mergedGraphBuilder;
 
-	final GraphMergeStatistics statistics;
-	final GraphMergeResults results;
-	final MergeDebugLog debugLog;
+	final ClusterHashMergeStatistics statistics;
+	final ClusterHashMergeResults results;
+	final ClusterHashMergeDebugLog debugLog;
 
-	final MatchedNodes matchedNodes;
-	final GraphMatchState matchState;
+	final HashMatchedNodes matchedNodes;
+	final ClusterHashMatchState matchState;
 
 	final ContextMatchRecord contextRecord = new ContextMatchRecord();
 
@@ -46,20 +47,20 @@ public class ClusterMergeSession {
 
 	boolean hasConflict;
 
-	final GraphMergeEngine engine = new GraphMergeEngine(this);
+	final ClusterHashMergeEngine engine = new ClusterHashMergeEngine(this);
 
-	ClusterMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, GraphMergeResults results,
-			MergeDebugLog debugLog) {
-		this.left = new GraphMergeTarget(this, left);
-		this.right = new GraphMergeTarget(this, right);
+	ClusterHashMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, ClusterHashMergeResults results,
+			ClusterHashMergeDebugLog debugLog) {
+		this.left = new ClusterHashMergeTarget(left);
+		this.right = new ClusterHashMergeTarget(right);
 		this.results = results;
 		results.beginCluster(this);
 		this.debugLog = debugLog;
 
-		matchedNodes = new MatchedNodes(this);
-		matchState = new GraphMatchState(this);
-		statistics = new GraphMergeStatistics(this);
-		mergedGraph = new ClusterGraph(left.cluster);
+		matchedNodes = new HashMatchedNodes(this);
+		matchState = new ClusterHashMatchState(this);
+		statistics = new ClusterHashMergeStatistics(this);
+		mergedGraphBuilder = new ClusterGraph(left.cluster);
 	}
 
 	public void initializeMerge() {
@@ -79,7 +80,7 @@ public class ClusterMergeSession {
 				debugLog.debugCheck(rightNode);
 
 				if (leftNode.hasCompatibleEdges(rightNode)) {
-					matchState.enqueueMatch(new PairNode(leftNode, rightNode, MatchType.ENTRY_POINT));
+					matchState.enqueueMatch(new HashNodeMatch(leftNode, rightNode, MatchType.ENTRY_POINT));
 					matchedNodes.addPair(leftNode, rightNode, 0);
 					statistics.directMatch();
 					continue;

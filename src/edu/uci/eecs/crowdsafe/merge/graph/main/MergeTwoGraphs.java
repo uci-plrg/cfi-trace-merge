@@ -5,12 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterDataWriter;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSink;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
@@ -18,20 +16,26 @@ import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.merge.graph.ClusterMergeSession;
-import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeResults;
-import edu.uci.eecs.crowdsafe.merge.graph.MergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
+import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
+import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
 
 public class MergeTwoGraphs {
 
 	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l');
+	private static final OptionArgumentMap.StringOption strategyOption = OptionArgumentMap.createStringOption('s',
+			GraphMergeStrategy.TAG.id);
 	private static final OptionArgumentMap.StringOption nameOption = OptionArgumentMap.createStringOption('n');
 	private static final OptionArgumentMap.StringOption outputOption = OptionArgumentMap.createStringOption('o');
 	private static final OptionArgumentMap.StringOption inPlaceOption = OptionArgumentMap.createStringOption('i');
 	private static final OptionArgumentMap.BooleanOption verboseOption = OptionArgumentMap.createBooleanOption('v');
 
 	private final CommonMergeOptions options;
-	private final MergeDebugLog debugLog = new MergeDebugLog();
+	private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
 
 	public MergeTwoGraphs(CommonMergeOptions options) {
 		this.options = options;
@@ -84,6 +88,10 @@ public class MergeTwoGraphs {
 				rightPath = args.pop();
 			}
 
+			GraphMergeStrategy strategy = GraphMergeStrategy.forId(strategyOption.getValue());
+			if (strategy == null)
+				throw new IllegalArgumentException("Unknown merge strategy " + strategyOption.getValue());
+
 			if (args.size() > 0)
 				Log.log("Ignoring %d extraneous command-line arguments", args.size());
 
@@ -102,7 +110,7 @@ public class MergeTwoGraphs {
 
 			List<ClusterGraph> mergedGraphs = null;
 			for (int i = 0; i < iterationCount; i++) {
-				mergedGraphs = merge(leftCandidate, rightCandidate, logFile);
+				mergedGraphs = merge(leftCandidate, rightCandidate, strategy, logFile);
 			}
 
 			File outputDir = null;
@@ -122,7 +130,7 @@ public class MergeTwoGraphs {
 					filenameFormat = String.format(filenameFormat, rightCandidate.parseTraceName());
 				}
 				for (ClusterGraph graph : mergedGraphs) {
-					dataSink.addCluster(graph.cluster, filenameFormat);
+					dataSink.addCluster(graph.graph.cluster, filenameFormat);
 					ClusterGraphWriter writer = new ClusterGraphWriter(graph, dataSink);
 					writer.writeGraph();
 				}
@@ -141,11 +149,22 @@ public class MergeTwoGraphs {
 		}
 	}
 
-	List<ClusterGraph> merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, File logFile)
-			throws IOException {
+	List<ClusterGraph> merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, GraphMergeStrategy strategy,
+			File logFile) throws IOException {
 		long mergeStart = System.currentTimeMillis();
 
-		GraphMergeResults results = new GraphMergeResults();
+		MergeResults results;
+		switch (strategy) {
+			case HASH:
+				results = new ClusterHashMergeResults();
+				break;
+			case TAG:
+				results = new ClusterTagMergeResults();
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown merge strategy " + strategy);
+		}
+
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
@@ -161,11 +180,28 @@ public class MergeTwoGraphs {
 				continue;
 			}
 			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
+			if (!rightGraph.isCompatible(leftGraph)) {
+				Log.log("Skipping cluster %s because its modules versions are not compatible with the right side",
+						leftCluster.name);
+				continue;
+			}
 
-			ClusterGraph mergedGraph = ClusterMergeSession.mergeTwoGraphs(leftGraph, rightGraph, results, debugLog);
+			ClusterGraph mergedGraph = null;
+			switch (strategy) {
+				case HASH:
+					mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
+							(ClusterHashMergeResults) results, debugLog);
+					break;
+				case TAG:
+					mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
+							(ClusterTagMergeResults) results);
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown merge strategy " + strategy);
+			}
 
 			Log.log("Checking reachability on the merged graph.");
-			mergedGraph.findUnreachableNodes();
+			mergedGraph.graph.findUnreachableNodes();
 
 			mergedGraphs.add(mergedGraph);
 		}
@@ -230,6 +266,7 @@ public class MergeTwoGraphs {
 				.println(String
 						.format("in-place: %s [ -c <cluster-name>,... ] [ -d <crowd-safe-common-dir> ] [ -l <log-dir> ]\n\t-i { c: | e: }<in-place-trace-dir> { c: | e: }<other-trace-dir>",
 								MergeTwoGraphs.class.getSimpleName()));
+		System.out.println("-s { hash | tag } (merge strategy)");
 		System.out.println("-c <cluster-name>,... (include only these clusters)");
 		System.out.println("-x <cluster-name>,... (exclude these clusters)");
 		System.out.println("-d <crowd-safe-common-dir>");
@@ -239,7 +276,7 @@ public class MergeTwoGraphs {
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
 		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, logFilenameOption, nameOption,
-				outputOption, inPlaceOption, verboseOption));
+				strategyOption, outputOption, inPlaceOption, verboseOption));
 		main.run(stack, 1);
 
 		main.toString();

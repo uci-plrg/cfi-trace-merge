@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,9 @@ import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.merge.graph.ContextMatchRecord.EdgeMatchType;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchRecord.EdgeMatchType;
 
-public class GraphMatchEngine {
+public class ClusterHashMatchEngine {
 
 	// The static threshold for indirect speculation and pure heuristics
 	// These two values are completely hypothetic and need further verification
@@ -34,9 +34,9 @@ public class GraphMatchEngine {
 
 	private static final float VALID_SCORE_LIMIT = 0.5f;
 
-	private final ClusterMergeSession session;
+	private final ClusterHashMergeSession session;
 
-	GraphMatchEngine(ClusterMergeSession session) {
+	ClusterHashMatchEngine(ClusterHashMergeSession session) {
 		this.session = session;
 	}
 

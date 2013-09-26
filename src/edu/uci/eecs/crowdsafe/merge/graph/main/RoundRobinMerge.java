@@ -23,7 +23,8 @@ import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.merge.graph.MergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 
 public class RoundRobinMerge {
 
@@ -51,7 +52,7 @@ public class RoundRobinMerge {
 	}
 
 	private class GraphLoadThread extends Thread {
-		private final MergeDebugLog debugLog = new MergeDebugLog();
+		private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
 		private final List<ProcessClusterGraph> loadedGraphs = new ArrayList<ProcessClusterGraph>();
 
 		private String currentGraphPath;
@@ -89,7 +90,7 @@ public class RoundRobinMerge {
 	private class MergeThread extends Thread {
 		private final int index = THREAD_INDEX++;
 		private final MergeTwoGraphs executor = new MergeTwoGraphs(commonOptions);
-		private final MergeDebugLog debugLog = new MergeDebugLog();
+		private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
 
 		private String currentMergeName;
 
@@ -113,7 +114,7 @@ public class RoundRobinMerge {
 							merge.left.clusters, debugLog);
 					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedClusters(merge.right.name,
 							merge.right.clusters, debugLog);
-					executor.merge(leftCandidate, rightCandidate, logFile);
+					executor.merge(leftCandidate, rightCandidate, strategy, logFile);
 				}
 			} catch (Throwable t) {
 				fail(t, String.format("\t@@@@ Merge %s on thread %d failed with %s @@@@", currentMergeName, index, t
@@ -136,6 +137,8 @@ public class RoundRobinMerge {
 	private static int THREAD_INDEX = 0;
 
 	private final OptionArgumentMap.StringOption logPathOption = OptionArgumentMap.createStringOption('l', true);
+	private static final OptionArgumentMap.StringOption strategyOption = OptionArgumentMap.createStringOption('s',
+			GraphMergeStrategy.TAG.id);
 	private final OptionArgumentMap.StringOption threadCountOption = OptionArgumentMap.createStringOption('t');
 	private final OptionArgumentMap.BooleanOption unityOption = OptionArgumentMap.createBooleanOption('u');
 	private final OptionArgumentMap.BooleanOption clusterGraphOption = OptionArgumentMap.createBooleanOption('y');
@@ -143,6 +146,7 @@ public class RoundRobinMerge {
 	private File logDir;
 	private final ArgumentStack args;
 	private final CommonMergeOptions commonOptions;
+	private GraphMergeStrategy strategy;
 
 	private final List<String> graphPaths = new ArrayList<String>();
 	private final List<MergePair> mergePairs = new ArrayList<MergePair>();
@@ -173,6 +177,10 @@ public class RoundRobinMerge {
 					LogFile.NoSuchPathMode.ERROR);
 			Log.addOutput(mainLogFile);
 			System.out.println("Logging to " + mainLogFile.getAbsolutePath());
+
+			strategy = GraphMergeStrategy.forId(strategyOption.getValue());
+			if (strategy == null)
+				Log.log("Unknown merge strategy %s. Exiting now.", strategyOption.getValue());
 
 			parsingArguments = false;
 

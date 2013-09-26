@@ -1,8 +1,8 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
-public class SpeculativeScoreRecord {
+public class HashSpeculationScoreRecord {
 	/**
 	 * SpeculativeMatchingType enumerates the possible cases where speculative matches are made. The boundary for low
 	 * score is hypothetically defined as 10
@@ -75,7 +75,7 @@ public class SpeculativeScoreRecord {
 	// The actual chosen leftNode
 	public final Node<?> tagMappedLeftNode;
 
-	public SpeculativeScoreRecord(SpeculativeScoreType speculativeScoreType, boolean isIndirectSpeculation,
+	public HashSpeculationScoreRecord(SpeculativeScoreType speculativeScoreType, boolean isIndirectSpeculation,
 			int matchingScore, Node<?> leftNode, Node<?> rightNode, Node<?> tagMappedLeftNode, MatchResult matchResult) {
 		this.speculativeScoreType = speculativeScoreType;
 		this.isIndirectSpeculation = isIndirectSpeculation;

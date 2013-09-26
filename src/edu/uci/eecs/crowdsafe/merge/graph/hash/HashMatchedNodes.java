@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,9 +20,9 @@ import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
  * @author peizhaoo
  * 
  */
-public class MatchedNodes {
+public class HashMatchedNodes {
 
-	private final ClusterMergeSession session;
+	private final ClusterHashMergeSession session;
 
 	private final BiMap<Node.Key, Node.Key> matchedNodesLeftRight = HashBiMap.create();
 
@@ -33,7 +33,7 @@ public class MatchedNodes {
 	public final Set<Node.Key> HACK_leftMismatchedNodes = new HashSet<Node.Key>();
 	public final Set<Node.Key> HACK_rightMismatchedNodes = new HashSet<Node.Key>();
 
-	MatchedNodes(ClusterMergeSession session) {
+	HashMatchedNodes(ClusterHashMergeSession session) {
 		this.session = session;
 	}
 

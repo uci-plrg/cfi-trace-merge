@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.MatchResult;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
@@ -21,21 +22,22 @@ import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
-import edu.uci.eecs.crowdsafe.merge.graph.results.Merge;
+import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 
-public class GraphMergeResults {
+public class ClusterHashMergeResults implements MergeResults {
 
 	private static class Builder {
-		final Merge.MergeResults.Builder results = Merge.MergeResults.newBuilder();
-		final Merge.ClusterMerge.Builder cluster = Merge.ClusterMerge.newBuilder();
-		final Merge.UnmatchedNodeSummary.Builder unmatchedNodeSummary = Merge.UnmatchedNodeSummary.newBuilder();
-		final Merge.TraceCompilationProfile.Builder traceProfile = Merge.TraceCompilationProfile.newBuilder();
-		final Merge.MergeSummary.Builder summary = Merge.MergeSummary.newBuilder();
+		final HashMerge.HashMergeResults.Builder results = HashMerge.HashMergeResults.newBuilder();
+		final HashMerge.HashClusterMerge.Builder cluster = HashMerge.HashClusterMerge.newBuilder();
+		final HashMerge.UnmatchedNodeSummary.Builder unmatchedNodeSummary = HashMerge.UnmatchedNodeSummary.newBuilder();
+		final HashMerge.TraceCompilationProfile.Builder traceProfile = HashMerge.TraceCompilationProfile.newBuilder();
+		final HashMerge.HashMergeSummary.Builder summary = HashMerge.HashMergeSummary.newBuilder();
 	}
 
 	private class ClusterResults {
-		private ClusterMergeSession session;
+		private ClusterHashMergeSession session;
 
 		private int hashUnionSize = 0;
 		private int hashIntersectionSize = 0;
@@ -48,7 +50,7 @@ public class GraphMergeResults {
 		private final Map<Set<Node.Key>, Set<Node.Key>> HACK_missedSubgraphs = new IdentityHashMap<Set<Node.Key>, Set<Node.Key>>();
 		private int averageMissedSubgraphSize = 0;
 
-		ClusterResults(ClusterMergeSession session) {
+		ClusterResults(ClusterHashMergeSession session) {
 			this.session = session;
 
 			builder.cluster.clear().setDistributionName(session.left.cluster.cluster.name);
@@ -73,12 +75,13 @@ public class GraphMergeResults {
 			hashUnionSize = hashUnion.size();
 
 			for (Long hash : hashIntersection) {
-				hashIntersectionBlockCount += session.mergedGraph.getGraphData().nodesByHash.get(hash).size();
+				hashIntersectionBlockCount += session.mergedGraphBuilder.graph.getGraphData().nodesByHash.get(hash)
+						.size();
 				hashIntersectionLeftBlockCount += session.left.cluster.getGraphData().nodesByHash.get(hash).size();
 				hashIntersectionRightBlockCount += session.right.cluster.getGraphData().nodesByHash.get(hash).size();
 			}
 
-			mergedGraphNodeCount = session.mergedGraph.getGraphData().nodesByHash.getNodeCount();
+			mergedGraphNodeCount = session.mergedGraphBuilder.graph.getGraphData().nodesByHash.getNodeCount();
 		}
 
 		private void reportUnmatchedNodes() {
@@ -303,16 +306,18 @@ public class GraphMergeResults {
 
 	private ClusterResults currentCluster = null;
 
+	@Override
 	public void setGraphSummaries(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary) {
 		builder.results.setLeft(leftGraphSummary);
 		builder.results.setRight(rightGraphSummary);
 	}
 
-	public Merge.MergeResults getResults() {
+	@Override
+	public HashMerge.HashMergeResults getResults() {
 		return builder.results.build();
 	}
 
-	void beginCluster(ClusterMergeSession session) {
+	void beginCluster(ClusterHashMergeSession session) {
 		currentCluster = new ClusterResults(session);
 		resultsByCluster.put(session.left.cluster.cluster, currentCluster);
 

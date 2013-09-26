@@ -1,0 +1,17 @@
+package crowd_safe_data_analysis;
+
+import "graph.proto";
+import "statistics.proto";
+
+option java_package = "edu.uci.eecs.crowdsafe.merge.graph.results";
+option java_outer_classname = "TagMerge";
+
+message TagMergeResults {
+  optional Process left = 1;
+  optional Process right = 2;
+  repeated TagClusterMerge cluster = 3;
+}
+
+message TagClusterMerge {
+  optional string distribution_name = 1;
+}

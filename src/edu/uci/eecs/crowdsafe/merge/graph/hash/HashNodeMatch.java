@@ -1,8 +1,8 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
-public class PairNode {
+public class HashNodeMatch {
 	public enum MatchType {
 		ENTRY_POINT,
 		DIRECT_BRANCH,
@@ -15,7 +15,7 @@ public class PairNode {
 
 	// The level of the BFS traverse
 
-	public PairNode(Node<?> left, Node<?> right, MatchType type) {
+	public HashNodeMatch(Node<?> left, Node<?> right, MatchType type) {
 		this.leftNode = left;
 		this.rightNode = right;
 		this.type = type;
@@ -36,9 +36,9 @@ public class PairNode {
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
-		if (o.getClass() != PairNode.class)
+		if (o.getClass() != HashNodeMatch.class)
 			return false;
-		PairNode pairNode = (PairNode) o;
+		HashNodeMatch pairNode = (HashNodeMatch) o;
 		if (pairNode.leftNode.equals(leftNode) && pairNode.rightNode.equals(rightNode))
 			return true;
 		else

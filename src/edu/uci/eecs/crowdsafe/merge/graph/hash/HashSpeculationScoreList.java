@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph;
+package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.MatchResult;
-import edu.uci.eecs.crowdsafe.merge.graph.SpeculativeScoreRecord.SpeculativeScoreType;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashSpeculationScoreRecord.MatchResult;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashSpeculationScoreRecord.SpeculativeScoreType;
 
-public class SpeculativeScoreList {
+public class HashSpeculationScoreList {
 
 	public static void showGlobalStats() {
 		int matchCnt = 0;
@@ -44,9 +44,9 @@ public class SpeculativeScoreList {
 		}
 	}
 
-	private final ClusterMergeSession session;
-	private final List<SpeculativeScoreRecord> records = new ArrayList<SpeculativeScoreRecord>();
-	private final Map<MatchResult, ArrayList<SpeculativeScoreRecord>> result2Records = new HashMap<MatchResult, ArrayList<SpeculativeScoreRecord>>();
+	private final ClusterHashMergeSession session;
+	private final List<HashSpeculationScoreRecord> records = new ArrayList<HashSpeculationScoreRecord>();
+	private final Map<MatchResult, ArrayList<HashSpeculationScoreRecord>> result2Records = new HashMap<MatchResult, ArrayList<HashSpeculationScoreRecord>>();
 
 	private int[] indirectScoreCaseCnts = new int[SpeculativeScoreType.values().length];
 	private int[] pureHeuristicsScoreCaseCnts = new int[SpeculativeScoreType.values().length];
@@ -54,7 +54,7 @@ public class SpeculativeScoreList {
 
 	private boolean hasConflict;
 
-	public SpeculativeScoreList(ClusterMergeSession session) {
+	public HashSpeculationScoreList(ClusterHashMergeSession session) {
 		this.session = session;
 	}
 
@@ -77,7 +77,7 @@ public class SpeculativeScoreList {
 		this.hasConflict = hasConflict;
 	}
 
-	public void add(SpeculativeScoreRecord record) {
+	public void add(HashSpeculationScoreRecord record) {
 		// FIXME: Ad-hoc... Delete it when finishing analyzing.
 		if (record.matchResult.toString().indexOf("found") == -1) {
 			return;
@@ -96,9 +96,9 @@ public class SpeculativeScoreList {
 		matchResultCnts[res.ordinal()]++;
 
 		if (!result2Records.containsKey(res)) {
-			result2Records.put(res, new ArrayList<SpeculativeScoreRecord>());
+			result2Records.put(res, new ArrayList<HashSpeculationScoreRecord>());
 		}
-		ArrayList<SpeculativeScoreRecord> records = result2Records.get(res);
+		ArrayList<HashSpeculationScoreRecord> records = result2Records.get(res);
 		records.add(record);
 	}
 
