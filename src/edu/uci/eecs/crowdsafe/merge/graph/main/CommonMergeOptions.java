@@ -19,6 +19,7 @@ class CommonMergeOptions {
 
 	private final OptionArgumentMap.StringOption crowdSafeCommonDir = OptionArgumentMap.createStringOption('d');
 	private final OptionArgumentMap.StringOption restrictedClusterOption = OptionArgumentMap.createStringOption('c');
+	private final OptionArgumentMap.BooleanOption unitClusterOption = OptionArgumentMap.createBooleanOption('u', true);
 	private final OptionArgumentMap.StringOption excludeClusterOption = OptionArgumentMap.createStringOption('x');
 
 	private final OptionArgumentMap map;
@@ -32,6 +33,7 @@ class CommonMergeOptions {
 		}
 		allOptions.add(crowdSafeCommonDir);
 		allOptions.add(restrictedClusterOption);
+		allOptions.add(unitClusterOption);
 		allOptions.add(excludeClusterOption);
 		map = new OptionArgumentMap(args, allOptions);
 	}
@@ -47,10 +49,17 @@ class CommonMergeOptions {
 
 	void initializeMerge() {
 		CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
+		
+		ConfiguredSoftwareDistributions.ClusterMode clusterMode;
+		if (unitClusterOption.hasValue())
+			clusterMode = ConfiguredSoftwareDistributions.ClusterMode.UNIT;
+		else
+			clusterMode = ConfiguredSoftwareDistributions.ClusterMode.GROUP;
+
 		if (crowdSafeCommonDir.getValue() == null) {
-			ConfiguredSoftwareDistributions.initialize();
+			ConfiguredSoftwareDistributions.initialize(clusterMode);
 		} else {
-			ConfiguredSoftwareDistributions.initialize(new File(crowdSafeCommonDir.getValue()));
+			ConfiguredSoftwareDistributions.initialize(clusterMode, new File(crowdSafeCommonDir.getValue()));
 		}
 
 		if (restrictedClusterOption.hasValue()) {

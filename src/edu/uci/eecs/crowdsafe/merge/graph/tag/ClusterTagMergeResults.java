@@ -46,9 +46,9 @@ public class ClusterTagMergeResults implements MergeResults {
 
 	void beginCluster(ClusterTagMergeSession session) {
 		currentCluster = new ClusterResults(session);
-		resultsByCluster.put(session.left.cluster.cluster, currentCluster);
+		resultsByCluster.put(session.left.cluster, currentCluster);
 
-		Log.log("\n  === Merging cluster %s ===\n", session.left.cluster.cluster.name);
+		Log.log("\n  === Merging cluster %s ===\n", session.left.cluster.name);
 	}
 
 	void clusterMergeCompleted() {

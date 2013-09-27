@@ -10,6 +10,8 @@ function print_usage() {
   echo "\t-c <cluster-name>,... (include only these clusters)"
   echo "\t-x <cluster-name>,... (exclude these clusters)"
   echo "\t-d <crowd-safe-common-dir>"
+  echo "\t-t (tag-based merge) (default)"
+  echo "\t-u (unit clusters) (default)"
   echo "\tRun-dir must be preceded by c: (for cluster graph) or e: (for execution graph)"
   exit
 }

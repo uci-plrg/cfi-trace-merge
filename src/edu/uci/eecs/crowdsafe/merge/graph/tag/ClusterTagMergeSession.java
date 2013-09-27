@@ -1,33 +1,46 @@
 package edu.uci.eecs.crowdsafe.merge.graph.tag;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 
 public class ClusterTagMergeSession {
 
-	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
+	class PendingEdgeQueue {
+		final List<ClusterNode<?>> rightFromNodes = new ArrayList<ClusterNode<?>>();
+		final List<Edge<?>> leftEdges = new ArrayList<Edge<?>>();
+
+		int size() {
+			return leftEdges.size();
+		}
+	}
+
+	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<ClusterNode<?>> right,
 			ClusterTagMergeResults results) {
 		ClusterTagMergeSession session = new ClusterTagMergeSession(left, right, results);
 		ClusterTagMergeEngine engine = new ClusterTagMergeEngine(session);
 		engine.mergeGraph();
 		session.results.clusterMergeCompleted();
-		return session.mergedGraph;
+		return session.right;
 	}
 
 	final ModuleGraphCluster<?> left;
-	final ModuleGraphCluster<?> right;
-	
+	final ClusterGraph right;
+
 	final ClusterTagMergedSubgraphs subgraphs = new ClusterTagMergedSubgraphs();
 
 	final ClusterTagMergeResults results;
 
-	public ClusterTagMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
+	final PendingEdgeQueue edgeQueue = new PendingEdgeQueue();
+
+	public ClusterTagMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<ClusterNode<?>> right,
 			ClusterTagMergeResults results) {
 		this.left = left;
-		this.right = right;
+		this.right = new ClusterGraph(right);
 		this.results = results;
-
-		mergedGraph = new ClusterGraph(left.cluster);
 	}
-
 }

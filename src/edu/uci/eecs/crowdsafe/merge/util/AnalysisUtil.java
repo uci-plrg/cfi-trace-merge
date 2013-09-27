@@ -81,6 +81,7 @@ public class AnalysisUtil {
 		return res;
 	}
 
+	@SafeVarargs
 	public static Set<Long> mergeSet(Set<Long>... sets) {
 		Set<Long> resSet = new HashSet<Long>();
 		for (int i = 0; i < sets.length; i++) {

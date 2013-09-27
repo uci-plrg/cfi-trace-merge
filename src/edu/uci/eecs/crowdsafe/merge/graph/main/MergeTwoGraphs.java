@@ -9,6 +9,7 @@ import java.util.List;
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSink;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
@@ -149,6 +150,7 @@ public class MergeTwoGraphs {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	List<ClusterGraph> merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, GraphMergeStrategy strategy,
 			File logFile) throws IOException {
 		long mergeStart = System.currentTimeMillis();
@@ -193,8 +195,8 @@ public class MergeTwoGraphs {
 							(ClusterHashMergeResults) results, debugLog);
 					break;
 				case TAG:
-					mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
-							(ClusterTagMergeResults) results);
+					mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph,
+							(ModuleGraphCluster<ClusterNode<?>>) rightGraph, (ClusterTagMergeResults) results);
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown merge strategy " + strategy);
