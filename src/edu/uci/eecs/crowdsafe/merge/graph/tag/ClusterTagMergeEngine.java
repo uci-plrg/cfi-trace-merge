@@ -26,9 +26,18 @@ class ClusterTagMergeEngine {
 		for (Node<?> left : session.left.getAllNodes()) {
 			ClusterNode<?> right = getCorrespondingNode(left);
 			if (right == null) {
-				session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
+				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
 			} else {
-				verifyMatch(left, right);
+				if (verifyMatch(left, right)) {
+					session.statistics.match();
+				} else {
+					session.statistics.hashMismatch(left, right);
+
+					// if this will be allowed, then all incoming edges to the mismatched `right` must be transferred
+					// onto this new `right`
+					right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(),
+							left.getType());
+				}
 			}
 			enqueueLeftEdges(left, right);
 		}
@@ -52,10 +61,12 @@ class ClusterTagMergeEngine {
 			return right;
 
 		NodeList<ClusterNode<?>> byHash = session.right.graph.getGraphData().nodesByHash.get(left.getHash());
-		for (int i = 0; i < byHash.size(); i++) {
-			ClusterNode<?> next = byHash.get(i);
-			if (left.isModuleRelativeEquivalent(next)) {
-				return next;
+		if (byHash != null) {
+			for (int i = 0; i < byHash.size(); i++) {
+				ClusterNode<?> next = byHash.get(i);
+				if (left.isModuleRelativeEquivalent(next)) {
+					return next;
+				}
 			}
 		}
 
@@ -78,12 +89,15 @@ class ClusterTagMergeEngine {
 		}
 	}
 
-	private void verifyMatch(Node<?> left, Node<?> right) {
+	private boolean verifyMatch(Node<?> left, Node<?> right) {
 		if (left.getHash() != right.getHash())
-			throw new MergedFailedException(
-					"Left node %s has module relative equivalent %s with a different hashcode!", left, right);
+			return false;
+		// throw new MergedFailedException(
+		// "Left node %s has module relative equivalent %s with a different hashcode!", left, right);
 		if (!left.hasCompatibleEdges(right))
-			throw new MergedFailedException("Left node %s has module relative equivalent %s with incompatible edges!",
-					left, right);
+			return false;
+		// throw new MergedFailedException("Left node %s has module relative equivalent %s with incompatible edges!",
+		// left, right);
+		return true;
 	}
 }

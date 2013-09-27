@@ -170,6 +170,9 @@ public class MergeTwoGraphs {
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
+			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.distributionUnits.iterator().next().isDynamic())
+				continue; // tag strategy doesn't work for dynamic code
+
 			if (!options.includeCluster(leftCluster))
 				continue;
 

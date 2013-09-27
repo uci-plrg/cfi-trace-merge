@@ -33,6 +33,7 @@ public class ClusterTagMergeSession {
 
 	final ClusterTagMergedSubgraphs subgraphs = new ClusterTagMergedSubgraphs();
 
+	final ClusterTagMergeStatistics statistics = new ClusterTagMergeStatistics();
 	final ClusterTagMergeResults results;
 
 	final PendingEdgeQueue edgeQueue = new PendingEdgeQueue();
@@ -42,5 +43,7 @@ public class ClusterTagMergeSession {
 		this.left = left;
 		this.right = new ClusterGraph(right);
 		this.results = results;
+		
+		results.beginCluster(this);
 	}
 }

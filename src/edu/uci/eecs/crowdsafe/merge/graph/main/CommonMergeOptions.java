@@ -19,12 +19,14 @@ class CommonMergeOptions {
 
 	private final OptionArgumentMap.StringOption crowdSafeCommonDir = OptionArgumentMap.createStringOption('d');
 	private final OptionArgumentMap.StringOption restrictedClusterOption = OptionArgumentMap.createStringOption('c');
-	private final OptionArgumentMap.BooleanOption unitClusterOption = OptionArgumentMap.createBooleanOption('u', true);
+	private final OptionArgumentMap.BooleanOption unitClusterOption = OptionArgumentMap.createBooleanOption('u', false,
+			true);
 	private final OptionArgumentMap.StringOption excludeClusterOption = OptionArgumentMap.createStringOption('x');
 
 	private final OptionArgumentMap map;
 
-	public final Set<AutonomousSoftwareDistribution> clusterMergeSet = new HashSet<AutonomousSoftwareDistribution>();
+	private final Set<String> explicitClusterNames = new HashSet<String>();
+	private final Set<String> excludedClusterNames = new HashSet<String>();
 
 	CommonMergeOptions(ArgumentStack args, OptionArgumentMap.Option<?>... options) {
 		List<OptionArgumentMap.Option<?>> allOptions = new ArrayList<OptionArgumentMap.Option<?>>();
@@ -49,7 +51,7 @@ class CommonMergeOptions {
 
 	void initializeMerge() {
 		CrowdSafeConfiguration.initialize(EnumSet.of(CrowdSafeConfiguration.Environment.CROWD_SAFE_COMMON_DIR));
-		
+
 		ConfiguredSoftwareDistributions.ClusterMode clusterMode;
 		if (unitClusterOption.hasValue())
 			clusterMode = ConfiguredSoftwareDistributions.ClusterMode.UNIT;
@@ -65,37 +67,23 @@ class CommonMergeOptions {
 		if (restrictedClusterOption.hasValue()) {
 			StringTokenizer clusterNames = new StringTokenizer(restrictedClusterOption.getValue(), ",");
 			while (clusterNames.hasMoreTokens()) {
-				String clusterName = clusterNames.nextToken();
-				AutonomousSoftwareDistribution cluster = ConfiguredSoftwareDistributions.getInstance().distributions
-						.get(clusterName);
-				if (cluster == null) {
-					throw new IllegalArgumentException(String.format(
-							"Restricted cluster element %s cannot be found in cluster configuration directory %s.",
-							clusterName, ConfiguredSoftwareDistributions.getInstance().configDir.getAbsolutePath()));
-				}
-				clusterMergeSet.add(cluster);
+				explicitClusterNames.add(clusterNames.nextToken());
 			}
 		} else {
-			clusterMergeSet.addAll(ConfiguredSoftwareDistributions.getInstance().distributions.values());
-
 			if (excludeClusterOption.hasValue()) {
 				StringTokenizer clusterNames = new StringTokenizer(excludeClusterOption.getValue(), ",");
 				while (clusterNames.hasMoreTokens()) {
-					String clusterName = clusterNames.nextToken();
-					AutonomousSoftwareDistribution cluster = ConfiguredSoftwareDistributions.getInstance().distributions
-							.get(clusterName);
-					if (cluster == null) {
-						throw new IllegalArgumentException(String.format(
-								"Excluded cluster %s cannot be found in cluster configuration directory %s.",
-								clusterName, ConfiguredSoftwareDistributions.getInstance().configDir.getAbsolutePath()));
-					}
-					clusterMergeSet.remove(cluster);
+					excludedClusterNames.add(clusterNames.nextToken());
 				}
 			}
 		}
 	}
 
 	boolean includeCluster(AutonomousSoftwareDistribution cluster) {
-		return clusterMergeSet.contains(cluster);
+		if (explicitClusterNames.isEmpty()) {
+			return !excludedClusterNames.contains(cluster.name);
+		}
+
+		return explicitClusterNames.contains(cluster.name);
 	}
 }

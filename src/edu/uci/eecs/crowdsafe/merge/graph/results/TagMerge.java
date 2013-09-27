@@ -1086,6 +1086,41 @@ public final class TagMerge {
      */
     com.google.protobuf.ByteString
         getDistributionNameBytes();
+
+    // optional int32 match_count = 2;
+    /**
+     * <code>optional int32 match_count = 2;</code>
+     */
+    boolean hasMatchCount();
+    /**
+     * <code>optional int32 match_count = 2;</code>
+     */
+    int getMatchCount();
+
+    // repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch> 
+        getHashMismatchList();
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch getHashMismatch(int index);
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    int getHashMismatchCount();
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder> 
+        getHashMismatchOrBuilderList();
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder getHashMismatchOrBuilder(
+        int index);
   }
   /**
    * Protobuf type {@code crowd_safe_data_analysis.TagClusterMerge}
@@ -1143,6 +1178,19 @@ public final class TagMerge {
               distributionName_ = input.readBytes();
               break;
             }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              matchCount_ = input.readInt32();
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                hashMismatch_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              hashMismatch_.add(input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.PARSER, extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1151,6 +1199,9 @@ public final class TagMerge {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          hashMismatch_ = java.util.Collections.unmodifiableList(hashMismatch_);
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -1226,8 +1277,62 @@ public final class TagMerge {
       }
     }
 
+    // optional int32 match_count = 2;
+    public static final int MATCH_COUNT_FIELD_NUMBER = 2;
+    private int matchCount_;
+    /**
+     * <code>optional int32 match_count = 2;</code>
+     */
+    public boolean hasMatchCount() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int32 match_count = 2;</code>
+     */
+    public int getMatchCount() {
+      return matchCount_;
+    }
+
+    // repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;
+    public static final int HASH_MISMATCH_FIELD_NUMBER = 3;
+    private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch> hashMismatch_;
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch> getHashMismatchList() {
+      return hashMismatch_;
+    }
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder> 
+        getHashMismatchOrBuilderList() {
+      return hashMismatch_;
+    }
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    public int getHashMismatchCount() {
+      return hashMismatch_.size();
+    }
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch getHashMismatch(int index) {
+      return hashMismatch_.get(index);
+    }
+    /**
+     * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+     */
+    public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder getHashMismatchOrBuilder(
+        int index) {
+      return hashMismatch_.get(index);
+    }
+
     private void initFields() {
       distributionName_ = "";
+      matchCount_ = 0;
+      hashMismatch_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1244,6 +1349,12 @@ public final class TagMerge {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getDistributionNameBytes());
       }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(2, matchCount_);
+      }
+      for (int i = 0; i < hashMismatch_.size(); i++) {
+        output.writeMessage(3, hashMismatch_.get(i));
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1256,6 +1367,14 @@ public final class TagMerge {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(1, getDistributionNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, matchCount_);
+      }
+      for (int i = 0; i < hashMismatch_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, hashMismatch_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1365,6 +1484,7 @@ public final class TagMerge {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getHashMismatchFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1375,6 +1495,14 @@ public final class TagMerge {
         super.clear();
         distributionName_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
+        matchCount_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        if (hashMismatchBuilder_ == null) {
+          hashMismatch_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          hashMismatchBuilder_.clear();
+        }
         return this;
       }
 
@@ -1407,6 +1535,19 @@ public final class TagMerge {
           to_bitField0_ |= 0x00000001;
         }
         result.distributionName_ = distributionName_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.matchCount_ = matchCount_;
+        if (hashMismatchBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            hashMismatch_ = java.util.Collections.unmodifiableList(hashMismatch_);
+            bitField0_ = (bitField0_ & ~0x00000004);
+          }
+          result.hashMismatch_ = hashMismatch_;
+        } else {
+          result.hashMismatch_ = hashMismatchBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1427,6 +1568,35 @@ public final class TagMerge {
           bitField0_ |= 0x00000001;
           distributionName_ = other.distributionName_;
           onChanged();
+        }
+        if (other.hasMatchCount()) {
+          setMatchCount(other.getMatchCount());
+        }
+        if (hashMismatchBuilder_ == null) {
+          if (!other.hashMismatch_.isEmpty()) {
+            if (hashMismatch_.isEmpty()) {
+              hashMismatch_ = other.hashMismatch_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+            } else {
+              ensureHashMismatchIsMutable();
+              hashMismatch_.addAll(other.hashMismatch_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.hashMismatch_.isEmpty()) {
+            if (hashMismatchBuilder_.isEmpty()) {
+              hashMismatchBuilder_.dispose();
+              hashMismatchBuilder_ = null;
+              hashMismatch_ = other.hashMismatch_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+              hashMismatchBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getHashMismatchFieldBuilder() : null;
+            } else {
+              hashMismatchBuilder_.addAllMessages(other.hashMismatch_);
+            }
+          }
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1529,6 +1699,279 @@ public final class TagMerge {
         return this;
       }
 
+      // optional int32 match_count = 2;
+      private int matchCount_ ;
+      /**
+       * <code>optional int32 match_count = 2;</code>
+       */
+      public boolean hasMatchCount() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int32 match_count = 2;</code>
+       */
+      public int getMatchCount() {
+        return matchCount_;
+      }
+      /**
+       * <code>optional int32 match_count = 2;</code>
+       */
+      public Builder setMatchCount(int value) {
+        bitField0_ |= 0x00000002;
+        matchCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 match_count = 2;</code>
+       */
+      public Builder clearMatchCount() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        matchCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;
+      private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch> hashMismatch_ =
+        java.util.Collections.emptyList();
+      private void ensureHashMismatchIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          hashMismatch_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch>(hashMismatch_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder> hashMismatchBuilder_;
+
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch> getHashMismatchList() {
+        if (hashMismatchBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(hashMismatch_);
+        } else {
+          return hashMismatchBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public int getHashMismatchCount() {
+        if (hashMismatchBuilder_ == null) {
+          return hashMismatch_.size();
+        } else {
+          return hashMismatchBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch getHashMismatch(int index) {
+        if (hashMismatchBuilder_ == null) {
+          return hashMismatch_.get(index);
+        } else {
+          return hashMismatchBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder setHashMismatch(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch value) {
+        if (hashMismatchBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHashMismatchIsMutable();
+          hashMismatch_.set(index, value);
+          onChanged();
+        } else {
+          hashMismatchBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder setHashMismatch(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder builderForValue) {
+        if (hashMismatchBuilder_ == null) {
+          ensureHashMismatchIsMutable();
+          hashMismatch_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          hashMismatchBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder addHashMismatch(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch value) {
+        if (hashMismatchBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHashMismatchIsMutable();
+          hashMismatch_.add(value);
+          onChanged();
+        } else {
+          hashMismatchBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder addHashMismatch(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch value) {
+        if (hashMismatchBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHashMismatchIsMutable();
+          hashMismatch_.add(index, value);
+          onChanged();
+        } else {
+          hashMismatchBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder addHashMismatch(
+          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder builderForValue) {
+        if (hashMismatchBuilder_ == null) {
+          ensureHashMismatchIsMutable();
+          hashMismatch_.add(builderForValue.build());
+          onChanged();
+        } else {
+          hashMismatchBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder addHashMismatch(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder builderForValue) {
+        if (hashMismatchBuilder_ == null) {
+          ensureHashMismatchIsMutable();
+          hashMismatch_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          hashMismatchBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder addAllHashMismatch(
+          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch> values) {
+        if (hashMismatchBuilder_ == null) {
+          ensureHashMismatchIsMutable();
+          super.addAll(values, hashMismatch_);
+          onChanged();
+        } else {
+          hashMismatchBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder clearHashMismatch() {
+        if (hashMismatchBuilder_ == null) {
+          hashMismatch_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+          onChanged();
+        } else {
+          hashMismatchBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public Builder removeHashMismatch(int index) {
+        if (hashMismatchBuilder_ == null) {
+          ensureHashMismatchIsMutable();
+          hashMismatch_.remove(index);
+          onChanged();
+        } else {
+          hashMismatchBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder getHashMismatchBuilder(
+          int index) {
+        return getHashMismatchFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder getHashMismatchOrBuilder(
+          int index) {
+        if (hashMismatchBuilder_ == null) {
+          return hashMismatch_.get(index);  } else {
+          return hashMismatchBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder> 
+           getHashMismatchOrBuilderList() {
+        if (hashMismatchBuilder_ != null) {
+          return hashMismatchBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(hashMismatch_);
+        }
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder addHashMismatchBuilder() {
+        return getHashMismatchFieldBuilder().addBuilder(
+            edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder addHashMismatchBuilder(
+          int index) {
+        return getHashMismatchFieldBuilder().addBuilder(
+            index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .crowd_safe_data_analysis.HashMismatch hash_mismatch = 3;</code>
+       */
+      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder> 
+           getHashMismatchBuilderList() {
+        return getHashMismatchFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder> 
+          getHashMismatchFieldBuilder() {
+        if (hashMismatchBuilder_ == null) {
+          hashMismatchBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder>(
+                  hashMismatch_,
+                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  getParentForChildren(),
+                  isClean());
+          hashMismatch_ = null;
+        }
+        return hashMismatchBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.TagClusterMerge)
     }
 
@@ -1538,6 +1981,705 @@ public final class TagMerge {
     }
 
     // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.TagClusterMerge)
+  }
+
+  public interface HashMismatchOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // optional .crowd_safe_data_analysis.Node left = 1;
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+     */
+    boolean hasLeft();
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+     */
+    edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getLeft();
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+     */
+    edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getLeftOrBuilder();
+
+    // optional .crowd_safe_data_analysis.Node right = 2;
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+     */
+    boolean hasRight();
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+     */
+    edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getRight();
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+     */
+    edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getRightOrBuilder();
+  }
+  /**
+   * Protobuf type {@code crowd_safe_data_analysis.HashMismatch}
+   */
+  public static final class HashMismatch extends
+      com.google.protobuf.GeneratedMessage
+      implements HashMismatchOrBuilder {
+    // Use HashMismatch.newBuilder() to construct.
+    private HashMismatch(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private HashMismatch(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final HashMismatch defaultInstance;
+    public static HashMismatch getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public HashMismatch getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private HashMismatch(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = left_.toBuilder();
+              }
+              left_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(left_);
+                left_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+            case 18: {
+              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = right_.toBuilder();
+              }
+              right_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(right_);
+                right_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_HashMismatch_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_HashMismatch_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.class, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<HashMismatch> PARSER =
+        new com.google.protobuf.AbstractParser<HashMismatch>() {
+      public HashMismatch parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new HashMismatch(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<HashMismatch> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    // optional .crowd_safe_data_analysis.Node left = 1;
+    public static final int LEFT_FIELD_NUMBER = 1;
+    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node left_;
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+     */
+    public boolean hasLeft() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+     */
+    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getLeft() {
+      return left_;
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+     */
+    public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getLeftOrBuilder() {
+      return left_;
+    }
+
+    // optional .crowd_safe_data_analysis.Node right = 2;
+    public static final int RIGHT_FIELD_NUMBER = 2;
+    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node right_;
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+     */
+    public boolean hasRight() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+     */
+    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getRight() {
+      return right_;
+    }
+    /**
+     * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+     */
+    public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getRightOrBuilder() {
+      return right_;
+    }
+
+    private void initFields() {
+      left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+      right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, left_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, right_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, left_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, right_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code crowd_safe_data_analysis.HashMismatch}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatchOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_HashMismatch_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_HashMismatch_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.class, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.Builder.class);
+      }
+
+      // Construct using edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getLeftFieldBuilder();
+          getRightFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (leftBuilder_ == null) {
+          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+        } else {
+          leftBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (rightBuilder_ == null) {
+          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+        } else {
+          rightBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_HashMismatch_descriptor;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch getDefaultInstanceForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.getDefaultInstance();
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch build() {
+        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch buildPartial() {
+        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch result = new edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (leftBuilder_ == null) {
+          result.left_ = left_;
+        } else {
+          result.left_ = leftBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (rightBuilder_ == null) {
+          result.right_ = right_;
+        } else {
+          result.right_ = rightBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch) {
+          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch other) {
+        if (other == edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch.getDefaultInstance()) return this;
+        if (other.hasLeft()) {
+          mergeLeft(other.getLeft());
+        }
+        if (other.hasRight()) {
+          mergeRight(other.getRight());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.HashMismatch) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // optional .crowd_safe_data_analysis.Node left = 1;
+      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> leftBuilder_;
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public boolean hasLeft() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getLeft() {
+        if (leftBuilder_ == null) {
+          return left_;
+        } else {
+          return leftBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public Builder setLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+        if (leftBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          left_ = value;
+          onChanged();
+        } else {
+          leftBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public Builder setLeft(
+          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder builderForValue) {
+        if (leftBuilder_ == null) {
+          left_ = builderForValue.build();
+          onChanged();
+        } else {
+          leftBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public Builder mergeLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+        if (leftBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              left_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance()) {
+            left_ =
+              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.newBuilder(left_).mergeFrom(value).buildPartial();
+          } else {
+            left_ = value;
+          }
+          onChanged();
+        } else {
+          leftBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public Builder clearLeft() {
+        if (leftBuilder_ == null) {
+          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+          onChanged();
+        } else {
+          leftBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder getLeftBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getLeftFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getLeftOrBuilder() {
+        if (leftBuilder_ != null) {
+          return leftBuilder_.getMessageOrBuilder();
+        } else {
+          return left_;
+        }
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> 
+          getLeftFieldBuilder() {
+        if (leftBuilder_ == null) {
+          leftBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder>(
+                  left_,
+                  getParentForChildren(),
+                  isClean());
+          left_ = null;
+        }
+        return leftBuilder_;
+      }
+
+      // optional .crowd_safe_data_analysis.Node right = 2;
+      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> rightBuilder_;
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public boolean hasRight() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getRight() {
+        if (rightBuilder_ == null) {
+          return right_;
+        } else {
+          return rightBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public Builder setRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+        if (rightBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          right_ = value;
+          onChanged();
+        } else {
+          rightBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public Builder setRight(
+          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder builderForValue) {
+        if (rightBuilder_ == null) {
+          right_ = builderForValue.build();
+          onChanged();
+        } else {
+          rightBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public Builder mergeRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+        if (rightBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              right_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance()) {
+            right_ =
+              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.newBuilder(right_).mergeFrom(value).buildPartial();
+          } else {
+            right_ = value;
+          }
+          onChanged();
+        } else {
+          rightBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public Builder clearRight() {
+        if (rightBuilder_ == null) {
+          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+          onChanged();
+        } else {
+          rightBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder getRightBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getRightFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getRightOrBuilder() {
+        if (rightBuilder_ != null) {
+          return rightBuilder_.getMessageOrBuilder();
+        } else {
+          return right_;
+        }
+      }
+      /**
+       * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> 
+          getRightFieldBuilder() {
+        if (rightBuilder_ == null) {
+          rightBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder>(
+                  right_,
+                  getParentForChildren(),
+                  isClean());
+          right_ = null;
+        }
+        return rightBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.HashMismatch)
+    }
+
+    static {
+      defaultInstance = new HashMismatch(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.HashMismatch)
   }
 
   private static com.google.protobuf.Descriptors.Descriptor
@@ -1550,6 +2692,11 @@ public final class TagMerge {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_crowd_safe_data_analysis_TagClusterMerge_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_crowd_safe_data_analysis_HashMismatch_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_crowd_safe_data_analysis_HashMismatch_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1565,10 +2712,14 @@ public final class TagMerge {
       "rowd_safe_data_analysis.Process\0220\n\005right" +
       "\030\002 \001(\0132!.crowd_safe_data_analysis.Proces" +
       "s\022:\n\007cluster\030\003 \003(\0132).crowd_safe_data_ana" +
-      "lysis.TagClusterMerge\",\n\017TagClusterMerge" +
-      "\022\031\n\021distribution_name\030\001 \001(\tB6\n*edu.uci.e" +
-      "ecs.crowdsafe.merge.graph.resultsB\010TagMe" +
-      "rge"
+      "lysis.TagClusterMerge\"\200\001\n\017TagClusterMerg" +
+      "e\022\031\n\021distribution_name\030\001 \001(\t\022\023\n\013match_co" +
+      "unt\030\002 \001(\005\022=\n\rhash_mismatch\030\003 \003(\0132&.crowd" +
+      "_safe_data_analysis.HashMismatch\"k\n\014Hash",
+      "Mismatch\022,\n\004left\030\001 \001(\0132\036.crowd_safe_data" +
+      "_analysis.Node\022-\n\005right\030\002 \001(\0132\036.crowd_sa" +
+      "fe_data_analysis.NodeB6\n*edu.uci.eecs.cr" +
+      "owdsafe.merge.graph.resultsB\010TagMerge"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1586,7 +2737,13 @@ public final class TagMerge {
           internal_static_crowd_safe_data_analysis_TagClusterMerge_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor,
-              new java.lang.String[] { "DistributionName", });
+              new java.lang.String[] { "DistributionName", "MatchCount", "HashMismatch", });
+          internal_static_crowd_safe_data_analysis_HashMismatch_descriptor =
+            getDescriptor().getMessageTypes().get(2);
+          internal_static_crowd_safe_data_analysis_HashMismatch_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_crowd_safe_data_analysis_HashMismatch_descriptor,
+              new java.lang.String[] { "Left", "Right", });
           return null;
         }
       };
