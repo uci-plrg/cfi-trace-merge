@@ -221,6 +221,7 @@ public class MergeTwoGraphs {
 			String resultsPath = new File(logFile.getParentFile(), resultsFilename).getPath();
 			File resultsFile = LogFile.create(resultsPath, LogFile.CollisionMode.ERROR, LogFile.NoSuchPathMode.ERROR);
 			FileOutputStream out = new FileOutputStream(resultsFile);
+			out.write(strategy.resultsId);
 			results.getResults().writeTo(out);
 			out.flush();
 			out.close();
