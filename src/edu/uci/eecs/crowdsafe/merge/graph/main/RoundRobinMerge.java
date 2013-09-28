@@ -69,10 +69,9 @@ public class RoundRobinMerge {
 							ClusterGraph.CLUSTER_GRAPH_STREAM_TYPES).loadExistingFiles();
 					ClusterGraphLoadSession session = new ClusterGraphLoadSession(dataSource);
 					Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphsByCluster = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>>();
-					// FIXME
-					// for (AutonomousSoftwareDistribution cluster : commonOptions.clusterMergeSet) {
-					// graphsByCluster.put(cluster, session.loadClusterGraph(cluster, debugLog));
-					// }
+					for (AutonomousSoftwareDistribution cluster : dataSource.getReprsentedClusters()) {
+						graphsByCluster.put(cluster, session.loadClusterGraph(cluster, debugLog));
+					}
 					String graphName = currentGraphPath;
 					if (graphName.endsWith(File.separator))
 						graphName = graphName.substring(0, graphName.length() - 1);

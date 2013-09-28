@@ -15,7 +15,8 @@ public class ClusterTagMergeResults implements MergeResults {
 	private class Builder {
 		final TagMerge.TagMergeResults.Builder results = TagMerge.TagMergeResults.newBuilder();
 		final TagMerge.TagClusterMerge.Builder cluster = TagMerge.TagClusterMerge.newBuilder();
-		final TagMerge.HashMismatch.Builder hashMismatch = TagMerge.HashMismatch.newBuilder();
+		final TagMerge.Mismatch.Builder mismatch = TagMerge.Mismatch.newBuilder();
+		final TagMerge.Subgraph.Builder subgraph = TagMerge.Subgraph.newBuilder();
 		final NodeResultsFactory nodeFactory = new NodeResultsFactory();
 	}
 
@@ -27,18 +28,37 @@ public class ClusterTagMergeResults implements MergeResults {
 		}
 
 		void mergeCompleted() {
-			Log.log("Match count %d, hash mismatch count %d", session.statistics.getMatchCount(),
+			Log.log("Match count %d, hash mismatch count %d", session.statistics.getAddedNodeCount(),
 					session.statistics.hashMismatches.size());
 
 			builder.cluster.clear().setDistributionName(session.left.cluster.name);
-			builder.cluster.setMatchCount(session.statistics.getMatchCount());
+			builder.cluster.setMergedNodes(session.right.graph.getNodeCount());
+			builder.cluster.setMergedEdges(session.statistics.getMatchedEdgeCount()
+					+ session.statistics.getAddedEdgeCount());
+			builder.cluster.setAddedNodes(session.statistics.getAddedNodeCount());
+			builder.cluster.setAddedEdges(session.statistics.getAddedEdgeCount());
+
+			for (ClusterTagMergedSubgraphs.Subgraph subgraph : session.subgraphs.getSubgraphs()) {
+				builder.subgraph.clear().setNodeCount(subgraph.getNodeCount());
+				builder.subgraph.setBridgeCount(subgraph.getBridgeCount());
+				builder.subgraph.setInstanceCount(subgraph.getInstanceCount());
+				builder.cluster.addAddedSubgraph(builder.subgraph.build());
+			}
 
 			for (int i = 0; i < session.statistics.hashMismatches.size(); i++) {
-				builder.hashMismatch.clear().setLeft(
+				builder.mismatch.clear().setLeft(
 						builder.nodeFactory.buildNode(session.statistics.hashMismatches.left.get(i)));
-				builder.hashMismatch.setRight(builder.nodeFactory.buildNode(session.statistics.hashMismatches.right
-						.get(i)));
-				builder.cluster.addHashMismatch(builder.hashMismatch.build());
+				builder.mismatch
+						.setRight(builder.nodeFactory.buildNode(session.statistics.hashMismatches.right.get(i)));
+				builder.cluster.addHashMismatch(builder.mismatch.build());
+			}
+
+			for (int i = 0; i < session.statistics.edgeMismatches.size(); i++) {
+				builder.mismatch.clear().setLeft(
+						builder.nodeFactory.buildNode(session.statistics.edgeMismatches.left.get(i)));
+				builder.mismatch
+						.setRight(builder.nodeFactory.buildNode(session.statistics.edgeMismatches.right.get(i)));
+				builder.cluster.addEdgeMismatch(builder.mismatch.build());
 			}
 
 			builder.results.addCluster(builder.cluster.build());

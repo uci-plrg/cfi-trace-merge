@@ -5,7 +5,6 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
 
 // TODO: this really only works for ClusterNode graphs on both sides, b/c the hashes will differ with ExecutionNode 
 // and the equals() methods reject other types.
@@ -25,19 +24,14 @@ class ClusterTagMergeEngine {
 	private void addLeftNodes() {
 		for (Node<?> left : session.left.getAllNodes()) {
 			ClusterNode<?> right = getCorrespondingNode(left);
+			if (right != null) {
+				if (!verifyMatch(left, right))
+					right = null;
+			}
 			if (right == null) {
 				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
-			} else {
-				if (verifyMatch(left, right)) {
-					session.statistics.match();
-				} else {
-					session.statistics.hashMismatch(left, right);
-
-					// if this will be allowed, then all incoming edges to the mismatched `right` must be transferred
-					// onto this new `right`
-					right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(),
-							left.getType());
-				}
+				session.statistics.nodeAdded();
+				session.subgraphs.nodeAdded(right);
 			}
 			enqueueLeftEdges(left, right);
 		}
@@ -52,6 +46,8 @@ class ClusterTagMergeEngine {
 					leftEdge.getEdgeType(), leftEdge.getOrdinal());
 			rightFromNode.addOutgoingEdge(newRightEdge);
 			rightToNode.addIncomingEdge(newRightEdge);
+			session.statistics.edgeAdded();
+			session.subgraphs.edgeAdded(newRightEdge);
 		}
 	}
 
@@ -78,7 +74,9 @@ class ClusterTagMergeEngine {
 		OrdinalEdgeList<?> leftEdges = left.getOutgoingEdges();
 		try {
 			for (Edge<?> leftEdge : leftEdges) {
-				if (!rightEdges.containsModuleRelativeEquivalent(leftEdge)) {
+				if (rightEdges.containsModuleRelativeEquivalent(leftEdge)) {
+					session.statistics.edgeMatched();
+				} else {
 					session.edgeQueue.leftEdges.add(leftEdge);
 					session.edgeQueue.rightFromNodes.add(right);
 				}
@@ -90,12 +88,16 @@ class ClusterTagMergeEngine {
 	}
 
 	private boolean verifyMatch(Node<?> left, Node<?> right) {
-		if (left.getHash() != right.getHash())
+		if (left.getHash() != right.getHash()) {
+			session.statistics.hashMismatch(left, right);
 			return false;
+		}
 		// throw new MergedFailedException(
 		// "Left node %s has module relative equivalent %s with a different hashcode!", left, right);
-		if (!left.hasCompatibleEdges(right))
+		if (!left.hasCompatibleEdges(right)) {
+			session.statistics.edgeMismatch(left, right);
 			return false;
+		}
 		// throw new MergedFailedException("Left node %s has module relative equivalent %s with incompatible edges!",
 		// left, right);
 		return true;
