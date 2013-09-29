@@ -136,7 +136,8 @@ public class RoundRobinMerge {
 
 	private static int THREAD_INDEX = 0;
 
-	private final OptionArgumentMap.StringOption logPathOption = OptionArgumentMap.createStringOption('l', true);
+	private final OptionArgumentMap.StringOption logPathOption = OptionArgumentMap.createStringOption('l',
+			OptionArgumentMap.OptionMode.REQUIRED);
 	private static final OptionArgumentMap.StringOption strategyOption = OptionArgumentMap.createStringOption('s',
 			GraphMergeStrategy.TAG.id);
 	private final OptionArgumentMap.StringOption threadCountOption = OptionArgumentMap.createStringOption('t');
@@ -153,7 +154,9 @@ public class RoundRobinMerge {
 
 	public RoundRobinMerge(ArgumentStack args) {
 		this.args = args;
-		commonOptions = new CommonMergeOptions(args, logPathOption, threadCountOption, unityOption);
+		commonOptions = new CommonMergeOptions(args, CommonMergeOptions.crowdSafeCommonDir,
+				CommonMergeOptions.restrictedClusterOption, CommonMergeOptions.unitClusterOption,
+				CommonMergeOptions.excludeClusterOption, logPathOption, threadCountOption, strategyOption, unityOption);
 	}
 
 	void run() {
@@ -173,7 +176,7 @@ public class RoundRobinMerge {
 						logDir.getAbsolutePath()));
 			}
 			logDir.mkdir();
-			File mainLogFile = LogFile.create(new File(logDir, "rr.log"), LogFile.CollisionMode.ERROR,
+			File mainLogFile = LogFile.create(new File(logDir, MAIN_LOG_FILENAME), LogFile.CollisionMode.ERROR,
 					LogFile.NoSuchPathMode.ERROR);
 			Log.addOutput(mainLogFile);
 			System.out.println("Logging to " + mainLogFile.getAbsolutePath());

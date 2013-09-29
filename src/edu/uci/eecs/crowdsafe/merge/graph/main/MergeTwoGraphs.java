@@ -136,8 +136,6 @@ public class MergeTwoGraphs {
 					writer.writeGraph();
 				}
 			}
-
-			toString();
 		} catch (Throwable t) {
 			if (parsingArguments) {
 				t.printStackTrace();
@@ -281,8 +279,10 @@ public class MergeTwoGraphs {
 
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
-		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, logFilenameOption, nameOption,
-				strategyOption, outputOption, inPlaceOption, verboseOption));
+		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, CommonMergeOptions.crowdSafeCommonDir,
+				CommonMergeOptions.restrictedClusterOption, CommonMergeOptions.unitClusterOption,
+				CommonMergeOptions.excludeClusterOption, logFilenameOption, nameOption, strategyOption, outputOption,
+				inPlaceOption, verboseOption));
 		main.run(stack, 1);
 
 		main.toString();

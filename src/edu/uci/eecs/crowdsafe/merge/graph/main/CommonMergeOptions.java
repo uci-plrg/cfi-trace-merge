@@ -17,11 +17,10 @@ import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 
 class CommonMergeOptions {
 
-	private final OptionArgumentMap.StringOption crowdSafeCommonDir = OptionArgumentMap.createStringOption('d');
-	private final OptionArgumentMap.StringOption restrictedClusterOption = OptionArgumentMap.createStringOption('c');
-	private final OptionArgumentMap.BooleanOption unitClusterOption = OptionArgumentMap.createBooleanOption('u', false,
-			true);
-	private final OptionArgumentMap.StringOption excludeClusterOption = OptionArgumentMap.createStringOption('x');
+	static final OptionArgumentMap.StringOption crowdSafeCommonDir = OptionArgumentMap.createStringOption('d');
+	static final OptionArgumentMap.StringOption restrictedClusterOption = OptionArgumentMap.createStringOption('c');
+	static final OptionArgumentMap.BooleanOption unitClusterOption = OptionArgumentMap.createBooleanOption('u', true);
+	static final OptionArgumentMap.StringOption excludeClusterOption = OptionArgumentMap.createStringOption('x');
 
 	private final OptionArgumentMap map;
 
@@ -33,10 +32,6 @@ class CommonMergeOptions {
 		for (OptionArgumentMap.Option<?> option : options) {
 			allOptions.add(option);
 		}
-		allOptions.add(crowdSafeCommonDir);
-		allOptions.add(restrictedClusterOption);
-		allOptions.add(unitClusterOption);
-		allOptions.add(excludeClusterOption);
 		map = new OptionArgumentMap(args, allOptions);
 	}
 
