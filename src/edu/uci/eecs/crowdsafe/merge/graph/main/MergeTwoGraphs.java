@@ -27,6 +27,11 @@ import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
 
 public class MergeTwoGraphs {
 
+	static String getCorrespondingResultsFilename(File logFile) {
+		String resultsFilename = logFile.getName().substring(0, logFile.getName().lastIndexOf('.'));
+		return String.format("%s.results.log", resultsFilename);
+	}
+
 	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l');
 	private static final OptionArgumentMap.StringOption strategyOption = OptionArgumentMap.createStringOption('s',
 			GraphMergeStrategy.TAG.id);
@@ -204,7 +209,7 @@ public class MergeTwoGraphs {
 			}
 
 			Log.log("Checking reachability on the merged graph.");
-			mergedGraph.graph.findUnreachableNodes();
+			mergedGraph.graph.analyzeGraph();
 
 			mergedGraphs.add(mergedGraph);
 		}
@@ -214,8 +219,7 @@ public class MergeTwoGraphs {
 		Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - mergeStart) / 1000.));
 
 		if (logFile != null) {
-			String resultsFilename = logFile.getName().substring(0, logFile.getName().lastIndexOf('.'));
-			resultsFilename = String.format("%s.results.log", resultsFilename);
+			String resultsFilename = getCorrespondingResultsFilename(logFile);
 			String resultsPath = new File(logFile.getParentFile(), resultsFilename).getPath();
 			File resultsFile = LogFile.create(resultsPath, LogFile.CollisionMode.ERROR, LogFile.NoSuchPathMode.ERROR);
 			FileOutputStream out = new FileOutputStream(resultsFile);

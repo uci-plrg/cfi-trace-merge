@@ -22,6 +22,7 @@ import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
+import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
@@ -253,8 +254,7 @@ public class RoundRobinMerge {
 	private void expandMergePairs(List<ProcessClusterGraph> graphs) {
 		Set<String> logFilenames = new HashSet<String>();
 		boolean includeUnityMerges = unityOption.getValue();
-		String disambiguator = "";
-		int disambiguatorIndex = 0;
+		NameDisambiguator disambiguator = new NameDisambiguator();
 		for (int i = 0; i < graphs.size(); i++) {
 			for (int j = i; j < graphs.size(); j++) {
 				if ((i == j) && !includeUnityMerges)
@@ -263,17 +263,9 @@ public class RoundRobinMerge {
 				ProcessClusterGraph left = graphs.get(i);
 				ProcessClusterGraph right = graphs.get(j);
 
-				String logFilename = null;
-				do {
-					disambiguatorIndex++;
-					logFilename = String.format("%s~%s%s.merge.log", left.name, right.name, disambiguator);
-					disambiguator = "_" + disambiguatorIndex;
-				} while (logFilenames.contains(logFilename));
-
+				String logfileBasename = String.format("%s~%s", left.name, right.name);
+				String logFilename = String.format("%s.merge.log", disambiguator.disambiguateName(logfileBasename));
 				logFilenames.add(logFilename);
-
-				disambiguator = "";
-				disambiguatorIndex = 0;
 
 				mergePairs.add(new MergePair(graphs.get(i), graphs.get(j), logFilename));
 			}

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
+import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
@@ -85,7 +87,7 @@ public class ClusterGraphTraining {
 
 			@Override
 			public Process summarizeGraph() {
-				summaryBuilder.setName("dataset");
+				summaryBuilder.clear().setName("dataset");
 				summaryBuilder.addCluster(graph.graph.summarize());
 				return summaryBuilder.build();
 			}
@@ -113,12 +115,12 @@ public class ClusterGraphTraining {
 
 			@Override
 			public String parseTraceName() {
-				return dataSources.get(instanceIndex).parseTraceName();
+				return runIds.get(instanceIndex);
 			}
 
 			@Override
 			public Process summarizeGraph() {
-				summaryBuilder.setName(parseTraceName());
+				summaryBuilder.clear().setName(parseTraceName());
 				summaryBuilder.addCluster(graph.summarize());
 				return summaryBuilder.build();
 			}
@@ -153,30 +155,38 @@ public class ClusterGraphTraining {
 						continue;
 					}
 
+					File logFile = new File(currentConfiguration.clusterLogDir, "dataset.load.log");
+					Log.clearThreadOutputs();
+					Log.addThreadOutput(logFile);
 					dataset.loadData();
 
-					Log.sharedLog("Thread %d training cluster %s", index, currentConfiguration.cluster.name);
-					for (instanceIndex = datasetIndex + 1; instanceIndex < dataSources.size(); instanceIndex++) {
-						if (!dataSources.get(instanceIndex).getReprsentedClusters()
-								.contains(currentConfiguration.cluster))
-							continue;
+					PrintWriter sequenceWriter = new PrintWriter(currentConfiguration.sequenceFile);
+					try {
+						Log.sharedLog("Thread %d training cluster %s", index, currentConfiguration.cluster.name);
+						for (instanceIndex = datasetIndex + 1; instanceIndex < dataSources.size(); instanceIndex++) {
+							if (!dataSources.get(instanceIndex).getReprsentedClusters()
+									.contains(currentConfiguration.cluster))
+								continue;
 
-						instance.loadData();
+							logFile = new File(currentConfiguration.clusterLogDir, String.format("%s.merge.log",
+									runIds.get(instanceIndex)));
+							Log.clearThreadOutputs();
+							Log.addThreadOutput(logFile);
 
-						File logFile = new File(currentConfiguration.clusterLogDir, logFilenames.get(instanceIndex));
-						Log.clearThreadOutputs();
-						Log.addThreadOutput(logFile);
+							instance.loadData();
+							sequenceWriter.println(MergeTwoGraphs.getCorrespondingResultsFilename(logFile));
+							executor.merge(instance, dataset, strategy, logFile);
+						}
 
-						// TODO: write to the sequence log
-						// TODO: results logs are getting crossed up, see e.g. ntdll
-						executor.merge(instance, dataset, strategy, logFile);
+						ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
+						String filenameFormat = "dataset.%s.%s.%s";
+						dataSink.addCluster(currentConfiguration.cluster, filenameFormat);
+						ClusterGraphWriter writer = new ClusterGraphWriter(dataset.graph, dataSink);
+						writer.writeGraph();
+					} finally {
+						sequenceWriter.flush();
+						sequenceWriter.close();
 					}
-
-					ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
-					String filenameFormat = "dataset.%s.%s.%s";
-					dataSink.addCluster(currentConfiguration.cluster, filenameFormat);
-					ClusterGraphWriter writer = new ClusterGraphWriter(dataset.graph, dataSink);
-					writer.writeGraph();
 				}
 			} catch (Throwable t) {
 				fail(t, String.format("\t@@@@ Merge %s on thread %d failed with %s @@@@",
@@ -218,7 +228,7 @@ public class ClusterGraphTraining {
 
 	private final List<String> clusterNames = new ArrayList<String>();
 	private final List<ClusterTraceDataSource> dataSources = new ArrayList<ClusterTraceDataSource>();
-	private final List<String> logFilenames = new ArrayList<String>();
+	private final List<String> runIds = new ArrayList<String>();
 	private final List<ClusterTrainingConfiguration> trainingConfigurations = new ArrayList<ClusterTrainingConfiguration>();
 
 	public ClusterGraphTraining(ArgumentStack args) {
@@ -264,15 +274,17 @@ public class ClusterGraphTraining {
 				for (String clusterName : clusterNames) {
 					AutonomousSoftwareDistribution cluster = ConfiguredSoftwareDistributions.getInstance()
 							.establishCluster(clusterName);
-					File logDirectory = new File(logDir, cluster.name);
-					logDirectory.mkdir();
-					File sequenceFile = new File(logDir, String.format("%s.sequence.log", cluster.name));
-					trainingConfigurations.add(new ClusterTrainingConfiguration(cluster, sequenceFile, logDirectory));
+					File clusterLogDirectory = new File(logDir, cluster.name);
+					clusterLogDirectory.mkdir();
+					File sequenceFile = new File(clusterLogDirectory, "sequence.log");
+					trainingConfigurations.add(new ClusterTrainingConfiguration(cluster, sequenceFile,
+							clusterLogDirectory));
 				}
 
 				List<TrainingThread> threads = new ArrayList<TrainingThread>();
 				int threadCount = Integer.parseInt(threadCountOption.getValue());
-				int mergeCount = trainingConfigurations.size() * clusterNames.size();
+				int clusterCount = trainingConfigurations.size();
+				int mergeCount = clusterCount * clusterNames.size();
 				int partitionSize = mergeCount / threadCount;
 
 				Log.log("Starting %d threads to train %d clusters (~%d merges each)", threadCount,
@@ -288,9 +300,8 @@ public class ClusterGraphTraining {
 					thread.join();
 				}
 
-				Log.log("\nTraining of %d clusters (%d merges) on %d threads in %f seconds.",
-						trainingConfigurations.size(), mergeCount, threadCount,
-						((System.currentTimeMillis() - trainingStart) / 1000.));
+				Log.log("\nTraining of %d clusters (%d merges) on %d threads in %f seconds.", clusterCount, mergeCount,
+						threadCount, ((System.currentTimeMillis() - trainingStart) / 1000.));
 			}
 
 		} catch (Throwable t) {
@@ -344,9 +355,10 @@ public class ClusterGraphTraining {
 			in.close();
 		}
 
+		NameDisambiguator disambiguator = new NameDisambiguator();
 		for (String runPath : runPathSet) {
 			File runDir = new File(runPath);
-			logFilenames.add(String.format("%s.merge.log", runDir.getName()));
+			runIds.add(disambiguator.disambiguateName(runDir.getName()));
 			ClusterTraceDataSource dataSource = new ClusterTraceDirectory(runDir).loadExistingFiles();
 			dataSources.add(dataSource);
 		}
