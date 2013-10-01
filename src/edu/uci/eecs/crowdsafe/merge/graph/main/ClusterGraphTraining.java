@@ -27,6 +27,7 @@ import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSource;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
+import edu.uci.eecs.crowdsafe.common.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
@@ -263,7 +264,7 @@ public class ClusterGraphTraining {
 
 			parsingArguments = false;
 
-			commonOptions.initializeMerge();
+			commonOptions.initializeGraphEnvironment();
 
 			loadClusterList();
 			loadDataSources();

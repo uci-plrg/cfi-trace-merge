@@ -15,6 +15,7 @@ import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSink;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
+import edu.uci.eecs.crowdsafe.common.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
@@ -105,7 +106,7 @@ public class MergeTwoGraphs {
 
 			Log.log("Merge two graphs:\n\tLeft: %s\n\tRight: %s", leftPath, rightPath);
 
-			options.initializeMerge();
+			options.initializeGraphEnvironment();
 
 			GraphMergeCandidate leftCandidate = loadMergeCandidate(leftPath);
 			GraphMergeCandidate rightCandidate = loadMergeCandidate(rightPath);
