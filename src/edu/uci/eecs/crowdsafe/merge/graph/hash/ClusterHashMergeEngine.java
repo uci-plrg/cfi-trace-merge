@@ -208,7 +208,7 @@ class ClusterHashMergeEngine {
 		for (Node<?> leftNode : session.left.cluster.getAllNodes()) {
 			session.debugLog.debugCheck(leftNode);
 			ClusterNode<?> mergedNode = session.mergedGraphBuilder.addNode(leftNode.getHash(), leftNode.getModule(),
-					leftNode.getRelativeTag(), leftNode.getType());
+					leftNode.getRelativeTag(), leftNode.getType(), leftNode.isCallback());
 			leftNode2MergedNode.put(leftNode, mergedNode);
 			session.debugLog.nodeMergedFromLeft(leftNode);
 		}
@@ -220,8 +220,8 @@ class ClusterHashMergeEngine {
 			try {
 				session.debugLog.mergingEdgesFromLeft(leftNode);
 				for (Edge<? extends Node<?>> leftEdge : leftEdges) {
-					ClusterNode<?> mergedFromNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(leftNode)
-							.getKey());
+					ClusterNode<?> mergedFromNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(
+							leftNode).getKey());
 					ClusterNode<?> mergedToNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(
 							leftEdge.getToNode()).getKey());
 					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
@@ -242,8 +242,8 @@ class ClusterHashMergeEngine {
 				continue;
 
 			if (!session.matchedNodes.containsRightKey(rightNode.getKey())) {
-				ClusterNode<?> mergedNode = session.mergedGraphBuilder.addNode(rightNode.getHash(), rightNode.getModule(),
-						rightNode.getRelativeTag(), rightNode.getType());
+				ClusterNode<?> mergedNode = session.mergedGraphBuilder.addNode(rightNode.getHash(),
+						rightNode.getModule(), rightNode.getRelativeTag(), rightNode.getType(), rightNode.isCallback());
 				// TODO: fails to add the corresponding edges when creating a new version of a node
 				rightNode2MergedNode.put(rightNode, mergedNode);
 				session.debugLog.nodeMergedFromRight(rightNode);

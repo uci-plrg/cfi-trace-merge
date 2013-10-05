@@ -29,7 +29,8 @@ class ClusterTagMergeEngine {
 					right = null;
 			}
 			if (right == null) {
-				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
+				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType(),
+						left.isCallback());
 				session.statistics.nodeAdded();
 				session.subgraphs.nodeAdded(right);
 			}
