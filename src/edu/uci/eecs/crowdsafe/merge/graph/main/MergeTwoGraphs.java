@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uci.eecs.crowdsafe.common.data.DataMessageType;
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
@@ -224,7 +225,7 @@ public class MergeTwoGraphs {
 			String resultsPath = new File(logFile.getParentFile(), resultsFilename).getPath();
 			File resultsFile = LogFile.create(resultsPath, LogFile.CollisionMode.ERROR, LogFile.NoSuchPathMode.ERROR);
 			FileOutputStream out = new FileOutputStream(resultsFile);
-			out.write(strategy.resultsId);
+			out.write(strategy.getMessageType().id);
 			results.getResults().writeTo(out);
 			out.flush();
 			out.close();

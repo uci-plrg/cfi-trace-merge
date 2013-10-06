@@ -1,5 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
+import edu.uci.eecs.crowdsafe.common.data.DataMessageType;
+
 public enum GraphMergeStrategy {
 	HASH("hash", 0),
 	TAG("tag", 1);
@@ -10,6 +12,16 @@ public enum GraphMergeStrategy {
 	private GraphMergeStrategy(String id, int resultsId) {
 		this.id = id;
 		this.resultsId = resultsId;
+	}
+
+	public DataMessageType getMessageType() {
+		switch (this) {
+			case HASH:
+				return DataMessageType.HASH_MERGE_RESULTS;
+			case TAG:
+				return DataMessageType.TAG_MERGE_RESULTS;
+		}
+		throw new IllegalArgumentException("Unknown merge strategy " + this);
 	}
 
 	public static GraphMergeStrategy forId(String id) {
