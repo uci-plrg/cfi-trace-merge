@@ -8,6 +8,7 @@ import java.util.List;
 
 import edu.uci.eecs.crowdsafe.common.data.DataMessageType;
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
@@ -175,7 +176,7 @@ public class MergeTwoGraphs {
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
-			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.distributionUnits.iterator().next().isDynamic())
+			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.distributionUnits.iterator().next().isDynamic)
 				continue; // tag strategy doesn't work for dynamic code
 
 			if (!options.includeCluster(leftCluster))
@@ -189,6 +190,12 @@ public class MergeTwoGraphs {
 				Log.log("Skipping cluster %s because it does not appear in the right side.", leftCluster.name);
 				continue;
 			}
+
+			if (ConfiguredSoftwareDistributions.getInstance().clusterMode != ConfiguredSoftwareDistributions.ClusterMode.UNIT)
+				throw new UnsupportedOperationException(
+						"Cluster compatibility has not yet been defined for cluster mode "
+								+ ConfiguredSoftwareDistributions.getInstance().clusterMode);
+
 			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
 			if (!rightGraph.isCompatible(leftGraph)) {
 				Log.log("Skipping cluster %s because its modules versions are not compatible with the right side",
