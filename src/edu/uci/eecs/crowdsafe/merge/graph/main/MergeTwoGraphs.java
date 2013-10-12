@@ -176,7 +176,7 @@ public class MergeTwoGraphs {
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
-			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.distributionUnits.iterator().next().isDynamic)
+			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isDynamic())
 				continue; // tag strategy doesn't work for dynamic code
 
 			if (!options.includeCluster(leftCluster))
@@ -190,7 +190,7 @@ public class MergeTwoGraphs {
 				Log.log("Skipping cluster %s because it does not appear in the right side.", leftCluster.name);
 				continue;
 			}
-
+			
 			if (ConfiguredSoftwareDistributions.getInstance().clusterMode != ConfiguredSoftwareDistributions.ClusterMode.UNIT)
 				throw new UnsupportedOperationException(
 						"Cluster compatibility has not yet been defined for cluster mode "
