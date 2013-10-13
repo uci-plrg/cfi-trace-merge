@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.eecs.crowdsafe.common.data.DataMessageType;
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
@@ -25,14 +24,30 @@ import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchState;
 import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
 
 public class MergeTwoGraphs {
 
+	private static class DynamicHashMatchEvaluator implements ContextMatchState.Evaluator {
+		@Override
+		public int evaluateMatch(ContextMatchState state) {
+			if (state.isComplete() && (state.getMatchedNodeCount() > 0))
+				return 1000;
+			else
+				return -1;
+		}
+	}
+
 	static String getCorrespondingResultsFilename(File logFile) {
 		String resultsFilename = logFile.getName().substring(0, logFile.getName().lastIndexOf('.'));
 		return String.format("%s.results.log", resultsFilename);
+	}
+
+	static String getCorrespondingDynamicResultsFilename(File logFile) {
+		String resultsFilename = logFile.getName().substring(0, logFile.getName().lastIndexOf('.'));
+		return String.format("%s.dynamic.log", resultsFilename);
 	}
 
 	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l');
@@ -174,13 +189,17 @@ public class MergeTwoGraphs {
 		}
 
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
+		List<ModuleGraphCluster<?>> dynamicGraphs = new ArrayList<ModuleGraphCluster<?>>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
-			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isDynamic())
-				continue; // tag strategy doesn't work for dynamic code
-
 			if (!options.includeCluster(leftCluster))
 				continue;
+
+			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isDynamic()) {
+				if (leftCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER)
+					dynamicGraphs.add(leftData.getClusterGraph(leftCluster));
+				continue;
+			}
 
 			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
 
@@ -190,7 +209,7 @@ public class MergeTwoGraphs {
 				Log.log("Skipping cluster %s because it does not appear in the right side.", leftCluster.name);
 				continue;
 			}
-			
+
 			if (ConfiguredSoftwareDistributions.getInstance().clusterMode != ConfiguredSoftwareDistributions.ClusterMode.UNIT)
 				throw new UnsupportedOperationException(
 						"Cluster compatibility has not yet been defined for cluster mode "
@@ -223,23 +242,49 @@ public class MergeTwoGraphs {
 			mergedGraphs.add(mergedGraph);
 		}
 
+		if (strategy == GraphMergeStrategy.TAG) {
+			DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
+			ClusterHashMergeResults dynamicResults = new ClusterHashMergeResults();
+
+			ModuleGraphCluster<?> leftDynamorioGraph = leftData
+					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
+			ModuleGraphCluster<?> rightDynamorioGraph = rightData
+					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
+
+			ClusterGraph mergedDynamoGraph = ClusterHashMergeSession.mergeTwoGraphs(leftDynamorioGraph,
+					rightDynamorioGraph, dynamicEvaluator, dynamicResults, debugLog);
+			mergedDynamoGraph.graph.analyzeGraph();
+			mergedGraphs.add(mergedDynamoGraph);
+
+			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
+				if (rightCluster.isDynamic())
+					dynamicGraphs.add(rightData.getClusterGraph(rightCluster));
+			}
+			mergedGraphs.addAll(mergeDynamicClusters(dynamicGraphs));
+
+			if (logFile != null)
+				writeResults(dynamicResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
+		}
+
 		results.setGraphSummaries(leftData.summarizeGraph(), rightData.summarizeGraph());
 
 		Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - mergeStart) / 1000.));
 
 		if (logFile != null) {
-			String resultsFilename = getCorrespondingResultsFilename(logFile);
-			String resultsPath = new File(logFile.getParentFile(), resultsFilename).getPath();
-			File resultsFile = LogFile.create(resultsPath, LogFile.CollisionMode.ERROR, LogFile.NoSuchPathMode.ERROR);
-			FileOutputStream out = new FileOutputStream(resultsFile);
-			out.write(strategy.getMessageType().id);
-			results.getResults().writeTo(out);
-			out.flush();
-			out.close();
+			writeResults(results, getCorrespondingResultsFilename(logFile), logFile);
 		} else {
 			Log.log("Results logging skipped.");
 		}
 
+		return mergedGraphs;
+	}
+
+	private List<ClusterGraph> mergeDynamicClusters(List<ModuleGraphCluster<?>> dynamicGraphs) {
+		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
+		for (ModuleGraphCluster<?> dynamicGraph : dynamicGraphs) {
+			// split into subgraphs and add each to a new list of ModuleGraphCluster<?>
+		}
+		// now isolate the unique subgraphs
 		return mergedGraphs;
 	}
 
@@ -267,6 +312,16 @@ public class MergeTwoGraphs {
 
 		candidate.loadData();
 		return candidate;
+	}
+
+	private void writeResults(MergeResults results, String resultsFilename, File logFile) throws IOException {
+		String resultsPath = new File(logFile.getParentFile(), resultsFilename).getPath();
+		File resultsFile = LogFile.create(resultsPath, LogFile.CollisionMode.ERROR, LogFile.NoSuchPathMode.ERROR);
+		FileOutputStream out = new FileOutputStream(resultsFile);
+		out.write(results.getStrategy().getMessageType().id);
+		results.getResults().writeTo(out);
+		out.flush();
+		out.close();
 	}
 
 	private void printUsageAndExit() {

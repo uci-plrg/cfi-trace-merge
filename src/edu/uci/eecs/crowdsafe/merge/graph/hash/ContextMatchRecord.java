@@ -22,31 +22,37 @@ public class ContextMatchRecord {
 		EdgeMatchType type;
 	}
 
-	public static class State {
-		private int index;
-		private int matchedNodeCount;
-		private int comparedNodeCount;
-		private boolean fail;
-		private boolean mismatch;
-		private boolean reachedTargetDepth;
-		private boolean hasAmbiguity;
-		private boolean complete;
+	private static class DefaultEvaluator implements ContextMatchState.Evaluator {
+		@Override
+		public int evaluateMatch(ContextMatchState state) {
+			if (state.complete) {
+				if (state.reachedTargetDepth)
+					return 10000;
+				else if (state.reachedTargetDepth)
+					return 1000;
+				else
+					return state.matchedNodeCount * 3;
+			}
 
-		void copyTo(State target) {
-			target.index = index;
-			target.matchedNodeCount = matchedNodeCount;
-			target.comparedNodeCount = comparedNodeCount;
-			target.reachedTargetDepth = reachedTargetDepth;
-			target.hasAmbiguity = hasAmbiguity;
-			target.complete = complete;
-			target.fail = false;
+			if (state.reachedTargetDepth) {
+				if (state.hasAmbiguity)
+					return state.matchedNodeCount * 2;
+				else
+					return state.matchedNodeCount * 10;
+			} else {
+				if (state.hasAmbiguity)
+					return state.matchedNodeCount / 2;
+				else
+					return state.matchedNodeCount;
+			}
 		}
 	}
 
 	private static final int INITIAL_COMPARISON_COUNT = 100;
 	private static final int INITIAL_STATE_COUNT = 20;
 
-	private final State currentState = new State();
+	private final ContextMatchState currentState = new ContextMatchState();
+	private ContextMatchState.Evaluator evaluator;
 
 	private final List<EdgeComparison> edges = new ArrayList<EdgeComparison>(INITIAL_COMPARISON_COUNT);
 
@@ -56,17 +62,23 @@ public class ContextMatchRecord {
 	private final List<Node<?>> comparedNodeList = new ArrayList<Node<?>>();
 
 	private int stateIndex;
-	private final List<State> stateStack = new ArrayList<State>();
-	
+	private final List<ContextMatchState> stateStack = new ArrayList<ContextMatchState>();
+
 	private Node<?> leftSubtreeRoot;
 	private Node<?> rightSubtreeRoot;
 
 	public ContextMatchRecord() {
+		this(new DefaultEvaluator());
+	}
+
+	public ContextMatchRecord(ContextMatchState.Evaluator evaluator) {
+		this.evaluator = evaluator;
+
 		for (int i = 0; i < INITIAL_COMPARISON_COUNT; i++) {
 			edges.add(new EdgeComparison());
 		}
 		for (int i = 0; i < INITIAL_STATE_COUNT; i++) {
-			stateStack.add(new State());
+			stateStack.add(new ContextMatchState());
 		}
 	}
 
@@ -83,15 +95,19 @@ public class ContextMatchRecord {
 
 		comparedNodeSet.clear();
 		comparedNodeList.clear();
-		
+
 		this.leftSubtreeRoot = leftSubtreeRoot;
 		this.rightSubtreeRoot = rightSubtreeRoot;
+	}
+
+	void setEvaluator(ContextMatchState.Evaluator evaluator) {
+		this.evaluator = evaluator;
 	}
 
 	public void fail() {
 		if ((leftSubtreeRoot.getKey().equals(rightSubtreeRoot.getKey())) && (stateIndex == 0))
 			currentState.mismatch = true; // could store location of mismatch by taking current L/R pair as args
-		
+
 		currentState.fail = true;
 	}
 
@@ -110,7 +126,7 @@ public class ContextMatchRecord {
 
 	public void saveState() {
 		if (stateIndex == stateStack.size())
-			stateStack.add(new State());
+			stateStack.add(new ContextMatchState());
 		currentState.comparedNodeCount = comparedNodeList.size();
 		currentState.copyTo(stateStack.get(stateIndex++));
 	}
@@ -157,25 +173,6 @@ public class ContextMatchRecord {
 		if (currentState.fail)
 			return -1;
 
-		if (currentState.complete) {
-			if (currentState.reachedTargetDepth)
-				return 10000;
-			else if (currentState.reachedTargetDepth)
-				return 1000;
-			else
-				return currentState.matchedNodeCount * 3;
-		}
-
-		if (currentState.reachedTargetDepth) {
-			if (currentState.hasAmbiguity)
-				return currentState.matchedNodeCount * 2;
-			else
-				return currentState.matchedNodeCount * 10;
-		} else {
-			if (currentState.hasAmbiguity)
-				return currentState.matchedNodeCount / 2;
-			else
-				return currentState.matchedNodeCount;
-		}
+		return evaluator.evaluateMatch(currentState);
 	}
 }

@@ -9,4 +9,6 @@ public interface MergeResults {
 	void setGraphSummaries(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary);
 
 	GeneratedMessage getResults();
+	
+	GraphMergeStrategy getStrategy();
 }

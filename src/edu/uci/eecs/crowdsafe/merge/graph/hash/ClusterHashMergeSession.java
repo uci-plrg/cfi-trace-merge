@@ -13,7 +13,18 @@ public class ClusterHashMergeSession {
 	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
 			ClusterHashMergeResults results, ClusterHashMergeDebugLog debugLog) {
 		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
+		return mergeTwoGraphs(session);
+	}
 
+	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
+			ContextMatchState.Evaluator matchEvaluator, ClusterHashMergeResults results,
+			ClusterHashMergeDebugLog debugLog) {
+		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
+		session.contextRecord.setEvaluator(matchEvaluator);
+		return mergeTwoGraphs(session);
+	}
+
+	private static ClusterGraph mergeTwoGraphs(ClusterHashMergeSession session) {
 		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
 		engine.mergeGraph();
 		session.results.clusterMergeCompleted();
@@ -94,7 +105,7 @@ public class ClusterHashMergeSession {
 
 	boolean acceptContext(Node<?> candidate) {
 		int score = contextRecord.evaluate();
-		if (score < 7)
+		if (score < 7) // TODO: should be configurable also
 			return false;
 		setScore(candidate, score);
 		return true;

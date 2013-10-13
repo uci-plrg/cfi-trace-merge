@@ -21,6 +21,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
@@ -314,6 +315,11 @@ public class ClusterHashMergeResults implements MergeResults {
 	@Override
 	public HashMerge.HashMergeResults getResults() {
 		return builder.results.build();
+	}
+	
+	@Override
+	public GraphMergeStrategy getStrategy() {
+		return GraphMergeStrategy.HASH;
 	}
 
 	void beginCluster(ClusterHashMergeSession session) {
