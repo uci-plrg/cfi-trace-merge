@@ -22,13 +22,24 @@ import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeAnalysis;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchState;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.MaximalSubgraphs;
 import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
 
 public class MergeTwoGraphs {
+
+	private static class DynamoHashMatchEvaluator implements ContextMatchState.Evaluator {
+		@Override
+		public int evaluateMatch(ContextMatchState state) {
+			if (state.isComplete() && (state.getMatchedNodeCount() > 0))
+				return 1000;
+			else
+				return -1;
+		}
+	}
 
 	private static class DynamicHashMatchEvaluator implements ContextMatchState.Evaluator {
 		@Override
@@ -179,7 +190,7 @@ public class MergeTwoGraphs {
 		MergeResults results;
 		switch (strategy) {
 			case HASH:
-				results = new ClusterHashMergeResults();
+				results = new ClusterHashMergeAnalysis();
 				break;
 			case TAG:
 				results = new ClusterTagMergeResults();
@@ -189,7 +200,7 @@ public class MergeTwoGraphs {
 		}
 
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
-		List<ModuleGraphCluster<?>> dynamicGraphs = new ArrayList<ModuleGraphCluster<?>>();
+		List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (!options.includeCluster(leftCluster))
@@ -197,7 +208,8 @@ public class MergeTwoGraphs {
 
 			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isDynamic()) {
 				if (leftCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER)
-					dynamicGraphs.add(leftData.getClusterGraph(leftCluster));
+					// cast is ok because tag merge only works on cluster graphs
+					dynamicGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
 				continue;
 			}
 
@@ -226,7 +238,7 @@ public class MergeTwoGraphs {
 			switch (strategy) {
 				case HASH:
 					mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
-							(ClusterHashMergeResults) results, debugLog);
+							(ClusterHashMergeAnalysis) results, debugLog);
 					break;
 				case TAG:
 					mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph,
@@ -243,24 +255,30 @@ public class MergeTwoGraphs {
 		}
 
 		if (strategy == GraphMergeStrategy.TAG) {
-			DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
-			ClusterHashMergeResults dynamicResults = new ClusterHashMergeResults();
+			ClusterHashMergeAnalysis dynamicResults = new ClusterHashMergeAnalysis();
 
 			ModuleGraphCluster<?> leftDynamorioGraph = leftData
 					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
 			ModuleGraphCluster<?> rightDynamorioGraph = rightData
 					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
 
+			DynamoHashMatchEvaluator dynamoEvaluator = new DynamoHashMatchEvaluator();
 			ClusterGraph mergedDynamoGraph = ClusterHashMergeSession.mergeTwoGraphs(leftDynamorioGraph,
-					rightDynamorioGraph, dynamicEvaluator, dynamicResults, debugLog);
+					rightDynamorioGraph, dynamoEvaluator, dynamicResults, debugLog);
 			mergedDynamoGraph.graph.analyzeGraph();
 			mergedGraphs.add(mergedDynamoGraph);
 
 			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-				if (rightCluster.isDynamic())
-					dynamicGraphs.add(rightData.getClusterGraph(rightCluster));
+				if (rightCluster.isDynamic() && (rightCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER))
+					// cast is ok because tag merge only works on cluster graphs
+					dynamicGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
 			}
-			mergedGraphs.addAll(mergeDynamicClusters(dynamicGraphs));
+			List<ClusterGraph> mergedDyanmicGraphs = mergeDynamicClusters(dynamicGraphs);
+			Log.log("Found %d unique dynamic subgraphs:", mergedDyanmicGraphs.size());
+			for (ClusterGraph mergedDyanmicGraph : mergedDyanmicGraphs) {
+				mergedDyanmicGraph.graph.logGraph();
+			}
+			mergedGraphs.addAll(mergedDyanmicGraphs);
 
 			if (logFile != null)
 				writeResults(dynamicResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
@@ -279,12 +297,33 @@ public class MergeTwoGraphs {
 		return mergedGraphs;
 	}
 
-	private List<ClusterGraph> mergeDynamicClusters(List<ModuleGraphCluster<?>> dynamicGraphs) {
-		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
-		for (ModuleGraphCluster<?> dynamicGraph : dynamicGraphs) {
-			// split into subgraphs and add each to a new list of ModuleGraphCluster<?>
+	private List<ClusterGraph> mergeDynamicClusters(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {
+		List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : dynamicGraphs) {
+			maximalSubgraphs.addAll(MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph));
 		}
-		// now isolate the unique subgraphs
+
+		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
+		List<ModuleGraphCluster<ClusterNode<?>>> uniqueMaximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : maximalSubgraphs) {
+			boolean match = false;
+			for (int i = 0; i < uniqueMaximalSubgraphs.size(); i++) {
+				match = ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraph, uniqueMaximalSubgraphs.get(i),
+						dynamicEvaluator, debugLog);
+				if (match)
+					break;
+			}
+
+			if (match)
+				continue;
+
+			uniqueMaximalSubgraphs.add(maximalSubgraph);
+		}
+
+		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
+		for (ModuleGraphCluster<ClusterNode<?>> uniqueMaximalSubgraph : uniqueMaximalSubgraphs) {
+			mergedGraphs.add(new ClusterGraph(uniqueMaximalSubgraph));
+		}
 		return mergedGraphs;
 	}
 

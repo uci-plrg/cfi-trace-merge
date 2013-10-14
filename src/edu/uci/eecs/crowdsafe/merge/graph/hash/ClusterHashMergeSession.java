@@ -6,22 +6,33 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
 public class ClusterHashMergeSession {
 
 	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
-			ClusterHashMergeResults results, ClusterHashMergeDebugLog debugLog) {
+			ClusterHashMergeAnalysis results, ClusterHashMergeDebugLog debugLog) {
 		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
 		return mergeTwoGraphs(session);
 	}
 
 	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
-			ContextMatchState.Evaluator matchEvaluator, ClusterHashMergeResults results,
+			ContextMatchState.Evaluator matchEvaluator, ClusterHashMergeAnalysis results,
 			ClusterHashMergeDebugLog debugLog) {
 		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
 		session.contextRecord.setEvaluator(matchEvaluator);
 		return mergeTwoGraphs(session);
+	}
+
+	public static boolean evaluateTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
+			ContextMatchState.Evaluator matchEvaluator, ClusterHashMergeDebugLog debugLog) {
+		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right,
+				ClusterHashMergeResults.Empty.INSTANCE, debugLog);
+		session.contextRecord.setEvaluator(matchEvaluator);
+		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
+		engine.mergeGraph();
+		return session.matchedNodes.size() == Math.max(left.getNodeCount(), right.getNodeCount());
 	}
 
 	private static ClusterGraph mergeTwoGraphs(ClusterHashMergeSession session) {
@@ -101,6 +112,10 @@ public class ClusterHashMergeSession {
 			matchState.enqueueUnmatch(rightEntryPoint);
 			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
+	}
+
+	public void setMatchEvaluator(ContextMatchState.Evaluator evaluator) {
+		contextRecord.setEvaluator(evaluator);
 	}
 
 	boolean acceptContext(Node<?> candidate) {

@@ -12,15 +12,18 @@ import java.util.Set;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
+// generalize for splitting a graph into subgraphs? or make a new one based on this?
 class ClusterTagMergedSubgraphs {
 
+	// this could be separated into a subgraph and a profile
+	// comparison is based on profile, not node content
 	class Subgraph implements Comparable<Subgraph> {
 		private final Set<Node<?>> nodes = new HashSet<Node<?>>();
 		private int bridgeCount = 0;
 		private int instanceCount = 1;
 
 		public Subgraph() {
-			distinceSubgraphs.add(this);
+			distinctSubgraphs.add(this);
 		}
 
 		int getNodeCount() {
@@ -46,7 +49,7 @@ class ClusterTagMergedSubgraphs {
 
 	private final Set<Node<?>> atoms = new HashSet<Node<?>>();
 	private final Map<Node<?>, Subgraph> subgraphs = new HashMap<Node<?>, Subgraph>();
-	private final List<Subgraph> distinceSubgraphs = new ArrayList<Subgraph>();
+	private final List<Subgraph> distinctSubgraphs = new ArrayList<Subgraph>();
 
 	void nodeAdded(Node<?> node) {
 		atoms.add(node);
@@ -108,16 +111,16 @@ class ClusterTagMergedSubgraphs {
 	}
 
 	public Collection<Subgraph> getSubgraphs() {
-		Collections.sort(distinceSubgraphs);
-		for (int i = distinceSubgraphs.size() - 1; i >= 1; i--) {
-			Subgraph current = distinceSubgraphs.get(i);
-			Subgraph previous = distinceSubgraphs.get(i - 1);
+		Collections.sort(distinctSubgraphs);
+		for (int i = distinctSubgraphs.size() - 1; i >= 1; i--) {
+			Subgraph current = distinctSubgraphs.get(i);
+			Subgraph previous = distinctSubgraphs.get(i - 1);
 			if (current.compareTo(previous) == 0) {
 				previous.instanceCount = current.instanceCount + 1;
-				distinceSubgraphs.remove(i);
+				distinctSubgraphs.remove(i);
 			}
 
 		}
-		return distinceSubgraphs;
+		return distinctSubgraphs;
 	}
 }
