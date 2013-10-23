@@ -25,5 +25,6 @@ append_classpath "CROWD_SAFE_COMMON_DIR"
 
 main_class="edu.uci.eecs.crowdsafe.merge.graph.main.MergeTwoGraphs"
 
+#java -Xms2048M -Xmx3072M -cp $cp $main_class $@
 java -cp $cp $main_class $@
   
