@@ -213,45 +213,61 @@ public class MergeTwoGraphs {
 				continue;
 			}
 
-			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
-
-			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
-			if (rightGraph == null) {
-				// TODO: should I just copy it in?
-				Log.log("Skipping cluster %s because it does not appear in the right side.", leftCluster.name);
-				continue;
-			}
-
 			if (ConfiguredSoftwareDistributions.getInstance().clusterMode != ConfiguredSoftwareDistributions.ClusterMode.UNIT)
 				throw new UnsupportedOperationException(
 						"Cluster compatibility has not yet been defined for cluster mode "
 								+ ConfiguredSoftwareDistributions.getInstance().clusterMode);
 
-			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
-			if (!rightGraph.isCompatible(leftGraph)) {
-				Log.log("Skipping cluster %s because its modules versions are not compatible with the right side",
-						leftCluster.name);
-				continue;
-			}
+			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
 
 			ClusterGraph mergedGraph = null;
-			switch (strategy) {
-				case HASH:
-					mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
-							(ClusterHashMergeAnalysis) results, debugLog);
-					break;
-				case TAG:
-					mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph,
-							(ModuleGraphCluster<ClusterNode<?>>) rightGraph, (ClusterTagMergeResults) results);
-					break;
-				default:
-					throw new IllegalArgumentException("Unknown merge strategy " + strategy);
+			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
+			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
+			if (rightGraph == null) {
+				if (strategy == GraphMergeStrategy.TAG) {
+					Log.log("Copying left cluster %s because it does not appear in the right side.", leftCluster.name);
+					mergedGraph = new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) leftGraph);
+				} else {
+					Log.log("Skipping left cluster %s because it does not appear in the right side and has incompatible format with the merge data.",
+							leftCluster.name);
+					continue;
+				}
+			} else {
+				if (!rightGraph.isCompatible(leftGraph)) {
+					Log.log("Skipping cluster %s because its modules versions are not compatible with the right side",
+							leftCluster.name);
+					continue;
+				}
+
+				switch (strategy) {
+					case HASH:
+						mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
+								(ClusterHashMergeAnalysis) results, debugLog);
+						break;
+					case TAG:
+						mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph,
+								(ModuleGraphCluster<ClusterNode<?>>) rightGraph, (ClusterTagMergeResults) results);
+						break;
+					default:
+						throw new IllegalArgumentException("Unknown merge strategy " + strategy);
+				}
+
+				Log.log("Checking reachability on the merged graph.");
+				mergedGraph.graph.analyzeGraph();
 			}
 
-			Log.log("Checking reachability on the merged graph.");
-			mergedGraph.graph.analyzeGraph();
-
 			mergedGraphs.add(mergedGraph);
+		}
+
+		if (strategy == GraphMergeStrategy.TAG) {
+			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
+				if (options.includeCluster(rightCluster) && !leftData.getRepresentedClusters().contains(rightCluster)) {
+					Log.log("Copying right cluster %s because it does not appear in the left side.", rightCluster.name);
+
+					mergedGraphs.add(new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) rightData
+							.getClusterGraph(rightCluster)));
+				}
+			}
 		}
 
 		if (strategy == GraphMergeStrategy.TAG) {
