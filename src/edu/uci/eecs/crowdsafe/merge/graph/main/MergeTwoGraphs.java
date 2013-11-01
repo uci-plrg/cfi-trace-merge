@@ -4,11 +4,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
+import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareModule;
+import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
@@ -21,8 +27,8 @@ import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeAnalysis;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchState;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.MaximalSubgraphs;
@@ -170,6 +176,8 @@ public class MergeTwoGraphs {
 					writer.writeGraph();
 				}
 			}
+		} catch (Log.OutputException e) {
+			e.printStackTrace();
 		} catch (Throwable t) {
 			if (parsingArguments) {
 				t.printStackTrace();
@@ -200,16 +208,16 @@ public class MergeTwoGraphs {
 		}
 
 		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
-		List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (!options.includeCluster(leftCluster))
 				continue;
 
-			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isDynamic()) {
-				if (leftCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER)
-					// cast is ok because tag merge only works on cluster graphs
-					dynamicGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
+			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isAnonymous()) {
+				// if (leftCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER)
+				// cast is ok because tag merge only works on cluster graphs
+				anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
 				continue;
 			}
 
@@ -271,8 +279,10 @@ public class MergeTwoGraphs {
 		}
 
 		if (strategy == GraphMergeStrategy.TAG) {
-			ClusterHashMergeAnalysis dynamicResults = new ClusterHashMergeAnalysis();
+			ClusterHashMergeAnalysis anonymousResults = new ClusterHashMergeAnalysis();
 
+			/**
+			 * <pre>
 			ModuleGraphCluster<?> leftDynamorioGraph = leftData
 					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
 			ModuleGraphCluster<?> rightDynamorioGraph = rightData
@@ -280,24 +290,22 @@ public class MergeTwoGraphs {
 
 			DynamoHashMatchEvaluator dynamoEvaluator = new DynamoHashMatchEvaluator();
 			ClusterGraph mergedDynamoGraph = ClusterHashMergeSession.mergeTwoGraphs(leftDynamorioGraph,
-					rightDynamorioGraph, dynamoEvaluator, dynamicResults, debugLog);
+					rightDynamorioGraph, dynamoEvaluator, anonymousResults, debugLog);
 			mergedDynamoGraph.graph.analyzeGraph();
 			mergedGraphs.add(mergedDynamoGraph);
+			 */
 
 			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-				if (rightCluster.isDynamic() && (rightCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER))
+				if (rightCluster.isAnonymous()) // && (rightCluster !=
+												// ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER))
 					// cast is ok because tag merge only works on cluster graphs
-					dynamicGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
+					anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
 			}
-			List<ClusterGraph> mergedDyanmicGraphs = mergeDynamicClusters(dynamicGraphs);
-			Log.log("Found %d unique dynamic subgraphs:", mergedDyanmicGraphs.size());
-			for (ClusterGraph mergedDyanmicGraph : mergedDyanmicGraphs) {
-				mergedDyanmicGraph.graph.logGraph();
-			}
-			mergedGraphs.addAll(mergedDyanmicGraphs);
+			ClusterGraph anonymousGraph = createAnonymousGraph(anonymousGraphs);
+			mergedGraphs.add(anonymousGraph);
 
 			if (logFile != null)
-				writeResults(dynamicResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
+				writeResults(anonymousResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
 		}
 
 		results.setGraphSummaries(leftData.summarizeGraph(), rightData.summarizeGraph());
@@ -313,7 +321,9 @@ public class MergeTwoGraphs {
 		return mergedGraphs;
 	}
 
-	private List<ClusterGraph> mergeDynamicClusters(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {
+	private ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {
+		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
+		// dynamic and static graphs
 		List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : dynamicGraphs) {
 			maximalSubgraphs.addAll(MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph));
@@ -336,11 +346,38 @@ public class MergeTwoGraphs {
 			uniqueMaximalSubgraphs.add(maximalSubgraph);
 		}
 
-		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
+		// Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
+		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+		Log.log("Found %d unique dynamic subgraphs:", uniqueMaximalSubgraphs.size());
 		for (ModuleGraphCluster<ClusterNode<?>> uniqueMaximalSubgraph : uniqueMaximalSubgraphs) {
-			mergedGraphs.add(new ClusterGraph(uniqueMaximalSubgraph));
+			uniqueMaximalSubgraph.logGraph();
+
+			for (ClusterNode<?> node : uniqueMaximalSubgraph.getAllNodes()) {
+				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
+						node.getRelativeTag(), node.getType());
+				// copyMap.put(node, copy);
+			}
+
+			for (ClusterNode<?> node : uniqueMaximalSubgraph.getAllNodes()) {
+				OrdinalEdgeList<?> edges = node.getOutgoingEdges();
+				try {
+					for (Edge<? extends Node<?>> edge : edges) {
+						ClusterNode<?> fromNode = anonymousGraph.graph.getNode(node.getKey());
+						ClusterNode<?> toNode = anonymousGraph.graph.getNode(edge.getToNode().getKey());
+						Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
+								edge.getEdgeType(), edge.getOrdinal());
+						fromNode.addOutgoingEdge(mergedEdge);
+						toNode.addIncomingEdge(mergedEdge);
+					}
+				} finally {
+					edges.release();
+				}
+			}
+
+			// copyMap.clear();
 		}
-		return mergedGraphs;
+
+		return anonymousGraph;
 	}
 
 	private GraphMergeCandidate loadMergeCandidate(String path) throws IOException {
