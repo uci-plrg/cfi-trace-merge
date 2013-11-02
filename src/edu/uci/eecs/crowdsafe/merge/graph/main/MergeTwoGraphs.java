@@ -346,24 +346,24 @@ public class MergeTwoGraphs {
 			uniqueMaximalSubgraphs.add(maximalSubgraph);
 		}
 
-		// Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
+		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
 		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
-		Log.log("Found %d unique dynamic subgraphs:", uniqueMaximalSubgraphs.size());
+		Log.log("\nFound %d unique dynamic subgraphs:", uniqueMaximalSubgraphs.size());
 		for (ModuleGraphCluster<ClusterNode<?>> uniqueMaximalSubgraph : uniqueMaximalSubgraphs) {
 			uniqueMaximalSubgraph.logGraph();
 
 			for (ClusterNode<?> node : uniqueMaximalSubgraph.getAllNodes()) {
 				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
 						node.getRelativeTag(), node.getType());
-				// copyMap.put(node, copy);
+				copyMap.put(node, copy);
 			}
 
 			for (ClusterNode<?> node : uniqueMaximalSubgraph.getAllNodes()) {
 				OrdinalEdgeList<?> edges = node.getOutgoingEdges();
 				try {
 					for (Edge<? extends Node<?>> edge : edges) {
-						ClusterNode<?> fromNode = anonymousGraph.graph.getNode(node.getKey());
-						ClusterNode<?> toNode = anonymousGraph.graph.getNode(edge.getToNode().getKey());
+						ClusterNode<?> fromNode = copyMap.get(edge.getFromNode());
+						ClusterNode<?> toNode = copyMap.get(edge.getToNode());
 						Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
 								edge.getEdgeType(), edge.getOrdinal());
 						fromNode.addOutgoingEdge(mergedEdge);
@@ -374,7 +374,7 @@ public class MergeTwoGraphs {
 				}
 			}
 
-			// copyMap.clear();
+			copyMap.clear();
 		}
 
 		return anonymousGraph;
