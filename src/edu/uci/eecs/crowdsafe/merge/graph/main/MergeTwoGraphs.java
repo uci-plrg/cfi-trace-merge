@@ -37,6 +37,33 @@ import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
 
 public class MergeTwoGraphs {
 
+	public interface MergeCompletion {
+		void mergeCompleted(ClusterGraph mergedGraph) throws IOException;
+	}
+
+	public static class WriteCompletedGraphs implements MergeCompletion {
+		private final ClusterTraceDataSink dataSink;
+		private final String filenameFormat;
+
+		public WriteCompletedGraphs(ClusterTraceDataSink dataSink, String filenameFormat) {
+			this.dataSink = dataSink;
+			this.filenameFormat = filenameFormat;
+		}
+
+		@Override
+		public void mergeCompleted(ClusterGraph mergedGraph) throws IOException {
+			dataSink.addCluster(mergedGraph.graph.cluster, filenameFormat);
+			ClusterGraphWriter writer = new ClusterGraphWriter(mergedGraph, dataSink);
+			writer.writeGraph();
+		}
+	}
+
+	public static class IgnoreMergeCompletion implements MergeCompletion {
+		@Override
+		public void mergeCompleted(ClusterGraph mergedGraph) throws IOException {
+		}
+	}
+
 	private static class DynamoHashMatchEvaluator implements ContextMatchState.Evaluator {
 		@Override
 		public int evaluateMatch(ContextMatchState state) {
@@ -67,7 +94,8 @@ public class MergeTwoGraphs {
 		return String.format("%s.dynamic.log", resultsFilename);
 	}
 
-	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l');
+	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l',
+			"merge.log");
 	private static final OptionArgumentMap.StringOption strategyOption = OptionArgumentMap.createStringOption('s',
 			GraphMergeStrategy.TAG.id);
 	private static final OptionArgumentMap.StringOption nameOption = OptionArgumentMap.createStringOption('n');
@@ -149,13 +177,8 @@ public class MergeTwoGraphs {
 				System.err
 						.println(String.format(" *** Warning: entering loop of %d merge iterations!", iterationCount));
 
-			List<ClusterGraph> mergedGraphs = null;
-			for (int i = 0; i < iterationCount; i++) {
-				mergedGraphs = merge(leftCandidate, rightCandidate, strategy, logFile);
-			}
-
+			WriteCompletedGraphs completion = null;
 			File outputDir = null;
-
 			if (outputOption.hasValue())
 				outputDir = new File(outputOption.getValue());
 			else if (inPlaceOption.hasValue())
@@ -163,19 +186,20 @@ public class MergeTwoGraphs {
 			if (outputDir != null) {
 				outputDir.mkdir();
 
-				ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
+				ClusterTraceDataSink dataSink = dataSink = new ClusterTraceDirectory(outputDir);
 				String filenameFormat = "%s.%%s.%%s.%%s";
 				if (nameOption.hasValue()) {
 					filenameFormat = String.format(filenameFormat, nameOption.getValue());
 				} else {
 					filenameFormat = String.format(filenameFormat, rightCandidate.parseTraceName());
 				}
-				for (ClusterGraph graph : mergedGraphs) {
-					dataSink.addCluster(graph.graph.cluster, filenameFormat);
-					ClusterGraphWriter writer = new ClusterGraphWriter(graph, dataSink);
-					writer.writeGraph();
-				}
+				completion = new WriteCompletedGraphs(dataSink, filenameFormat);
 			}
+
+			for (int i = 0; i < iterationCount; i++) {
+				merge(leftCandidate, rightCandidate, strategy, logFile, completion);
+			}
+
 		} catch (Log.OutputException e) {
 			e.printStackTrace();
 		} catch (Throwable t) {
@@ -191,8 +215,8 @@ public class MergeTwoGraphs {
 	}
 
 	@SuppressWarnings("unchecked")
-	List<ClusterGraph> merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, GraphMergeStrategy strategy,
-			File logFile) throws IOException {
+	void merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, GraphMergeStrategy strategy, File logFile,
+			MergeCompletion completion) throws IOException {
 		long mergeStart = System.currentTimeMillis();
 
 		MergeResults results;
@@ -207,9 +231,9 @@ public class MergeTwoGraphs {
 				throw new IllegalArgumentException("Unknown merge strategy " + strategy);
 		}
 
-		List<ClusterGraph> mergedGraphs = new ArrayList<ClusterGraph>();
 		List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
+		// cs-todo: this can be multi-threaded for large training datasets
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (!options.includeCluster(leftCluster))
 				continue;
@@ -264,7 +288,8 @@ public class MergeTwoGraphs {
 				mergedGraph.graph.analyzeGraph();
 			}
 
-			mergedGraphs.add(mergedGraph);
+			completion.mergeCompleted(mergedGraph);
+			System.gc();
 		}
 
 		if (strategy == GraphMergeStrategy.TAG) {
@@ -272,7 +297,7 @@ public class MergeTwoGraphs {
 				if (options.includeCluster(rightCluster) && !leftData.getRepresentedClusters().contains(rightCluster)) {
 					Log.log("Copying right cluster %s because it does not appear in the left side.", rightCluster.name);
 
-					mergedGraphs.add(new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) rightData
+					completion.mergeCompleted(new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) rightData
 							.getClusterGraph(rightCluster)));
 				}
 			}
@@ -292,7 +317,7 @@ public class MergeTwoGraphs {
 			ClusterGraph mergedDynamoGraph = ClusterHashMergeSession.mergeTwoGraphs(leftDynamorioGraph,
 					rightDynamorioGraph, dynamoEvaluator, anonymousResults, debugLog);
 			mergedDynamoGraph.graph.analyzeGraph();
-			mergedGraphs.add(mergedDynamoGraph);
+			completion.mergeCompleted(mergedDynamoGraph);
 			 */
 
 			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
@@ -302,7 +327,7 @@ public class MergeTwoGraphs {
 					anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
 			}
 			ClusterGraph anonymousGraph = createAnonymousGraph(anonymousGraphs);
-			mergedGraphs.add(anonymousGraph);
+			completion.mergeCompleted(anonymousGraph);
 
 			if (logFile != null)
 				writeResults(anonymousResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
@@ -317,8 +342,6 @@ public class MergeTwoGraphs {
 		} else {
 			Log.log("Results logging skipped.");
 		}
-
-		return mergedGraphs;
 	}
 
 	private ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {

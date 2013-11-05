@@ -161,6 +161,11 @@ public class ClusterGraphTraining {
 					Log.addThreadOutput(logFile);
 					dataset.loadData();
 
+					ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
+					String filenameFormat = "dataset.%s.%s.%s";
+					MergeTwoGraphs.WriteCompletedGraphs completion = new MergeTwoGraphs.WriteCompletedGraphs(dataSink,
+							filenameFormat);
+
 					PrintWriter sequenceWriter = new PrintWriter(currentConfiguration.sequenceFile);
 					try {
 						Log.sharedLog("Thread %d training cluster %s", index, currentConfiguration.cluster.name);
@@ -176,14 +181,8 @@ public class ClusterGraphTraining {
 
 							instance.loadData();
 							sequenceWriter.println(MergeTwoGraphs.getCorrespondingResultsFilename(logFile));
-							executor.merge(instance, dataset, strategy, logFile);
+							executor.merge(instance, dataset, strategy, logFile, completion);
 						}
-
-						ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
-						String filenameFormat = "dataset.%s.%s.%s";
-						dataSink.addCluster(currentConfiguration.cluster, filenameFormat);
-						ClusterGraphWriter writer = new ClusterGraphWriter(dataset.graph, dataSink);
-						writer.writeGraph();
 					} finally {
 						sequenceWriter.flush();
 						sequenceWriter.close();

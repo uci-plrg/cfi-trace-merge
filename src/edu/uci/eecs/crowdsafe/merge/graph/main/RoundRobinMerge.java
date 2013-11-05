@@ -99,6 +99,8 @@ public class RoundRobinMerge {
 		@Override
 		public void run() {
 			try {
+				MergeTwoGraphs.IgnoreMergeCompletion completion = new MergeTwoGraphs.IgnoreMergeCompletion();
+
 				while (true) {
 					MergePair merge = getNextMergePair();
 					if (merge == null)
@@ -116,7 +118,7 @@ public class RoundRobinMerge {
 							merge.left.clusters, debugLog);
 					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedClusters(merge.right.name,
 							merge.right.clusters, debugLog);
-					executor.merge(leftCandidate, rightCandidate, strategy, logFile);
+					executor.merge(leftCandidate, rightCandidate, strategy, logFile, completion);
 				}
 			} catch (Throwable t) {
 				fail(t, String.format("\t@@@@ Merge %s on thread %d failed with %s @@@@", currentMergeName, index, t

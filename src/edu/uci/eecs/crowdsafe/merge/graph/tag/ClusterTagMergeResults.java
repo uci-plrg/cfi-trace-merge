@@ -63,6 +63,7 @@ public class ClusterTagMergeResults implements MergeResults {
 			}
 
 			builder.results.addCluster(builder.cluster.build());
+			session = null;
 		}
 	}
 

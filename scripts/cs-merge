@@ -6,7 +6,7 @@ function print_usage() {
   echo "Usage: cs-merge <left-run-dir> <right-run-dir>"
   echo "Usage: cs-merge -n <output-name> -o <output-dir> <left-run-dir> <right-run-dir>"
   echo "Usage: cs-merge -i <in-place-dir> <other-run-dir>"
-  echo "\t-l <log-file-basename>"
+  echo "\t[ -l <log-file-basename> (default \"merge.log\" ]"
   echo "\t-c <cluster-name>,... (include only these clusters)"
   echo "\t-x <cluster-name>,... (exclude these clusters)"
   echo "\t-d <crowd-safe-common-dir>"
