@@ -42,10 +42,15 @@ public class ClusterHashMatchEngine {
 
 	public void getContextSimilarity(Node<?> leftNode, Node<?> rightNode, int depth) {
 		// Check if either node was already matched to another node; if so, fail
-		if ((session.matchedNodes.containsLeftKey(leftNode.getKey()) || session.matchedNodes.containsRightKey(rightNode
-				.getKey())) && !session.matchedNodes.hasPair(leftNode.getKey(), rightNode.getKey())) {
-			session.contextRecord.fail();
-			return;
+		if (!session.matchedNodes.hasPair(leftNode.getKey(), rightNode.getKey())) {
+			if (session.matchedNodes.containsLeftKey(leftNode.getKey())) {
+				session.contextRecord.fail("Already matched %s", leftNode);
+				return;
+			}
+			if (session.matchedNodes.containsRightKey(rightNode.getKey())) {
+				session.contextRecord.fail("Already matched %s", rightNode);
+				return;
+			}
 		}
 
 		if (depth <= 0)
@@ -58,7 +63,7 @@ public class ClusterHashMatchEngine {
 		session.contextRecord.addComparedNode(rightNode);
 
 		if (!leftNode.hasCompatibleEdges(rightNode)) {
-			session.contextRecord.fail();
+			session.contextRecord.fail("Incompatible edges: %s and %s", leftNode, rightNode);
 			return;
 		}
 
@@ -88,7 +93,8 @@ public class ClusterHashMatchEngine {
 			if ((rightEdge = rightNode.getCallContinuation()) != null
 					&& (leftEdge = leftNode.getCallContinuation()) != null) {
 				if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
-					session.contextRecord.fail();
+					session.contextRecord.fail("Differing hashes: %s and %s", leftEdge.getToNode(),
+							rightEdge.getToNode());
 					return;
 				}
 				getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
@@ -130,10 +136,12 @@ public class ClusterHashMatchEngine {
 					}
 					if (matchCount == Math.min(leftEdges.size(), rightEdges.size())) {
 						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
-					} else if ((leftEdges.size() > 1) || (rightEdges.size() > 1)) {
-						session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
+						/*
+						 * } else if ((leftEdges.size() > 1) || (rightEdges.size() > 1)) {
+						 * session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
+						 */
 					} else {
-						session.contextRecord.fail();
+						session.contextRecord.fail("Direct edge mismatch: %s and %s", leftNode, rightNode);
 						return;
 					}
 					break;
@@ -192,7 +200,7 @@ public class ClusterHashMatchEngine {
 		List<Node<?>> leftCandidates = new ArrayList<Node<?>>();
 		for (int i = 0; i < leftNodes.size(); i++) {
 			Node<?> leftNode = leftNodes.get(i);
-			
+
 			// narrow by tag
 			if (leftNode.isModuleRelativeMismatch(rightNode))
 				continue;
@@ -399,7 +407,7 @@ public class ClusterHashMatchEngine {
 					&& leftChild.getModule().isEquivalent(rightToNode.getModule())) {
 				if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
 					continue;
-				
+
 				// narrow by tag
 				if (leftChild.isModuleRelativeMismatch(rightToNode))
 					continue;
@@ -486,24 +494,15 @@ public class ClusterHashMatchEngine {
 				rightEdges = right.getOutgoingEdges(ordinal);
 
 				for (int i = 0; i < leftEdges.size(); i++) {
-					if (!isHashIdenticalSubgraph(leftEdges.get(i).getToNode(), rightEdges.get(i).getToNode(),
-							depth - 1))
+					if (!isHashIdenticalSubgraph(leftEdges.get(i).getToNode(), rightEdges.get(i).getToNode(), depth - 1))
 						return false;
 				}
-				
+
 				/*
-				switch (left.getOrdinalEdgeType(ordinal)) {
-					case DIRECT:
-						for (int i = 0; i < leftEdges.size(); i++) {
-							if (!isHashIdenticalSubgraph(leftEdges.get(i).getToNode(), rightEdges.get(i).getToNode(),
-									depth - 1))
-								return false;
-						}
-						break;
-					case INDIRECT:
-					case UNEXPECTED_RETURN:
-				}
-				*/
+				 * switch (left.getOrdinalEdgeType(ordinal)) { case DIRECT: for (int i = 0; i < leftEdges.size(); i++) {
+				 * if (!isHashIdenticalSubgraph(leftEdges.get(i).getToNode(), rightEdges.get(i).getToNode(), depth - 1))
+				 * return false; } break; case INDIRECT: case UNEXPECTED_RETURN: }
+				 */
 			} finally {
 				leftEdges.release();
 				if (rightEdges != null)

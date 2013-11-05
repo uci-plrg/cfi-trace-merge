@@ -6,6 +6,7 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
@@ -32,7 +33,15 @@ public class ClusterHashMergeSession {
 		session.contextRecord.setEvaluator(matchEvaluator);
 		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
 		engine.mergeGraph();
-		return session.matchedNodes.size() == Math.max(left.getNodeCount(), right.getNodeCount());
+
+		if (session.matchedNodes.size() == Math.max(left.getNodeCount(), right.getNodeCount()))
+			return true;
+
+		Log.log("Rejecting match of %d nodes for graphs of size %d (%f%%) and %d (%f%%)", session.matchedNodes.size(),
+				left.getNodeCount(), (session.matchedNodes.size() / (float) left.getNodeCount()) * 100f,
+				right.getNodeCount(), (session.matchedNodes.size() / (float) right.getNodeCount()) * 100f);
+
+		return false;
 	}
 
 	private static ClusterGraph mergeTwoGraphs(ClusterHashMergeSession session) {
@@ -120,7 +129,7 @@ public class ClusterHashMergeSession {
 
 	boolean acceptContext(Node<?> candidate) {
 		int score = contextRecord.evaluate();
-		if (score < 7) // TODO: should be configurable also
+		if (score < 0)
 			return false;
 		setScore(candidate, score);
 		return true;

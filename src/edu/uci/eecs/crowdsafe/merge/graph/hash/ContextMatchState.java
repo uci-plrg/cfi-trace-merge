@@ -24,7 +24,11 @@ public class ContextMatchState {
 		target.complete = complete;
 		target.fail = false;
 	}
-
+	
+	public boolean isFailed() {
+		return fail;
+	}
+	
 	public int getMatchedNodeCount() {
 		return matchedNodeCount;
 	}

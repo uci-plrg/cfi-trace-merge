@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.common.log.Log;
 
 public class ContextMatchRecord {
 
@@ -104,9 +105,11 @@ public class ContextMatchRecord {
 		this.evaluator = evaluator;
 	}
 
-	public void fail() {
+	public void fail(String format, Object... args) {
 		if ((leftSubtreeRoot.getKey().equals(rightSubtreeRoot.getKey())) && (stateIndex == 0))
 			currentState.mismatch = true; // could store location of mismatch by taking current L/R pair as args
+
+		Log.log("Fail: " + format, args);
 
 		currentState.fail = true;
 	}

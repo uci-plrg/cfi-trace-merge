@@ -1,5 +1,6 @@
 package edu.uci.eecs.crowdsafe.merge.graph.main;
 
+import java.awt.im.spi.InputMethodContext;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,23 +65,18 @@ public class MergeTwoGraphs {
 		}
 	}
 
-	private static class DynamoHashMatchEvaluator implements ContextMatchState.Evaluator {
-		@Override
-		public int evaluateMatch(ContextMatchState state) {
-			if (state.isComplete() && (state.getMatchedNodeCount() > 0))
-				return 1000;
-			else
-				return -1;
-		}
-	}
-
 	private static class DynamicHashMatchEvaluator implements ContextMatchState.Evaluator {
 		@Override
 		public int evaluateMatch(ContextMatchState state) {
 			if (state.isComplete() && (state.getMatchedNodeCount() > 0))
 				return 1000;
-			else
-				return -1;
+
+			Log.log("Rejecting match of %d nodes among %d comparisons (%f%%)", state.getMatchedNodeCount(),
+					state.getComparedNodeCount(),
+					(state.getMatchedNodeCount() / (float) state.getComparedNodeCount()) * 100f);
+
+			throw new RuntimeException("really?");
+			// return -1;
 		}
 	}
 
@@ -171,13 +167,14 @@ public class MergeTwoGraphs {
 			options.initializeGraphEnvironment();
 
 			GraphMergeCandidate leftCandidate = loadMergeCandidate(leftPath);
-			GraphMergeCandidate rightCandidate = loadMergeCandidate(rightPath);
+			GraphMergeCandidate rightCandidate = (leftPath.equals(rightPath) ? leftCandidate
+					: loadMergeCandidate(rightPath));
 
 			if (iterationCount > 1)
 				System.err
 						.println(String.format(" *** Warning: entering loop of %d merge iterations!", iterationCount));
 
-			WriteCompletedGraphs completion = null;
+			MergeCompletion completion = new IgnoreMergeCompletion();
 			File outputDir = null;
 			if (outputOption.hasValue())
 				outputDir = new File(outputOption.getValue());
@@ -292,7 +289,7 @@ public class MergeTwoGraphs {
 			System.gc();
 		}
 
-		if (strategy == GraphMergeStrategy.TAG) {
+		if ((strategy == GraphMergeStrategy.TAG) && (rightData != leftData)) {
 			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
 				if (options.includeCluster(rightCluster) && !leftData.getRepresentedClusters().contains(rightCluster)) {
 					Log.log("Copying right cluster %s because it does not appear in the left side.", rightCluster.name);
@@ -306,25 +303,16 @@ public class MergeTwoGraphs {
 		if (strategy == GraphMergeStrategy.TAG) {
 			ClusterHashMergeAnalysis anonymousResults = new ClusterHashMergeAnalysis();
 
-			/**
-			 * <pre>
-			ModuleGraphCluster<?> leftDynamorioGraph = leftData
-					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
-			ModuleGraphCluster<?> rightDynamorioGraph = rightData
-					.getClusterGraph(ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER);
+			if (rightData != leftData) {
+				for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
+					if (!options.includeCluster(rightCluster))
+						continue;
 
-			DynamoHashMatchEvaluator dynamoEvaluator = new DynamoHashMatchEvaluator();
-			ClusterGraph mergedDynamoGraph = ClusterHashMergeSession.mergeTwoGraphs(leftDynamorioGraph,
-					rightDynamorioGraph, dynamoEvaluator, anonymousResults, debugLog);
-			mergedDynamoGraph.graph.analyzeGraph();
-			completion.mergeCompleted(mergedDynamoGraph);
-			 */
-
-			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-				if (rightCluster.isAnonymous()) // && (rightCluster !=
-												// ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER))
-					// cast is ok because tag merge only works on cluster graphs
-					anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
+					if (rightCluster.isAnonymous())
+						// cast is ok because tag merge only works on cluster graphs
+						anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
+								.getClusterGraph(rightCluster));
+				}
 			}
 			ClusterGraph anonymousGraph = createAnonymousGraph(anonymousGraphs);
 			completion.mergeCompleted(anonymousGraph);
@@ -347,14 +335,59 @@ public class MergeTwoGraphs {
 	private ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {
 		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
 		// dynamic and static graphs
+
+		int totalSize = 0;
+		int minSize = Integer.MAX_VALUE;
+		int maxSize = 0;
 		List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : dynamicGraphs) {
-			maximalSubgraphs.addAll(MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph));
+			for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : MaximalSubgraphs
+					.getMaximalSubgraphs(dynamicGraph)) {
+				int size = maximalSubgraph.getNodeCount();
+				totalSize += size;
+				if (size < minSize)
+					minSize = size;
+				if (size > maxSize)
+					maxSize = size;
+
+				maximalSubgraphs.add(maximalSubgraph);
+			}
 		}
+
+		int averageSize = totalSize / maximalSubgraphs.size();
+		int twiceAverage = averageSize * 2;
+		int thriceAverage = averageSize * 3;
+		int halfAverage = averageSize / 2;
+		int subgraphsOverTwiceAverage = 0;
+		int subgraphsOverThriceAverage = 0;
+		int subgraphsUnderHalfAverage = 0;
+		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : maximalSubgraphs) {
+			int size = maximalSubgraph.getNodeCount();
+			if (size > twiceAverage) {
+				subgraphsOverTwiceAverage++;
+				if (size > thriceAverage)
+					subgraphsOverThriceAverage++;
+			} else if (size < halfAverage) {
+				subgraphsUnderHalfAverage++;
+			}
+		}
+
+		Log.log("Found %d maximal subgraphs.", maximalSubgraphs.size());
+		Log.log("Min size %d, max size %d, average size %d", minSize, maxSize, averageSize);
+		Log.log("Over twice average %d, over thrice average %d, under half average %d", subgraphsOverTwiceAverage,
+				subgraphsOverThriceAverage, subgraphsUnderHalfAverage);
+
+		List<ModuleGraphCluster<ClusterNode<?>>> largeSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
 		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
 		List<ModuleGraphCluster<ClusterNode<?>>> uniqueMaximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : maximalSubgraphs) {
+			if (maximalSubgraph.getNodeCount() > twiceAverage) {
+				Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());
+				largeSubgraphs.add(maximalSubgraph);
+				continue;
+			}
+
 			boolean match = false;
 			for (int i = 0; i < uniqueMaximalSubgraphs.size(); i++) {
 				match = ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraph, uniqueMaximalSubgraphs.get(i),
