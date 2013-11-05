@@ -284,8 +284,8 @@ public class MergeTwoGraphs {
 						throw new IllegalArgumentException("Unknown merge strategy " + strategy);
 				}
 
-				Log.log("Checking reachability on the merged graph.");
-				mergedGraph.graph.analyzeGraph();
+				// Log.log("Checking reachability on the merged graph.");
+				// mergedGraph.graph.analyzeGraph();
 			}
 
 			completion.mergeCompleted(mergedGraph);
