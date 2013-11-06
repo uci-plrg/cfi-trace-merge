@@ -67,6 +67,7 @@ public class MergeTwoGraphs {
 	}
 
 	private static class DynamicHashMatchEvaluator implements ClusterHashMergeSession.MergeEvaluator {
+		boolean mergeMode = false;
 		boolean exactMatch;
 		int greaterMatchPercentage;
 
@@ -96,6 +97,9 @@ public class MergeTwoGraphs {
 
 		@Override
 		public boolean acceptGraphs(ClusterHashMergeSession session) {
+			if (mergeMode)
+				return true;
+
 			ModuleGraphCluster<?> left = session.getLeft();
 			ModuleGraphCluster<?> right = session.getRight();
 			HashMatchedNodes matchedNodes = session.getMatchedNodes();
@@ -116,8 +120,8 @@ public class MergeTwoGraphs {
 			if (greaterMatchPercentage > 50)
 				return true;
 
-			Log.log("Rejecting match of %d nodes for graphs of size %d (%d%%) and %d (%d%%)", matchedNodes.size(),
-					left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
+			// Log.log("Rejecting match of %d nodes for graphs of size %d (%d%%) and %d (%d%%)", matchedNodes.size(),
+			// left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
 			return false;
 		}
 	}
@@ -426,11 +430,11 @@ public class MergeTwoGraphs {
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
 		boolean match;
 		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : maximalSubgraphs) {
-			if (maximalSubgraph.getNodeCount() > twiceAverage) {
-				Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());
-				largeSubgraphs.add(maximalSubgraph);
-				continue;
-			}
+			// if (maximalSubgraph.getNodeCount() > twiceAverage) {
+			// Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());
+			// largeSubgraphs.add(maximalSubgraph);
+			// continue;
+			// }
 
 			match = false;
 			for (SubgraphCluster subgraphCluster : subgraphClusters) {
@@ -468,6 +472,8 @@ public class MergeTwoGraphs {
 			}
 		}
 
+		dynamicEvaluator.mergeMode = true;
+
 		// TODO: evaluate each cluster -> merge all its graphs together if valid
 
 		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
@@ -475,33 +481,59 @@ public class MergeTwoGraphs {
 		Log.log("\nReduced anonymous graph to %d subgraph clusters:", subgraphClusters.size());
 		for (SubgraphCluster subgraphCluster : subgraphClusters) {
 			Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
-			for (ModuleGraphCluster<ClusterNode<?>> subgraph : subgraphCluster.graphs) {
-				subgraph.logGraph();
 
-				for (ClusterNode<?> node : subgraph.getAllNodes()) {
-					ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
-							node.getRelativeTag(), node.getType());
-					copyMap.put(node, copy);
+			ModuleGraphCluster<ClusterNode<?>> graph;
+			if (subgraphCluster.graphs.size() == 1) {
+				graph = subgraphCluster.graphs.get(0);
+			} else {
+				ClusterGraph mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(subgraphCluster.graphs.get(0),
+						subgraphCluster.graphs.get(1), ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator,
+						debugLog);
+				if (mergedGraph == null) {
+					Log.log("Error! Failed to merge two subgraphs that were assigned to a cluster. Skipping the second.");
+					graph = subgraphCluster.graphs.get(0);
+				} else {
+					graph = mergedGraph.graph;
 				}
 
-				for (ClusterNode<?> node : subgraph.getAllNodes()) {
-					OrdinalEdgeList<?> edges = node.getOutgoingEdges();
-					try {
-						for (Edge<? extends Node<?>> edge : edges) {
-							ClusterNode<?> fromNode = copyMap.get(edge.getFromNode());
-							ClusterNode<?> toNode = copyMap.get(edge.getToNode());
-							Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
-									edge.getEdgeType(), edge.getOrdinal());
-							fromNode.addOutgoingEdge(mergedEdge);
-							toNode.addIncomingEdge(mergedEdge);
-						}
-					} finally {
-						edges.release();
+				for (int i = 2; i < subgraphCluster.graphs.size(); i++) {
+					mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(graph, subgraphCluster.graphs.get(i),
+							ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator, debugLog);
+					if (mergedGraph == null) {
+						Log.log("Error! Failed to merge two subgraphs that were assigned to a cluster. Skipping the second.");
+					} else {
+						graph = mergedGraph.graph;
 					}
 				}
-
-				copyMap.clear();
 			}
+
+			// for (ModuleGraphCluster<ClusterNode<?>> subgraph : subgraphCluster.graphs) {
+			// subgraph.logGraph();
+
+			for (ClusterNode<?> node : graph.getAllNodes()) {
+				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
+						node.getRelativeTag(), node.getType());
+				copyMap.put(node, copy);
+			}
+
+			for (ClusterNode<?> node : graph.getAllNodes()) {
+				OrdinalEdgeList<?> edges = node.getOutgoingEdges();
+				try {
+					for (Edge<? extends Node<?>> edge : edges) {
+						ClusterNode<?> fromNode = copyMap.get(edge.getFromNode());
+						ClusterNode<?> toNode = copyMap.get(edge.getToNode());
+						Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
+								edge.getEdgeType(), edge.getOrdinal());
+						fromNode.addOutgoingEdge(mergedEdge);
+						toNode.addIncomingEdge(mergedEdge);
+					}
+				} finally {
+					edges.release();
+				}
+			}
+
+			copyMap.clear();
+			// }
 		}
 
 		return anonymousGraph;

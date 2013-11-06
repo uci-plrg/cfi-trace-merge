@@ -80,7 +80,7 @@ public class HashMatchedNodes {
 					+ session.matchedNodes.getMatchByLeftKey(left.getKey()));
 			Log.log(session.matchedNodes.getMatchByRightKey(right.getKey()));
 
-			throw new MergedFailedException("Merge collision.");
+			return false;
 		}
 		matchedNodesLeftRight.put(leftKey, rightKey);
 		matchingScore.put(leftKey, score);

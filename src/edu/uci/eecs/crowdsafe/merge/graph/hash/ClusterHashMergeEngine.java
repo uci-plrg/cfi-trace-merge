@@ -133,8 +133,11 @@ class ClusterHashMergeEngine {
 
 							// Update matched relationship
 							if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
-								session.matchedNodes.addPair(leftChild, rightEdge.getToNode(),
-										session.getScore(leftChild));
+								if (!session.matchedNodes.addPair(leftChild, rightEdge.getToNode(),
+										session.getScore(leftChild))) {
+									session.contextRecord.fail("Already matched %s", rightNode);
+									return;
+								}
 							}
 						} else {
 							addUnmatchedNode2Queue(rightEdge.getToNode());
