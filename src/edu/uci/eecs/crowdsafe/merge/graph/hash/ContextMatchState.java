@@ -2,10 +2,6 @@ package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 public class ContextMatchState {
 
-	public interface Evaluator {
-		int evaluateMatch(ContextMatchState state);
-	}
-
 	int index;
 	int matchedNodeCount;
 	int comparedNodeCount;

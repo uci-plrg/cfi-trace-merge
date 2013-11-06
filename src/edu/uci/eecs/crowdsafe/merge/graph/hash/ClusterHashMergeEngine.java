@@ -83,7 +83,6 @@ class ClusterHashMergeEngine {
 	public void mergeGraph() {
 		session.initializeMerge();
 		findCommonSubgraphs();
-		buildMergedGraph();
 	}
 
 	private void findCommonSubgraphs() throws WrongEdgeTypeException {

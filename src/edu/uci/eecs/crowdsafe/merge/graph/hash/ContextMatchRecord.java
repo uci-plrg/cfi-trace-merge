@@ -23,37 +23,11 @@ public class ContextMatchRecord {
 		EdgeMatchType type;
 	}
 
-	private static class DefaultEvaluator implements ContextMatchState.Evaluator {
-		@Override
-		public int evaluateMatch(ContextMatchState state) {
-			if (state.complete) {
-				if (state.reachedTargetDepth)
-					return 10000;
-				else if (state.reachedTargetDepth)
-					return 1000;
-				else
-					return state.matchedNodeCount * 3;
-			}
-
-			if (state.reachedTargetDepth) {
-				if (state.hasAmbiguity)
-					return state.matchedNodeCount * 2;
-				else
-					return state.matchedNodeCount * 10;
-			} else {
-				if (state.hasAmbiguity)
-					return state.matchedNodeCount / 2;
-				else
-					return state.matchedNodeCount;
-			}
-		}
-	}
-
 	private static final int INITIAL_COMPARISON_COUNT = 100;
 	private static final int INITIAL_STATE_COUNT = 20;
 
 	private final ContextMatchState currentState = new ContextMatchState();
-	private ContextMatchState.Evaluator evaluator;
+	private ClusterHashMergeSession.MergeEvaluator evaluator;
 
 	private final List<EdgeComparison> edges = new ArrayList<EdgeComparison>(INITIAL_COMPARISON_COUNT);
 
@@ -69,10 +43,10 @@ public class ContextMatchRecord {
 	private Node<?> rightSubtreeRoot;
 
 	public ContextMatchRecord() {
-		this(new DefaultEvaluator());
+		this(new ClusterHashMergeSession.DefaultEvaluator());
 	}
 
-	public ContextMatchRecord(ContextMatchState.Evaluator evaluator) {
+	public ContextMatchRecord(ClusterHashMergeSession.MergeEvaluator evaluator) {
 		this.evaluator = evaluator;
 
 		for (int i = 0; i < INITIAL_COMPARISON_COUNT; i++) {
@@ -101,7 +75,7 @@ public class ContextMatchRecord {
 		this.rightSubtreeRoot = rightSubtreeRoot;
 	}
 
-	void setEvaluator(ContextMatchState.Evaluator evaluator) {
+	void setEvaluator(ClusterHashMergeSession.MergeEvaluator evaluator) {
 		this.evaluator = evaluator;
 	}
 
