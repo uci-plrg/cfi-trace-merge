@@ -11,6 +11,8 @@ import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 public class ClusterHashMergeSession {
 
 	public interface MergeEvaluator {
+		void reset();
+
 		boolean attemptMerge(ClusterHashMergeSession session);
 
 		int evaluateMatch(ContextMatchState state);
@@ -19,6 +21,10 @@ public class ClusterHashMergeSession {
 	}
 
 	public static class DefaultEvaluator implements ClusterHashMergeSession.MergeEvaluator {
+		@Override
+		public void reset() {
+		}
+
 		@Override
 		public boolean attemptMerge(ClusterHashMergeSession session) {
 			return true;
@@ -56,6 +62,7 @@ public class ClusterHashMergeSession {
 
 	public static boolean evaluateTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
 			MergeEvaluator mergeEvaluator, ClusterHashMergeDebugLog debugLog) {
+		mergeEvaluator.reset();
 		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right,
 				ClusterHashMergeResults.Empty.INSTANCE, debugLog);
 
@@ -71,12 +78,14 @@ public class ClusterHashMergeSession {
 
 	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
 			ClusterHashMergeResults results, MergeEvaluator mergeEvaluator, ClusterHashMergeDebugLog debugLog) {
+		mergeEvaluator.reset();
 		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
 		return mergeTwoGraphs(session, mergeEvaluator);
 	}
 
 	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
 			MergeEvaluator mergeEvaluator, ClusterHashMergeResults results, ClusterHashMergeDebugLog debugLog) {
+		mergeEvaluator.reset();
 		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
 		session.contextRecord.setEvaluator(mergeEvaluator);
 		return mergeTwoGraphs(session, mergeEvaluator);
@@ -183,6 +192,10 @@ public class ClusterHashMergeSession {
 
 	public void setMatchEvaluator(ClusterHashMergeSession.MergeEvaluator evaluator) {
 		contextRecord.setEvaluator(evaluator);
+	}
+
+	public boolean isFailed() {
+		return contextRecord.isFailed();
 	}
 
 	boolean acceptContext(Node<?> candidate) {
