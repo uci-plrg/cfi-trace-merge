@@ -25,6 +25,8 @@ import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMatchedNodes;
 public class AnonymousGraphMergeEngine {
 
 	private static class DynamicHashMatchEvaluator implements ClusterHashMergeSession.MergeEvaluator {
+		private int reportCount = 0;
+
 		boolean mergeMode;
 		boolean exactMatch;
 		boolean isFailed;
@@ -70,36 +72,51 @@ public class AnonymousGraphMergeEngine {
 			if (mergeMode)
 				return true;
 
-			if (session.isFailed()) {
-				greaterMatchPercentage = -1;
-				isFailed = true;
-				exactMatch = false;
-				return false;
-			}
-
 			ModuleGraphCluster<?> left = session.getLeft();
 			ModuleGraphCluster<?> right = session.getRight();
 			HashMatchedNodes matchedNodes = session.getMatchedNodes();
 
-			if (matchedNodes.size() == Math.min(left.getNodeCount(), right.getNodeCount())) {
-				greaterMatchPercentage = 100;
-				exactMatch = true;
-				return true;
+			try {
+				if (session.isFailed()) {
+					greaterMatchPercentage = -1;
+					isFailed = true;
+					exactMatch = false;
+					return false;
+				}
+
+				if (matchedNodes.size() == Math.min(left.getNodeCount(), right.getNodeCount())) {
+					greaterMatchPercentage = 100;
+					exactMatch = true;
+					return true;
+				}
+
+				// TODO: may want to tag subgraphs with an id representing the original anonymous module, to use as a
+				// hint
+
+				exactMatch = false;
+				int leftMatchPercentage = Math.round((matchedNodes.size() / (float) left.getNodeCount()) * 100f);
+				int rightMatchPercentage = Math.round((matchedNodes.size() / (float) right.getNodeCount()) * 100f);
+				greaterMatchPercentage = Math.max(leftMatchPercentage, rightMatchPercentage);
+
+				if (greaterMatchPercentage > 50)
+					return true;
+
+				// Log.log("Rejecting match of %d nodes for graphs of size %d (%d%%) and %d (%d%%)",
+				// matchedNodes.size(),
+				// left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
+				return false;
+			} finally {
+				if ((left.getExecutableNodeCount() < 20) && (right.getExecutableNodeCount() < 20)) {
+					Log.log("\nEvaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
+							left.getExecutableNodeCount(), right.getExecutableNodeCount(), greaterMatchPercentage,
+							exactMatch, isFailed);
+					left.logGraph();
+					right.logGraph();
+					reportCount++;
+					if (reportCount > 50)
+						System.exit(0);
+				}
 			}
-
-			// TODO: may want to tag subgraphs with an id representing the original anonymous module, to use as a hint
-
-			exactMatch = false;
-			int leftMatchPercentage = Math.round((matchedNodes.size() / (float) left.getNodeCount()) * 100f);
-			int rightMatchPercentage = Math.round((matchedNodes.size() / (float) right.getNodeCount()) * 100f);
-			greaterMatchPercentage = Math.max(leftMatchPercentage, rightMatchPercentage);
-
-			if (greaterMatchPercentage > 50)
-				return true;
-
-			// Log.log("Rejecting match of %d nodes for graphs of size %d (%d%%) and %d (%d%%)", matchedNodes.size(),
-			// left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
-			return false;
 		}
 	}
 
@@ -157,6 +174,7 @@ public class AnonymousGraphMergeEngine {
 				for (int i = 0; i < subgraphCluster.graphs.size(); i++) {
 					ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraph, subgraphCluster.graphs.get(i),
 							dynamicEvaluator, debugLog);
+
 					if (dynamicEvaluator.exactMatch) {
 						match = true; // skip this graph because it's already in a cluster
 						break;
