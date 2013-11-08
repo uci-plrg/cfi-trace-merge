@@ -83,27 +83,31 @@ class AnonymousGraphAnalyzer {
 
 	void analyzeSubgraphs() {
 		for (ModuleGraphCluster<ClusterNode<?>> subgraph : maximalSubgraphs) {
-			Log.log("\n === Subgraph of %d nodes", subgraph.getExecutableNodeCount());
+			reportSubgraph("Subgraph", subgraph);
+		}
+	}
 
-			for (Long entryHash : subgraph.getEntryHashes()) {
-				ClusterNode<?> entryPoint = subgraph.getEntryPoint(entryHash);
+	void reportSubgraph(String name, ModuleGraphCluster<ClusterNode<?>> subgraph) {
+		Log.log("\n === %s of %d nodes", name, subgraph.getExecutableNodeCount());
 
-				OrdinalEdgeList<?> edges = entryPoint.getOutgoingEdges();
+		for (Long entryHash : subgraph.getEntryHashes()) {
+			ClusterNode<?> entryPoint = subgraph.getEntryPoint(entryHash);
+
+			OrdinalEdgeList<?> edges = entryPoint.getOutgoingEdges();
+			try {
+				Log.log("     Entry point 0x%x reaches %d nodes", entryHash, edges.size());
+			} finally {
+				edges.release();
+			}
+		}
+
+		for (ClusterNode<?> node : subgraph.getAllNodes()) {
+			if (node.getType() == MetaNodeType.CLUSTER_EXIT) {
+				OrdinalEdgeList<?> edges = node.getIncomingEdges();
 				try {
-					Log.log("     Entry point 0x%x reaches %d nodes", entryHash, edges.size());
+					Log.log("     Callout 0x%x from %d nodes", node.getHash(), edges.size());
 				} finally {
 					edges.release();
-				}
-			}
-
-			for (ClusterNode<?> node : subgraph.getAllNodes()) {
-				if (node.getType() == MetaNodeType.CLUSTER_EXIT) {
-					OrdinalEdgeList<?> edges = node.getIncomingEdges();
-					try {
-						Log.log("     Callout 0x%x from %d nodes", node.getHash(), edges.size());
-					} finally {
-						edges.release();
-					}
 				}
 			}
 		}

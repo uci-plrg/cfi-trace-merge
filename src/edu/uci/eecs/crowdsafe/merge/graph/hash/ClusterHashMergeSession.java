@@ -6,6 +6,7 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
 public class ClusterHashMergeSession {
@@ -69,6 +70,8 @@ public class ClusterHashMergeSession {
 		if (!mergeEvaluator.attemptMerge(session))
 			return false;
 
+		Log.log("\nEvaluation merge: subgraphs of %d and %d nodes", left.getExecutableNodeCount(),
+				right.getExecutableNodeCount());
 		session.contextRecord.setEvaluator(mergeEvaluator);
 		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
 		engine.mergeGraph();

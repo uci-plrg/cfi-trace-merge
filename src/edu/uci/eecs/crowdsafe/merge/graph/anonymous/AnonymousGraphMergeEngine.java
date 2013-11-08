@@ -27,14 +27,13 @@ public class AnonymousGraphMergeEngine {
 	private static class DynamicHashMatchEvaluator implements ClusterHashMergeSession.MergeEvaluator {
 		private int reportCount = 0;
 
-		boolean mergeMode;
+		boolean mergeMode = false;
 		boolean exactMatch;
 		boolean isFailed;
 		int greaterMatchPercentage;
 
 		@Override
 		public void reset() {
-			mergeMode = false;
 			exactMatch = false;
 			isFailed = false;
 			greaterMatchPercentage = 0;
@@ -69,8 +68,12 @@ public class AnonymousGraphMergeEngine {
 			if (isFailed)
 				throw new IllegalStateException("Cannot evaluate a merge with a failed evaluator!");
 
-			if (mergeMode)
+			if (mergeMode) {
+				if (session.isFailed())
+					return false;
+
 				return true;
+			}
 
 			ModuleGraphCluster<?> left = session.getLeft();
 			ModuleGraphCluster<?> right = session.getRight();
@@ -106,26 +109,76 @@ public class AnonymousGraphMergeEngine {
 				// left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
 				return false;
 			} finally {
-				if ((left.getExecutableNodeCount() < 20) && (right.getExecutableNodeCount() < 20)) {
-					Log.log("\nEvaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
-							left.getExecutableNodeCount(), right.getExecutableNodeCount(), greaterMatchPercentage,
-							exactMatch, isFailed);
-					left.logGraph();
-					right.logGraph();
-					reportCount++;
-					if (reportCount > 50)
-						System.exit(0);
+				if ((left.getExecutableNodeCount() < 35) && (right.getExecutableNodeCount() < 35)) {
+					if (reportCount < 50) {
+						Log.log("\nEvaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
+								left.getExecutableNodeCount(), right.getExecutableNodeCount(), greaterMatchPercentage,
+								exactMatch, isFailed);
+						left.logGraph();
+						right.logGraph();
+						reportCount++;
+					}
+				} else {
+					Log.log("%d%% | exact? %b | failed? %b", greaterMatchPercentage, exactMatch, isFailed);
 				}
+
+				if ((greaterMatchPercentage > 50) && (greaterMatchPercentage < 80))
+					toString();
 			}
 		}
 	}
 
 	private static class SubgraphCluster {
 		List<ModuleGraphCluster<ClusterNode<?>>> graphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		List<ClusterCompatibilityRecord> compatibilityRecords = new ArrayList<ClusterCompatibilityRecord>();
 
 		public SubgraphCluster(ModuleGraphCluster<ClusterNode<?>> graph) {
 			graphs.add(graph);
 		}
+
+		void add(ModuleGraphCluster<ClusterNode<?>> subgraph, ClusterCompatibilityRecord compatibility) {
+			graphs.add(subgraph);
+			compatibilityRecords.add(compatibility);
+		}
+
+		void reportCompatibility() {
+			StringBuilder buffer = new StringBuilder(String.format("\tOriginal graph has %d nodes\n", graphs.get(0)
+					.getExecutableNodeCount()));
+			for (ClusterCompatibilityRecord compatibility : compatibilityRecords) {
+				buffer.append(String.format("\tCompatibility of %d node graph: ", compatibility.subgraphSize));
+				for (int i = 0; i < compatibility.comparisonSubgraphSizes.size(); i++) {
+					buffer.append(String.format("(%d @ %d%%%%)", compatibility.comparisonSubgraphSizes.get(i),
+							compatibility.mergeScores.get(i)));
+				}
+				buffer.append("\n");
+			}
+			Log.log(buffer.toString());
+		}
+
+		ClusterCompatibilityRecord getCompatibilityRecord(int subgraphIndex) {
+			return compatibilityRecords.get(subgraphIndex - 1);
+		}
+	}
+
+	private static class ClusterCompatibilityRecord {
+		int subgraphSize;
+		final List<Integer> comparisonSubgraphSizes = new ArrayList<Integer>();
+		final List<Integer> mergeScores = new ArrayList<Integer>();
+
+		void initialize(int subgraphSize) {
+			this.subgraphSize = subgraphSize;
+			comparisonSubgraphSizes.clear();
+			mergeScores.clear();
+		}
+
+		void add(int subgraphSize, int mergeScore) {
+			comparisonSubgraphSizes.add(subgraphSize);
+			mergeScores.add(mergeScore);
+		}
+	}
+
+	private static class SubgraphAdditionRecord {
+
 	}
 
 	private static class SizeOrder implements Comparator<SubgraphCluster> {
@@ -159,7 +212,8 @@ public class AnonymousGraphMergeEngine {
 
 		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
-		boolean match, fail;
+		boolean match = false, fail;
+		ClusterCompatibilityRecord clusterCompatibilityRecord = new ClusterCompatibilityRecord();
 		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : maximalSubgraphs) {
 			// if (maximalSubgraph.getNodeCount() > twiceAverage) {
 			// Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());
@@ -167,21 +221,24 @@ public class AnonymousGraphMergeEngine {
 			// continue;
 			// }
 
-			match = false;
-			fail = false;
 			for (SubgraphCluster subgraphCluster : subgraphClusters) {
+				match = false;
+				fail = false;
+				clusterCompatibilityRecord.initialize(maximalSubgraph.getExecutableNodeCount());
 				int score = 0;
 				for (int i = 0; i < subgraphCluster.graphs.size(); i++) {
 					ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraph, subgraphCluster.graphs.get(i),
 							dynamicEvaluator, debugLog);
 
 					if (dynamicEvaluator.exactMatch) {
-						match = true; // skip this graph because it's already in a cluster
+						match = true; // skip this graph because an identical graph is already in this cluster
 						break;
 					} else if (dynamicEvaluator.isFailed) {
 						fail = true;
 						break;
-					} else if (dynamicEvaluator.greaterMatchPercentage > 80) {
+					}
+					/**
+					 * <pre> else if (dynamicEvaluator.greaterMatchPercentage > 80) {
 						ClusterGraph mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(maximalSubgraph,
 								subgraphCluster.graphs.get(i), ClusterHashMergeResults.Empty.INSTANCE,
 								dynamicEvaluator, debugLog);
@@ -189,7 +246,10 @@ public class AnonymousGraphMergeEngine {
 						match = true;
 						break;
 					}
+					 */
 					score += dynamicEvaluator.greaterMatchPercentage;
+					clusterCompatibilityRecord.add(subgraphCluster.graphs.get(i).getExecutableNodeCount(),
+							dynamicEvaluator.greaterMatchPercentage);
 				}
 
 				if (fail)
@@ -200,7 +260,8 @@ public class AnonymousGraphMergeEngine {
 
 				int clusterPercentage = (score / subgraphCluster.graphs.size());
 				if (clusterPercentage > 50) {
-					subgraphCluster.graphs.add(maximalSubgraph);
+					subgraphCluster.add(maximalSubgraph, clusterCompatibilityRecord);
+					clusterCompatibilityRecord = new ClusterCompatibilityRecord();
 					match = true;
 					break;
 				}
@@ -219,41 +280,58 @@ public class AnonymousGraphMergeEngine {
 		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		Log.log("\nReduced anonymous graph to %d subgraph clusters:", subgraphClusters.size());
 		Collections.sort(subgraphClusters, new SizeOrder());
-		for (SubgraphCluster subgraphCluster : subgraphClusters) {
+		SubgraphCluster spillCluster;
+		for (int s = 0; s < subgraphClusters.size(); s++) {
+			SubgraphCluster subgraphCluster = subgraphClusters.get(s);
 			Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
+			subgraphCluster.reportCompatibility();
 
-			ModuleGraphCluster<ClusterNode<?>> graph;
+			spillCluster = null;
+
+			ModuleGraphCluster<ClusterNode<?>> mergedClusterGraph;
 			if (subgraphCluster.graphs.size() == 1) {
-				graph = subgraphCluster.graphs.get(0);
+				mergedClusterGraph = subgraphCluster.graphs.get(0);
 			} else {
-				ClusterGraph mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(subgraphCluster.graphs.get(0),
+				ClusterGraph mergedPairGraph = ClusterHashMergeSession.mergeTwoGraphs(subgraphCluster.graphs.get(0),
 						subgraphCluster.graphs.get(1), ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator,
 						debugLog);
-				if (mergedGraph == null) {
-					Log.log("Error! Failed to merge two subgraphs that were assigned to a cluster. Skipping the second.");
-					graph = subgraphCluster.graphs.get(0);
+				if (mergedPairGraph == null) {
+					Log.log("Failed to merge subgraph #1. Spilling it.");
+
+					mergedClusterGraph = subgraphCluster.graphs.get(0);
+					spillCluster = new SubgraphCluster(subgraphCluster.graphs.get(1));
+					subgraphClusters.add(spillCluster);
 				} else {
-					graph = mergedGraph.graph;
+					mergedClusterGraph = mergedPairGraph.graph;
 				}
 
 				for (int i = 2; i < subgraphCluster.graphs.size(); i++) {
-					mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(graph, subgraphCluster.graphs.get(i),
-							ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator, debugLog);
-					if (mergedGraph == null) {
-						Log.log("Error! Failed to merge two subgraphs that were assigned to a cluster. Skipping the second.");
+					mergedPairGraph = ClusterHashMergeSession.mergeTwoGraphs(mergedClusterGraph,
+							subgraphCluster.graphs.get(i), ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator,
+							debugLog);
+					if (mergedPairGraph == null) {
+						Log.log("Failed to merge subgraph #%d. Spilling it.", i);
+						if (spillCluster == null) {
+							spillCluster = new SubgraphCluster(subgraphCluster.graphs.get(i));
+							subgraphClusters.add(spillCluster);
+						} else {
+							spillCluster.add(subgraphCluster.graphs.get(i), subgraphCluster.getCompatibilityRecord(i));
+						}
 					} else {
-						graph = mergedGraph.graph;
+						mergedClusterGraph = mergedPairGraph.graph;
 					}
 				}
 			}
 
-			for (ClusterNode<?> node : graph.getAllNodes()) {
+			analyzer.reportSubgraph("Merged cluster subgraph", mergedClusterGraph);
+
+			for (ClusterNode<?> node : mergedClusterGraph.getAllNodes()) {
 				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
 						node.getRelativeTag(), node.getType());
 				copyMap.put(node, copy);
 			}
 
-			for (ClusterNode<?> node : graph.getAllNodes()) {
+			for (ClusterNode<?> node : mergedClusterGraph.getAllNodes()) {
 				OrdinalEdgeList<?> edges = node.getOutgoingEdges();
 				try {
 					for (Edge<? extends Node<?>> edge : edges) {

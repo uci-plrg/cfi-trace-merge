@@ -93,8 +93,8 @@ public class ClusterHashMatchEngine {
 			if ((rightEdge = rightNode.getCallContinuation()) != null
 					&& (leftEdge = leftNode.getCallContinuation()) != null) {
 				if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
-					session.contextRecord.fail("Differing hashes: %s and %s", leftEdge.getToNode(),
-							rightEdge.getToNode());
+					session.contextRecord.fail("Call continuation from %s to differing hashes: %s and %s",
+							leftEdge.getFromNode(), leftEdge.getToNode(), rightEdge.getToNode());
 					return;
 				}
 				getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
@@ -141,7 +141,8 @@ public class ClusterHashMatchEngine {
 						 * session.contextRecord.addEdge(depth, EdgeMatchType.DIRECT_MATCH);
 						 */
 					} else {
-						session.contextRecord.fail("Direct edge mismatch: %s and %s", leftNode, rightNode);
+						session.contextRecord.fail("Context similarity rejected on direct edge at ordinal %d of %s",
+								ordinal, leftNode);
 						return;
 					}
 					break;
