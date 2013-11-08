@@ -17,96 +17,6 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 
 public class MaximalSubgraphs {
 
-	// this method modifies `graph`
-	public static Set<ModuleGraphCluster<ClusterNode<?>>> getMaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
-		MaximalSubgraphs processor = new MaximalSubgraphs(graph);
-
-		for (ClusterNode<?> node : graph.getAllNodes()) {
-			processor.atoms.add(node);
-		}
-
-		MaximalSubgraphs.class.toString();
-
-		for (ClusterNode<?> node : graph.getAllNodes()) {
-			OrdinalEdgeList<ClusterNode<?>> edgeList = node.getOutgoingEdges();
-			try {
-				for (Edge<ClusterNode<?>> edge : edgeList) {
-					processor.addEdge(edge);
-				}
-			} finally {
-				edgeList.release();
-			}
-		}
-
-		return processor.distinctSubgraphs;
-	}
-
-	private final ModuleGraphCluster<ClusterNode<?>> originalGraph;
-
-	private final Set<ClusterNode<?>> atoms = new HashSet<ClusterNode<?>>();
-	private final Map<ClusterNode<?>, Subgraph> subgraphs = new HashMap<ClusterNode<?>, Subgraph>();
-	private final Set<ModuleGraphCluster<ClusterNode<?>>> distinctSubgraphs = new HashSet<ModuleGraphCluster<ClusterNode<?>>>();
-
-	public MaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
-		this.originalGraph = graph;
-	}
-
-	private void addEdge(Edge<ClusterNode<?>> edge) {
-		ClusterNode<?> fromNode = consumeFromAtom(edge);
-		if (fromNode != null) {
-			ClusterNode<?> toNode = consumeToAtom(edge);
-			if (toNode != null) {
-				Subgraph subgraph = addSubgraph();
-				fromNode = subgraph.addNode(fromNode, edge);
-				toNode = subgraph.addNode(toNode, edge);
-				subgraphs.put(fromNode, subgraph);
-				subgraphs.put(toNode, subgraph);
-			} else if (edge.getToNode().getType() != MetaNodeType.CLUSTER_EXIT) {
-				Subgraph subgraph = subgraphs.get(edge.getToNode());
-				if (subgraph != null) {
-					fromNode = subgraph.addNode(fromNode, edge);
-				} else {
-					subgraph = addSubgraph();
-					fromNode = subgraph.addNode(fromNode, edge);
-				}
-				subgraphs.put(fromNode, subgraph);
-			}
-		} else {
-			ClusterNode<?> toNode = consumeToAtom(edge);
-			if (toNode != null) {
-				Subgraph subgraph = subgraphs.get(edge.getFromNode());
-				if (subgraph != null) {
-					toNode = subgraph.addNode(toNode, edge);
-				} else {
-					subgraph = addSubgraph();
-					toNode = subgraph.addNode(toNode, edge);
-				}
-				subgraphs.put(toNode, subgraph);
-			} else if ((edge.getFromNode().getType() != MetaNodeType.CLUSTER_ENTRY)
-					&& (edge.getToNode().getType() != MetaNodeType.CLUSTER_EXIT)) {
-				Subgraph fromSubgraph = subgraphs.get(edge.getFromNode());
-				Subgraph toSubgraph = subgraphs.get(edge.getToNode());
-				if ((fromSubgraph != null) && (toSubgraph != null) && (fromSubgraph != toSubgraph)) {
-					Subgraph smallSubgraph, largeSubgraph;
-					if (fromSubgraph.graph.getNodeCount() < toSubgraph.graph.getNodeCount()) {
-						smallSubgraph = fromSubgraph;
-						largeSubgraph = toSubgraph;
-					} else {
-						smallSubgraph = toSubgraph;
-						largeSubgraph = fromSubgraph;
-					}
-					for (ClusterNode<?> node : smallSubgraph.graph.getAllNodes()) {
-						largeSubgraph.addNode(node, null);
-					}
-					for (ClusterNode<?> node : smallSubgraph.graph.getAllNodes()) {
-						subgraphs.put(node, largeSubgraph);
-					}
-					removeSubgraph(smallSubgraph);
-				}
-			}
-		}
-	}
-
 	private class Subgraph {
 		final ModuleGraphCluster<ClusterNode<?>> graph = new ModuleGraphCluster<ClusterNode<?>>(originalGraph.cluster);
 		final Map<Long, ClusterBoundaryNode> boundaryNodes = new HashMap<Long, ClusterBoundaryNode>();
@@ -142,6 +52,7 @@ public class MaximalSubgraphs {
 					if (existingEntry == null) {
 						existingEntry = new ClusterBoundaryNode(node.getHash(), MetaNodeType.CLUSTER_ENTRY);
 						graph.addNode(existingEntry);
+						boundaryNodes.put(existingEntry.getHash(), existingEntry);
 					}
 
 					Edge<ClusterNode<?>> patchEdge = new Edge<ClusterNode<?>>(existingEntry, edge.getToNode(),
@@ -180,6 +91,7 @@ public class MaximalSubgraphs {
 					if (existingExit == null) {
 						existingExit = new ClusterBoundaryNode(node.getHash(), MetaNodeType.CLUSTER_EXIT);
 						graph.addNode(existingExit);
+						boundaryNodes.put(existingExit.getHash(), existingExit);
 					}
 
 					Edge<ClusterNode<?>> patchEdge = new Edge<ClusterNode<?>>(edge.getFromNode(), existingExit,
@@ -191,6 +103,105 @@ public class MaximalSubgraphs {
 			} else {
 				graph.addNode(node);
 				return node;
+			}
+		}
+	}
+
+	// this method modifies `graph`
+	public static Set<ModuleGraphCluster<ClusterNode<?>>> getMaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
+		MaximalSubgraphs processor = new MaximalSubgraphs(graph);
+
+		for (ClusterNode<?> node : graph.getAllNodes()) {
+			processor.atoms.add(node);
+		}
+
+		MaximalSubgraphs.class.toString();
+
+		for (ClusterNode<?> node : graph.getAllNodes()) {
+			OrdinalEdgeList<ClusterNode<?>> edgeList = node.getOutgoingEdges();
+			try {
+				for (Edge<ClusterNode<?>> edge : edgeList) {
+					processor.addEdge(edge);
+				}
+			} finally {
+				edgeList.release();
+			}
+		}
+
+		return processor.distinctSubgraphs;
+	}
+
+	private final ModuleGraphCluster<ClusterNode<?>> originalGraph;
+
+	private final Set<ClusterNode<?>> atoms = new HashSet<ClusterNode<?>>();
+	private final Map<ClusterNode<?>, Subgraph> subgraphs = new HashMap<ClusterNode<?>, Subgraph>();
+	private final Set<ModuleGraphCluster<ClusterNode<?>>> distinctSubgraphs = new HashSet<ModuleGraphCluster<ClusterNode<?>>>();
+
+	public MaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
+		this.originalGraph = graph;
+	}
+
+	private void addEdge(Edge<ClusterNode<?>> edge) {
+		if (edge.getFromNode().getType() == MetaNodeType.CLUSTER_ENTRY) {
+			Subgraph toSubgraph = subgraphs.get(edge.getToNode());
+			if (toSubgraph != null)
+				toSubgraph.addNode(edge.getFromNode(), edge);
+		} else if (edge.getFromNode().getType() == MetaNodeType.CLUSTER_EXIT) {
+			Subgraph fromSubgraph = subgraphs.get(edge.getFromNode());
+			if (fromSubgraph != null)
+				fromSubgraph.addNode(edge.getToNode(), edge);
+		} else {
+			ClusterNode<?> fromNode = consumeFromAtom(edge);
+			if (fromNode != null) {
+				ClusterNode<?> toNode = consumeToAtom(edge);
+				if (toNode != null) {
+					Subgraph subgraph = addSubgraph();
+					fromNode = subgraph.addNode(fromNode, edge);
+					toNode = subgraph.addNode(toNode, edge);
+					subgraphs.put(fromNode, subgraph);
+					subgraphs.put(toNode, subgraph);
+				} else {
+					Subgraph subgraph = subgraphs.get(edge.getToNode());
+					if (subgraph != null) {
+						fromNode = subgraph.addNode(fromNode, edge);
+					} else {
+						subgraph = addSubgraph();
+						fromNode = subgraph.addNode(fromNode, edge);
+					}
+					subgraphs.put(fromNode, subgraph);
+				}
+			} else {
+				ClusterNode<?> toNode = consumeToAtom(edge);
+				if (toNode != null) {
+					Subgraph subgraph = subgraphs.get(edge.getFromNode());
+					if (subgraph != null) {
+						toNode = subgraph.addNode(toNode, edge);
+					} else {
+						subgraph = addSubgraph();
+						toNode = subgraph.addNode(toNode, edge);
+					}
+					subgraphs.put(toNode, subgraph);
+				} else {
+					Subgraph fromSubgraph = subgraphs.get(edge.getFromNode());
+					Subgraph toSubgraph = subgraphs.get(edge.getToNode());
+					if ((fromSubgraph != null) && (toSubgraph != null) && (fromSubgraph != toSubgraph)) {
+						Subgraph smallSubgraph, largeSubgraph;
+						if (fromSubgraph.graph.getNodeCount() < toSubgraph.graph.getNodeCount()) {
+							smallSubgraph = fromSubgraph;
+							largeSubgraph = toSubgraph;
+						} else {
+							smallSubgraph = toSubgraph;
+							largeSubgraph = fromSubgraph;
+						}
+						for (ClusterNode<?> node : smallSubgraph.graph.getAllNodes()) {
+							largeSubgraph.addNode(node, null);
+						}
+						for (ClusterNode<?> node : smallSubgraph.graph.getAllNodes()) {
+							subgraphs.put(node, largeSubgraph);
+						}
+						removeSubgraph(smallSubgraph);
+					}
+				}
 			}
 		}
 	}

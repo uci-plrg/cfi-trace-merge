@@ -83,7 +83,7 @@ public class ContextMatchRecord {
 		if ((leftSubtreeRoot.getKey().equals(rightSubtreeRoot.getKey())) && (stateIndex == 0))
 			currentState.mismatch = true; // could store location of mismatch by taking current L/R pair as args
 
-		Log.log(String.format("Fail at level %d: %s", stateIndex, format), args);
+		// Log.log(String.format("Fail at level %d: %s", stateIndex, format), args);
 
 		currentState.fail = true;
 	}

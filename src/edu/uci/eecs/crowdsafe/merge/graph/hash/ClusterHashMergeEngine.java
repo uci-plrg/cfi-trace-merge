@@ -126,7 +126,7 @@ class ClusterHashMergeEngine {
 
 						if (leftChild != null) {
 							if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
-								continue; // session.matchedNodes.containsLeftKey(rightEdge.getToNode().getKey())
+								continue;
 
 							session.matchState.enqueueMatch(new HashNodeMatch(leftChild, rightEdge.getToNode(),
 									MatchType.DIRECT_BRANCH));
