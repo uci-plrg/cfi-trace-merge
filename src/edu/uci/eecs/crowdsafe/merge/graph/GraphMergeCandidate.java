@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph.main;
+package edu.uci.eecs.crowdsafe.merge.graph;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import edu.uci.eecs.crowdsafe.common.io.execution.ExecutionTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 
-interface GraphMergeCandidate {
+public interface GraphMergeCandidate {
 
 	abstract void loadData() throws IOException;
 

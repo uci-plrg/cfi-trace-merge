@@ -4,17 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
-import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareModule;
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
@@ -25,16 +19,13 @@ import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousGraphMergeEngine;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeAnalysis;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchState;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMatchedNodes;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.MaximalSubgraphs;
 import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
 
@@ -303,7 +294,7 @@ public class MergeTwoGraphs {
 				}
 			}
 			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(debugLog);
-			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(anonymousGraphs);
+			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(anonymousGraphs, leftData, rightData);
 			completion.mergeCompleted(anonymousGraph);
 
 			if (logFile != null)

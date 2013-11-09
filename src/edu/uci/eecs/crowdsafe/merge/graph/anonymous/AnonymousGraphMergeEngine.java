@@ -1,5 +1,6 @@
 package edu.uci.eecs.crowdsafe.merge.graph.anonymous;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,6 +17,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
@@ -197,7 +199,7 @@ public class AnonymousGraphMergeEngine {
 
 	private static int SUBGRAPH_ID_INDEX = 0;
 
-	private final AnonymousGraphAnalyzer analyzer = new AnonymousGraphAnalyzer();;
+	private final AnonymousGraphAnalyzer analyzer = new AnonymousGraphAnalyzer();
 
 	private final ClusterHashMergeDebugLog debugLog;
 
@@ -205,7 +207,10 @@ public class AnonymousGraphMergeEngine {
 		this.debugLog = debugLog;
 	}
 
-	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {
+	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs,
+			GraphMergeCandidate leftData, GraphMergeCandidate rightData) throws IOException {
+		analyzer.initialize(leftData, rightData);
+
 		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
 		// dynamic and static graphs
 
@@ -224,6 +229,9 @@ public class AnonymousGraphMergeEngine {
 		// analyzer.reportSubgraph("Large subgraph", maximalSubgraphs.get(1));
 		// maximalSubgraphs.get(1).logGraph(20);
 		// System.exit(0);
+
+		analyzer.localizedCompatibilityAnalysis(maximalSubgraphs.get(0), maximalSubgraphs.get(1));
+		System.exit(0);
 
 		ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraphs.get(0), maximalSubgraphs.get(1), dynamicEvaluator,
 				debugLog);
