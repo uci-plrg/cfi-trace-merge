@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareUnit;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
@@ -231,8 +232,9 @@ class AnonymousGraphAnalyzer {
 					for (int compatibleSubgraphDepth : compatibleSubgraphDepths) {
 						totalCompatibleSubgraphDepth += compatibleSubgraphDepth;
 					}
-					int averageCompatibleSubgraphDepth = totalCompatibleSubgraphDepth / compatibleSubgraphDepths.size();
-					Log.log("\tAverage compatible subgraph depth: %d", averageCompatibleSubgraphDepth);
+					float averageCompatibleSubgraphDepth = (compatibleSubgraphDepths.size() == 0) ? 0f
+							: (totalCompatibleSubgraphDepth / (float) compatibleSubgraphDepths.size());
+					Log.log("\tAverage compatible subgraph depth: %.2f", averageCompatibleSubgraphDepth);
 				} finally {
 					leftEdges.release();
 					rightEdges.release();
@@ -315,6 +317,37 @@ class AnonymousGraphAnalyzer {
 		}
 	}
 
+	private static class ClusterGraphCache {
+		final GraphMergeCandidate leftData;
+		final GraphMergeCandidate rightData;
+
+		final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<?>> leftGraphs = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<?>>();
+		final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<?>> rightGraphs = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<?>>();
+
+		public ClusterGraphCache(GraphMergeCandidate leftData, GraphMergeCandidate rightData) {
+			this.leftData = leftData;
+			this.rightData = rightData;
+		}
+
+		ModuleGraphCluster<?> getLeftGraph(AutonomousSoftwareDistribution cluster) throws IOException {
+			ModuleGraphCluster<?> graph = leftGraphs.get(cluster);
+			if (graph == null) {
+				graph = leftData.getClusterGraph(cluster);
+				leftGraphs.put(cluster, graph);
+			}
+			return graph;
+		}
+
+		ModuleGraphCluster<?> getRightGraph(AutonomousSoftwareDistribution cluster) throws IOException {
+			ModuleGraphCluster<?> graph = rightGraphs.get(cluster);
+			if (graph == null) {
+				graph = rightData.getClusterGraph(cluster);
+				rightGraphs.put(cluster, graph);
+			}
+			return graph;
+		}
+	}
+
 	int totalSize = 0;
 	int minSize = Integer.MAX_VALUE;
 	int maxSize = 0;
@@ -326,47 +359,12 @@ class AnonymousGraphAnalyzer {
 	int subgraphsOverThriceAverage;
 	int subgraphsUnderHalfAverage;
 
-	final Map<Long, AutonomousSoftwareDistribution> clustersByAnonymousEntryHash = new HashMap<Long, AutonomousSoftwareDistribution>();
-	final Map<Long, AutonomousSoftwareDistribution> clustersByAnonymousExitHash = new HashMap<Long, AutonomousSoftwareDistribution>();
-
-	GraphMergeCandidate leftData;
-	GraphMergeCandidate rightData;
+	final ClusterGraphCache graphCache;
 
 	List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
-	void initialize(GraphMergeCandidate leftData, GraphMergeCandidate rightData) {
-		this.leftData = leftData;
-		this.rightData = rightData;
-
-		for (AutonomousSoftwareDistribution cluster : leftData.getRepresentedClusters()) {
-			addAnonymousEdgeHashes(cluster);
-		}
-		for (AutonomousSoftwareDistribution cluster : rightData.getRepresentedClusters()) {
-			if (!leftData.getRepresentedClusters().contains(cluster))
-				addAnonymousEdgeHashes(cluster);
-		}
-	}
-
-	// soon to be <anonymous> for all anonymous modules
-	private void addAnonymousEdgeHashes(AutonomousSoftwareDistribution cluster) {
-		for (SoftwareUnit unit : cluster.getUnits()) {
-			if (unit.filename.equals("ole32.dll"))
-				toString();
-
-			long hash = stringHash(String.format("%s/<anonymous>!callback", unit.filename));
-			clustersByAnonymousEntryHash.put(hash, cluster);
-
-			hash = stringHash(String.format("<anonymous>/%s!callback", unit.filename));
-			clustersByAnonymousExitHash.put(hash, cluster);
-		}
-	}
-
-	private long stringHash(String string) {
-		long hash = 0L;
-		for (int i = 0; i < string.length(); i++) {
-			hash = hash ^ (hash << 5) ^ ((int) string.charAt(i));
-		}
-		return hash;
+	public AnonymousGraphAnalyzer(GraphMergeCandidate leftData, GraphMergeCandidate rightData) {
+		graphCache = new ClusterGraphCache(leftData, rightData);
 	}
 
 	List<ModuleGraphCluster<ClusterNode<?>>> getMaximalSubgraphs(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) {
@@ -423,24 +421,28 @@ class AnonymousGraphAnalyzer {
 
 		String clusterName;
 		AutonomousSoftwareDistribution cluster;
-		for (Long entryHash : subgraph.getEntryHashes()) {
-			ClusterNode<?> entryPoint = subgraph.getEntryPoint(entryHash);
+		if (subgraph.getEntryHashes().isEmpty()) {
+			Log.log("     Error: entry point missing!");
+		} else {
+			for (Long entryHash : subgraph.getEntryHashes()) {
+				ClusterNode<?> entryPoint = subgraph.getEntryPoint(entryHash);
 
-			OrdinalEdgeList<?> edges = entryPoint.getOutgoingEdges();
-			try {
-				int leftCallSiteCount = 0, rightCallSiteCount = 0;
-				cluster = clustersByAnonymousEntryHash.get(entryHash);
-				if (cluster == null) {
-					clusterName = "?";
-				} else {
-					clusterName = cluster.name;
-					leftCallSiteCount = getExitEdgeCount(entryHash, leftData.getClusterGraph(cluster));
-					rightCallSiteCount = getExitEdgeCount(entryHash, rightData.getClusterGraph(cluster));
+				OrdinalEdgeList<?> edges = entryPoint.getOutgoingEdges();
+				try {
+					int leftCallSiteCount = 0, rightCallSiteCount = 0;
+					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(entryHash);
+					if (cluster == null) {
+						clusterName = "?";
+					} else {
+						clusterName = cluster.name;
+						leftCallSiteCount = getExitEdgeCount(entryHash, graphCache.getLeftGraph(cluster));
+						rightCallSiteCount = getExitEdgeCount(entryHash, graphCache.getRightGraph(cluster));
+					}
+					Log.log("     Entry point 0x%x (%s) reaches %d nodes from %d left call sites and %d right call sites",
+							entryHash, clusterName, edges.size(), leftCallSiteCount, rightCallSiteCount);
+				} finally {
+					edges.release();
 				}
-				Log.log("     Entry point 0x%x (%s) reaches %d nodes from %d left call sites and %d right call sites",
-						entryHash, clusterName, edges.size(), leftCallSiteCount, rightCallSiteCount);
-			} finally {
-				edges.release();
 			}
 		}
 
@@ -463,13 +465,14 @@ class AnonymousGraphAnalyzer {
 				OrdinalEdgeList<?> edges = node.getIncomingEdges();
 				try {
 					int leftTargetCount = 0, rightTargetCount = 0;
-					cluster = clustersByAnonymousExitHash.get(node.getHash());
+					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
+							node.getHash());
 					if (cluster == null) {
 						clusterName = "?";
 					} else {
 						clusterName = cluster.name;
-						leftTargetCount = getEntryEdgeCount(node.getHash(), leftData.getClusterGraph(cluster));
-						rightTargetCount = getEntryEdgeCount(node.getHash(), rightData.getClusterGraph(cluster));
+						leftTargetCount = getEntryEdgeCount(node.getHash(), graphCache.getLeftGraph(cluster));
+						rightTargetCount = getEntryEdgeCount(node.getHash(), graphCache.getRightGraph(cluster));
 					}
 					Log.log("     Callout 0x%x (%s) from %d nodes to %d left targets and %d right targets",
 							node.getHash(), clusterName, edges.size(), leftTargetCount, rightTargetCount);
@@ -532,7 +535,7 @@ class AnonymousGraphAnalyzer {
 				.getVal());
 		int singletonIndirectPercentage = Math.round((singletonIndirectOrdinalCount / (float) indirectTotal) * 100f);
 		int pairIndirectPercentage = Math.round((pairIndirectOrdinalCount / (float) indirectTotal) * 100f);
-		Log.log("     Average indirect edge fanout: %03f; Max: %d; singletons: %d (%d%%); pairs: %d (%d%%)",
+		Log.log("     Average indirect edge fanout: %.3f; Max: %d; singletons: %d (%d%%); pairs: %d (%d%%)",
 				averageIndirectEdgeCount, maxIndirectEdgeCountPerOrdinal, singletonIndirectOrdinalCount,
 				singletonIndirectPercentage, pairIndirectOrdinalCount, pairIndirectPercentage);
 	}

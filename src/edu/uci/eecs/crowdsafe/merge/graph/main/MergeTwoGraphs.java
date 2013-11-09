@@ -293,8 +293,8 @@ public class MergeTwoGraphs {
 								.getClusterGraph(rightCluster));
 				}
 			}
-			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(debugLog);
-			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(anonymousGraphs, leftData, rightData);
+			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
+			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(anonymousGraphs);
 			completion.mergeCompleted(anonymousGraph);
 
 			if (logFile != null)

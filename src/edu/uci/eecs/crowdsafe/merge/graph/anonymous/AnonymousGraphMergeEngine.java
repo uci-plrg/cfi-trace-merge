@@ -199,18 +199,17 @@ public class AnonymousGraphMergeEngine {
 
 	private static int SUBGRAPH_ID_INDEX = 0;
 
-	private final AnonymousGraphAnalyzer analyzer = new AnonymousGraphAnalyzer();
+	private final AnonymousGraphAnalyzer analyzer;
 
 	private final ClusterHashMergeDebugLog debugLog;
 
-	public AnonymousGraphMergeEngine(ClusterHashMergeDebugLog debugLog) {
+	public AnonymousGraphMergeEngine(GraphMergeCandidate leftData, GraphMergeCandidate rightData,
+			ClusterHashMergeDebugLog debugLog) {
+		analyzer = new AnonymousGraphAnalyzer(leftData, rightData);
 		this.debugLog = debugLog;
 	}
 
-	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs,
-			GraphMergeCandidate leftData, GraphMergeCandidate rightData) throws IOException {
-		analyzer.initialize(leftData, rightData);
-
+	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) throws IOException {
 		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
 		// dynamic and static graphs
 
