@@ -229,7 +229,7 @@ public class AnonymousGraphMergeEngine {
 		// maximalSubgraphs.get(1).logGraph(20);
 		// System.exit(0);
 
-		analyzer.localizedCompatibilityAnalysis(maximalSubgraphs.get(0), maximalSubgraphs.get(1));
+		// analyzer.localizedCompatibilityAnalysis(maximalSubgraphs.get(0), maximalSubgraphs.get(1));
 		System.exit(0);
 
 		ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraphs.get(0), maximalSubgraphs.get(1), dynamicEvaluator,

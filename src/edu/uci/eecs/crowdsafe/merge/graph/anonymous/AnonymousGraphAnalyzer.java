@@ -42,281 +42,6 @@ class AnonymousGraphAnalyzer {
 		}
 	}
 
-	private static class CompatibilityAnalysis {
-		final ModuleGraphCluster<ClusterNode<?>> left;
-		final ModuleGraphCluster<ClusterNode<?>> right;
-
-		private Set<ClusterNode<?>> leftCoverageSet = null;
-		private Set<ClusterNode<?>> rightCoverageSet = null;
-
-		private MutableInteger maxExploredDepth = null;
-		private MutableInteger maxCompatibleDepth = null;
-		// private MutableInteger failedIndirectsHaving
-
-		private boolean followIndirectBranches = false;
-
-		CompatibilityAnalysis(ModuleGraphCluster<ClusterNode<?>> left, ModuleGraphCluster<ClusterNode<?>> right) {
-			// put the larger graph on the left
-			if (right.getNodeCount() > left.getNodeCount()) {
-				ModuleGraphCluster<ClusterNode<?>> swap = right;
-				right = left;
-				left = swap;
-			}
-
-			this.left = left;
-			this.right = right;
-		}
-
-		void localCompatibilityPerNode(int depth) {
-			Log.log("\nExploring localized compatibility of two graphs (left: %d nodes, right: %d nodes, depth: %d)",
-					left.getNodeCount(), right.getNodeCount(), depth);
-
-			maxExploredDepth = null;
-			maxCompatibleDepth = null;
-			followIndirectBranches = false;
-
-			Set<ClusterNode<?>> unmatchedRightNodes = new HashSet<ClusterNode<?>>(right.getAllNodes());
-
-			int compatibleCount = 0;
-			int incompatibleCount = 0;
-			boolean compatible;
-			for (ClusterNode<?> leftNode : left.getAllNodes()) {
-				compatible = false;
-				NodeList<ClusterNode<?>> hashMatches = right.getGraphData().nodesByHash.get(leftNode.getHash());
-				if (hashMatches != null) {
-					for (int i = 0; i < hashMatches.size(); i++) {
-						ClusterNode<?> rightNode = hashMatches.get(i);
-						if (isCompatible(leftNode, rightNode, depth)) {
-							unmatchedRightNodes.remove(rightNode);
-							compatible = true;
-							break;
-						}
-					}
-				}
-				if (compatible)
-					compatibleCount++;
-				else
-					incompatibleCount++;
-			}
-			int rightGraphCoverage = (right.getNodeCount() - unmatchedRightNodes.size());
-			Log.log("\tPer left node: %d compatible and %d incompatible (%d right coverage)", compatibleCount,
-					incompatibleCount, rightGraphCoverage);
-
-			compatibleCount = rightGraphCoverage;
-			incompatibleCount = 0;
-			for (ClusterNode<?> rightNode : unmatchedRightNodes) {
-				compatible = false;
-				NodeList<ClusterNode<?>> hashMatches = left.getGraphData().nodesByHash.get(rightNode.getHash());
-				if (hashMatches != null) {
-					for (int i = 0; i < hashMatches.size(); i++) {
-						ClusterNode<?> leftNode = hashMatches.get(i);
-						if (isCompatible(leftNode, rightNode, depth)) {
-							compatible = true;
-							break;
-						}
-					}
-				}
-				if (compatible)
-					compatibleCount++;
-				else
-					incompatibleCount++;
-			}
-
-			Log.log("\tPer right node: %d compatible and %d incompatible", compatibleCount, incompatibleCount);
-		}
-
-		void fullCompatibilityPerEntry() {
-			Log.log("\nExploring entry point compatibility of two graphs (left: %d nodes, right: %d nodes)",
-					left.getNodeCount(), right.getNodeCount());
-
-			maxExploredDepth = new MutableInteger(0);
-			maxCompatibleDepth = new MutableInteger(0);
-			followIndirectBranches = true;
-
-			leftCoverageSet = new HashSet<ClusterNode<?>>();
-			rightCoverageSet = new HashSet<ClusterNode<?>>();
-			Set<ClusterNode<?>> leftCompatibleCoverageSet = new HashSet<ClusterNode<?>>();
-			Set<ClusterNode<?>> rightCompatibleCoverageSet = new HashSet<ClusterNode<?>>();
-			List<Integer> compatibleSubgraphDepths = new ArrayList<Integer>();
-
-			int compatibleCount = 0;
-			int incompatibleCount = 0;
-			int totalRightNodes = 0;
-			boolean compatible;
-			Set<ClusterNode<?>> unmatchedRightNodes = new HashSet<ClusterNode<?>>();
-			Set<Long> entryHashes = new HashSet<Long>(left.getEntryHashes());
-			entryHashes.addAll(right.getEntryHashes());
-			for (Long entryHash : entryHashes) {
-				ClusterNode<?> leftEntry = left.getEntryPoint(entryHash);
-				if (leftEntry == null) {
-					Log.log("Entry point 0x%x does not occur on the left side!", entryHash);
-					continue;
-				}
-				ClusterNode<?> rightEntry = right.getEntryPoint(entryHash);
-				if (rightEntry == null) {
-					Log.log("Entry point 0x%x does not occur on the right side!", entryHash);
-					continue;
-				}
-
-				OrdinalEdgeList<ClusterNode<?>> leftEdges = leftEntry.getOutgoingEdges();
-				OrdinalEdgeList<ClusterNode<?>> rightEdges = rightEntry.getOutgoingEdges();
-				try {
-					for (Edge<ClusterNode<?>> rightEdge : rightEdges) {
-						unmatchedRightNodes.add(rightEdge.getToNode());
-						totalRightNodes++;
-					}
-
-					for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
-						ClusterNode<?> leftToNode = leftEdge.getToNode();
-						compatible = false;
-						for (Edge<ClusterNode<?>> rightEdge : rightEdges) {
-							ClusterNode<?> rightToNode = rightEdge.getToNode();
-							if (leftToNode.getHash() == rightToNode.getHash()) {
-								leftCoverageSet.clear();
-								rightCoverageSet.clear();
-								maxExploredDepth.setVal(Integer.MAX_VALUE);
-								maxCompatibleDepth.setVal(Integer.MAX_VALUE);
-								if (isCompatible(leftToNode, rightToNode, Integer.MAX_VALUE)) {
-									unmatchedRightNodes.remove(rightToNode);
-									leftCompatibleCoverageSet.addAll(leftCoverageSet);
-									rightCompatibleCoverageSet.addAll(rightCoverageSet);
-									compatibleSubgraphDepths.add(Integer.MAX_VALUE - maxCompatibleDepth.getVal());
-									compatible = true;
-									break;
-								}
-							}
-						}
-
-						if (compatible)
-							compatibleCount++;
-						else
-							incompatibleCount++;
-					}
-
-					int rightGraphCoverage = (totalRightNodes - unmatchedRightNodes.size());
-					Log.log("\tEntry point 0x%x per left node: %d compatible and %d incompatible (%d right coverage)",
-							entryHash, compatibleCount, incompatibleCount, rightGraphCoverage);
-
-					compatibleCount = rightGraphCoverage;
-					incompatibleCount = 0;
-					for (ClusterNode<?> rightToNode : unmatchedRightNodes) {
-						compatible = false;
-						for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
-							ClusterNode<?> leftToNode = leftEdge.getToNode();
-							if (leftToNode.getHash() == rightToNode.getHash()) {
-								leftCoverageSet.clear();
-								rightCoverageSet.clear();
-								maxExploredDepth.setVal(Integer.MAX_VALUE);
-								maxCompatibleDepth.setVal(Integer.MAX_VALUE);
-								if (isCompatible(leftToNode, rightToNode, Integer.MAX_VALUE)) {
-									leftCompatibleCoverageSet.addAll(leftCoverageSet);
-									rightCompatibleCoverageSet.addAll(rightCoverageSet);
-									compatibleSubgraphDepths.add(Integer.MAX_VALUE - maxCompatibleDepth.getVal());
-									compatible = true;
-									break;
-								}
-							}
-						}
-
-						if (compatible)
-							compatibleCount++;
-						else
-							incompatibleCount++;
-					}
-					Log.log("\tEntry point 0x%x per right node: %d compatible and %d incompatible", entryHash,
-							compatibleCount, incompatibleCount);
-					Log.log("\tCoverage of compatible entry subgraphs: %d left, %d right",
-							leftCompatibleCoverageSet.size(), rightCompatibleCoverageSet.size());
-
-					int totalCompatibleSubgraphDepth = 0;
-					for (int compatibleSubgraphDepth : compatibleSubgraphDepths) {
-						totalCompatibleSubgraphDepth += compatibleSubgraphDepth;
-					}
-					float averageCompatibleSubgraphDepth = (compatibleSubgraphDepths.size() == 0) ? 0f
-							: (totalCompatibleSubgraphDepth / (float) compatibleSubgraphDepths.size());
-					Log.log("\tAverage compatible subgraph depth: %.2f", averageCompatibleSubgraphDepth);
-				} finally {
-					leftEdges.release();
-					rightEdges.release();
-				}
-			}
-		}
-
-		private boolean isCompatible(ClusterNode<?> left, ClusterNode<?> right, int depth) {
-			if ((maxExploredDepth != null) && (depth < maxExploredDepth.getVal()))
-				maxExploredDepth.setVal(depth);
-
-			int ordinalCount = left.getOutgoingOrdinalCount();
-			if ((depth > 0) && (left.getType() != MetaNodeType.CLUSTER_ENTRY) && (ordinalCount != 0)) {
-				ordinals: for (int ordinal = 0; ordinal < ordinalCount; ordinal++) {
-					OrdinalEdgeList<ClusterNode<?>> leftEdges = left.getOutgoingEdges(ordinal);
-					OrdinalEdgeList<ClusterNode<?>> rightEdges = right.getOutgoingEdges(ordinal);
-					try {
-						if (leftEdges.isEmpty() || rightEdges.isEmpty())
-							continue;
-
-						EdgeType leftEdgeType = leftEdges.get(0).getEdgeType();
-						EdgeType rightEdgeType = rightEdges.get(0).getEdgeType();
-
-						if (leftEdgeType != rightEdgeType) {
-							Log.log("Hash collision: edge types differ for hash 0x%x at ordinal %d!", left.getHash(),
-									ordinal);
-							return false;
-						}
-
-						switch (leftEdgeType) {
-							case DIRECT:
-							case CALL_CONTINUATION: {
-								for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
-									ClusterNode<?> leftToNode = leftEdge.getToNode();
-									for (Edge<ClusterNode<?>> rightEdge : rightEdges) {
-										ClusterNode<?> rightToNode = rightEdge.getToNode();
-										if (leftToNode.getHash() == rightToNode.getHash())
-											if (isCompatible(leftToNode, rightToNode, depth - 1))
-												continue ordinals;
-									}
-								}
-								return false;
-							}
-							case INDIRECT:
-							case UNEXPECTED_RETURN:
-								for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
-									ClusterNode<?> leftToNode = leftEdge.getToNode();
-									for (Edge<ClusterNode<?>> rightEdge : rightEdges) {
-										ClusterNode<?> rightToNode = rightEdge.getToNode();
-										if (leftToNode.getHash() == rightToNode.getHash()) {
-											if (followIndirectBranches) {
-												if (!isCompatible(leftToNode, rightToNode, depth - 1))
-													continue;
-											}
-											continue ordinals;
-										}
-									}
-								}
-								return false;
-							case CLUSTER_ENTRY:
-								throw new IllegalStateException(
-										"Cluster entry edges should only appear on cluster entry nodes!");
-						}
-						break;
-					} finally {
-						leftEdges.release();
-						rightEdges.release();
-					}
-				}
-			}
-
-			if ((maxCompatibleDepth != null) && (depth < maxCompatibleDepth.getVal()))
-				maxCompatibleDepth.setVal(depth);
-			if (leftCoverageSet != null)
-				leftCoverageSet.add(left);
-			if (rightCoverageSet != null)
-				rightCoverageSet.add(right);
-
-			return true;
-		}
-	}
-
 	private static class ClusterGraphCache {
 		final GraphMergeCandidate leftData;
 		final GraphMergeCandidate rightData;
@@ -360,6 +85,7 @@ class AnonymousGraphAnalyzer {
 	int subgraphsUnderHalfAverage;
 
 	final ClusterGraphCache graphCache;
+	final AnonymousSubgraphFlowAnalysis flowAnalsis = new AnonymousSubgraphFlowAnalysis();
 
 	List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
@@ -413,11 +139,15 @@ class AnonymousGraphAnalyzer {
 	void analyzeSubgraphs() throws IOException {
 		for (ModuleGraphCluster<ClusterNode<?>> subgraph : maximalSubgraphs) {
 			reportSubgraph("Subgraph", subgraph);
+
+			flowAnalsis.clear();
+			flowAnalsis.analyzeFlow(subgraph);
 		}
 	}
 
 	void reportSubgraph(String name, ModuleGraphCluster<ClusterNode<?>> subgraph) throws IOException {
-		Log.log("\n === %s of %d nodes", name, subgraph.getExecutableNodeCount());
+		Log.log("\n === %s of %d nodes with %d total hashes", name, subgraph.getExecutableNodeCount(),
+				subgraph.getGraphData().nodesByHash.keySet().size());
 
 		String clusterName;
 		AutonomousSoftwareDistribution cluster;
@@ -541,6 +271,9 @@ class AnonymousGraphAnalyzer {
 	}
 
 	private int getEntryEdgeCount(long entryHash, ModuleGraphCluster<?> targetGraph) {
+		if (targetGraph == null)
+			return 0;
+
 		Node<?> targetEntry = targetGraph.getEntryPoint(entryHash);
 		if (targetEntry != null) {
 			OrdinalEdgeList<?> entryEdges = targetEntry.getOutgoingEdges();
@@ -554,6 +287,9 @@ class AnonymousGraphAnalyzer {
 	}
 
 	private int getExitEdgeCount(long exitHash, ModuleGraphCluster<?> targetGraph) {
+		if (targetGraph == null)
+			return 0;
+
 		Node<?> targetExit = targetGraph.getNode(new ClusterBoundaryNode.Key(exitHash, MetaNodeType.CLUSTER_EXIT));
 		if (targetExit != null) {
 			OrdinalEdgeList<?> entryEdges = targetExit.getIncomingEdges();
@@ -568,7 +304,7 @@ class AnonymousGraphAnalyzer {
 
 	void localizedCompatibilityAnalysis(ModuleGraphCluster<ClusterNode<?>> left,
 			ModuleGraphCluster<ClusterNode<?>> right) {
-		CompatibilityAnalysis analysis = new CompatibilityAnalysis(left, right);
+		AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(left, right);
 		analysis.localCompatibilityPerNode(20);
 		analysis.fullCompatibilityPerEntry();
 	}
