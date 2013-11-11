@@ -137,7 +137,7 @@ public class MaximalSubgraphs {
 	private final Map<ClusterNode<?>, Subgraph> subgraphs = new HashMap<ClusterNode<?>, Subgraph>();
 	private final Set<ModuleGraphCluster<ClusterNode<?>>> distinctSubgraphs = new HashSet<ModuleGraphCluster<ClusterNode<?>>>();
 
-	public MaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
+	private MaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
 		this.originalGraph = graph;
 	}
 
@@ -151,7 +151,11 @@ public class MaximalSubgraphs {
 		 */
 		ClusterNode<?> fromNode = consumeFromAtom(edge);
 		if (fromNode != null) {
-			ClusterNode<?> toNode = consumeToAtom(edge);
+			ClusterNode<?> toNode;
+			if (edge.getFromNode() == edge.getToNode())
+				toNode = fromNode;
+			else
+				toNode = consumeToAtom(edge);
 			if (toNode != null) {
 				Subgraph subgraph = addSubgraph();
 				fromNode = subgraph.addNode(fromNode, edge);

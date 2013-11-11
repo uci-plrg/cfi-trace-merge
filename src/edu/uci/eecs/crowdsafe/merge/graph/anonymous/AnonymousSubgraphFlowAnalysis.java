@@ -43,37 +43,39 @@ public class AnonymousSubgraphFlowAnalysis {
 		flowPerEntryNode.clear();
 	}
 
-	void analyzeFlow(ModuleGraphCluster<ClusterNode<?>> graph) {
+	void analyzeFlow(AnonymousModule module) {
 		int returnOnlyCount = 0;
 		int singletonExitCount = 0;
 		int totalBackEdgeCount = 0;
 		int maxBackEdgeCount = 0;
-		for (long entryHash : graph.getEntryHashes()) {
-			ClusterBoundaryNode entryPoint = (ClusterBoundaryNode) graph.getEntryPoint(entryHash);
+		for (ModuleGraphCluster<ClusterNode<?>> graph : module.subgraphs) {
+			for (long entryHash : graph.getEntryHashes()) {
+				ClusterBoundaryNode entryPoint = (ClusterBoundaryNode) graph.getEntryPoint(entryHash);
 
-			OrdinalEdgeList<ClusterNode<?>> edges = entryPoint.getOutgoingEdges();
-			try {
-				for (Edge<ClusterNode<?>> edge : edges) {
-					ClusterNode<?> entryNode = edge.getToNode();
-					flowRecord = new FlowRecord(entryPoint, entryNode);
-					flowPerEntryNode.put(entryNode, flowRecord);
+				OrdinalEdgeList<ClusterNode<?>> edges = entryPoint.getOutgoingEdges();
+				try {
+					for (Edge<ClusterNode<?>> edge : edges) {
+						ClusterNode<?> entryNode = edge.getToNode();
+						flowRecord = new FlowRecord(entryPoint, entryNode);
+						flowPerEntryNode.put(entryNode, flowRecord);
 
-					queue.clear();
-					queue.push(entryNode);
-					flowRecord.coverage.add(entryNode);
-					followFlow();
+						queue.clear();
+						queue.push(entryNode);
+						flowRecord.coverage.add(entryNode);
+						followFlow();
 
-					if (flowRecord.exits.isEmpty())
-						returnOnlyCount++;
-					else if (flowRecord.exits.size() == 1)
-						singletonExitCount++;
+						if (flowRecord.exits.isEmpty())
+							returnOnlyCount++;
+						else if (flowRecord.exits.size() == 1)
+							singletonExitCount++;
 
-					totalBackEdgeCount += flowRecord.backEdgeCount;
-					if (flowRecord.backEdgeCount > maxBackEdgeCount)
-						maxBackEdgeCount = flowRecord.backEdgeCount;
+						totalBackEdgeCount += flowRecord.backEdgeCount;
+						if (flowRecord.backEdgeCount > maxBackEdgeCount)
+							maxBackEdgeCount = flowRecord.backEdgeCount;
+					}
+				} finally {
+					edges.release();
 				}
-			} finally {
-				edges.release();
 			}
 		}
 
@@ -81,15 +83,28 @@ public class AnonymousSubgraphFlowAnalysis {
 		Log.log("\tReturn only: %d; singleton exit: %d", returnOnlyCount, singletonExitCount);
 		Log.log("\tAverage back edge count: %.3f; max: %d", averageBackEdgeCount, maxBackEdgeCount);
 
-		for (FlowRecord flowRecord : flowPerEntryNode.values()) {
-			if (flowRecord.exits.size() > 1) {
-				int coveragePercent = Math
-						.round((flowRecord.coverage.size() / (float) graph.getExecutableNodeCount()) * 100f);
-				if (coveragePercent > 100)
-					toString();
-				Log.log("\tEntry #%d to %d exits covering %d%% of the subgraph", flowRecord.id,
-						flowRecord.exits.size(), coveragePercent);
+		if (flowPerEntryNode.size() < 5) {
+			for (FlowRecord flowRecord : flowPerEntryNode.values()) {
+				if (flowRecord.exits.size() > 1) {
+					int coveragePercent = Math.round((flowRecord.coverage.size() / (float) module
+							.getExecutableNodeCount()) * 100f);
+					if (coveragePercent > 100)
+						throw new IllegalStateException("Coverage must not exceed 100% from any entry point!");
+					Log.log("\tEntry #%d to %d exits covering %d%% of the subgraph", flowRecord.id,
+							flowRecord.exits.size(), coveragePercent);
+				}
 			}
+		} else {
+			int totalExits = 0;
+			int maxExitCount = 0;
+			for (FlowRecord flowRecord : flowPerEntryNode.values()) {
+				totalExits += flowRecord.exits.size();
+				if (flowRecord.exits.size() > maxExitCount)
+					maxExitCount = flowRecord.exits.size();
+			}
+			float averageExitCount = (totalExits / (float) flowPerEntryNode.size());
+			Log.log("\t%d entry points flow on average to %.2f exits; max %d", flowPerEntryNode.size(),
+					averageExitCount, maxExitCount);
 		}
 	}
 

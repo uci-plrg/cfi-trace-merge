@@ -207,14 +207,17 @@ public class AnonymousGraphMergeEngine {
 			ClusterHashMergeDebugLog debugLog) {
 		analyzer = new AnonymousGraphAnalyzer(leftData, rightData);
 		this.debugLog = debugLog;
+
+		AnonymousModule.initialize();
 	}
 
-	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> dynamicGraphs) throws IOException {
+	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs)
+			throws IOException {
 		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
 		// dynamic and static graphs
 
-		List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = analyzer.getMaximalSubgraphs(dynamicGraphs);
-		analyzer.analyzeSubgraphs();
+		analyzer.installSubgraphs(anonymousGraphs);
+		analyzer.analyzeModules();
 
 		// List<ModuleGraphCluster<ClusterNode<?>>> largeSubgraphs = new
 		// ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
@@ -232,13 +235,13 @@ public class AnonymousGraphMergeEngine {
 		// analyzer.localizedCompatibilityAnalysis(maximalSubgraphs.get(0), maximalSubgraphs.get(1));
 		System.exit(0);
 
-		ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraphs.get(0), maximalSubgraphs.get(1), dynamicEvaluator,
-				debugLog);
+		ClusterHashMergeSession.evaluateTwoGraphs(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1),
+				dynamicEvaluator, debugLog);
 
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
 		boolean match = false, fail;
 		ClusterCompatibilityRecord clusterCompatibilityRecord = new ClusterCompatibilityRecord();
-		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : maximalSubgraphs) {
+		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : analyzer.maximalSubgraphs) {
 			if ((maximalSubgraph.getNodeCount() > analyzer.twiceAverage) || (maximalSubgraph.getNodeCount() < 7))
 				continue;
 			// Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());
@@ -368,7 +371,7 @@ public class AnonymousGraphMergeEngine {
 				}
 			}
 
-			analyzer.reportSubgraph("Merged cluster subgraph", mergedClusterGraph);
+			// analyzer.reportSubgraph("Merged cluster subgraph", mergedClusterGraph);
 
 			for (ClusterNode<?> node : mergedClusterGraph.getAllNodes()) {
 				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
