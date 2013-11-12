@@ -232,11 +232,13 @@ public class AnonymousGraphMergeEngine {
 		// maximalSubgraphs.get(1).logGraph(20);
 		// System.exit(0);
 
-		// analyzer.localizedCompatibilityAnalysis(maximalSubgraphs.get(0), maximalSubgraphs.get(1));
-		System.exit(0);
+		analyzer.localizedCompatibilityAnalysis(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1));
+		analyzer.fullCompatibilityAnalysis(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1));
 
-		ClusterHashMergeSession.evaluateTwoGraphs(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1),
-				dynamicEvaluator, debugLog);
+		// ClusterHashMergeSession.evaluateTwoGraphs(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1),
+		// dynamicEvaluator, debugLog);
+
+		System.exit(0);
 
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
 		boolean match = false, fail;

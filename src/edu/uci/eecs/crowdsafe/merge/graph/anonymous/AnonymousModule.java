@@ -85,8 +85,7 @@ public class AnonymousModule {
 	}
 
 	void reportEdgeProfile() {
-		Log.log("Edge profile for anonymous module of %d subgraphs with %d total nodes owned by %s", subgraphs.size(),
-				totalNodeCount, owningCluster.name);
+		Log.log("    --- Edge Profile ---");
 
 		Map<EdgeType, MutableInteger> edgeCountsByType = new EnumMap<EdgeType, MutableInteger>(EdgeType.class);
 		Map<EdgeType, MutableInteger> edgeOrdinalCountsByType = new EnumMap<EdgeType, MutableInteger>(EdgeType.class);

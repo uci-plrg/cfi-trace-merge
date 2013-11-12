@@ -103,7 +103,7 @@ public class AnonymousSubgraphFlowAnalysis {
 					maxExitCount = flowRecord.exits.size();
 			}
 			float averageExitCount = (totalExits / (float) flowPerEntryNode.size());
-			Log.log("\t%d entry points flow on average to %.2f exits; max %d", flowPerEntryNode.size(),
+			Log.log("\t%d entry points flow on average to %.2f exits each; max %d", flowPerEntryNode.size(),
 					averageExitCount, maxExitCount);
 		}
 	}

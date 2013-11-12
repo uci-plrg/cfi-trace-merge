@@ -157,8 +157,13 @@ class AnonymousGraphAnalyzer {
 					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 							entryPoint.getHash());
 					if (cluster == null) {
-						Log.log("Error: unrecognized entry point for anonymous subgraph of %d nodes!",
-								subgraph.getNodeCount());
+						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByInterceptionHash(
+								entryPoint.getHash());
+					}
+					if (cluster == null) {
+						Log.log("Error: unrecognized entry point 0x%x for anonymous subgraph of %d nodes!",
+								entryPoint.getHash(), subgraph.getNodeCount());
+						Log.log("\tSubgraph is owned by %s", owningCluster);
 						continue;
 					}
 
@@ -187,15 +192,14 @@ class AnonymousGraphAnalyzer {
 				}
 			}
 
-			for (ClusterNode<?> node : subgraph.getExitPoints()) {
-				OrdinalEdgeList<?> edges = node.getIncomingEdges();
+			for (ClusterNode<?> exitPoint : subgraph.getExitPoints()) {
+				OrdinalEdgeList<?> edges = exitPoint.getIncomingEdges();
 				try {
 					int leftTargetCount = 0, rightTargetCount = 0;
 					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
-							node.getHash());
+							exitPoint.getHash());
 					if (cluster == null) {
-						Log.log("Error: unrecognized exit point for anonymous subgraph of %d nodes!",
-								subgraph.getNodeCount());
+						// Log.log("     Callout 0x%x (%s) to an exported function", node.getHash());
 						continue;
 					}
 
@@ -217,8 +221,8 @@ class AnonymousGraphAnalyzer {
 					}
 
 					clusterName = cluster.name;
-					leftTargetCount = getEntryEdgeCount(node.getHash(), graphCache.getLeftGraph(cluster));
-					rightTargetCount = getEntryEdgeCount(node.getHash(), graphCache.getRightGraph(cluster));
+					leftTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getLeftGraph(cluster));
+					rightTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getRightGraph(cluster));
 
 					// Log.log("     Callout 0x%x (%s) from %d nodes to %d left targets and %d right targets",
 					// node.getHash(), clusterName, edges.size(), leftTargetCount, rightTargetCount);
@@ -249,10 +253,28 @@ class AnonymousGraphAnalyzer {
 
 	void analyzeModules() throws IOException {
 		for (AnonymousModule module : modulesByOwner.values()) {
+			Log.log(" ==== Anonymous module analysis for generated module of %s ====", module.owningCluster.name);
+			Log.log("\t%d subgraphs with %d total nodes", module.subgraphs.size(), module.getNodeCount());
+
 			module.reportEdgeProfile();
 
 			flowAnalsis.clear();
 			flowAnalsis.analyzeFlow(module);
+
+			for (int i = 0; i < module.subgraphs.size() - 1; i++) {
+				for (int j = i + 1; j < module.subgraphs.size(); j++) {
+					ModuleGraphCluster<ClusterNode<?>> iGraph = module.subgraphs.get(i);
+					ModuleGraphCluster<ClusterNode<?>> jGraph = module.subgraphs.get(j);
+
+					int sizeDelta = (iGraph.getNodeCount() / jGraph.getNodeCount());
+					if (sizeDelta > 100)
+						continue;
+
+					AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(
+							iGraph, jGraph);
+					analysis.fullCompatibilityPerEntry();
+				}
+			}
 		}
 	}
 
@@ -292,6 +314,10 @@ class AnonymousGraphAnalyzer {
 			ModuleGraphCluster<ClusterNode<?>> right) {
 		AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(left, right);
 		analysis.localCompatibilityPerNode(20);
+	}
+
+	void fullCompatibilityAnalysis(ModuleGraphCluster<ClusterNode<?>> left, ModuleGraphCluster<ClusterNode<?>> right) {
+		AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(left, right);
 		analysis.fullCompatibilityPerEntry();
 	}
 

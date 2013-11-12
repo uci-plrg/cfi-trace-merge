@@ -73,14 +73,8 @@ public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
 	public ClusterHashMergeDebugLog() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
-		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
-		// trackedNodes.add(new TrackedNodeKey(0x5b9, 0x2674f8aff4f1L));
-
-		// No entry points into wscinterop.dll(0xc4fc-i1|0x875b331922)
-		// trackedNodes.add(new TrackedNodeKey(0x4fc, 0x875b331922L));
-
-		// CC lost: ntdll.dll(0x5b5b9-i0|0x2674f8aff4f1)
-		// debugRelativeTags.add(0x5b5b9L);
+		// duplicate CC
+		// trackedNodes.add(new TrackedNodeKey(0x2a2, 0x1ee1633ad45L));
 	}
 
 	void debugCheck(Node<?> node) {
