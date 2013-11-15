@@ -147,6 +147,7 @@ class AnonymousGraphAnalyzer {
 			allConnectingClusters.clear();
 			if (subgraph.getEntryPoints().isEmpty()) {
 				Log.log("Error: entry point missing for anonymous subgraph of %d nodes!", subgraph.getNodeCount());
+				subgraph.logGraph();
 				continue;
 			}
 
@@ -258,9 +259,11 @@ class AnonymousGraphAnalyzer {
 
 			module.reportEdgeProfile();
 
-			flowAnalsis.clear();
-			flowAnalsis.analyzeFlow(module);
+			//flowAnalsis.clear();
+			//flowAnalsis.analyzeFlow(module);
 
+			/**
+			 * <pre>
 			for (int i = 0; i < module.subgraphs.size() - 1; i++) {
 				for (int j = i + 1; j < module.subgraphs.size(); j++) {
 					ModuleGraphCluster<ClusterNode<?>> iGraph = module.subgraphs.get(i);
@@ -275,6 +278,7 @@ class AnonymousGraphAnalyzer {
 					analysis.fullCompatibilityPerEntry();
 				}
 			}
+			 */
 		}
 	}
 
