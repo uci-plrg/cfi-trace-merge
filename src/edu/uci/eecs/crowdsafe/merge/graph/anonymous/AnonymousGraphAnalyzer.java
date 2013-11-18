@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,20 +12,14 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
-import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareUnit;
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.MaximalSubgraphs;
 
 class AnonymousGraphAnalyzer {
 
@@ -73,6 +65,44 @@ class AnonymousGraphAnalyzer {
 		}
 	}
 
+	private static class ModuleOwnerKey {
+		final AutonomousSoftwareDistribution cluster;
+		final boolean isBlackBox;
+
+		ModuleOwnerKey(AutonomousSoftwareDistribution cluster, boolean isBlackBox) {
+			this.cluster = cluster;
+			this.isBlackBox = isBlackBox;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((cluster == null) ? 0 : cluster.hashCode());
+			result = prime * result + (isBlackBox ? 1231 : 1237);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ModuleOwnerKey other = (ModuleOwnerKey) obj;
+			if (cluster == null) {
+				if (other.cluster != null)
+					return false;
+			} else if (!cluster.equals(other.cluster))
+				return false;
+			if (isBlackBox != other.isBlackBox)
+				return false;
+			return true;
+		}
+	}
+
 	int totalSize = 0;
 	int minSize = Integer.MAX_VALUE;
 	int maxSize = 0;
@@ -87,8 +117,8 @@ class AnonymousGraphAnalyzer {
 	final ClusterGraphCache graphCache;
 	final AnonymousSubgraphFlowAnalysis flowAnalsis = new AnonymousSubgraphFlowAnalysis();
 
-	List<ModuleGraphCluster<ClusterNode<?>>> maximalSubgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
-	Map<AutonomousSoftwareDistribution, AnonymousModule> modulesByOwner = new HashMap<AutonomousSoftwareDistribution, AnonymousModule>();
+	List<AnonymousSubgraph> maximalSubgraphs = new ArrayList<AnonymousSubgraph>();
+	Map<ModuleOwnerKey, AnonymousModule> modulesByOwner = new HashMap<ModuleOwnerKey, AnonymousModule>();
 
 	public AnonymousGraphAnalyzer(GraphMergeCandidate leftData, GraphMergeCandidate rightData) {
 		graphCache = new ClusterGraphCache(leftData, rightData);
@@ -96,8 +126,7 @@ class AnonymousGraphAnalyzer {
 
 	void installSubgraphs(List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) throws IOException {
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : anonymousGraphs) {
-			for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : MaximalSubgraphs
-					.getMaximalSubgraphs(dynamicGraph)) {
+			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph)) {
 				int size = maximalSubgraph.getNodeCount();
 				totalSize += size;
 				if (size < minSize)
@@ -136,7 +165,7 @@ class AnonymousGraphAnalyzer {
 
 		Set<AutonomousSoftwareDistribution> allConnectingClusters = new HashSet<AutonomousSoftwareDistribution>();
 		AutonomousSoftwareDistribution owningCluster;
-		for (ModuleGraphCluster<ClusterNode<?>> subgraph : maximalSubgraphs) {
+		for (AnonymousSubgraph subgraph : maximalSubgraphs) {
 			// if (subgraph.getAllNodes().size() > 1000)
 			// Log.log("\n === Subgraph of %d nodes with %d total hashes", subgraph.getExecutableNodeCount(),
 			// subgraph.getGraphData().nodesByHash.keySet().size());
@@ -243,10 +272,11 @@ class AnonymousGraphAnalyzer {
 				}
 			}
 
-			AnonymousModule module = modulesByOwner.get(owningCluster);
+			ModuleOwnerKey key = new ModuleOwnerKey(owningCluster, subgraph.isAnonymousBlackBox());
+			AnonymousModule module = modulesByOwner.get(key);
 			if (module == null) {
 				module = new AnonymousModule(owningCluster);
-				modulesByOwner.put(owningCluster, module);
+				modulesByOwner.put(key, module);
 			}
 			module.addSubgraph(subgraph);
 		}
@@ -254,31 +284,62 @@ class AnonymousGraphAnalyzer {
 
 	void analyzeModules() throws IOException {
 		for (AnonymousModule module : modulesByOwner.values()) {
-			Log.log(" ==== Anonymous module analysis for generated module of %s ====", module.owningCluster.name);
-			Log.log("\t%d subgraphs with %d total nodes", module.subgraphs.size(), module.getNodeCount());
+			if (module.isBlackBox()) {
+				Log.log(" === Anonymous black box module owned by %s ===", module.owningCluster.name);
 
-			module.reportEdgeProfile();
-
-			//flowAnalsis.clear();
-			//flowAnalsis.analyzeFlow(module);
-
-			/**
-			 * <pre>
-			for (int i = 0; i < module.subgraphs.size() - 1; i++) {
-				for (int j = i + 1; j < module.subgraphs.size(); j++) {
-					ModuleGraphCluster<ClusterNode<?>> iGraph = module.subgraphs.get(i);
-					ModuleGraphCluster<ClusterNode<?>> jGraph = module.subgraphs.get(j);
-
-					int sizeDelta = (iGraph.getNodeCount() / jGraph.getNodeCount());
-					if (sizeDelta > 100)
-						continue;
-
-					AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(
-							iGraph, jGraph);
-					analysis.fullCompatibilityPerEntry();
+				AutonomousSoftwareDistribution cluster;
+				for (AnonymousSubgraph subgraph : module.subgraphs) {
+					if (module.hasEscapes(subgraph)) {
+						Log.log("\tEscapes:");
+						for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
+							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
+									entry.getHash());
+							if (cluster != module.owningCluster)
+								Log.log("\t\tEntry from %s", cluster.name);
+						}
+						for (ClusterNode<?> exit : subgraph.getExitPoints()) {
+							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
+									exit.getHash());
+							if (cluster != module.owningCluster)
+								Log.log("\t\tExit to %s", cluster.name);
+						}
+					} else {
+						Log.log("\tNo escapes");
+					}
 				}
+				Log.log();
+			} else {
+				Log.log(" ==== Anonymous white box module owned by %s ====", module.owningCluster.name);
+				Log.log("\t%d subgraphs with %d total nodes", module.subgraphs.size(), module.getNodeCount());
+
+				module.reportEdgeProfile();
+				if (module.subgraphs.size() < 10) {
+					for (AnonymousSubgraph subgraph : module.subgraphs)
+						if (subgraph.getNodeCount() < 10)
+							subgraph.logGraph();
+				}
+
+				// flowAnalsis.clear();
+				// flowAnalsis.analyzeFlow(module);
+
+				/**
+				 * <pre>
+    			for (int i = 0; i < module.subgraphs.size() - 1; i++) {
+    				for (int j = i + 1; j < module.subgraphs.size(); j++) {
+    					ModuleGraphCluster<ClusterNode<?>> iGraph = module.subgraphs.get(i);
+    					ModuleGraphCluster<ClusterNode<?>> jGraph = module.subgraphs.get(j);
+    
+    					int sizeDelta = (iGraph.getNodeCount() / jGraph.getNodeCount());
+    					if (sizeDelta > 100)
+    						continue;
+    
+    					AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(
+    							iGraph, jGraph);
+    					analysis.fullCompatibilityPerEntry();
+    				}
+    			}
+				 */
 			}
-			 */
 		}
 	}
 

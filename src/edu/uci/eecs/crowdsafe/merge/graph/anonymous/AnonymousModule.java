@@ -60,16 +60,27 @@ public class AnonymousModule {
 	private static final Map<String, String> OWNER_ALIAS = new HashMap<String, String>();
 
 	final AutonomousSoftwareDistribution owningCluster;
-	final List<ModuleGraphCluster<ClusterNode<?>>> subgraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+	final List<AnonymousSubgraph> subgraphs = new ArrayList<AnonymousSubgraph>();
 
 	private int totalNodeCount = 0;
 	private int executableNodeCount = 0;
+	private boolean isBlackBox = false;
 
 	public AnonymousModule(AutonomousSoftwareDistribution owningCluster) {
 		this.owningCluster = owningCluster;
 	}
 
-	void addSubgraph(ModuleGraphCluster<ClusterNode<?>> subgraph) {
+	void addSubgraph(AnonymousSubgraph subgraph) {
+		if (subgraphs.isEmpty()) {
+			isBlackBox = subgraph.isAnonymousBlackBox();
+		} else if (subgraph.isAnonymousBlackBox() != isBlackBox) {
+			if (isBlackBox) {
+				throw new IllegalArgumentException("Attempt to add a white box subgraph to a black box module!");
+			} else {
+				throw new IllegalArgumentException("Attempt to add a black box subgraph to a white box module!");
+			}
+		}
+
 		subgraphs.add(subgraph);
 
 		totalNodeCount += subgraph.getNodeCount();
@@ -82,6 +93,22 @@ public class AnonymousModule {
 
 	public int getExecutableNodeCount() {
 		return executableNodeCount;
+	}
+
+	public boolean isBlackBox() {
+		return isBlackBox;
+	}
+
+	boolean hasEscapes(ModuleGraphCluster<ClusterNode<?>> subgraph) {
+		for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
+			if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(entry.getHash()) != owningCluster)
+				return true;
+		}
+		for (ClusterNode<?> exit : subgraph.getExitPoints()) {
+			if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(exit.getHash()) != owningCluster)
+				return true;
+		}
+		return false;
 	}
 
 	void reportEdgeProfile() {
@@ -102,7 +129,7 @@ public class AnonymousModule {
 		int ordinalCount;
 		EdgeType edgeType;
 
-		for (ModuleGraphCluster<ClusterNode<?>> subgraph : subgraphs) {
+		for (AnonymousSubgraph subgraph : subgraphs) {
 			for (ClusterNode<?> node : subgraph.getAllNodes()) {
 				if (node.getType().isExecutable) {
 					ordinalCount = node.getOutgoingOrdinalCount();

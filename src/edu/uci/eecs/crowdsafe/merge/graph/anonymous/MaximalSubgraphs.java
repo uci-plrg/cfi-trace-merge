@@ -1,4 +1,4 @@
-package edu.uci.eecs.crowdsafe.merge.graph.hash;
+package edu.uci.eecs.crowdsafe.merge.graph.anonymous;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 public class MaximalSubgraphs {
 
 	private class Subgraph {
-		final ModuleGraphCluster<ClusterNode<?>> graph = new ModuleGraphCluster<ClusterNode<?>>(originalGraph.cluster);
+		final AnonymousSubgraph graph = new AnonymousSubgraph(originalGraph.cluster);
 		final Map<Long, ClusterBoundaryNode> boundaryNodes = new HashMap<Long, ClusterBoundaryNode>();
 
 		ClusterNode<?> addNode(ClusterNode<?> node, Edge<ClusterNode<?>> edge) {
@@ -108,14 +108,12 @@ public class MaximalSubgraphs {
 	}
 
 	// this method modifies `graph`
-	public static Set<ModuleGraphCluster<ClusterNode<?>>> getMaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
+	public static Set<AnonymousSubgraph> getMaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
 		MaximalSubgraphs processor = new MaximalSubgraphs(graph);
 
 		for (ClusterNode<?> node : graph.getAllNodes()) {
 			processor.atoms.add(node);
 		}
-
-		MaximalSubgraphs.class.toString();
 
 		for (ClusterNode<?> node : graph.getAllNodes()) {
 			OrdinalEdgeList<ClusterNode<?>> edgeList = node.getOutgoingEdges();
@@ -135,7 +133,7 @@ public class MaximalSubgraphs {
 
 	private final Set<ClusterNode<?>> atoms = new HashSet<ClusterNode<?>>();
 	private final Map<ClusterNode<?>, Subgraph> subgraphs = new HashMap<ClusterNode<?>, Subgraph>();
-	private final Set<ModuleGraphCluster<ClusterNode<?>>> distinctSubgraphs = new HashSet<ModuleGraphCluster<ClusterNode<?>>>();
+	private final Set<AnonymousSubgraph> distinctSubgraphs = new HashSet<AnonymousSubgraph>();
 
 	private MaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
 		this.originalGraph = graph;
