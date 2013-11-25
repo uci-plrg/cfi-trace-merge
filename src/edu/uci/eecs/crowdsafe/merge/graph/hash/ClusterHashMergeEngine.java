@@ -331,10 +331,6 @@ class ClusterHashMergeEngine {
 								rightEdge.getOrdinal());
 					}
 
-					if ((mergedEdge.getEdgeType() == EdgeType.CALL_CONTINUATION)
-							&& (mergedFromNode.getCallContinuation() != null))
-						continue;
-
 					mergedFromNode.addOutgoingEdge(mergedEdge);
 
 					if (mergedToNode == null) {

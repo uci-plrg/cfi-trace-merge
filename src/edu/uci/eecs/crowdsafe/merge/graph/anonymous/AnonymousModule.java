@@ -157,11 +157,6 @@ public class AnonymousModule {
 							edges.release();
 						}
 					}
-					if (node.getCallContinuation() != null) {
-						totalEdges++;
-						edgeCountsByType.get(EdgeType.CALL_CONTINUATION).increment();
-						edgeOrdinalCountsByType.get(EdgeType.CALL_CONTINUATION).increment();
-					}
 				}
 			}
 		}

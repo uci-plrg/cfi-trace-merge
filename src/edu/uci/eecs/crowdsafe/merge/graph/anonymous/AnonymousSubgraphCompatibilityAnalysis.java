@@ -237,15 +237,6 @@ class AnonymousSubgraphCompatibilityAnalysis {
 		if ((maxExploredDepth != null) && (depth < maxExploredDepth.getVal()))
 			maxExploredDepth.setVal(depth);
 
-		if ((leftNode.getCallContinuation() != null) && (rightNode.getCallContinuation() != null)) {
-			Edge<ClusterNode<?>> leftContinuation = leftNode.getCallContinuation();
-			Edge<ClusterNode<?>> rightContinuation = leftNode.getCallContinuation();
-			if (leftContinuation.getToNode().getHash() == rightContinuation.getToNode().getHash()) {
-				if (!isCompatible(leftContinuation.getToNode(), rightContinuation.getToNode(), depth - 1))
-					return false;
-			}
-		}
-
 		int ordinalCount = leftNode.getOutgoingOrdinalCount();
 		if ((depth > 0) && (leftNode.getType() != MetaNodeType.CLUSTER_ENTRY) && (ordinalCount != 0)) {
 			ordinals: for (int ordinal = 0; ordinal < ordinalCount; ordinal++) {

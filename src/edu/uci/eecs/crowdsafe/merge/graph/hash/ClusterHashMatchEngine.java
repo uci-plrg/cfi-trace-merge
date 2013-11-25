@@ -86,23 +86,6 @@ public class ClusterHashMatchEngine {
 			}
 		}
 
-		{
-			// First consider the CallContinuation edge
-			Edge<? extends Node<?>> leftEdge;
-			Edge<? extends Node<?>> rightEdge;
-			if ((rightEdge = rightNode.getCallContinuation()) != null
-					&& (leftEdge = leftNode.getCallContinuation()) != null) {
-				if (leftEdge.getToNode().getHash() != rightEdge.getToNode().getHash()) {
-					session.contextRecord.fail("Call continuation from %s to differing hashes: %s and %s",
-							leftEdge.getFromNode(), leftEdge.getToNode(), rightEdge.getToNode());
-					return;
-				}
-				getContextSimilarity(leftEdge.getToNode(), rightEdge.getToNode(), depth - 1);
-				if (session.contextRecord.isFailed())
-					return;
-			}
-		}
-
 		int minOrdinal = Math.min(leftNode.getOutgoingOrdinalCount(), rightNode.getOutgoingOrdinalCount());
 		for (int ordinal = 0; ordinal < minOrdinal; ordinal++) {
 			List<? extends Edge<? extends Node<?>>> leftEdges = leftNode.getOutgoingEdges(ordinal);
@@ -115,6 +98,7 @@ public class ClusterHashMatchEngine {
 			EdgeType type = leftEdges.get(0).getEdgeType();
 			switch (type) {
 				case DIRECT:
+				case CALL_CONTINUATION:
 					int matchCount = 0;
 					for (Edge<? extends Node<?>> leftEdge : leftEdges) {
 						for (Edge<? extends Node<?>> rightEdge : rightEdges) {
@@ -284,15 +268,6 @@ public class ClusterHashMatchEngine {
 
 		OrdinalEdgeList<? extends Node<?>> leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
 		try {
-			if (rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) {
-				Edge<? extends Node<?>> callContinuation = leftParent.getCallContinuation();
-				if (callContinuation != null) {
-					if (callContinuation.getToNode().getHash() == rightEdge.getToNode().getHash()) {
-						return callContinuation.getToNode();
-					}
-				}
-			}
-
 			if (leftEdges.size() == 1) {
 				Node<?> leftChild = leftEdges.get(0).getToNode();
 				if ((leftChild.getHash() == rightToNode.getHash())
@@ -478,12 +453,6 @@ public class ClusterHashMatchEngine {
 
 		if (!left.hasCompatibleEdges(right))
 			return false;
-
-		if (left.getCallContinuation() != null) {
-			if (!isHashIdenticalSubgraph(left.getCallContinuation().getToNode(), right.getCallContinuation()
-					.getToNode(), depth - 1))
-				return false;
-		}
 
 		for (int ordinal = 0; ordinal < left.getOutgoingOrdinalCount(); ordinal++) {
 			OrdinalEdgeList<?> leftEdges = left.getOutgoingEdges(ordinal);
