@@ -213,6 +213,9 @@ public class AnonymousGraphMergeEngine {
 
 	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs)
 			throws IOException {
+
+		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+
 		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
 		// dynamic and static graphs
 
@@ -238,7 +241,8 @@ public class AnonymousGraphMergeEngine {
 		// ClusterHashMergeSession.evaluateTwoGraphs(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1),
 		// dynamicEvaluator, debugLog);
 
-		// System.exit(0);
+		if (true)
+			return anonymousGraph;
 
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
 		boolean match = false, fail;
@@ -322,7 +326,6 @@ public class AnonymousGraphMergeEngine {
 		// TODO: evaluate each cluster -> merge all its graphs together if valid
 
 		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
-		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		Log.log("\nReduced anonymous graph to %d subgraph clusters:", subgraphClusters.size());
 		Collections.sort(subgraphClusters, new SizeOrder());
 		SubgraphCluster spillCluster;
