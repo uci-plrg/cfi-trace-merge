@@ -24,7 +24,7 @@ class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
 	public void addNode(ClusterNode<?> node) {
 		super.addNode(node);
 
-		if (node.getType() == MetaNodeType.BLACK_BOX_SINGLETON) {
+		if (node.getType() == MetaNodeType.SINGLETON) {
 			if (getExecutableNodeCount() > 0)
 				throw new IllegalArgumentException(
 						"Cannot add a black box singleton to a graph having executable nodes.");

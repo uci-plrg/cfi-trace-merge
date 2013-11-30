@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareModule;
 import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareUnit;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
@@ -131,7 +132,7 @@ public class AnalysisUtil {
 		SoftwareUnit rightUnit = rightNode.getModule().unit;
 
 		// Cannot normalized tags from unknown modules
-		if (rightUnit == SoftwareUnit.DYNAMORIO) {
+		if (rightUnit == SoftwareModule.DYNAMORIO_MODULE.unit) {
 			return MatchResult.Unknown;
 		}
 
