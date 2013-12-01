@@ -125,6 +125,9 @@ class AnonymousGraphAnalyzer {
 	}
 
 	void installSubgraphs(List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) throws IOException {
+		if (anonymousGraphs.isEmpty())
+			return;
+
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : anonymousGraphs) {
 			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph)) {
 				int size = maximalSubgraph.getNodeCount();
