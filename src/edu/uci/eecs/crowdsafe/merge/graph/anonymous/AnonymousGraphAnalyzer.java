@@ -288,9 +288,11 @@ class AnonymousGraphAnalyzer {
 				Log.log(" === Anonymous black box module owned by %s ===", module.owningCluster.name);
 
 				AutonomousSoftwareDistribution cluster;
+				int arbitrarySubgraphId = -1;
 				for (AnonymousSubgraph subgraph : module.subgraphs) {
+					arbitrarySubgraphId++;
 					if (module.hasEscapes(subgraph)) {
-						Log.log("\tEscapes:");
+						Log.log("\tEscapes in subgraph %d:", arbitrarySubgraphId);
 						for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
 							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 									entry.getHash());
@@ -304,7 +306,7 @@ class AnonymousGraphAnalyzer {
 								Log.log("\t\tExit to %s", cluster.name);
 						}
 					} else {
-						Log.log("\tNo escapes");
+						Log.log("\tNo escapes in subgraph %d", arbitrarySubgraphId);
 					}
 				}
 				Log.log();
