@@ -305,7 +305,9 @@ class AnonymousGraphAnalyzer {
 						for (ClusterNode<?> exit : subgraph.getExitPoints()) {
 							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
 									exit.getHash());
-							if (cluster != module.owningCluster)
+							if (cluster == null)
+								Log.log("\t\tError! Exit to unknown cluster!");
+							else if (cluster != module.owningCluster)
 								Log.log("\t\tExit to %s", cluster.name);
 						}
 					} else {
