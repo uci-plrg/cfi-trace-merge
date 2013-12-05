@@ -54,7 +54,7 @@ class ClusterTagMergeEngine {
 
 	private ClusterNode<?> getCorrespondingNode(Node<?> left) {
 		ClusterNode<?> right = session.right.graph.getNode(left.getKey());
-		if (right != null)
+		if ((right != null) && (right.getHash() == left.getHash()))
 			return right;
 
 		NodeList<ClusterNode<?>> byHash = session.right.graph.getGraphData().nodesByHash.get(left.getHash());
