@@ -4,97 +4,61 @@
 
 function print_usage() {
   echo "Usage: "
-  echo "    round-robin-merge <logdir> <run-dir>*"
-  echo "    round-robin-merge <logdir> <run-listing> (file of <run-dir>*)"
-  echo "    -r : resume (skip completed executions)"
-  echo "    -v : verbose output"
-  echo "    -p : pair of run dirs, comparing runs of dir1 only with runs of dir2, never to other runs of dir1"
+  echo "    round-robin-merge [ pass-through-options ] <run-dir>*"
+  echo "    round-robin-merge [ pass-through-options ] <run-listing> (file of <run-dir>*)"
 }
 
 check_help $1 print_usage
 
 function merge() {
-  a=$1
-  b=$2
-  logfile=$logdir"/"$(basename $a)"~"$(basename $b)".merge.log"
-  [ ! -z $skip ] && [ -e $logfile ] && { [ ! -z $verbose ] && \
-    echo "Skipping completed merge "$logfile; continue; }
-
-  cs-merge $clusters $a $b $logfile
-}
-
-function universal_merge() {
   targets=$1
-  runs=($(find -L $targets -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
 
-  echo "Found "${#runs[@]}" runs"
-  for ((i = 0; (i + 1) < ${#runs[@]}; i++))
-  do
-    if [ ${runs[$i]} == ${runs[$i+1]} ] 
-    then
-      echo "Multiple runs found in directory "${runs[$i]}
-      echo "Merging requires each run to be in its own directory"
-      exit
-    fi
-  done
+  run_list_file="/tmp/"$(basename $0)"."$RANDOM".log"
 
-  for ((i = 0; (i + 1) < ${#runs[@]}; i++))
+  echo "Writing run list to "$run_list_file
+
+  for f in $(find -L $targets -type 'f' -name "*.graph-node.*")
   do
-    for ((j = ($i + 1); j < ${#runs[@]}; j++))
-    do
-      merge ${runs[$i]} ${runs[$j]}
-    done
+    echo $(dirname $f) >> $run_list_file
   done
+  
+  uniq $run_list_file > $run_list_file".1"
+  mv $run_list_file".1" $run_list_file
+
+  java $jvm_options -cp $cp $main_class $clusters $csc_dir $log_dir $resume \
+    $thread_count $unity $run_list_file
+
+  #rm $run_list_file
 }
 
-function pair_merge() {
-  left=$1
-  right=$2
+main_class="edu.uci.eecs.crowdsafe.merge.graph.main.RoundRobinMerge"
+append_classpath "CROWD_SAFE_MERGE_DIR"
+append_classpath "CROWD_SAFE_COMMON_DIR"
+jvm_options="-Xms6144M -Xmx12288M"
 
-  left_runs=($(find -L $left -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
-  right_runs=($(find -L $right -type 'f' -name "*.graph-node.*" | sed "s/\/[^/]\+$//" | sort))
-
-  echo "Found "${#left_runs[@]}" runs on the left and "${#right_runs[@]}" runs on the right"
-  for ((i = 0; i < ${#left_runs[@]}; i++))
-  do
-    for ((j = 0; j < ${#right_runs[@]}; j++))
-    do
-      merge ${left_runs[$i]} ${right_runs[$j]}
-    done
-  done
-}
-
-while getopts "rvc:p" Option
+while getopts "c:d:l:t:ru" Option
 do
   case $Option in
-    r ) skip=true;;
-    v ) verbose=true;;
     c ) clusters="-c "$OPTARG;;
-    p ) pairs=true;;
+    d ) csc_dir="-d "$OPTARG;;
+    l ) log_dir="-l "$OPTARG;;
+    r ) resume="-r";;
+    t ) thread_count="-t "$OPTARG;;
+    u ) unity="-u";;
     * ) usage; exit;;
   esac
 done
 shift $(($OPTIND - 1))
 
-logdir=${1%/}
-shift
-
-if [ -z $pairs ]
+if [ -f "$1" ]
 then
-  if [ -f "$1" ]
-  then
-    targets=$(cat $1)
-  else
-    for d in $@
-    do
-      targets=$targets" "$d
-    done
-  fi
-  universal_merge $targets
+  targets=$(cat $1)
 else
-  [ ! -z $1 ] && [ ! -z $2 ] && [ -z $3 ] || \
-    { echo "Pair merging requires exactly two run directories. Exiting now" && exit 1; }
-  
-  pair_merge $1 $2
+  for d in $@
+  do
+    targets=$targets" "$d
+  done
 fi
+echo "targets: "$targets
+merge "$targets"
 
