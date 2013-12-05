@@ -99,6 +99,7 @@ public class ClusterHashMatchEngine {
 			switch (type) {
 				case DIRECT:
 				case CALL_CONTINUATION:
+				case EXCEPTION_CONTINUATION:
 					int matchCount = 0;
 					for (Edge<? extends Node<?>> leftEdge : leftEdges) {
 						for (Edge<? extends Node<?>> rightEdge : rightEdges) {
@@ -298,6 +299,9 @@ public class ClusterHashMatchEngine {
 								break;
 							case CALL_CONTINUATION:
 								session.statistics.callContinuationMatch();
+								break;
+							case EXCEPTION_CONTINUATION:
+								session.statistics.exceptionContinuationMatch();
 								break;
 							default:
 								throw new IllegalArgumentException(

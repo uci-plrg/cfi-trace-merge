@@ -5,6 +5,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.common.log.Log;
 
 // TODO: this really only works for ClusterNode graphs on both sides, b/c the hashes will differ with ExecutionNode 
 // and the equals() methods reject other types.

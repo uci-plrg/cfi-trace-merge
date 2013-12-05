@@ -269,6 +269,8 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 			builder.summary.clear().setIndirectEdgesMatched(session.statistics.getIndirectEdgeMatchCount());
 			builder.summary.setPureHeuristicMatches(session.statistics.getPureHeuristicMatchCount());
 			builder.summary.setCallContinuationEdgesMatched(session.statistics.getCallContinuationMatchCount());
+			builder.summary.setExceptionContinuationEdgesMatched(session.statistics
+					.getExceptionContinuationMatchCount());
 			builder.summary.setPossiblyRewrittenBlocks(session.statistics.getPossibleRewrites());
 			builder.summary.setModuleRelativeTagMismatches(session.matchedNodes.HACK_leftMismatchedNodes.size()
 					+ HACK_moduleRelativeTagMisses.size());
@@ -316,7 +318,7 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 	public HashMerge.HashMergeResults getResults() {
 		return builder.results.build();
 	}
-	
+
 	@Override
 	public GraphMergeStrategy getStrategy() {
 		return GraphMergeStrategy.HASH;

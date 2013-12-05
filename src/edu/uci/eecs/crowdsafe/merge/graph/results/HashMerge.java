@@ -4365,6 +4365,16 @@ public final class HashMerge {
      */
     int getCallContinuationEdgesMatched();
 
+    // optional int32 exception_continuation_edges_matched = 8;
+    /**
+     * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+     */
+    boolean hasExceptionContinuationEdgesMatched();
+    /**
+     * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+     */
+    int getExceptionContinuationEdgesMatched();
+
     // optional int32 possibly_rewritten_blocks = 4;
     /**
      * <code>optional int32 possibly_rewritten_blocks = 4;</code>
@@ -4476,24 +4486,24 @@ public final class HashMerge {
               break;
             }
             case 32: {
-              bitField0_ |= 0x00000008;
+              bitField0_ |= 0x00000010;
               possiblyRewrittenBlocks_ = input.readInt32();
               break;
             }
             case 40: {
-              bitField0_ |= 0x00000010;
+              bitField0_ |= 0x00000020;
               moduleRelativeTagMismatches_ = input.readInt32();
               break;
             }
             case 48: {
-              bitField0_ |= 0x00000020;
+              bitField0_ |= 0x00000040;
               mismatchedSubgraphCount_ = input.readInt32();
               break;
             }
             case 56: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 largestMismatchedSubgraphsSize_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               largestMismatchedSubgraphsSize_.add(input.readInt32());
               break;
@@ -4501,14 +4511,19 @@ public final class HashMerge {
             case 58: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080) && input.getBytesUntilLimit() > 0) {
                 largestMismatchedSubgraphsSize_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               while (input.getBytesUntilLimit() > 0) {
                 largestMismatchedSubgraphsSize_.add(input.readInt32());
               }
               input.popLimit(limit);
+              break;
+            }
+            case 64: {
+              bitField0_ |= 0x00000008;
+              exceptionContinuationEdgesMatched_ = input.readInt32();
               break;
             }
           }
@@ -4519,7 +4534,7 @@ public final class HashMerge {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           largestMismatchedSubgraphsSize_ = java.util.Collections.unmodifiableList(largestMismatchedSubgraphsSize_);
         }
         this.unknownFields = unknownFields.build();
@@ -4602,6 +4617,22 @@ public final class HashMerge {
       return callContinuationEdgesMatched_;
     }
 
+    // optional int32 exception_continuation_edges_matched = 8;
+    public static final int EXCEPTION_CONTINUATION_EDGES_MATCHED_FIELD_NUMBER = 8;
+    private int exceptionContinuationEdgesMatched_;
+    /**
+     * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+     */
+    public boolean hasExceptionContinuationEdgesMatched() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+     */
+    public int getExceptionContinuationEdgesMatched() {
+      return exceptionContinuationEdgesMatched_;
+    }
+
     // optional int32 possibly_rewritten_blocks = 4;
     public static final int POSSIBLY_REWRITTEN_BLOCKS_FIELD_NUMBER = 4;
     private int possiblyRewrittenBlocks_;
@@ -4609,7 +4640,7 @@ public final class HashMerge {
      * <code>optional int32 possibly_rewritten_blocks = 4;</code>
      */
     public boolean hasPossiblyRewrittenBlocks() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>optional int32 possibly_rewritten_blocks = 4;</code>
@@ -4625,7 +4656,7 @@ public final class HashMerge {
      * <code>optional int32 module_relative_tag_mismatches = 5;</code>
      */
     public boolean hasModuleRelativeTagMismatches() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional int32 module_relative_tag_mismatches = 5;</code>
@@ -4641,7 +4672,7 @@ public final class HashMerge {
      * <code>optional int32 mismatched_subgraph_count = 6;</code>
      */
     public boolean hasMismatchedSubgraphCount() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
      * <code>optional int32 mismatched_subgraph_count = 6;</code>
@@ -4677,6 +4708,7 @@ public final class HashMerge {
       indirectEdgesMatched_ = 0;
       pureHeuristicMatches_ = 0;
       callContinuationEdgesMatched_ = 0;
+      exceptionContinuationEdgesMatched_ = 0;
       possiblyRewrittenBlocks_ = 0;
       moduleRelativeTagMismatches_ = 0;
       mismatchedSubgraphCount_ = 0;
@@ -4703,17 +4735,20 @@ public final class HashMerge {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, callContinuationEdgesMatched_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt32(4, possiblyRewrittenBlocks_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeInt32(5, moduleRelativeTagMismatches_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeInt32(6, mismatchedSubgraphCount_);
       }
       for (int i = 0; i < largestMismatchedSubgraphsSize_.size(); i++) {
         output.writeInt32(7, largestMismatchedSubgraphsSize_.get(i));
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt32(8, exceptionContinuationEdgesMatched_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -4736,15 +4771,15 @@ public final class HashMerge {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, callContinuationEdgesMatched_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, possiblyRewrittenBlocks_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(5, moduleRelativeTagMismatches_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(6, mismatchedSubgraphCount_);
       }
@@ -4756,6 +4791,10 @@ public final class HashMerge {
         }
         size += dataSize;
         size += 1 * getLargestMismatchedSubgraphsSizeList().size();
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(8, exceptionContinuationEdgesMatched_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4879,14 +4918,16 @@ public final class HashMerge {
         bitField0_ = (bitField0_ & ~0x00000002);
         callContinuationEdgesMatched_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
-        possiblyRewrittenBlocks_ = 0;
+        exceptionContinuationEdgesMatched_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
-        moduleRelativeTagMismatches_ = 0;
+        possiblyRewrittenBlocks_ = 0;
         bitField0_ = (bitField0_ & ~0x00000010);
-        mismatchedSubgraphCount_ = 0;
+        moduleRelativeTagMismatches_ = 0;
         bitField0_ = (bitField0_ & ~0x00000020);
-        largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
+        mismatchedSubgraphCount_ = 0;
         bitField0_ = (bitField0_ & ~0x00000040);
+        largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
 
@@ -4930,18 +4971,22 @@ public final class HashMerge {
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.possiblyRewrittenBlocks_ = possiblyRewrittenBlocks_;
+        result.exceptionContinuationEdgesMatched_ = exceptionContinuationEdgesMatched_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.moduleRelativeTagMismatches_ = moduleRelativeTagMismatches_;
+        result.possiblyRewrittenBlocks_ = possiblyRewrittenBlocks_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
+        result.moduleRelativeTagMismatches_ = moduleRelativeTagMismatches_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
         result.mismatchedSubgraphCount_ = mismatchedSubgraphCount_;
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
           largestMismatchedSubgraphsSize_ = java.util.Collections.unmodifiableList(largestMismatchedSubgraphsSize_);
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000080);
         }
         result.largestMismatchedSubgraphsSize_ = largestMismatchedSubgraphsSize_;
         result.bitField0_ = to_bitField0_;
@@ -4969,6 +5014,9 @@ public final class HashMerge {
         if (other.hasCallContinuationEdgesMatched()) {
           setCallContinuationEdgesMatched(other.getCallContinuationEdgesMatched());
         }
+        if (other.hasExceptionContinuationEdgesMatched()) {
+          setExceptionContinuationEdgesMatched(other.getExceptionContinuationEdgesMatched());
+        }
         if (other.hasPossiblyRewrittenBlocks()) {
           setPossiblyRewrittenBlocks(other.getPossiblyRewrittenBlocks());
         }
@@ -4981,7 +5029,7 @@ public final class HashMerge {
         if (!other.largestMismatchedSubgraphsSize_.isEmpty()) {
           if (largestMismatchedSubgraphsSize_.isEmpty()) {
             largestMismatchedSubgraphsSize_ = other.largestMismatchedSubgraphsSize_;
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000080);
           } else {
             ensureLargestMismatchedSubgraphsSizeIsMutable();
             largestMismatchedSubgraphsSize_.addAll(other.largestMismatchedSubgraphsSize_);
@@ -5114,13 +5162,46 @@ public final class HashMerge {
         return this;
       }
 
+      // optional int32 exception_continuation_edges_matched = 8;
+      private int exceptionContinuationEdgesMatched_ ;
+      /**
+       * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+       */
+      public boolean hasExceptionContinuationEdgesMatched() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+       */
+      public int getExceptionContinuationEdgesMatched() {
+        return exceptionContinuationEdgesMatched_;
+      }
+      /**
+       * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+       */
+      public Builder setExceptionContinuationEdgesMatched(int value) {
+        bitField0_ |= 0x00000008;
+        exceptionContinuationEdgesMatched_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 exception_continuation_edges_matched = 8;</code>
+       */
+      public Builder clearExceptionContinuationEdgesMatched() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        exceptionContinuationEdgesMatched_ = 0;
+        onChanged();
+        return this;
+      }
+
       // optional int32 possibly_rewritten_blocks = 4;
       private int possiblyRewrittenBlocks_ ;
       /**
        * <code>optional int32 possibly_rewritten_blocks = 4;</code>
        */
       public boolean hasPossiblyRewrittenBlocks() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional int32 possibly_rewritten_blocks = 4;</code>
@@ -5132,7 +5213,7 @@ public final class HashMerge {
        * <code>optional int32 possibly_rewritten_blocks = 4;</code>
        */
       public Builder setPossiblyRewrittenBlocks(int value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000010;
         possiblyRewrittenBlocks_ = value;
         onChanged();
         return this;
@@ -5141,7 +5222,7 @@ public final class HashMerge {
        * <code>optional int32 possibly_rewritten_blocks = 4;</code>
        */
       public Builder clearPossiblyRewrittenBlocks() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000010);
         possiblyRewrittenBlocks_ = 0;
         onChanged();
         return this;
@@ -5153,7 +5234,7 @@ public final class HashMerge {
        * <code>optional int32 module_relative_tag_mismatches = 5;</code>
        */
       public boolean hasModuleRelativeTagMismatches() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional int32 module_relative_tag_mismatches = 5;</code>
@@ -5165,7 +5246,7 @@ public final class HashMerge {
        * <code>optional int32 module_relative_tag_mismatches = 5;</code>
        */
       public Builder setModuleRelativeTagMismatches(int value) {
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000020;
         moduleRelativeTagMismatches_ = value;
         onChanged();
         return this;
@@ -5174,7 +5255,7 @@ public final class HashMerge {
        * <code>optional int32 module_relative_tag_mismatches = 5;</code>
        */
       public Builder clearModuleRelativeTagMismatches() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000020);
         moduleRelativeTagMismatches_ = 0;
         onChanged();
         return this;
@@ -5186,7 +5267,7 @@ public final class HashMerge {
        * <code>optional int32 mismatched_subgraph_count = 6;</code>
        */
       public boolean hasMismatchedSubgraphCount() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional int32 mismatched_subgraph_count = 6;</code>
@@ -5198,7 +5279,7 @@ public final class HashMerge {
        * <code>optional int32 mismatched_subgraph_count = 6;</code>
        */
       public Builder setMismatchedSubgraphCount(int value) {
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000040;
         mismatchedSubgraphCount_ = value;
         onChanged();
         return this;
@@ -5207,7 +5288,7 @@ public final class HashMerge {
        * <code>optional int32 mismatched_subgraph_count = 6;</code>
        */
       public Builder clearMismatchedSubgraphCount() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000040);
         mismatchedSubgraphCount_ = 0;
         onChanged();
         return this;
@@ -5216,9 +5297,9 @@ public final class HashMerge {
       // repeated int32 largest_mismatched_subgraphs_size = 7;
       private java.util.List<java.lang.Integer> largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
       private void ensureLargestMismatchedSubgraphsSizeIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           largestMismatchedSubgraphsSize_ = new java.util.ArrayList<java.lang.Integer>(largestMismatchedSubgraphsSize_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000080;
          }
       }
       /**
@@ -5274,7 +5355,7 @@ public final class HashMerge {
        */
       public Builder clearLargestMismatchedSubgraphsSize() {
         largestMismatchedSubgraphsSize_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000080);
         onChanged();
         return this;
       }
@@ -5350,15 +5431,16 @@ public final class HashMerge {
       "ount\030\003 \001(\005\022!\n\031hash_exclusive_node_count\030" +
       "\004 \001(\005\"[\n\027TraceCompilationProfile\022\r\n\005unio" +
       "n\030\001 \001(\005\022\024\n\014intersection\030\002 \001(\005\022\014\n\004left\030\003 " +
-      "\001(\005\022\r\n\005right\030\004 \001(\005\"\224\002\n\020HashMergeSummary\022" +
+      "\001(\005\022\r\n\005right\030\004 \001(\005\"\302\002\n\020HashMergeSummary\022" +
       "\036\n\026indirect_edges_matched\030\001 \001(\005\022\036\n\026pure_" +
       "heuristic_matches\030\002 \001(\005\022\'\n\037call_continua" +
-      "tion_edges_matched\030\003 \001(\005\022!\n\031possibly_rew",
-      "ritten_blocks\030\004 \001(\005\022&\n\036module_relative_t" +
-      "ag_mismatches\030\005 \001(\005\022!\n\031mismatched_subgra" +
-      "ph_count\030\006 \001(\005\022)\n!largest_mismatched_sub" +
-      "graphs_size\030\007 \003(\005B7\n*edu.uci.eecs.crowds" +
-      "afe.merge.graph.resultsB\tHashMerge"
+      "tion_edges_matched\030\003 \001(\005\022,\n$exception_co",
+      "ntinuation_edges_matched\030\010 \001(\005\022!\n\031possib" +
+      "ly_rewritten_blocks\030\004 \001(\005\022&\n\036module_rela" +
+      "tive_tag_mismatches\030\005 \001(\005\022!\n\031mismatched_" +
+      "subgraph_count\030\006 \001(\005\022)\n!largest_mismatch" +
+      "ed_subgraphs_size\030\007 \003(\005B7\n*edu.uci.eecs." +
+      "crowdsafe.merge.graph.resultsB\tHashMerge"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -5394,7 +5476,7 @@ public final class HashMerge {
           internal_static_crowd_safe_data_analysis_HashMergeSummary_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_crowd_safe_data_analysis_HashMergeSummary_descriptor,
-              new java.lang.String[] { "IndirectEdgesMatched", "PureHeuristicMatches", "CallContinuationEdgesMatched", "PossiblyRewrittenBlocks", "ModuleRelativeTagMismatches", "MismatchedSubgraphCount", "LargestMismatchedSubgraphsSize", });
+              new java.lang.String[] { "IndirectEdgesMatched", "PureHeuristicMatches", "CallContinuationEdgesMatched", "ExceptionContinuationEdgesMatched", "PossiblyRewrittenBlocks", "ModuleRelativeTagMismatches", "MismatchedSubgraphCount", "LargestMismatchedSubgraphsSize", });
           return null;
         }
       };

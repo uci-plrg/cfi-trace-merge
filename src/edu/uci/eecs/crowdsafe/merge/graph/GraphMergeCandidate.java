@@ -3,7 +3,9 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
@@ -93,6 +95,8 @@ public interface GraphMergeCandidate {
 		private ClusterGraphLoadSession loadSession;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
+		private final Set<AutonomousSoftwareDistribution> summarizedClusters = new HashSet<AutonomousSoftwareDistribution>();
+
 		public Cluster(File directory, ClusterHashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
 			dataSource = new ClusterTraceDirectory(directory).loadExistingFiles();
@@ -129,8 +133,10 @@ public interface GraphMergeCandidate {
 		@Override
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
-			if (graph != null)
+			if ((graph != null) && !summarizedClusters.contains(cluster)) {
 				summaryBuilder.addCluster(graph.summarize());
+				summarizedClusters.add(cluster);
+			}
 			return graph;
 		}
 	}

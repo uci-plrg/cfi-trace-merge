@@ -41,6 +41,7 @@ message HashMergeSummary {
   optional int32 indirect_edges_matched = 1;
   optional int32 pure_heuristic_matches = 2;
   optional int32 call_continuation_edges_matched = 3;
+  optional int32 exception_continuation_edges_matched = 8;
   optional int32 possibly_rewritten_blocks = 4;
   optional int32 module_relative_tag_mismatches = 5;
   optional int32 mismatched_subgraph_count = 6;

@@ -258,7 +258,8 @@ class AnonymousSubgraphCompatibilityAnalysis {
 
 					switch (leftEdgeType) {
 						case DIRECT:
-						case CALL_CONTINUATION: {
+						case CALL_CONTINUATION:
+						case EXCEPTION_CONTINUATION: {
 							for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
 								ClusterNode<?> leftToNode = leftEdge.getToNode();
 								for (Edge<ClusterNode<?>> rightEdge : rightEdges) {

@@ -13,6 +13,7 @@ public class ClusterHashMergeStatistics {
 	private int pureHeuristicMatchCount = 0;
 	private int directMatchCnt = 0;
 	private int callContinuationMatchCount = 0;
+	private int exceptionContinuationMatchCount = 0;
 	private int possibleRewrites = 0;
 
 	public ClusterHashMergeStatistics(ClusterHashMergeSession session) {
@@ -27,11 +28,16 @@ public class ClusterHashMergeStatistics {
 		pureHeuristicMatchCount = 0;
 		directMatchCnt = 0;
 		callContinuationMatchCount = 0;
+		exceptionContinuationMatchCount = 0;
 		possibleRewrites = 0;
 	}
 
 	public int getCallContinuationMatchCount() {
 		return callContinuationMatchCount;
+	}
+
+	public int getExceptionContinuationMatchCount() {
+		return exceptionContinuationMatchCount;
 	}
 
 	public int getIndirectEdgeMatchCount() {
@@ -72,6 +78,10 @@ public class ClusterHashMergeStatistics {
 
 	public void callContinuationMatch() {
 		callContinuationMatchCount++;
+	}
+
+	public void exceptionContinuationMatch() {
+		exceptionContinuationMatchCount++;
 	}
 
 	public void possibleRewrite() {

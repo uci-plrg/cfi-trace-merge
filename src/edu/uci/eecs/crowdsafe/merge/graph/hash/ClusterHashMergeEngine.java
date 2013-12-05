@@ -118,6 +118,7 @@ class ClusterHashMergeEngine {
 				switch (rightEdge.getEdgeType()) {
 					case DIRECT:
 					case CALL_CONTINUATION:
+					case EXCEPTION_CONTINUATION:
 					case CLUSTER_ENTRY:
 						session.statistics.tryDirectMatch();
 
@@ -298,8 +299,8 @@ class ClusterHashMergeEngine {
 							mergedEdges.release();
 						}
 						if ((alreadyMergedEdge == null)
-								|| ((alreadyMergedEdge.getEdgeType() == EdgeType.DIRECT && rightEdge.getEdgeType() == EdgeType.CALL_CONTINUATION) || (alreadyMergedEdge
-										.getEdgeType() == EdgeType.CALL_CONTINUATION && rightEdge.getEdgeType() == EdgeType.DIRECT))) {
+								|| ((alreadyMergedEdge.isDirect() && rightEdge.isContinuation()) || (alreadyMergedEdge
+										.isContinuation() && rightEdge.isDirect()))) {
 							mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
 									rightEdge.getEdgeType(), rightEdge.getOrdinal());
 						} else {

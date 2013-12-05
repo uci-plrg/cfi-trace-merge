@@ -167,8 +167,8 @@ public class AnonymousModule {
 		int ordinals;
 		int instancePercentage;
 		int ordinalPercentage;
-		Set<EdgeType> reportedEdgeTypes = EnumSet.of(EdgeType.DIRECT, EdgeType.CALL_CONTINUATION, EdgeType.INDIRECT,
-				EdgeType.UNEXPECTED_RETURN);
+		Set<EdgeType> reportedEdgeTypes = EnumSet.of(EdgeType.DIRECT, EdgeType.CALL_CONTINUATION,
+				EdgeType.EXCEPTION_CONTINUATION, EdgeType.INDIRECT, EdgeType.UNEXPECTED_RETURN);
 		for (EdgeType type : reportedEdgeTypes) {
 			instances = edgeCountsByType.get(type).getVal();
 			ordinals = edgeOrdinalCountsByType.get(type).getVal();
