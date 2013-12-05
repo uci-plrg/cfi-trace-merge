@@ -37,6 +37,8 @@ public class ClusterTagMergeSession {
 	final ClusterTagMergeResults results;
 
 	final PendingEdgeQueue edgeQueue = new PendingEdgeQueue();
+	
+	boolean subgraphAnalysisEnabled;
 
 	public ClusterTagMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<ClusterNode<?>> right,
 			ClusterTagMergeResults results) {

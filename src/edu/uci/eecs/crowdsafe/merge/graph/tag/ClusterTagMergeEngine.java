@@ -23,6 +23,7 @@ class ClusterTagMergeEngine {
 	}
 
 	private void addLeftNodes() {
+		session.subgraphAnalysisEnabled = (session.left.getAllNodes().size() < 20000);
 		for (Node<?> left : session.left.getAllNodes()) {
 			ClusterNode<?> right = getCorrespondingNode(left);
 			if (right != null) {
@@ -32,10 +33,13 @@ class ClusterTagMergeEngine {
 			if (right == null) {
 				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
 				session.statistics.nodeAdded();
-				session.subgraphs.nodeAdded(right);
+				if (session.subgraphAnalysisEnabled)
+					session.subgraphs.nodeAdded(right);
 			}
 			enqueueLeftEdges(left, right);
 		}
+
+		session.subgraphAnalysisEnabled &= (session.edgeQueue.size() < 30000);
 	}
 
 	private void addLeftEdges() {
@@ -48,13 +52,14 @@ class ClusterTagMergeEngine {
 			rightFromNode.addOutgoingEdge(newRightEdge);
 			rightToNode.addIncomingEdge(newRightEdge);
 			session.statistics.edgeAdded();
-			session.subgraphs.edgeAdded(newRightEdge);
+			if (session.subgraphAnalysisEnabled)
+				session.subgraphs.edgeAdded(newRightEdge);
 		}
 	}
 
 	private ClusterNode<?> getCorrespondingNode(Node<?> left) {
 		ClusterNode<?> right = session.right.graph.getNode(left.getKey());
-		if (right != null)
+		if ((right != null) && (right.getHash() == left.getHash()))
 			return right;
 
 		NodeList<ClusterNode<?>> byHash = session.right.graph.getGraphData().nodesByHash.get(left.getHash());
@@ -62,6 +67,8 @@ class ClusterTagMergeEngine {
 			for (int i = 0; i < byHash.size(); i++) {
 				ClusterNode<?> next = byHash.get(i);
 				if (left.isModuleRelativeEquivalent(next)) {
+					Log.log("Module-relative hash match of 0x%x at 0x%x-v%d of %s", next.getHash(),
+							next.getRelativeTag(), next.getInstanceId(), next.getModule().unit.filename);
 					return next;
 				}
 			}
