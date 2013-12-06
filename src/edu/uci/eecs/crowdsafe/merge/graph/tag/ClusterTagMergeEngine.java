@@ -67,8 +67,9 @@ class ClusterTagMergeEngine {
 			for (int i = 0; i < byHash.size(); i++) {
 				ClusterNode<?> next = byHash.get(i);
 				if (left.isModuleRelativeEquivalent(next)) {
-					Log.log("Module-relative hash match of 0x%x at 0x%x-v%d of %s", next.getHash(),
-							next.getRelativeTag(), next.getInstanceId(), next.getModule().unit.filename);
+					Log.log("Module-relative hash match of 0x%x: 0x%x-v%d <-> 0x%x-v%d in %s", next.getHash(),
+							left.getRelativeTag(), left.getInstanceId(), next.getRelativeTag(), next.getInstanceId(),
+							next.getModule().unit.filename);
 					return next;
 				}
 			}

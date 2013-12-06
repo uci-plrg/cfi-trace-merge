@@ -21,6 +21,44 @@ import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
 
 public class AnonymousModule {
 
+	static class OwnerKey {
+		final AutonomousSoftwareDistribution cluster;
+		final boolean isBlackBox;
+
+		OwnerKey(AutonomousSoftwareDistribution cluster, boolean isBlackBox) {
+			this.cluster = cluster;
+			this.isBlackBox = isBlackBox;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((cluster == null) ? 0 : cluster.hashCode());
+			result = prime * result + (isBlackBox ? 1231 : 1237);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			OwnerKey other = (OwnerKey) obj;
+			if (cluster == null) {
+				if (other.cluster != null)
+					return false;
+			} else if (!cluster.equals(other.cluster))
+				return false;
+			if (isBlackBox != other.isBlackBox)
+				return false;
+			return true;
+		}
+	}
+
 	static void initialize() {
 		INELIGIBLE_OWNERS.add("ntdll.dll");
 		INELIGIBLE_OWNERS.add("kernel32.dll");

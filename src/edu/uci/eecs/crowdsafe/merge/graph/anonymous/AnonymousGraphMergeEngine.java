@@ -199,55 +199,124 @@ public class AnonymousGraphMergeEngine {
 
 	private static int SUBGRAPH_ID_INDEX = 0;
 
-	private final AnonymousGraphAnalyzer analyzer;
+	private final AnonymousModuleSet leftModuleSet;
+	private final AnonymousModuleSet rightModuleSet;
 
 	private final ClusterHashMergeDebugLog debugLog;
 
 	public AnonymousGraphMergeEngine(GraphMergeCandidate leftData, GraphMergeCandidate rightData,
 			ClusterHashMergeDebugLog debugLog) {
-		analyzer = new AnonymousGraphAnalyzer(leftData, rightData);
+		leftModuleSet = new AnonymousModuleSet(leftData);
+		rightModuleSet = new AnonymousModuleSet(rightData);
 		this.debugLog = debugLog;
 
 		AnonymousModule.initialize();
 	}
 
-	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs)
-			throws IOException {
+	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs,
+			List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs) throws IOException {
 
 		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
+
+		leftModuleSet.installSubgraphs(leftAnonymousGraphs);
+		leftModuleSet.analyzeModules();
+
+		rightModuleSet.installSubgraphs(rightAnonymousGraphs);
+		rightModuleSet.analyzeModules();
+
+		List<AnonymousModule> mergedModules = new ArrayList<AnonymousModule>();
+		for (AnonymousModule.OwnerKey leftOwner : leftModuleSet.getModuleOwners()) {
+			AnonymousModule rightModule = rightModuleSet.getModule(leftOwner);
+			if (rightModule == null) {
+				mergedModules.add(leftModuleSet.getModule(leftOwner));
+			} else {
+				AnonymousModule mergedModule = new AnonymousModule(rightModule.owningCluster);
+				for (AnonymousSubgraph rightSubgraph : rightModule.subgraphs) { // could skip this if right is a dataset
+					boolean match = false;
+					for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
+						ClusterHashMergeSession.evaluateTwoGraphs(rightSubgraph, mergedSubgraph, dynamicEvaluator,
+								debugLog);
+
+						if (dynamicEvaluator.exactMatch) {
+							match = true;
+							break;
+						}
+					}
+					if (!match)
+						mergedModule.addSubgraph(rightSubgraph);
+				}
+				for (AnonymousSubgraph leftSubgraph : leftModuleSet.getModule(leftOwner).subgraphs) {
+					boolean match = false;
+					for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
+						ClusterHashMergeSession.evaluateTwoGraphs(leftSubgraph, mergedSubgraph, dynamicEvaluator,
+								debugLog);
+
+						if (dynamicEvaluator.exactMatch) {
+							match = true;
+							break;
+						}
+					}
+					if (!match)
+						mergedModule.addSubgraph(leftSubgraph);
+				}
+				mergedModules.add(mergedModule);
+			}
+		}
+		for (AnonymousModule.OwnerKey rightOwner : rightModuleSet.getModuleOwners()) {
+			AnonymousModule leftModule = leftModuleSet.getModule(rightOwner);
+			if (leftModule == null) // otherwise it was merged above
+				mergedModules.add(rightModuleSet.getModule(rightOwner));
+		}
+
+		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
+		for (AnonymousModule module : mergedModules) {
+			for (AnonymousSubgraph subgraph : module.subgraphs) {
+				for (ClusterNode<?> node : subgraph.getAllNodes()) {
+					ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
+							node.getRelativeTag(), node.getType());
+					copyMap.put(node, copy);
+				}
+
+				for (ClusterNode<?> node : subgraph.getAllNodes()) {
+					OrdinalEdgeList<?> edges = node.getOutgoingEdges();
+					try {
+						for (Edge<? extends Node<?>> edge : edges) {
+							ClusterNode<?> fromNode = copyMap.get(edge.getFromNode());
+							ClusterNode<?> toNode = copyMap.get(edge.getToNode());
+							Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
+									edge.getEdgeType(), edge.getOrdinal());
+							fromNode.addOutgoingEdge(mergedEdge);
+							toNode.addIncomingEdge(mergedEdge);
+						}
+					} finally {
+						edges.release();
+					}
+				}
+
+				copyMap.clear();
+			}
+		}
+
+		AnonymousModuleSet mergedModuleSet = new AnonymousModuleSet(null);
+		mergedModuleSet.installModules(mergedModules);
+		mergedModuleSet.analyzeModules();
+
+		return anonymousGraph;
+	}
+
+	private ClusterGraph crazyClusteringThing() {
 
 		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
 		// dynamic and static graphs
 
-		analyzer.installSubgraphs(anonymousGraphs);
-		analyzer.analyzeModules();
-
-		// List<ModuleGraphCluster<ClusterNode<?>>> largeSubgraphs = new
-		// ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
-
-		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
-
-		// Log.log();
-		// analyzer.reportSubgraph("Large subgraph", maximalSubgraphs.get(0));
-		// maximalSubgraphs.get(0).logGraph(20);
-		// Log.log();
-		// analyzer.reportSubgraph("Large subgraph", maximalSubgraphs.get(1));
-		// maximalSubgraphs.get(1).logGraph(20);
-		// System.exit(0);
-
-		// analyzer.localizedCompatibilityAnalysis(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1));
-		// analyzer.fullCompatibilityAnalysis(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1));
-
-		// ClusterHashMergeSession.evaluateTwoGraphs(analyzer.maximalSubgraphs.get(0), analyzer.maximalSubgraphs.get(1),
-		// dynamicEvaluator, debugLog);
-
-		if (true)
-			return anonymousGraph;
-
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
+		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
 		boolean match = false, fail;
 		ClusterCompatibilityRecord clusterCompatibilityRecord = new ClusterCompatibilityRecord();
-		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : analyzer.maximalSubgraphs) {
+		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : leftModuleSet.maximalSubgraphs) { // repeat for
+																									// rightModuleSet
 			// if ((maximalSubgraph.getNodeCount() > analyzer.twiceAverage) || (maximalSubgraph.getNodeCount() < 7))
 			// continue;
 			// Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());

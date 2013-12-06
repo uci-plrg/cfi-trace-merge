@@ -206,7 +206,8 @@ public class MergeTwoGraphs {
 				throw new IllegalArgumentException("Unknown merge strategy " + strategy);
 		}
 
-		List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
 		// cs-todo: this can be multi-threaded for large training datasets
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
@@ -216,7 +217,7 @@ public class MergeTwoGraphs {
 			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isAnonymous()) {
 				// if (leftCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER)
 				// cast is ok because tag merge only works on cluster graphs
-				anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
+				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
 				continue;
 			}
 
@@ -260,8 +261,9 @@ public class MergeTwoGraphs {
 						throw new IllegalArgumentException("Unknown merge strategy " + strategy);
 				}
 
-				// Log.log("Checking reachability on the merged graph.");
-				// mergedGraph.graph.analyzeGraph();
+				Log.log("Checking reachability on the merged graph.");
+				mergedGraph.graph.resetAnalysis();
+				mergedGraph.graph.analyzeGraph();
 			}
 
 			completion.mergeCompleted(mergedGraph);
@@ -289,12 +291,12 @@ public class MergeTwoGraphs {
 
 					if (rightCluster.isAnonymous())
 						// cast is ok because tag merge only works on cluster graphs
-						anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
+						rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
 								.getClusterGraph(rightCluster));
 				}
 			}
 			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
-			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(anonymousGraphs);
+			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(leftAnonymousGraphs, rightAnonymousGraphs);
 			completion.mergeCompleted(anonymousGraph);
 
 			if (logFile != null)
