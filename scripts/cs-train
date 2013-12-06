@@ -1,0 +1,12 @@
+#!/bin/bash
+
+. $csc/scripts/cs-common
+
+function print_usage() {
+  echo "cs-train -i dunno"
+  exit
+}
+
+check_help $1 print_usage
+
+# use cs-merge  

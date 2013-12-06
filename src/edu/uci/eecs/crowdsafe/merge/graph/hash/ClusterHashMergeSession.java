@@ -70,8 +70,8 @@ public class ClusterHashMergeSession {
 		if (!mergeEvaluator.attemptMerge(session))
 			return false;
 
-		Log.log("\nEvaluation merge: subgraphs of %d and %d nodes", left.getExecutableNodeCount(),
-				right.getExecutableNodeCount());
+		// Log.log("\nEvaluation merge: subgraphs of %d and %d nodes", left.getExecutableNodeCount(),
+		// right.getExecutableNodeCount());
 		session.contextRecord.setEvaluator(mergeEvaluator);
 		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
 		engine.mergeGraph();

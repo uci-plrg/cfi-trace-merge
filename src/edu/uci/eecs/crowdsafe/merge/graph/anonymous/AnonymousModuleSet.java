@@ -293,6 +293,8 @@ class AnonymousModuleSet {
 					} else {
 						Log.log("\tNo escapes in subgraph %d", arbitrarySubgraphId);
 					}
+					
+					subgraph.logGraph();
 				}
 				Log.log();
 			} else {

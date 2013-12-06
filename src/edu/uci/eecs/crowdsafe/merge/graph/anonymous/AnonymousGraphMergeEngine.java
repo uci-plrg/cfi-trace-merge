@@ -11,11 +11,14 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.dist.SoftwareModule;
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.common.exception.InvalidGraphException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
@@ -113,19 +116,18 @@ public class AnonymousGraphMergeEngine {
 			} finally {
 				if ((left.getExecutableNodeCount() < 35) && (right.getExecutableNodeCount() < 35)) {
 					if (reportCount < 50) {
-						Log.log("\nEvaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
-								left.getExecutableNodeCount(), right.getExecutableNodeCount(), greaterMatchPercentage,
-								exactMatch, isFailed);
-						// left.logGraph();
-						// right.logGraph();
+						Log.log("Evaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
+								left.getNodeCount(), right.getNodeCount(), greaterMatchPercentage, exactMatch, isFailed);
+						left.logGraph();
+						right.logGraph();
 						reportCount++;
 					}
 				} else {
 					Log.log("%d%% | exact? %b | failed? %b", greaterMatchPercentage, exactMatch, isFailed);
 				}
 
-				if ((greaterMatchPercentage > 50) && (greaterMatchPercentage < 80))
-					toString();
+				// if ((greaterMatchPercentage > 50) && (greaterMatchPercentage < 80))
+				// toString();
 				// left.logGraph();
 				// right.logGraph();
 			}
@@ -202,6 +204,7 @@ public class AnonymousGraphMergeEngine {
 	private final AnonymousModuleSet leftModuleSet;
 	private final AnonymousModuleSet rightModuleSet;
 
+	private final DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
 	private final ClusterHashMergeDebugLog debugLog;
 
 	public AnonymousGraphMergeEngine(GraphMergeCandidate leftData, GraphMergeCandidate rightData,
@@ -216,9 +219,6 @@ public class AnonymousGraphMergeEngine {
 	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs,
 			List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs) throws IOException {
 
-		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
-		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
-
 		leftModuleSet.installSubgraphs(leftAnonymousGraphs);
 		leftModuleSet.analyzeModules();
 
@@ -227,53 +227,120 @@ public class AnonymousGraphMergeEngine {
 
 		List<AnonymousModule> mergedModules = new ArrayList<AnonymousModule>();
 		for (AnonymousModule.OwnerKey leftOwner : leftModuleSet.getModuleOwners()) {
+			AnonymousModule leftModule = leftModuleSet.getModule(leftOwner);
 			AnonymousModule rightModule = rightModuleSet.getModule(leftOwner);
-			if (rightModule == null) {
-				mergedModules.add(leftModuleSet.getModule(leftOwner));
+
+			if (leftOwner.isBlackBox) {
+				if (rightModule != null) {
+					mergeBlackBoxes(leftModule, rightModule);
+				}
+				mergedModules.add(leftModule); // nothing to compile
 			} else {
-				AnonymousModule mergedModule = new AnonymousModule(rightModule.owningCluster);
-				for (AnonymousSubgraph rightSubgraph : rightModule.subgraphs) { // could skip this if right is a dataset
-					boolean match = false;
-					for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
-						ClusterHashMergeSession.evaluateTwoGraphs(rightSubgraph, mergedSubgraph, dynamicEvaluator,
-								debugLog);
-
-						if (dynamicEvaluator.exactMatch) {
-							match = true;
-							break;
-						}
-					}
-					if (!match)
-						mergedModule.addSubgraph(rightSubgraph);
+				AnonymousModule mergedModule = new AnonymousModule(leftOwner.cluster);
+				if (rightModule != null) {
+					compileSubgraphs(rightModule, mergedModule);
 				}
-				for (AnonymousSubgraph leftSubgraph : leftModuleSet.getModule(leftOwner).subgraphs) {
-					boolean match = false;
-					for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
-						ClusterHashMergeSession.evaluateTwoGraphs(leftSubgraph, mergedSubgraph, dynamicEvaluator,
-								debugLog);
-
-						if (dynamicEvaluator.exactMatch) {
-							match = true;
-							break;
-						}
-					}
-					if (!match)
-						mergedModule.addSubgraph(leftSubgraph);
-				}
+				compileSubgraphs(leftModuleSet.getModule(leftOwner), mergedModule);
 				mergedModules.add(mergedModule);
 			}
 		}
 		for (AnonymousModule.OwnerKey rightOwner : rightModuleSet.getModuleOwners()) {
 			AnonymousModule leftModule = leftModuleSet.getModule(rightOwner);
-			if (leftModule == null) // otherwise it was merged above
-				mergedModules.add(rightModuleSet.getModule(rightOwner));
+			if (leftModule == null) {// otherwise it was merged above
+				if (rightOwner.isBlackBox) {
+					mergedModules.add(rightModuleSet.getModule(rightOwner)); // nothing to compile
+				} else {
+					AnonymousModule mergedModule = new AnonymousModule(rightOwner.cluster);
+					compileSubgraphs(rightModuleSet.getModule(rightOwner), mergedModule);
+					mergedModules.add(mergedModule);
+				}
+			}
 		}
 
+		// this step is just for logging
+		Log.log("\n     ========== Merged Anonymous Graph ==========\n");
+		AnonymousModuleSet mergedModuleSet = new AnonymousModuleSet(null);
+		mergedModuleSet.installModules(mergedModules);
+		mergedModuleSet.analyzeModules();
+
+		ClusterGraph anonymousGraph = compileGraph(mergedModules);
+		return anonymousGraph;
+	}
+
+	// add to the left module all entry points and exit points that are unique to the right
+	private void mergeBlackBoxes(AnonymousModule leftModule, AnonymousModule rightModule) {
+		if (leftModule.subgraphs.size() != 1)
+			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
+					leftModule.subgraphs.size());
+		if (rightModule.subgraphs.size() != 1)
+			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
+					rightModule.subgraphs.size());
+
+		AnonymousSubgraph leftBox = leftModule.subgraphs.get(0);
+		AnonymousSubgraph rightBox = rightModule.subgraphs.get(0);
+		ClusterNode<?> leftSingleton = leftBox.getBlackBoxSingleton();
+
+		OrdinalEdgeList<?> leftIncoming = leftBox.getBlackBoxSingleton().getIncomingEdges();
+		OrdinalEdgeList<?> rightIncoming = rightBox.getBlackBoxSingleton().getIncomingEdges();
+		try {
+			for (Edge<? extends Node<?>> rightEdge : rightIncoming) {
+				if (!leftIncoming.contains(rightEdge)) {
+					ClusterBoundaryNode newEntry = new ClusterBoundaryNode(rightEdge.getFromNode().getHash(), rightEdge
+							.getFromNode().getType());
+					leftBox.addNode(newEntry);
+
+					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(newEntry, leftSingleton,
+							rightEdge.getEdgeType(), rightEdge.getOrdinal());
+					newEntry.addOutgoingEdge(mergedEdge);
+					leftSingleton.addIncomingEdge(mergedEdge);
+				}
+			}
+		} finally {
+			rightIncoming.release();
+		}
+
+		OrdinalEdgeList<?> leftOutgoing = leftBox.getBlackBoxSingleton().getOutgoingEdges();
+		OrdinalEdgeList<?> rightOutgoing = rightBox.getBlackBoxSingleton().getOutgoingEdges();
+		try {
+			for (Edge<? extends Node<?>> rightEdge : rightOutgoing) {
+				if (!leftOutgoing.contains(rightEdge)) {
+					ClusterBoundaryNode newExit = new ClusterBoundaryNode(rightEdge.getToNode().getHash(), rightEdge
+							.getToNode().getType());
+					leftBox.addNode(newExit);
+
+					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(leftSingleton, newExit,
+							rightEdge.getEdgeType(), rightEdge.getOrdinal());
+					newExit.addIncomingEdge(mergedEdge);
+					leftSingleton.addOutgoingEdge(mergedEdge);
+				}
+			}
+		} finally {
+			rightOutgoing.release();
+		}
+	}
+
+	private void compileSubgraphs(AnonymousModule inputModule, AnonymousModule mergedModule) {
+		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) { // could skip this if right is a dataset
+			boolean match = false;
+			for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
+				ClusterHashMergeSession.evaluateTwoGraphs(inputSubgraph, mergedSubgraph, dynamicEvaluator, debugLog);
+				if (dynamicEvaluator.exactMatch) {
+					match = true;
+					break;
+				}
+			}
+			if (!match)
+				mergedModule.addSubgraph(inputSubgraph);
+		}
+	}
+
+	private ClusterGraph compileGraph(List<AnonymousModule> mergedModules) {
+		ClusterGraph compiledGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
 		for (AnonymousModule module : mergedModules) {
 			for (AnonymousSubgraph subgraph : module.subgraphs) {
 				for (ClusterNode<?> node : subgraph.getAllNodes()) {
-					ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
+					ClusterNode<?> copy = compiledGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
 							node.getRelativeTag(), node.getType());
 					copyMap.put(node, copy);
 				}
@@ -297,12 +364,7 @@ public class AnonymousGraphMergeEngine {
 				copyMap.clear();
 			}
 		}
-
-		AnonymousModuleSet mergedModuleSet = new AnonymousModuleSet(null);
-		mergedModuleSet.installModules(mergedModules);
-		mergedModuleSet.analyzeModules();
-
-		return anonymousGraph;
+		return compiledGraph;
 	}
 
 	private ClusterGraph crazyClusteringThing() {
