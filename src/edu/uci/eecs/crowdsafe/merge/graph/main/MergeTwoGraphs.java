@@ -215,7 +215,6 @@ public class MergeTwoGraphs {
 				continue;
 
 			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isAnonymous()) {
-				// if (leftCluster != ConfiguredSoftwareDistributions.DYNAMORIO_CLUSTER)
 				// cast is ok because tag merge only works on cluster graphs
 				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
 				continue;

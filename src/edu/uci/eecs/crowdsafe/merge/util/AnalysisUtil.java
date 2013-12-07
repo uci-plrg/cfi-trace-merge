@@ -131,11 +131,6 @@ public class AnalysisUtil {
 			ExecutionNode rightNode, boolean isIndirect) {
 		SoftwareUnit rightUnit = rightNode.getModule().unit;
 
-		// Cannot normalized tags from unknown modules
-		if (rightUnit == SoftwareModule.DYNAMORIO_MODULE.unit) {
-			return MatchResult.Unknown;
-		}
-
 		if (left.getGraphData().HACK_containsEquivalent(rightNode)) {
 			// The corresponding node does not exist in graph1
 			// 1. n1 == null, non-existing correct match
