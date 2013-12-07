@@ -3,10 +3,48 @@
 . $csc/scripts/cs-common
 
 function print_usage() {
-  echo "cs-train -i dunno"
+  echo "cs-train -o <output-dir> [ -l <log-file> ] [ -n <dataset-name> ] <run-dir> [ <run-dir> ... ]"
   exit
 }
 
 check_help $1 print_usage
 
-# use cs-merge  
+while getopts "l:o:n:" option
+do
+  case $option in
+    l) log_option="-l "$OPTARG;;
+    o) output_dir=$OPTARG;;
+    n) name=$OPTARG;;
+    *) print_usage; exit;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+[ ! -e "$output_dir" ] && mkdir -p "$output_dir"
+
+[ $# -eq 0 ] && echo "No training data provided." && print_usage && exit
+[ -z "$output_dir" ] || [ ! -e "$output_dir" ] && echo "No output directory specified." && print_usage && exit
+
+[ -z $(ls "$output_dir") ] && new_dataset=true
+[ -z $new_dataset ] && [ ! -z $name ] && echo "Cannot specify a name (-n) for an existing dataset." && print_usage && exit
+
+if [ $new_dataset ]
+then
+  if [ $# -eq 1 ]
+  then
+    echo "Unity merge '$1' into '$output_dir'"
+    cs-merge $log_option -o $output_dir -n $name c:$1 c:$1
+    shift
+  else
+    echo "Merge '$1' and '$2' into a new dataset in '$output_dir'"
+    cs-merge $log_option -o $output_dir -n $name c:$1 c:$2
+    shift 2
+  fi
+fi
+
+while [ $# -gt 0 ]
+do
+  echo "Merge '$1' into the dataset"
+  cs-merge $log_option -i $output_dir c:$1
+  shift
+done
