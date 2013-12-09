@@ -25,7 +25,7 @@ shift $(($OPTIND - 1))
 [ $# -eq 0 ] && echo "No training data provided." && print_usage && exit
 [ -z "$output_dir" ] || [ ! -e "$output_dir" ] && echo "No output directory specified." && print_usage && exit
 
-[ -z $(ls "$output_dir") ] && new_dataset=true
+[ -z "$(ls $output_dir)" ] && new_dataset=true
 [ -z $new_dataset ] && [ ! -z $name ] && echo "Cannot specify a name (-n) for an existing dataset." && print_usage && exit
 
 if [ $new_dataset ]

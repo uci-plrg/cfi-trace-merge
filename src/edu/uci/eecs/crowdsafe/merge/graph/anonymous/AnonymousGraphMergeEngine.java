@@ -335,7 +335,7 @@ public class AnonymousGraphMergeEngine {
 	}
 
 	private ClusterGraph compileGraph(List<AnonymousModule> mergedModules) {
-		ClusterGraph compiledGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+		ClusterGraph compiledGraph = new ClusterGraph("Compiled anonymous cluster", ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
 		for (AnonymousModule module : mergedModules) {
 			for (AnonymousSubgraph subgraph : module.subgraphs) {
@@ -373,7 +373,7 @@ public class AnonymousGraphMergeEngine {
 		// dynamic and static graphs
 
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
-		ClusterGraph anonymousGraph = new ClusterGraph(ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+		ClusterGraph anonymousGraph = new ClusterGraph("Anonymous cluster", ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
 		boolean match = false, fail;
 		ClusterCompatibilityRecord clusterCompatibilityRecord = new ClusterCompatibilityRecord();

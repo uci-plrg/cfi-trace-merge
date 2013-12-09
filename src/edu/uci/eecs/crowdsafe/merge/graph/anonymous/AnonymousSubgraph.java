@@ -9,8 +9,8 @@ class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
 
 	private ClusterNode<?> blackBoxSingleton = null;
 
-	public AnonymousSubgraph(AutonomousSoftwareDistribution cluster) {
-		super(cluster);
+	public AnonymousSubgraph(String name, AutonomousSoftwareDistribution cluster) {
+		super(name, cluster);
 	}
 
 	public boolean isAnonymousBlackBox() {

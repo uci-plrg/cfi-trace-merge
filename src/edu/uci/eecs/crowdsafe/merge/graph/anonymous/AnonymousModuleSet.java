@@ -123,7 +123,7 @@ class AnonymousModuleSet {
 	private void reportStatistics() {
 		Collections.sort(maximalSubgraphs, new SizeOrder());
 
-		averageSize = totalSize / maximalSubgraphs.size();
+		averageSize = maximalSubgraphs.isEmpty() ? 0 : (totalSize / maximalSubgraphs.size());
 		twiceAverage = averageSize * 2;
 		thriceAverage = averageSize * 3;
 		halfAverage = averageSize / 2;
@@ -293,7 +293,7 @@ class AnonymousModuleSet {
 					} else {
 						Log.log("\tNo escapes in subgraph %d", arbitrarySubgraphId);
 					}
-					
+
 					subgraph.logGraph();
 				}
 				Log.log();

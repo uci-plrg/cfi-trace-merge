@@ -148,7 +148,7 @@ public class ClusterHashMergeSession {
 		matchedNodes = new HashMatchedNodes(this);
 		matchState = new ClusterHashMatchState(this);
 		statistics = new ClusterHashMergeStatistics(this);
-		mergedGraphBuilder = new ClusterGraph(left.cluster);
+		mergedGraphBuilder = new ClusterGraph(String.format("merge of %s and %s", left.name, right.name), left.cluster);
 	}
 
 	public void initializeMerge() {

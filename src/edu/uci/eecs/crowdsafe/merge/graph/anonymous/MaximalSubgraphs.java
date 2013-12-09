@@ -18,7 +18,8 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 public class MaximalSubgraphs {
 
 	private class Subgraph {
-		final AnonymousSubgraph graph = new AnonymousSubgraph(originalGraph.cluster);
+		final AnonymousSubgraph graph = new AnonymousSubgraph("Anonymous maximal subgraph of "
+				+ originalGraph.cluster.name, originalGraph.cluster);
 		final Map<Long, ClusterBoundaryNode> boundaryNodes = new HashMap<Long, ClusterBoundaryNode>();
 
 		ClusterNode<?> addNode(ClusterNode<?> node, Edge<ClusterNode<?>> edge) {
