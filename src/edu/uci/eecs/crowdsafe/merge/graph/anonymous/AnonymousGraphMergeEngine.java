@@ -238,9 +238,9 @@ public class AnonymousGraphMergeEngine {
 			} else {
 				AnonymousModule mergedModule = new AnonymousModule(leftOwner.cluster);
 				if (rightModule != null) {
-					compileSubgraphs(rightModule, mergedModule);
+					compileWhiteBoxes(rightModule, mergedModule);
 				}
-				compileSubgraphs(leftModuleSet.getModule(leftOwner), mergedModule);
+				compileWhiteBoxes(leftModuleSet.getModule(leftOwner), mergedModule);
 				mergedModules.add(mergedModule);
 			}
 		}
@@ -251,7 +251,7 @@ public class AnonymousGraphMergeEngine {
 					mergedModules.add(rightModuleSet.getModule(rightOwner)); // nothing to compile
 				} else {
 					AnonymousModule mergedModule = new AnonymousModule(rightOwner.cluster);
-					compileSubgraphs(rightModuleSet.getModule(rightOwner), mergedModule);
+					compileWhiteBoxes(rightModuleSet.getModule(rightOwner), mergedModule);
 					mergedModules.add(mergedModule);
 				}
 			}
@@ -263,7 +263,7 @@ public class AnonymousGraphMergeEngine {
 		mergedModuleSet.installModules(mergedModules);
 		mergedModuleSet.analyzeModules();
 
-		ClusterGraph anonymousGraph = compileGraph(mergedModules);
+		ClusterGraph anonymousGraph = compileAnonymousGraph(mergedModules);
 		return anonymousGraph;
 	}
 
@@ -319,7 +319,7 @@ public class AnonymousGraphMergeEngine {
 		}
 	}
 
-	private void compileSubgraphs(AnonymousModule inputModule, AnonymousModule mergedModule) {
+	private void compileWhiteBoxes(AnonymousModule inputModule, AnonymousModule mergedModule) {
 		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) { // could skip this if right is a dataset
 			boolean match = false;
 			for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
@@ -334,14 +334,19 @@ public class AnonymousGraphMergeEngine {
 		}
 	}
 
-	private ClusterGraph compileGraph(List<AnonymousModule> mergedModules) {
-		ClusterGraph compiledGraph = new ClusterGraph("Compiled anonymous cluster", ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+	private ClusterGraph compileAnonymousGraph(List<AnonymousModule> mergedModules) {
+		ClusterGraph compiledGraph = new ClusterGraph("Compiled anonymous cluster",
+				ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
+		int fakeTagIndex = ClusterNode.BLACK_BOX_SINGLETON_END + 1;
 		for (AnonymousModule module : mergedModules) {
 			for (AnonymousSubgraph subgraph : module.subgraphs) {
 				for (ClusterNode<?> node : subgraph.getAllNodes()) {
+					int relativeTag = node.getRelativeTag();
+					if (relativeTag > ClusterNode.BLACK_BOX_SINGLETON_END)
+						relativeTag = fakeTagIndex++;
 					ClusterNode<?> copy = compiledGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
-							node.getRelativeTag(), node.getType());
+							relativeTag, node.getType());
 					copyMap.put(node, copy);
 				}
 
@@ -373,7 +378,8 @@ public class AnonymousGraphMergeEngine {
 		// dynamic and static graphs
 
 		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
-		ClusterGraph anonymousGraph = new ClusterGraph("Anonymous cluster", ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
+		ClusterGraph anonymousGraph = new ClusterGraph("Anonymous cluster",
+				ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
 		boolean match = false, fail;
 		ClusterCompatibilityRecord clusterCompatibilityRecord = new ClusterCompatibilityRecord();
@@ -511,7 +517,7 @@ public class AnonymousGraphMergeEngine {
 
 			for (ClusterNode<?> node : mergedClusterGraph.getAllNodes()) {
 				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
-						node.getRelativeTag(), node.getType());
+						node.getRelativeTag(), node.getType()); // retag, or there will be collisions!
 				copyMap.put(node, copy);
 			}
 

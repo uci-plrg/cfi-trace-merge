@@ -157,7 +157,7 @@ class AnonymousModuleSet {
 			AutonomousSoftwareDistribution cluster;
 			owningCluster = null;
 			allConnectingClusters.clear();
-			if (subgraph.getEntryPoints().isEmpty()) {
+			if (subgraph.getEntryPoints().isEmpty() && !subgraph.isAnonymousBlackBox()) {
 				Log.log("Error: entry point missing for anonymous subgraph of %d nodes!", subgraph.getNodeCount());
 				subgraph.logGraph();
 				continue;

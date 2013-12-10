@@ -66,18 +66,25 @@ public class AnonymousModule {
 		INELIGIBLE_OWNERS.add("user32.dll");
 		INELIGIBLE_OWNERS.add("system32.dll");
 		INELIGIBLE_OWNERS.add("gdi32.dll");
+		INELIGIBLE_OWNERS.add("ole32.dll");
 		INELIGIBLE_OWNERS.add("msvcr100.dll");
+		INELIGIBLE_OWNERS.add("shlwapi.dll");
+
+		// Adobe utility libs
+		INELIGIBLE_OWNERS.add("ace.dll");
+		INELIGIBLE_OWNERS.add("adobelinguistic.dll");
 
 		OWNER_ALIAS.put("acrord32.dll", "acrord32.exe");
-		OWNER_ALIAS.put("annots.api", "acrord32.exe");
 	}
 
 	static boolean isEligibleOwner(AutonomousSoftwareDistribution potentialOwner) {
+		boolean onlyApiFiles = true;
 		for (SoftwareUnit potentialOwnerUnit : potentialOwner.getUnits()) {
 			if (INELIGIBLE_OWNERS.contains(potentialOwnerUnit.filename))
 				return false;
+			onlyApiFiles &= potentialOwnerUnit.filename.endsWith("api");
 		}
-		return true;
+		return !onlyApiFiles;
 	}
 
 	static AutonomousSoftwareDistribution resolveAlias(AutonomousSoftwareDistribution cluster) {
