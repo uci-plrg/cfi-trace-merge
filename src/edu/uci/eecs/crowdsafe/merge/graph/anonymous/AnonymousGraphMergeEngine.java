@@ -209,8 +209,8 @@ public class AnonymousGraphMergeEngine {
 
 	public AnonymousGraphMergeEngine(GraphMergeCandidate leftData, GraphMergeCandidate rightData,
 			ClusterHashMergeDebugLog debugLog) {
-		leftModuleSet = new AnonymousModuleSet(leftData);
-		rightModuleSet = new AnonymousModuleSet(rightData);
+		leftModuleSet = new AnonymousModuleSet("<left>", leftData);
+		rightModuleSet = new AnonymousModuleSet("<right>", rightData);
 		this.debugLog = debugLog;
 
 		AnonymousModule.initialize();
@@ -259,7 +259,7 @@ public class AnonymousGraphMergeEngine {
 
 		// this step is just for logging
 		Log.log("\n     ========== Merged Anonymous Graph ==========\n");
-		AnonymousModuleSet mergedModuleSet = new AnonymousModuleSet(null);
+		AnonymousModuleSet mergedModuleSet = new AnonymousModuleSet("<merge>");
 		mergedModuleSet.installModules(mergedModules);
 		mergedModuleSet.analyzeModules();
 

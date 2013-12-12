@@ -64,14 +64,20 @@ class AnonymousModuleSet {
 	int subgraphsOverThriceAverage;
 	int subgraphsUnderHalfAverage;
 
+	final String name;
 	final ClusterGraphCache graphCache;
 	final AnonymousSubgraphFlowAnalysis flowAnalsis = new AnonymousSubgraphFlowAnalysis();
 
 	List<AnonymousSubgraph> maximalSubgraphs = new ArrayList<AnonymousSubgraph>();
 	private final Map<AnonymousModule.OwnerKey, AnonymousModule> modulesByOwner = new HashMap<AnonymousModule.OwnerKey, AnonymousModule>();
 
-	public AnonymousModuleSet(GraphMergeCandidate mergeCandidate) {
+	public AnonymousModuleSet(String name) {
+		this(name, null);
+	}
+
+	public AnonymousModuleSet(String name, GraphMergeCandidate mergeCandidate) {
 		graphCache = new ClusterGraphCache(mergeCandidate);
+		this.name = name;
 	}
 
 	Set<AnonymousModule.OwnerKey> getModuleOwners() {
@@ -158,7 +164,8 @@ class AnonymousModuleSet {
 			owningCluster = null;
 			allConnectingClusters.clear();
 			if (subgraph.getEntryPoints().isEmpty() && !subgraph.isAnonymousBlackBox()) {
-				Log.log("Error: entry point missing for anonymous subgraph of %d nodes!", subgraph.getNodeCount());
+				Log.log("Error: entry point missing for anonymous subgraph of %d nodes in %s!",
+						subgraph.getNodeCount(), name);
 				subgraph.logGraph();
 				continue;
 			}
