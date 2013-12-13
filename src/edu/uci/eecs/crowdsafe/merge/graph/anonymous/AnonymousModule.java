@@ -61,18 +61,21 @@ public class AnonymousModule {
 
 	static void initialize() {
 		INELIGIBLE_OWNERS.add("ntdll.dll");
-		INELIGIBLE_OWNERS.add("kernel32.dll");
 		INELIGIBLE_OWNERS.add("kernelbase.dll");
+		INELIGIBLE_OWNERS.add("kernel32.dll");
 		INELIGIBLE_OWNERS.add("user32.dll");
 		INELIGIBLE_OWNERS.add("system32.dll");
 		INELIGIBLE_OWNERS.add("gdi32.dll");
 		INELIGIBLE_OWNERS.add("ole32.dll");
+		INELIGIBLE_OWNERS.add("comdlg32.dll");
 		INELIGIBLE_OWNERS.add("msvcr100.dll");
 		INELIGIBLE_OWNERS.add("shlwapi.dll");
 		INELIGIBLE_OWNERS.add("mmdevapi.dll");
+		INELIGIBLE_OWNERS.add("wininet.dll");
 
 		// Adobe utility libs
 		INELIGIBLE_OWNERS.add("ace.dll");
+		INELIGIBLE_OWNERS.add("agm.dll");
 		INELIGIBLE_OWNERS.add("adobelinguistic.dll");
 
 		OWNER_ALIAS.put("acrord32.dll", "acrord32.exe");

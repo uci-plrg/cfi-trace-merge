@@ -338,7 +338,7 @@ public class AnonymousGraphMergeEngine {
 		ClusterGraph compiledGraph = new ClusterGraph("Compiled anonymous cluster",
 				ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
 		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
-		int fakeTagIndex = ClusterNode.BLACK_BOX_SINGLETON_END + 1;
+		int fakeTagIndex = ClusterNode.SYSCALL_SINGLETON_END + 1;
 		for (AnonymousModule module : mergedModules) {
 			for (AnonymousSubgraph subgraph : module.subgraphs) {
 				for (ClusterNode<?> node : subgraph.getAllNodes()) {
