@@ -133,7 +133,7 @@ public interface GraphMergeCandidate {
 		@Override
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
-			if ((graph != null) && !summarizedClusters.contains(cluster)) {
+			if ((graph != null) && !summarizedClusters.contains(cluster) && cluster.isAnonymous()) {
 				summaryBuilder.addCluster(graph.summarize());
 				summarizedClusters.add(cluster);
 			}

@@ -49,11 +49,17 @@ class ClusterTagMergeEngine {
 			ClusterNode<?> rightToNode = getCorrespondingNode(leftEdge.getToNode());
 			Edge<ClusterNode<?>> newRightEdge = new Edge<ClusterNode<?>>(rightFromNode, rightToNode,
 					leftEdge.getEdgeType(), leftEdge.getOrdinal());
-			rightFromNode.addOutgoingEdge(newRightEdge);
-			rightToNode.addIncomingEdge(newRightEdge);
-			session.statistics.edgeAdded();
-			if (session.subgraphAnalysisEnabled)
-				session.subgraphs.edgeAdded(newRightEdge);
+
+			try {
+				rightFromNode.addOutgoingEdge(newRightEdge);
+				rightToNode.addIncomingEdge(newRightEdge);
+				session.statistics.edgeAdded();
+				if (session.subgraphAnalysisEnabled)
+					session.subgraphs.edgeAdded(newRightEdge);
+			} catch (IllegalArgumentException e) {
+				Log.log("Error merging edges! %s", e.getMessage());
+				Log.log(e);
+			}
 		}
 	}
 
