@@ -23,7 +23,7 @@ class ClusterTagMergeEngine {
 	}
 
 	private void addLeftNodes() {
-		session.subgraphAnalysisEnabled = (session.left.getAllNodes().size() < 20000);
+		session.subgraphAnalysisEnabled = true; // (session.left.getAllNodes().size() < 20000);
 		for (Node<?> left : session.left.getAllNodes()) {
 			ClusterNode<?> right = getCorrespondingNode(left);
 			if (right != null) {

@@ -9,12 +9,13 @@ function print_usage() {
 
 check_help $1 print_usage
 
-while getopts "l:o:n:" option
+while getopts "l:o:n:c:" option
 do
   case $option in
     l) log_option="-l "$OPTARG;;
     o) output_dir=$OPTARG;;
     n) name=$OPTARG;;
+    c) cluster_option="-c "$OPTARG;;
     *) print_usage; exit;;
   esac
 done
@@ -45,6 +46,6 @@ fi
 while [ $# -gt 0 ]
 do
   echo "Merge '$1' into the dataset"
-  cs-merge $log_option -i $output_dir c:$1
+  cs-merge $log_option $cluster_option -i $output_dir c:$1
   shift
 done
