@@ -262,7 +262,7 @@ public class MergeTwoGraphs {
 
 				Log.log("Checking reachability on the merged graph.");
 				mergedGraph.graph.resetAnalysis();
-				mergedGraph.graph.analyzeGraph();
+				mergedGraph.graph.analyzeGraph(true);
 			}
 
 			completion.mergeCompleted(mergedGraph);

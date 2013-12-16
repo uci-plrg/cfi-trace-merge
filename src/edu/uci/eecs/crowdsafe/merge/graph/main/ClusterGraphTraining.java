@@ -90,7 +90,7 @@ public class ClusterGraphTraining {
 			@Override
 			public Process summarizeGraph() {
 				summaryBuilder.clear().setName("dataset");
-				summaryBuilder.addCluster(graph.graph.summarize());
+				summaryBuilder.addCluster(graph.graph.summarize(graph.graph.cluster.isAnonymous()));
 				return summaryBuilder.build();
 			}
 		}
@@ -123,7 +123,7 @@ public class ClusterGraphTraining {
 			@Override
 			public Process summarizeGraph() {
 				summaryBuilder.clear().setName(parseTraceName());
-				summaryBuilder.addCluster(graph.summarize());
+				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
 				return summaryBuilder.build();
 			}
 		}

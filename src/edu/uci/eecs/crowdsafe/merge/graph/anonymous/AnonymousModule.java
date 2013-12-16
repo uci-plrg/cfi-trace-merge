@@ -72,6 +72,7 @@ public class AnonymousModule {
 		INELIGIBLE_OWNERS.add("shlwapi.dll");
 		INELIGIBLE_OWNERS.add("mmdevapi.dll");
 		INELIGIBLE_OWNERS.add("wininet.dll");
+		INELIGIBLE_OWNERS.add("wer.dll");
 
 		// Adobe utility libs
 		INELIGIBLE_OWNERS.add("ace.dll");
