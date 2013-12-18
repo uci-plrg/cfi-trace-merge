@@ -74,6 +74,10 @@ public class AnonymousModule {
 		INELIGIBLE_OWNERS.add("wininet.dll");
 		INELIGIBLE_OWNERS.add("mshtml.dll");
 		INELIGIBLE_OWNERS.add("wer.dll");
+		INELIGIBLE_OWNERS.add("oleaut32.dll");
+		INELIGIBLE_OWNERS.add("msctf.dll");
+		INELIGIBLE_OWNERS.add("windowscodecs.dll");
+		INELIGIBLE_OWNERS.add("gdiplus.dll");
 
 		// Adobe utility libs
 		INELIGIBLE_OWNERS.add("ace.dll");
@@ -81,6 +85,7 @@ public class AnonymousModule {
 		INELIGIBLE_OWNERS.add("adobelinguistic.dll");
 
 		OWNER_ALIAS.put("acrord32.dll", "acrord32.exe");
+		OWNER_ALIAS.put("clr.dll", "mso.dll");
 	}
 
 	static boolean isEligibleOwner(AutonomousSoftwareDistribution potentialOwner) {
@@ -96,15 +101,24 @@ public class AnonymousModule {
 	static AutonomousSoftwareDistribution resolveAlias(AutonomousSoftwareDistribution cluster) {
 		String aliasTo = null;
 		for (SoftwareUnit unit : cluster.getUnits()) {
-			aliasTo = OWNER_ALIAS.get(unit.filename);
+			aliasTo = getOwnerAlias(unit);
 			if (aliasTo != null) {
 				for (SoftwareUnit configuredUnit : ConfiguredSoftwareDistributions.getInstance().unitsByName.values()) {
 					if (configuredUnit.filename.equals(aliasTo))
 						return ConfiguredSoftwareDistributions.getInstance().distributionsByUnit.get(configuredUnit);
 				}
+				throw new IllegalStateException(String.format("Failed to locate alias %s of %s!", aliasTo,
+						unit.filename));
 			}
 		}
 		return cluster;
+	}
+
+	private static String getOwnerAlias(SoftwareUnit unit) {
+//		if (unit.filename.endsWith(".ni.dll"))
+//			return "mso.dll";
+//		else
+			return OWNER_ALIAS.get(unit.filename);
 	}
 
 	private static final Set<String> INELIGIBLE_OWNERS = new HashSet<String>();

@@ -154,13 +154,15 @@ class AnonymousModuleSet {
 
 		Set<AutonomousSoftwareDistribution> allConnectingClusters = new HashSet<AutonomousSoftwareDistribution>();
 		AutonomousSoftwareDistribution owningCluster;
+		Set<AutonomousSoftwareDistribution> ambiguousOwnerSet = new HashSet<AutonomousSoftwareDistribution>();
 		for (AnonymousSubgraph subgraph : maximalSubgraphs) {
 			// if (subgraph.getAllNodes().size() > 1000)
 			// Log.log("\n === Subgraph of %d nodes with %d total hashes", subgraph.getExecutableNodeCount(),
 			// subgraph.getGraphData().nodesByHash.keySet().size());
 
-			String clusterName;
 			AutonomousSoftwareDistribution cluster;
+			boolean ambiguousOwner = false;
+			ambiguousOwnerSet.clear();
 			owningCluster = null;
 			allConnectingClusters.clear();
 			if (subgraph.getEntryPoints().isEmpty() && !subgraph.isAnonymousBlackBox()) {
@@ -191,17 +193,20 @@ class AnonymousModuleSet {
 					allConnectingClusters.add(cluster);
 
 					if (AnonymousModule.isEligibleOwner(cluster)) {
-						if (owningCluster == null) {
-							owningCluster = cluster;
-						} else if (owningCluster != cluster) {
-							Log.log("Error: subgraph of %d nodes has entry points from multiple clusters: %s and %s",
-									subgraph.getNodeCount(), cluster.name, owningCluster.name);
-							owningCluster = null;
-							break;
+						if (ambiguousOwner) {
+							ambiguousOwnerSet.add(cluster);
+						} else {
+							if (owningCluster == null) {
+								owningCluster = cluster;
+							} else if (owningCluster != cluster) {
+								ambiguousOwner = true;
+								ambiguousOwnerSet.add(owningCluster);
+								ambiguousOwnerSet.add(cluster);
+							}
 						}
 					}
 
-					clusterName = cluster.name;
+					// clusterName = cluster.name;
 					// leftCallSiteCount = getExitEdgeCount(entryPoint.getHash(), graphCache.getLeftGraph(cluster));
 					// rightCallSiteCount = getExitEdgeCount(entryPoint.getHash(), graphCache.getRightGraph(cluster));
 
@@ -212,63 +217,77 @@ class AnonymousModuleSet {
 				}
 			}
 
-			for (ClusterNode<?> exitPoint : subgraph.getExitPoints()) {
-				OrdinalEdgeList<?> edges = exitPoint.getIncomingEdges();
-				try {
-					// int leftTargetCount = 0, rightTargetCount = 0;
-					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
-							exitPoint.getHash());
-					if (cluster == null) {
-						// Log.log("     Callout 0x%x (%s) to an exported function", node.getHash());
-						continue;
-					}
-
-					cluster = AnonymousModule.resolveAlias(cluster);
-					allConnectingClusters.add(cluster);
-
-					if (AnonymousModule.isEligibleOwner(cluster)) {
-						if (owningCluster == null) {
-							owningCluster = cluster;
+			if (!ambiguousOwner) {
+				for (ClusterNode<?> exitPoint : subgraph.getExitPoints()) {
+					OrdinalEdgeList<?> edges = exitPoint.getIncomingEdges();
+					try {
+						// int leftTargetCount = 0, rightTargetCount = 0;
+						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
+								exitPoint.getHash());
+						if (cluster == null) {
+							// Log.log("     Callout 0x%x (%s) to an exported function", node.getHash());
+							continue;
 						}
-						/**
-						 * <pre>else if (owningCluster != cluster) {
+
+						cluster = AnonymousModule.resolveAlias(cluster);
+						allConnectingClusters.add(cluster);
+
+						if (AnonymousModule.isEligibleOwner(cluster)) {
+							if (owningCluster == null) {
+								owningCluster = cluster;
+							}
+							/**
+							 * <pre>else if (owningCluster != cluster) {
 							Log.log("Error: subgraph of %d nodes owned by %s has exit points to a potential alternate owner: %s",
 									subgraph.getNodeCount(), owningCluster.name, cluster.name);
 							owningCluster = null;
 							break;
 						}
-						 */
+							 */
+						}
+
+						// clusterName = cluster.name;
+						// leftTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getLeftGraph(cluster));
+						// rightTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getRightGraph(cluster));
+
+						// Log.log("     Callout 0x%x (%s) from %d nodes to %d left targets and %d right targets",
+						// node.getHash(), clusterName, edges.size(), leftTargetCount, rightTargetCount);
+					} finally {
+						edges.release();
 					}
-
-					clusterName = cluster.name;
-					// leftTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getLeftGraph(cluster));
-					// rightTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getRightGraph(cluster));
-
-					// Log.log("     Callout 0x%x (%s) from %d nodes to %d left targets and %d right targets",
-					// node.getHash(), clusterName, edges.size(), leftTargetCount, rightTargetCount);
-				} finally {
-					edges.release();
 				}
 			}
 
-			if (owningCluster == null) {
-				if (allConnectingClusters.size() == 1) {
-					owningCluster = allConnectingClusters.iterator().next();
-				} else {
-					Log.log("Error: could not determine the owning cluster of an anonymous subgraph with %d nodes!",
-							subgraph.getNodeCount());
-					Log.log("\tPotential owners are: %s", allConnectingClusters);
-					continue;
+			if (ambiguousOwner) {
+				StringBuilder buffer = new StringBuilder();
+				for (AutonomousSoftwareDistribution c : ambiguousOwnerSet) {
+					buffer.append(c.getUnitFilename());
+					buffer.append(", ");
 				}
-			}
+				buffer.setLength(buffer.length() - 2);
+				Log.log("Error: subgraph of %d nodes has entry points from multiple clusters: %s",
+						subgraph.getNodeCount(), buffer);
+			} else {
+				if (owningCluster == null) {
+					if (allConnectingClusters.size() == 1) {
+						owningCluster = allConnectingClusters.iterator().next();
+					} else {
+						Log.log("Error: could not determine the owning cluster of an anonymous subgraph with %d nodes!",
+								subgraph.getNodeCount());
+						Log.log("\tPotential owners are: %s", allConnectingClusters);
+						continue;
+					}
+				}
 
-			AnonymousModule.OwnerKey key = new AnonymousModule.OwnerKey(owningCluster, subgraph.isAnonymousBlackBox());
-			AnonymousModule module = modulesByOwner.get(key);
-			if (module == null) {
-				module = new AnonymousModule(owningCluster);
-				modulesByOwner.put(key, module);
+				AnonymousModule.OwnerKey key = new AnonymousModule.OwnerKey(owningCluster,
+						subgraph.isAnonymousBlackBox());
+				AnonymousModule module = modulesByOwner.get(key);
+				if (module == null) {
+					module = new AnonymousModule(owningCluster);
+					modulesByOwner.put(key, module);
+				}
+				module.addSubgraph(subgraph);
 			}
-			module.addSubgraph(subgraph);
 		}
 	}
 
