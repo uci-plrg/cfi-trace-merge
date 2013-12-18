@@ -155,7 +155,7 @@ class AnonymousModuleSet {
 		Set<AutonomousSoftwareDistribution> allConnectingClusters = new HashSet<AutonomousSoftwareDistribution>();
 		AutonomousSoftwareDistribution owningCluster;
 		Set<AutonomousSoftwareDistribution> ambiguousOwnerSet = new HashSet<AutonomousSoftwareDistribution>();
-		for (AnonymousSubgraph subgraph : maximalSubgraphs) {
+		subgraphs: for (AnonymousSubgraph subgraph : maximalSubgraphs) {
 			// if (subgraph.getAllNodes().size() > 1000)
 			// Log.log("\n === Subgraph of %d nodes with %d total hashes", subgraph.getExecutableNodeCount(),
 			// subgraph.getGraphData().nodesByHash.keySet().size());
@@ -168,8 +168,9 @@ class AnonymousModuleSet {
 			if (subgraph.getEntryPoints().isEmpty() && !subgraph.isAnonymousBlackBox()) {
 				Log.log("Error: entry point missing for anonymous subgraph of %d nodes in %s!",
 						subgraph.getNodeCount(), name);
+				Log.log("\tOmitting this subgraph from the merge.");
 				subgraph.logGraph();
-				continue;
+				continue subgraphs;
 			}
 
 			for (ClusterNode<?> entryPoint : subgraph.getEntryPoints()) {
@@ -185,11 +186,19 @@ class AnonymousModuleSet {
 					if (cluster == null) {
 						Log.log("Error: unrecognized entry point 0x%x for anonymous subgraph of %d nodes!",
 								entryPoint.getHash(), subgraph.getNodeCount());
-						Log.log("\tSubgraph is owned by %s", owningCluster);
+						Log.log("\tKeeping the edge but discarding this owner.");
+						// Log.log("\tSubgraph is owned by %s", owningCluster);
 						continue;
 					}
 
 					cluster = AnonymousModule.resolveAlias(cluster);
+
+					if (isStoryboarding(cluster)) {
+						Log.log("Warning: skipping anonymous subgraph with entry from 'ni' cluster %s",
+								cluster.getUnitFilename());
+						continue subgraphs;
+					}
+
 					allConnectingClusters.add(cluster);
 
 					if (AnonymousModule.isEligibleOwner(cluster)) {
@@ -230,6 +239,13 @@ class AnonymousModuleSet {
 						}
 
 						cluster = AnonymousModule.resolveAlias(cluster);
+						
+						if (isStoryboarding(cluster)) {
+							Log.log("Warning: skipping anonymous subgraph with exit to 'ni' cluster %s",
+									cluster.getUnitFilename());
+							continue subgraphs;
+						}
+						
 						allConnectingClusters.add(cluster);
 
 						if (AnonymousModule.isEligibleOwner(cluster)) {
@@ -267,6 +283,7 @@ class AnonymousModuleSet {
 				buffer.setLength(buffer.length() - 2);
 				Log.log("Error: subgraph of %d nodes has entry points from multiple clusters: %s",
 						subgraph.getNodeCount(), buffer);
+				Log.log("\tOmitting this subgraph from the merge.");
 			} else {
 				if (owningCluster == null) {
 					if (allConnectingClusters.size() == 1) {
@@ -275,7 +292,8 @@ class AnonymousModuleSet {
 						Log.log("Error: could not determine the owning cluster of an anonymous subgraph with %d nodes!",
 								subgraph.getNodeCount());
 						Log.log("\tPotential owners are: %s", allConnectingClusters);
-						continue;
+						Log.log("\tOmitting this subgraph from the merge.");
+						continue subgraphs;
 					}
 				}
 
@@ -356,6 +374,10 @@ class AnonymousModuleSet {
 				 */
 			}
 		}
+	}
+	
+	private boolean isStoryboarding(AutonomousSoftwareDistribution cluster) {
+		return cluster.name.contains(".ni.dll-");
 	}
 
 	private int getEntryEdgeCount(long entryHash, ModuleGraphCluster<?> targetGraph) {
