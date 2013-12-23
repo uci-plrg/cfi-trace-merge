@@ -29,6 +29,7 @@ class ClusterTagMergedSubgraphs {
 		private final Set<Edge<? extends Node<?>>> exits = new HashSet<Edge<? extends Node<?>>>();
 		private int instanceCount = 1;
 		private int maximumPathLength = -1;
+		private int maximumIndirectsInPath = -1;
 
 		public Subgraph() {
 			distinctSubgraphs.add(this);
@@ -39,7 +40,9 @@ class ClusterTagMergedSubgraphs {
 				return;
 
 			findBridges();
-			maximumPathLength = pathAnalyzer.findLongestPath(this);
+			pathAnalyzer.findLongestPath(this);
+			maximumPathLength = pathAnalyzer.longestPath;
+			maximumIndirectsInPath = pathAnalyzer.maxIndirects;
 		}
 
 		private void findBridges() {
@@ -82,7 +85,11 @@ class ClusterTagMergedSubgraphs {
 			return maximumPathLength;
 		}
 
-		public boolean contains(Node node) {
+		public int getMaximumIndirectsInPath() {
+			return maximumIndirectsInPath;
+		}
+
+		public boolean contains(Node<?> node) {
 			return nodes.contains(node);
 		}
 
@@ -107,65 +114,149 @@ class ClusterTagMergedSubgraphs {
 		}
 	}
 
-	private class PathAnalyzer {
-		private final LinkedList<Node<?>> queue = new LinkedList<Node<?>>();
-		private final Set<Node<?>> visitedNodes = new HashSet<Node<?>>();
+	private class PathFrame {
+		Node<?> node;
+		int level;
+		int indirectCount;
 
-		int findLongestPath(Subgraph subgraph) {
-			int longestPath = -1;
+		int edgeIndex;
+		private OrdinalEdgeList<? extends Node<?>> edgeList;
+	}
+
+	private class PathAnalyzer {
+		private final LinkedList<PathFrame> framePool = new LinkedList<PathFrame>();
+		private final LinkedList<PathFrame> frameStack = new LinkedList<PathFrame>();
+		private final Set<Node<?>> currentPathNodes = new HashSet<Node<?>>();
+		int longestPath;
+		int maxIndirects;
+
+		void findLongestPath(Subgraph subgraph) {
+			longestPath = 0;
+			maxIndirects = 0;
+
 			for (Edge<? extends Node<?>> entry : subgraph.entries) {
-				int length = findLongestPath(subgraph, entry.getToNode());
-				if (length > longestPath)
-					longestPath = length;
+				findLongestPath(subgraph, entry);
 			}
-			return longestPath;
 		}
 
-		private int findLongestPath(Subgraph subgraph, Node<?> entry) {
-			visitedNodes.clear();
-			queue.clear();
-			queue.add(entry);
+		private void findLongestPath(Subgraph subgraph, Edge<? extends Node<?>> entry) {
+			currentPathNodes.clear();
 
-			int level = 0; // simulating recursion depth with counters
-			int currentLevelCount = 1;
-			int nextLevelCount = 0;
-			while (!queue.isEmpty()) {
-				Node<?> node = queue.removeFirst();
+			PathFrame rootFrame = getEmptyFrame(entry.getToNode(), 0, entry.getEdgeType() == EdgeType.INDIRECT ? 1 : 0);
+			PathFrame currentFrame = rootFrame;
+			while (true) {
+				if (currentFrame.edgeIndex < currentFrame.edgeList.size()) {
+					Edge<? extends Node<?>> edge = currentFrame.edgeList.get(currentFrame.edgeIndex++);
+					Node<?> toNode = edge.getToNode();
+					if (currentPathNodes.contains(toNode)) {
+						continue;
+					} else if (!subgraph.nodes.contains(toNode)) {
+						if (currentFrame.level > longestPath)
+							longestPath = currentFrame.level;
 
-				OrdinalEdgeList<? extends Node<?>> edgeList = node.getOutgoingEdges();
-				try {
-					for (Edge<? extends Node<?>> edge : edgeList) {
-						Node<?> toNode = edge.getToNode();
-						if (subgraph.nodes.contains(toNode) && !visitedNodes.contains(toNode)) {
-							queue.add(toNode);
-							visitedNodes.add(toNode);
-							nextLevelCount++;
+						int indirectCount = currentFrame.indirectCount;
+						if (edge.getEdgeType() == EdgeType.INDIRECT)
+							indirectCount++;
+						if (indirectCount > maxIndirects) {
+							maxIndirects = indirectCount;
 						}
-					}
-				} finally {
-					edgeList.release();
-				}
 
-				if (--currentLevelCount == 0) {
-					level++;
-					currentLevelCount = nextLevelCount;
-					nextLevelCount = 0;
+						continue;
+					}
+					currentPathNodes.add(toNode);
+					frameStack.push(currentFrame);
+					currentFrame = getEmptyFrame(toNode, currentFrame.level + 1, currentFrame.indirectCount);
+					if (edge.getEdgeType() == EdgeType.INDIRECT)
+						currentFrame.indirectCount++;
+				} else {
+					recycleFrame(currentFrame);
+					currentPathNodes.remove(currentFrame.node);
+
+					if (frameStack.isEmpty())
+						break;
+
+					currentFrame = frameStack.pop();
 				}
 			}
-			return level;
+		}
+
+		private PathFrame getEmptyFrame(Node<?> node, int level, int indirectCount) {
+			PathFrame frame;
+			if (framePool.isEmpty())
+				frame = new PathFrame();
+			else
+				frame = framePool.pop();
+
+			frame.node = node;
+			frame.level = level;
+			frame.indirectCount = indirectCount;
+			frame.edgeIndex = 0;
+			frame.edgeList = node.getOutgoingEdges();
+			return frame;
+		}
+
+		private void recycleFrame(PathFrame frame) {
+			frame.edgeList.release();
+			framePool.push(frame);
 		}
 	}
 
+	public static class UnmatchedIndirectCounts {
+		int total = 0;
+		int withinExpected = 0;
+		int withinUnexpected = 0;
+		int fromUnexpected = 0;
+		int toUnexpected = 0;
+		
+		public int getTotal() {
+			return total;
+		}
+		
+		public int getWithinExpected() {
+			return withinExpected;
+		}
+		
+		public int getFromUnexpected() {
+			return fromUnexpected;
+		}
+		
+		public int getToUnexpected() {
+			return toUnexpected;
+		}
+		
+		public int getWithinUnexpected() {
+			return withinUnexpected;
+		}
+	}
+
+	private int unmatchedEdgeCount;
+	private final Set<Node<?>> unmatchedNodes = new HashSet<Node<?>>();
 	private final Set<Node<?>> atoms = new HashSet<Node<?>>();
 	private final Map<Node<?>, Subgraph> subgraphs = new HashMap<Node<?>, Subgraph>();
 	private final List<Subgraph> distinctSubgraphs = new ArrayList<Subgraph>();
 	private final PathAnalyzer pathAnalyzer = new PathAnalyzer();
+	public final UnmatchedIndirectCounts unmatchedIndirectCounts = new UnmatchedIndirectCounts();
+	
+	int getSubgraphCount() {
+		return getSubgraphs().size();
+	}
+	
+	int getTotalUnmatchedNodes() {
+		return unmatchedNodes.size();
+	}
+	
+	int getTotalUnmatchedEdges() {
+		return unmatchedEdgeCount;
+	}
 
 	void nodeAdded(Node<?> node) {
+		unmatchedNodes.add(node);
 		atoms.add(node);
 	}
 
 	void edgeAdded(Edge<?> edge) {
+		unmatchedEdgeCount++;
+		
 		if (atoms.remove(edge.getFromNode())) {
 			if (atoms.remove(edge.getToNode())) {
 				Subgraph subgraph = new Subgraph();
@@ -224,6 +315,23 @@ class ClusterTagMergedSubgraphs {
 				}
 			} else if (toSubgraph != null) {
 				toSubgraph.edges.add(edge);
+			}
+		}
+
+		if (edge.getEdgeType() == EdgeType.INDIRECT) {
+			unmatchedIndirectCounts.total++;
+			if (unmatchedNodes.contains(edge.getFromNode())) {
+				if (unmatchedNodes.contains(edge.getToNode())) {
+					unmatchedIndirectCounts.withinUnexpected++;
+				} else {
+					unmatchedIndirectCounts.fromUnexpected++;
+				}
+			} else {
+				if (unmatchedNodes.contains(edge.getToNode())) {
+					unmatchedIndirectCounts.toUnexpected++;
+				} else {
+					unmatchedIndirectCounts.withinExpected++;
+				}
 			}
 		}
 	}

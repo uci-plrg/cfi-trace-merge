@@ -29,6 +29,8 @@ class ClusterTagMergeEngine {
 	void mergeGraph() {
 		addLeftNodes();
 		addLeftEdges();
+
+		reportSummary();
 		reportAddedSubgraphs();
 	}
 
@@ -128,9 +130,19 @@ class ClusterTagMergeEngine {
 		return true;
 	}
 
+	private void reportSummary() {
+		Log.log("Unexpected code summary for %s: %d nodes, %d edges, %d subgraphs",
+				session.right.graph.cluster.getUnitFilename(), session.subgraphs.getTotalUnmatchedNodes(),
+				session.subgraphs.getTotalUnmatchedEdges(), session.subgraphs.getSubgraphCount());
+		Log.log("Unexpected indirect branches: %d T, %d K->K, %d K->U, %d U->K, %d U->U",
+				session.subgraphs.unmatchedIndirectCounts.getTotal(),
+				session.subgraphs.unmatchedIndirectCounts.getWithinExpected(),
+				session.subgraphs.unmatchedIndirectCounts.getToUnexpected(),
+				session.subgraphs.unmatchedIndirectCounts.getFromUnexpected(),
+				session.subgraphs.unmatchedIndirectCounts.getWithinUnexpected());
+	}
+
 	private void reportAddedSubgraphs() {
-		Log.log("reportAddedSubgraphs");
-		
 		ModuleEdgeCounter edgeCounter = new ModuleEdgeCounter();
 		Set<Node> bridgeNodes = new HashSet<Node>();
 		StringBuilder buffer = new StringBuilder();
@@ -235,9 +247,10 @@ class ClusterTagMergeEngine {
 
 				String edgeProfile = buffer.toString();
 
-				Log.log("Profile of %d node subgraph with maximum path length %d in %s:\n\t%s\n\t%s",
-						subgraph.getNodeCount(), subgraph.getMaximumPathLength(),
-						session.right.graph.cluster.getUnitFilename(), bridgeProfile, edgeProfile);
+				Log.log("Profile of %d node subgraph in %s (max path %d, max indirects %d):\n\t%s\n\t%s",
+						subgraph.getNodeCount(), session.right.graph.cluster.getUnitFilename(),
+						subgraph.getMaximumPathLength(), subgraph.getMaximumIndirectsInPath(), bridgeProfile,
+						edgeProfile);
 
 				if (subgraph.getNodeCount() < 50)
 					subgraph.logGraph();
