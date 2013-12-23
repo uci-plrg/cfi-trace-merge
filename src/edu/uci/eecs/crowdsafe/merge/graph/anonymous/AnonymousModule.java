@@ -1,7 +1,6 @@
 package edu.uci.eecs.crowdsafe.merge.graph.anonymous;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +16,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
+import edu.uci.eecs.crowdsafe.common.util.EdgeCounter;
 
 public class AnonymousModule {
 
@@ -115,10 +114,10 @@ public class AnonymousModule {
 	}
 
 	private static String getOwnerAlias(SoftwareUnit unit) {
-//		if (unit.filename.endsWith(".ni.dll"))
-//			return "mso.dll";
-//		else
-			return OWNER_ALIAS.get(unit.filename);
+		// if (unit.filename.endsWith(".ni.dll"))
+		// return "mso.dll";
+		// else
+		return OWNER_ALIAS.get(unit.filename);
 	}
 
 	private static final Set<String> INELIGIBLE_OWNERS = new HashSet<String>();
@@ -179,12 +178,8 @@ public class AnonymousModule {
 	void reportEdgeProfile() {
 		Log.log("    --- Edge Profile ---");
 
-		Map<EdgeType, MutableInteger> edgeCountsByType = new EnumMap<EdgeType, MutableInteger>(EdgeType.class);
-		Map<EdgeType, MutableInteger> edgeOrdinalCountsByType = new EnumMap<EdgeType, MutableInteger>(EdgeType.class);
-		for (EdgeType type : EdgeType.values()) {
-			edgeCountsByType.put(type, new MutableInteger(0));
-			edgeOrdinalCountsByType.put(type, new MutableInteger(0));
-		}
+		EdgeCounter edgeCountsByType = new EdgeCounter();
+		EdgeCounter edgeOrdinalCountsByType = new EdgeCounter();
 
 		int maxIndirectEdgeCountPerOrdinal = 0;
 		int singletonIndirectOrdinalCount = 0;
@@ -206,8 +201,8 @@ public class AnonymousModule {
 								continue;
 
 							edgeType = edges.get(0).getEdgeType();
-							edgeCountsByType.get(edgeType).add(edges.size());
-							edgeOrdinalCountsByType.get(edgeType).increment();
+								edgeCountsByType.tally(edgeType, edges.size());
+							edgeOrdinalCountsByType.tally(edgeType);
 							totalEdges += edges.size();
 
 							if (edgeType == EdgeType.INDIRECT) {
@@ -235,17 +230,16 @@ public class AnonymousModule {
 		Set<EdgeType> reportedEdgeTypes = EnumSet.of(EdgeType.DIRECT, EdgeType.CALL_CONTINUATION,
 				EdgeType.EXCEPTION_CONTINUATION, EdgeType.INDIRECT, EdgeType.UNEXPECTED_RETURN);
 		for (EdgeType type : reportedEdgeTypes) {
-			instances = edgeCountsByType.get(type).getVal();
-			ordinals = edgeOrdinalCountsByType.get(type).getVal();
+			instances = edgeCountsByType.getCount(type);
+			ordinals = edgeOrdinalCountsByType.getCount(type);
 			instancePercentage = Math.round((instances / (float) totalEdges) * 100f);
 			ordinalPercentage = Math.round((ordinals / (float) totalOrdinals) * 100f);
 			Log.log("     Edge type %s: %d total edges (%d%%), %d ordinals (%d%%)", type.name(), instances,
 					instancePercentage, ordinals, ordinalPercentage);
 		}
 
-		int indirectTotal = edgeCountsByType.get(EdgeType.INDIRECT).getVal();
-		float averageIndirectEdgeCount = (indirectTotal / (float) edgeOrdinalCountsByType.get(EdgeType.INDIRECT)
-				.getVal());
+		int indirectTotal = edgeCountsByType.getCount(EdgeType.INDIRECT);
+		float averageIndirectEdgeCount = (indirectTotal / (float) edgeOrdinalCountsByType.getCount(EdgeType.INDIRECT));
 		int singletonIndirectPercentage = Math.round((singletonIndirectOrdinalCount / (float) indirectTotal) * 100f);
 		int pairIndirectPercentage = Math.round((pairIndirectOrdinalCount / (float) indirectTotal) * 100f);
 		Log.log("     Average indirect edge fanout: %.3f; Max: %d; singletons: %d (%d%%); pairs: %d (%d%%)",

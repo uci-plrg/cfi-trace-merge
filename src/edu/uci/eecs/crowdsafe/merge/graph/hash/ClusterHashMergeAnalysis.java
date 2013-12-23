@@ -20,6 +20,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.common.util.EdgeCounter;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
@@ -203,9 +204,7 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 							MetaNodeType.class);
 					for (MetaNodeType type : MetaNodeType.values())
 						nodeTypeCounts.put(type, new MutableInteger(0));
-					Map<EdgeType, MutableInteger> edgeTypeCounts = new EnumMap<EdgeType, MutableInteger>(EdgeType.class);
-					for (EdgeType type : EdgeType.values())
-						edgeTypeCounts.put(type, new MutableInteger(0));
+					EdgeCounter edgeTypeCounts = new EdgeCounter();
 					List<Node<?>> entryPoints = new ArrayList<Node<?>>();
 					List<Node<?>> nodes = new ArrayList<Node<?>>();
 					for (Node.Key key : subgraph) {
@@ -219,7 +218,7 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 							for (Edge<?> edge : edgeList) {
 								if (subgraph.contains(edge.getFromNode().getKey())) {
 									subgraphContainsEntry = true;
-									edgeTypeCounts.get(edge.getEdgeType()).increment();
+									edgeTypeCounts.tally(edge.getEdgeType());
 								}
 							}
 						} finally {
@@ -233,8 +232,8 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 						if (nodeTypeCounts.get(type).getVal() > 0)
 							Log.log("\tNode type %s: %d", type, nodeTypeCounts.get(type).getVal());
 					for (EdgeType type : EdgeType.values())
-						if (edgeTypeCounts.get(type).getVal() > 0)
-							Log.log("\tEdge type %s: %d", type, edgeTypeCounts.get(type).getVal());
+						if (edgeTypeCounts.getCount(type) > 0)
+							Log.log("\tEdge type %s: %d", type, edgeTypeCounts.getCount(type));
 					Log.log("\tEntry points:");
 					for (Node<?> entryPoint : entryPoints)
 						Log.log("\t\t%s (%s)", entryPoint, session.matchedNodes.HACK_leftMismatchedNodes

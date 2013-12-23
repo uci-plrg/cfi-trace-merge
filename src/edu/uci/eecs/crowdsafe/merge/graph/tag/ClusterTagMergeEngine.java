@@ -1,11 +1,20 @@
 package edu.uci.eecs.crowdsafe.merge.graph.tag;
 
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.common.util.ModuleEdgeCounter;
+import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
 
 // TODO: this really only works for ClusterNode graphs on both sides, b/c the hashes will differ with ExecutionNode 
 // and the equals() methods reject other types.
@@ -20,6 +29,7 @@ class ClusterTagMergeEngine {
 	void mergeGraph() {
 		addLeftNodes();
 		addLeftEdges();
+		reportAddedSubgraphs();
 	}
 
 	private void addLeftNodes() {
@@ -116,5 +126,122 @@ class ClusterTagMergeEngine {
 		// throw new MergedFailedException("Left node %s has module relative equivalent %s with incompatible edges!",
 		// left, right);
 		return true;
+	}
+
+	private void reportAddedSubgraphs() {
+		Log.log("reportAddedSubgraphs");
+		
+		ModuleEdgeCounter edgeCounter = new ModuleEdgeCounter();
+		Set<Node> bridgeNodes = new HashSet<Node>();
+		StringBuilder buffer = new StringBuilder();
+
+		for (ClusterTagMergedSubgraphs.Subgraph subgraph : session.subgraphs.getSubgraphs()) {
+			if (subgraph.getNodeCount() > 10) {
+				int indirectEntryEdges = 0;
+				for (Edge<? extends Node> edge : subgraph.getEntries()) {
+					bridgeNodes.add(edge.getToNode());
+					if (edge.getEdgeType() == EdgeType.CLUSTER_ENTRY) {
+						edgeCounter.tallyInterEdge(edge.getEdgeType());
+					} else {
+						edgeCounter.tallyIntraEdge(edge.getEdgeType());
+						if (edge.getEdgeType() == EdgeType.INDIRECT)
+							indirectEntryEdges++;
+					}
+				}
+				int entryNodes = bridgeNodes.size();
+				bridgeNodes.clear();
+
+				for (Edge<? extends Node> edge : subgraph.getExits()) {
+					Node<?> neighbor = edge.getToNode();
+					bridgeNodes.add(neighbor);
+					switch (neighbor.getType()) {
+						case CLUSTER_EXIT:
+							edgeCounter.tallyInterEdge(edge.getEdgeType());
+							break;
+						default:
+							edgeCounter.tallyIntraEdge(edge.getEdgeType());
+					}
+				}
+				int exitNodes = bridgeNodes.size();
+				bridgeNodes.clear();
+
+				buffer.setLength(0);
+				buffer.append("(");
+				buffer.append(subgraph.getEntries().size());
+				if (indirectEntryEdges > 0) {
+					buffer.append("[");
+					buffer.append(indirectEntryEdges);
+					buffer.append("I]");
+				}
+				buffer.append(">");
+				buffer.append(entryNodes);
+				buffer.append("/");
+				buffer.append(exitNodes);
+				buffer.append("<");
+				buffer.append(subgraph.getExits().size());
+				buffer.append(") bridges | Intra (");
+				for (EdgeType type : EdgeType.values()) {
+					buffer.append(type.code);
+					buffer.append(": ");
+					buffer.append(edgeCounter.getIntraCount(type));
+					buffer.append(" ");
+				}
+				buffer.setLength(buffer.length() - 1);
+				buffer.append(") Inter (");
+				for (EdgeType type : EdgeType.values()) {
+					buffer.append(type.code);
+					buffer.append(": ");
+					buffer.append(edgeCounter.getInterCount(type));
+					buffer.append(" ");
+				}
+				buffer.setLength(buffer.length() - 1);
+				buffer.append(")");
+
+				String bridgeProfile = buffer.toString();
+
+				edgeCounter.reset();
+				int innerEdgeCount = 0;
+				for (Edge<? extends Node> edge : subgraph.getEdges()) {
+					if (!(subgraph.getEntries().contains(edge) || subgraph.getExits().contains(edge))) {
+						innerEdgeCount++;
+						if ((edge.getEdgeType() == EdgeType.CLUSTER_ENTRY)
+								|| (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)) {
+							edgeCounter.tallyInterEdge(edge.getEdgeType());
+						} else {
+							edgeCounter.tallyIntraEdge(edge.getEdgeType());
+						}
+					}
+				}
+
+				buffer.setLength(0);
+				buffer.append(innerEdgeCount);
+				buffer.append(" inner edges | Intra (");
+				for (EdgeType type : EdgeType.values()) {
+					buffer.append(type.code);
+					buffer.append(": ");
+					buffer.append(edgeCounter.getIntraCount(type));
+					buffer.append(" ");
+				}
+				buffer.setLength(buffer.length() - 1);
+				buffer.append(") Inter (");
+				for (EdgeType type : EdgeType.values()) {
+					buffer.append(type.code);
+					buffer.append(": ");
+					buffer.append(edgeCounter.getInterCount(type));
+					buffer.append(" ");
+				}
+				buffer.setLength(buffer.length() - 1);
+				buffer.append(")");
+
+				String edgeProfile = buffer.toString();
+
+				Log.log("Profile of %d node subgraph with maximum path length %d in %s:\n\t%s\n\t%s",
+						subgraph.getNodeCount(), subgraph.getMaximumPathLength(),
+						session.right.graph.cluster.getUnitFilename(), bridgeProfile, edgeProfile);
+
+				if (subgraph.getNodeCount() < 50)
+					subgraph.logGraph();
+			}
+		}
 	}
 }
