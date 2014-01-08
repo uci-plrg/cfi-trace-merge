@@ -40,9 +40,12 @@ class ClusterTagMergedSubgraphs {
 				return;
 
 			findBridges();
-			pathAnalyzer.findLongestPath(this);
-			maximumPathLength = pathAnalyzer.longestPath;
-			maximumIndirectsInPath = pathAnalyzer.maxIndirects;
+
+			if (edges.size() < 200) {
+				pathAnalyzer.findLongestPath(this);
+				maximumPathLength = pathAnalyzer.longestPath;
+				maximumIndirectsInPath = pathAnalyzer.maxIndirects;
+			}
 		}
 
 		private void findBridges() {
@@ -207,23 +210,23 @@ class ClusterTagMergedSubgraphs {
 		int withinUnexpected = 0;
 		int fromUnexpected = 0;
 		int toUnexpected = 0;
-		
+
 		public int getTotal() {
 			return total;
 		}
-		
+
 		public int getWithinExpected() {
 			return withinExpected;
 		}
-		
+
 		public int getFromUnexpected() {
 			return fromUnexpected;
 		}
-		
+
 		public int getToUnexpected() {
 			return toUnexpected;
 		}
-		
+
 		public int getWithinUnexpected() {
 			return withinUnexpected;
 		}
@@ -236,15 +239,15 @@ class ClusterTagMergedSubgraphs {
 	private final List<Subgraph> distinctSubgraphs = new ArrayList<Subgraph>();
 	private final PathAnalyzer pathAnalyzer = new PathAnalyzer();
 	public final UnmatchedIndirectCounts unmatchedIndirectCounts = new UnmatchedIndirectCounts();
-	
+
 	int getSubgraphCount() {
 		return getSubgraphs().size();
 	}
-	
+
 	int getTotalUnmatchedNodes() {
 		return unmatchedNodes.size();
 	}
-	
+
 	int getTotalUnmatchedEdges() {
 		return unmatchedEdgeCount;
 	}
@@ -256,7 +259,7 @@ class ClusterTagMergedSubgraphs {
 
 	void edgeAdded(Edge<?> edge) {
 		unmatchedEdgeCount++;
-		
+
 		if (atoms.remove(edge.getFromNode())) {
 			if (atoms.remove(edge.getToNode())) {
 				Subgraph subgraph = new Subgraph();
