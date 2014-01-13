@@ -12,6 +12,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.ModuleEdgeCounter;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
@@ -29,6 +30,7 @@ class ClusterTagMergeEngine {
 	void mergeGraph() {
 		addLeftNodes();
 		addLeftEdges();
+		mergeMetadata();
 
 		reportSummary();
 		reportAddedSubgraphs();
@@ -71,6 +73,24 @@ class ClusterTagMergeEngine {
 			} catch (IllegalArgumentException e) {
 				Log.log("Error merging edges! %s", e.getMessage());
 				Log.log(e);
+			}
+		}
+	}
+
+	private void mergeMetadata() {
+		if (session.left.metadata.isEmpty())
+			return;
+
+		if (session.right.graph.metadata.isEmpty()) {
+			session.right.graph.metadata.sequences.putAll(session.left.metadata.sequences);
+			return;
+		}
+
+		if (session.left.metadata.isSingletonExecution()) {
+			session.right.graph.metadata.getRootSequence().addExecution(session.left.metadata.getSingletonExecution());
+		} else {
+			for (ClusterMetadataSequence leftSequence : session.left.metadata.sequences.values()) {
+				session.right.graph.metadata.mergeSequence(leftSequence);
 			}
 		}
 	}

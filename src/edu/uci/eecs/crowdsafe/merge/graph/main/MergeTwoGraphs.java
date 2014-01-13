@@ -11,6 +11,8 @@ import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataExecution;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSink;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
@@ -241,7 +243,7 @@ public class MergeTwoGraphs {
 				}
 			} else {
 				if (!rightGraph.isCompatible(leftGraph)) {
-					Log.log("Skipping cluster %s because its modules versions are not compatible with the right side",
+					Log.log("Skipping cluster %s because its module's versions are not compatible with the right side",
 							leftCluster.name);
 					continue;
 				}
@@ -258,6 +260,17 @@ public class MergeTwoGraphs {
 						break;
 					default:
 						throw new IllegalArgumentException("Unknown merge strategy " + strategy);
+				}
+
+				if (!mergedGraph.graph.metadata.isEmpty()) {
+					for (ClusterMetadataSequence sequence : mergedGraph.graph.metadata.sequences.values()) {
+						Log.log("Merged metadata sequence of %d executions | is root? %b", sequence.executions.size(),
+								sequence.isRoot());
+						for (ClusterMetadataExecution execution : sequence.executions) {
+							Log.log("\tExecution has %d uibp and %d intervals", execution.uibs.size(),
+									execution.intervals.size());
+						}
+					}
 				}
 
 				Log.log("Checking reachability on the merged graph.");
@@ -295,7 +308,8 @@ public class MergeTwoGraphs {
 				}
 			}
 			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
-			ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(leftAnonymousGraphs, rightAnonymousGraphs);
+			ClusterGraph anonymousGraph = anonymousMerge
+					.createAnonymousGraph(leftAnonymousGraphs, rightAnonymousGraphs);
 			completion.mergeCompleted(anonymousGraph);
 
 			if (logFile != null)

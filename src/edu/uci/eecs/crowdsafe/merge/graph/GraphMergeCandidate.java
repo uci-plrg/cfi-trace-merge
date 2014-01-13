@@ -43,7 +43,8 @@ public interface GraphMergeCandidate {
 
 		public Execution(File directory, ClusterHashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
-			dataSource = new ExecutionTraceDirectory(directory, ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES);
+			dataSource = new ExecutionTraceDirectory(directory, ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES,
+					ProcessExecutionGraph.EXECUTION_GRAPH_REQUIRED_FILE_TYPES);
 		}
 
 		public Execution(ProcessExecutionGraph graph, ClusterHashMergeDebugLog debugLog) {
