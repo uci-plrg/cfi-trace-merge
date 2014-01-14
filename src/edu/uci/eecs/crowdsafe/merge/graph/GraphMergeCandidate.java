@@ -136,6 +136,10 @@ public interface GraphMergeCandidate {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
 			if ((graph != null) && !summarizedClusters.contains(cluster)) {
 				summaryBuilder.addCluster(graph.summarize(cluster.isAnonymous()));
+
+				if (graph.metadata.isMain())
+					summaryBuilder.setMetadata(graph.metadata.summarizeIntervals());
+
 				summarizedClusters.add(cluster);
 			}
 			return graph;

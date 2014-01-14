@@ -268,7 +268,7 @@ public class MergeTwoGraphs {
 								sequence.isRoot());
 						for (ClusterMetadataExecution execution : sequence.executions) {
 							Log.log("\tExecution has %d uibp and %d intervals", execution.uibs.size(),
-									execution.intervals.size());
+									execution.getIntervalCount());
 						}
 					}
 				}
