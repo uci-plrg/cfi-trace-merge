@@ -114,17 +114,17 @@ public class AnonymousGraphMergeEngine {
 				// left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
 				return false;
 			} finally {
-				if ((left.getExecutableNodeCount() < 35) && (right.getExecutableNodeCount() < 35)) {
-					if (reportCount < 50) {
-						Log.log("Evaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
-								left.getNodeCount(), right.getNodeCount(), greaterMatchPercentage, exactMatch, isFailed);
-						left.logGraph();
-						right.logGraph();
-						reportCount++;
-					}
-				} else {
-					Log.log("%d%% | exact? %b | failed? %b", greaterMatchPercentage, exactMatch, isFailed);
-				}
+				// if ((left.getExecutableNodeCount() < 35) && (right.getExecutableNodeCount() < 35)) {
+				// if (reportCount < 50) {
+				// Log.log("Evaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
+				// left.getNodeCount(), right.getNodeCount(), greaterMatchPercentage, exactMatch, isFailed);
+				// left.logGraph();
+				// right.logGraph();
+				// reportCount++;
+				// }
+				// } else {
+				// Log.log("%d%% | exact? %b | failed? %b", greaterMatchPercentage, exactMatch, isFailed);
+				// }
 
 				// if ((greaterMatchPercentage > 50) && (greaterMatchPercentage < 80))
 				// toString();

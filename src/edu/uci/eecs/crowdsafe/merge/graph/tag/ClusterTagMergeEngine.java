@@ -33,7 +33,7 @@ class ClusterTagMergeEngine {
 		mergeMetadata();
 
 		reportSummary();
-		reportAddedSubgraphs();
+		// reportAddedSubgraphs();
 	}
 
 	private void addLeftNodes() {

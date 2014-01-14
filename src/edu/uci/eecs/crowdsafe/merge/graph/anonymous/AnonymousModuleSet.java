@@ -239,13 +239,13 @@ class AnonymousModuleSet {
 						}
 
 						cluster = AnonymousModule.resolveAlias(cluster);
-						
+
 						if (isStoryboarding(cluster)) {
 							Log.log("Warning: skipping anonymous subgraph with exit to 'ni' cluster %s",
 									cluster.getUnitFilename());
 							continue subgraphs;
 						}
-						
+
 						allConnectingClusters.add(cluster);
 
 						if (AnonymousModule.isEligibleOwner(cluster)) {
@@ -338,7 +338,7 @@ class AnonymousModuleSet {
 						Log.log("\tNo escapes in subgraph %d", arbitrarySubgraphId);
 					}
 
-					subgraph.logGraph();
+					// subgraph.logGraph();
 				}
 				Log.log();
 			} else {
@@ -346,11 +346,15 @@ class AnonymousModuleSet {
 				Log.log("\t%d subgraphs with %d total nodes", module.subgraphs.size(), module.getNodeCount());
 
 				module.reportEdgeProfile();
+
+				/**
+				 * <pre>
 				if (module.subgraphs.size() < 10) {
 					for (AnonymousSubgraph subgraph : module.subgraphs)
 						if (subgraph.getNodeCount() < 10)
 							subgraph.logGraph();
 				}
+				 */
 
 				// flowAnalsis.clear();
 				// flowAnalsis.analyzeFlow(module);
@@ -375,7 +379,7 @@ class AnonymousModuleSet {
 			}
 		}
 	}
-	
+
 	private boolean isStoryboarding(AutonomousSoftwareDistribution cluster) {
 		return cluster.name.contains(".ni.dll-");
 	}
