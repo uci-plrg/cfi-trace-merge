@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function usage() {
+  echo "ams [ -n <quantity-to-show> (from the end)> ]"
+}
+
+while getopts "n:" option
+do
+  case $option in
+    n ) count=$OPTARG;;
+    * ) usage; exit;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [ ! -z $count ]
+then
+  limit_expression="tail -"$count 
+else
+  limit_expression="cat"
+fi
+
+for l in $(ls -1th logs/*.log | egrep -v "results|dynamic" | tac | $limit_expression)
+do
+  echo ""
+  echo "  ======= $(basename $l) ======="
+  sed -n -e "/Merged Anonymous Graph/,$ p" $l | grep -A 1 "Anonymous.*box" | sed "s/=//g"
+done
+
