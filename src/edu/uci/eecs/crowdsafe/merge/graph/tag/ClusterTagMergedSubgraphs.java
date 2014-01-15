@@ -41,11 +41,11 @@ class ClusterTagMergedSubgraphs {
 
 			findBridges();
 
-			if (edges.size() < 200) {
-				pathAnalyzer.findLongestPath(this);
-				maximumPathLength = pathAnalyzer.longestPath;
-				maximumIndirectsInPath = pathAnalyzer.maxIndirects;
-			}
+			// if (edges.size() < 200) {
+			// pathAnalyzer.findLongestPath(this);
+			// maximumPathLength = pathAnalyzer.longestPath;
+			// maximumIndirectsInPath = pathAnalyzer.maxIndirects;
+			// }
 		}
 
 		private void findBridges() {
@@ -55,9 +55,6 @@ class ClusterTagMergedSubgraphs {
 				else if ((edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT) || !nodes.contains(edge.getToNode()))
 					exits.add(edge);
 			}
-
-			if (entries.isEmpty())
-				toString();
 		}
 
 		int getNodeCount() {
