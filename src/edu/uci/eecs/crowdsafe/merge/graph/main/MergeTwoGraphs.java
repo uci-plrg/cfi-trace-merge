@@ -243,7 +243,7 @@ public class MergeTwoGraphs {
 				}
 			} else {
 				if (!rightGraph.isCompatible(leftGraph)) {
-					Log.log("Skipping cluster %s because its module's versions are not compatible with the right side",
+					Log.log("Warning: skipping cluster %s because its module's versions are not compatible with the right side",
 							leftCluster.name);
 					continue;
 				}
