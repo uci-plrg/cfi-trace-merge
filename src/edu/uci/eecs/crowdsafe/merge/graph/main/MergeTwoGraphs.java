@@ -242,11 +242,14 @@ public class MergeTwoGraphs {
 					continue;
 				}
 			} else {
+				/**
+				 * <pre> Not needed for unit mode
 				if (!rightGraph.isCompatible(leftGraph)) {
 					Log.log("Warning: skipping cluster %s because its module's versions are not compatible with the right side",
 							leftCluster.name);
 					continue;
 				}
+				 */
 
 				switch (strategy) {
 					case HASH:
