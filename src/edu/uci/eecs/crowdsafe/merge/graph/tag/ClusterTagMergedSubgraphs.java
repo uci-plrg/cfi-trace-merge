@@ -241,6 +241,10 @@ class ClusterTagMergedSubgraphs {
 		return getSubgraphs().size();
 	}
 
+	boolean isMatched(Node<?> node) {
+		return !unmatchedNodes.contains(node);
+	}
+
 	int getTotalUnmatchedNodes() {
 		return unmatchedNodes.size();
 	}

@@ -32,7 +32,7 @@ class ClusterTagMergeEngine {
 		addLeftEdges();
 		mergeMetadata();
 
-		reportSummary();
+		reportUnexpectedCode();
 		// reportAddedSubgraphs();
 	}
 
@@ -124,6 +124,8 @@ class ClusterTagMergeEngine {
 				if (rightEdges.containsModuleRelativeEquivalent(leftEdge)) {
 					session.statistics.edgeMatched();
 				} else {
+					if (leftEdge.getEdgeType() == EdgeType.UNEXPECTED_RETURN)
+						Log.log("Warning: merging an unexpected return: %s", leftEdge);
 					session.edgeQueue.leftEdges.add(leftEdge);
 					session.edgeQueue.rightFromNodes.add(right);
 				}
@@ -150,7 +152,7 @@ class ClusterTagMergeEngine {
 		return true;
 	}
 
-	private void reportSummary() {
+	private void reportUnexpectedCode() {
 		Log.log("Unexpected code summary for %s: %d nodes, %d edges, %d subgraphs",
 				session.right.graph.cluster.getUnitFilename(), session.subgraphs.getTotalUnmatchedNodes(),
 				session.subgraphs.getTotalUnmatchedEdges(), session.subgraphs.getSubgraphCount());

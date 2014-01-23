@@ -2,11 +2,16 @@ package edu.uci.eecs.crowdsafe.merge.graph.tag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadata;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterUIB;
+import edu.uci.eecs.crowdsafe.common.log.Log;
 
 public class ClusterTagMergeSession {
 
@@ -24,6 +29,7 @@ public class ClusterTagMergeSession {
 		ClusterTagMergeSession session = new ClusterTagMergeSession(left, right, results);
 		ClusterTagMergeEngine engine = new ClusterTagMergeEngine(session);
 		engine.mergeGraph();
+		session.logSuspiciousUIB();
 		session.results.clusterMergeCompleted();
 		return session.right;
 	}
@@ -37,7 +43,7 @@ public class ClusterTagMergeSession {
 	final ClusterTagMergeResults results;
 
 	final PendingEdgeQueue edgeQueue = new PendingEdgeQueue();
-	
+
 	boolean subgraphAnalysisEnabled;
 
 	public ClusterTagMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<ClusterNode<?>> right,
@@ -45,7 +51,35 @@ public class ClusterTagMergeSession {
 		this.left = left;
 		this.right = new ClusterGraph(right);
 		this.results = results;
-		
+
 		results.beginCluster(this);
+	}
+
+	public void logSuspiciousUIB() {
+		if (left.metadata.isSingletonExecution()) {
+			for (ClusterUIB uib : left.metadata.getSingletonExecution().uibs) {
+				if (!uib.isAdmitted) {
+					String ku;
+					int targetCount = 0;
+					if (subgraphs.isMatched(uib.edge.getFromNode())) {
+						ku = "K";
+
+						OrdinalEdgeList<ClusterNode<?>> rightEdges = right.graph.getNode(
+								uib.edge.getFromNode().getKey()).getOutgoingEdges(uib.edge.getOrdinal());
+						try {
+							targetCount = rightEdges.size();
+						} finally {
+							rightEdges.release();
+						}
+					} else {
+						ku = "U";
+					}
+					ku += "->";
+					ku += subgraphs.isMatched(uib.edge.getToNode()) ? "K" : "U";
+					Log.log(" > UIB: %s %dI %dT of %s <%d>", ku, uib.instanceCount, uib.traversalCount, uib.edge,
+							targetCount);
+				}
+			}
+		}
 	}
 }

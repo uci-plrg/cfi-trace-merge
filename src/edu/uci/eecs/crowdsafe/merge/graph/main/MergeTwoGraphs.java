@@ -13,6 +13,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataExecution;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataSequence;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterUIB;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSink;
 import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
@@ -233,6 +234,7 @@ public class MergeTwoGraphs {
 			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
 			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
 			if (rightGraph == null) {
+				leftGraph.logUnknownSuspiciousUIB();
 				if (strategy == GraphMergeStrategy.TAG) {
 					Log.log("Copying left cluster %s because it does not appear in the right side.", leftCluster.name);
 					mergedGraph = new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) leftGraph);
@@ -265,6 +267,8 @@ public class MergeTwoGraphs {
 						throw new IllegalArgumentException("Unknown merge strategy " + strategy);
 				}
 
+				/**
+				 * <pre>
 				if (!mergedGraph.graph.metadata.isEmpty()) {
 					for (ClusterMetadataSequence sequence : mergedGraph.graph.metadata.sequences.values()) {
 						Log.log("Merged metadata sequence of %d executions | is root? %b", sequence.executions.size(),
@@ -275,6 +279,7 @@ public class MergeTwoGraphs {
 						}
 					}
 				}
+				 */
 
 				Log.log("Checking reachability on the merged graph.");
 				mergedGraph.graph.resetAnalysis();
