@@ -4,13 +4,20 @@ import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
 class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
 
+	private static int ID_INDEX = 0;
+	
+	public final int id = ID_INDEX++;
+	public final GraphMergeSource source;
 	private ClusterNode<?> blackBoxSingleton = null;
 
-	public AnonymousSubgraph(String name, AutonomousSoftwareDistribution cluster) {
+	public AnonymousSubgraph(String name, GraphMergeSource source, AutonomousSoftwareDistribution cluster) {
 		super(name, cluster);
+		
+		this.source = source;
 	}
 
 	public boolean isAnonymousBlackBox() {

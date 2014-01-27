@@ -10,6 +10,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadata;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataExecution;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterUIB;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 
@@ -28,6 +29,7 @@ public class ClusterTagMergeSession {
 			ClusterTagMergeResults results) {
 		ClusterTagMergeSession session = new ClusterTagMergeSession(left, right, results);
 		ClusterTagMergeEngine engine = new ClusterTagMergeEngine(session);
+
 		engine.mergeGraph();
 		session.logSuspiciousUIB();
 		session.results.clusterMergeCompleted();
@@ -36,6 +38,7 @@ public class ClusterTagMergeSession {
 
 	final ModuleGraphCluster<?> left;
 	final ClusterGraph right;
+	final ClusterTagMergeFragment mergeFragment = new ClusterTagMergeFragment(this);
 
 	final ClusterTagMergedSubgraphs subgraphs = new ClusterTagMergedSubgraphs();
 

@@ -21,6 +21,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.exception.InvalidGraphException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
@@ -219,11 +220,13 @@ public class AnonymousGraphMergeEngine {
 	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs,
 			List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs) throws IOException {
 
-		leftModuleSet.installSubgraphs(leftAnonymousGraphs);
+		leftModuleSet.installSubgraphs(GraphMergeSource.LEFT, leftAnonymousGraphs);
 		leftModuleSet.analyzeModules();
+		// leftModuleSet.printDotFiles();
 
-		rightModuleSet.installSubgraphs(rightAnonymousGraphs);
+		rightModuleSet.installSubgraphs(GraphMergeSource.RIGHT, rightAnonymousGraphs);
 		rightModuleSet.analyzeModules();
+		// rightModuleSet.printDotFiles();
 
 		List<AnonymousModule> mergedModules = new ArrayList<AnonymousModule>();
 		for (AnonymousModule.OwnerKey leftOwner : leftModuleSet.getModuleOwners()) {
@@ -240,7 +243,7 @@ public class AnonymousGraphMergeEngine {
 				if (rightModule != null) {
 					compileWhiteBoxes(rightModule, mergedModule);
 				}
-				compileWhiteBoxes(leftModuleSet.getModule(leftOwner), mergedModule);
+				compileWhiteBoxes(leftModule, mergedModule);
 				mergedModules.add(mergedModule);
 			}
 		}
@@ -329,8 +332,14 @@ public class AnonymousGraphMergeEngine {
 					break;
 				}
 			}
-			if (!match)
+			if (match) {
+				Log.log("White box duplicate %s#%d from the %s side omittted.",
+						inputSubgraph.cluster.getUnitFilename(), inputSubgraph.id, inputSubgraph.source);
+			} else {
+				Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
+						inputSubgraph.id, inputSubgraph.source);
 				mergedModule.addSubgraph(inputSubgraph);
+			}
 		}
 	}
 

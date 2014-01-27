@@ -14,12 +14,13 @@ import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
 public class MaximalSubgraphs {
 
 	private class Subgraph {
-		final AnonymousSubgraph graph = new AnonymousSubgraph("Anonymous maximal subgraph of "
-				+ originalGraph.cluster.name, originalGraph.cluster);
+		final AnonymousSubgraph graph = new AnonymousSubgraph("Anonymous maximal subgraph of " + source.label
+				+ " cluster " + originalGraph.cluster.name, source, originalGraph.cluster);
 		final Map<Long, ClusterBoundaryNode> boundaryNodes = new HashMap<Long, ClusterBoundaryNode>();
 
 		ClusterNode<?> addNode(ClusterNode<?> node, Edge<ClusterNode<?>> edge) {
@@ -109,8 +110,9 @@ public class MaximalSubgraphs {
 	}
 
 	// this method modifies `graph`
-	public static Set<AnonymousSubgraph> getMaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
-		MaximalSubgraphs processor = new MaximalSubgraphs(graph);
+	public static Set<AnonymousSubgraph> getMaximalSubgraphs(GraphMergeSource source,
+			ModuleGraphCluster<ClusterNode<?>> graph) {
+		MaximalSubgraphs processor = new MaximalSubgraphs(source, graph);
 
 		for (ClusterNode<?> node : graph.getAllNodes()) {
 			processor.atoms.add(node);
@@ -130,24 +132,19 @@ public class MaximalSubgraphs {
 		return processor.distinctSubgraphs;
 	}
 
+	private final GraphMergeSource source;
 	private final ModuleGraphCluster<ClusterNode<?>> originalGraph;
 
 	private final Set<ClusterNode<?>> atoms = new HashSet<ClusterNode<?>>();
 	private final Map<ClusterNode<?>, Subgraph> subgraphs = new HashMap<ClusterNode<?>, Subgraph>();
 	private final Set<AnonymousSubgraph> distinctSubgraphs = new HashSet<AnonymousSubgraph>();
 
-	private MaximalSubgraphs(ModuleGraphCluster<ClusterNode<?>> graph) {
+	private MaximalSubgraphs(GraphMergeSource source, ModuleGraphCluster<ClusterNode<?>> graph) {
+		this.source = source;
 		this.originalGraph = graph;
 	}
 
 	private void addEdge(Edge<ClusterNode<?>> edge) {
-		/*
-		 * if (edge.getFromNode().getType() == MetaNodeType.CLUSTER_ENTRY) { Subgraph toSubgraph =
-		 * subgraphs.get(edge.getToNode()); if (toSubgraph != null) toSubgraph.addNode(edge.getFromNode(), edge); } else
-		 * if (edge.getFromNode().getType() == MetaNodeType.CLUSTER_EXIT) { Subgraph fromSubgraph =
-		 * subgraphs.get(edge.getFromNode()); if (fromSubgraph != null) fromSubgraph.addNode(edge.getToNode(), edge); }
-		 * else {
-		 */
 		ClusterNode<?> fromNode = consumeFromAtom(edge);
 		if (fromNode != null) {
 			ClusterNode<?> toNode;
@@ -194,7 +191,6 @@ public class MaximalSubgraphs {
 				}
 			}
 		}
-		// }
 	}
 
 	private ClusterNode<?> consumeFromAtom(Edge<ClusterNode<?>> edge) {

@@ -134,13 +134,20 @@ public interface GraphMergeCandidate {
 		@Override
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
-			if ((graph != null) && !summarizedClusters.contains(cluster)) {
-				summaryBuilder.addCluster(graph.summarize(cluster.isAnonymous()));
+			if (graph != null) {
+				if (!summarizedClusters.contains(cluster)) {
+					summaryBuilder.addCluster(graph.summarize(cluster.isAnonymous()));
 
-				if (graph.metadata.isMain())
-					summaryBuilder.setMetadata(graph.metadata.summarizeIntervals());
+					if (graph.metadata.isMain()) {
+						Log.log("Setting interval metadata on the main graph %s of %s", cluster.name, dataSource
+								.getDirectory().getName());
+						summaryBuilder.setMetadata(graph.metadata.summarizeIntervals());
+					}
 
-				summarizedClusters.add(cluster);
+					summarizedClusters.add(cluster);
+				} else if (graph.metadata.isMain()) {
+
+				}
 			}
 			return graph;
 		}

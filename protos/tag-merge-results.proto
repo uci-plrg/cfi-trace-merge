@@ -9,6 +9,7 @@ option java_outer_classname = "TagMerge";
 message TagMergeResults {
   optional Process left = 1;
   optional Process right = 2;
+  optional Process merge_fragment = 4;
   repeated TagClusterMerge cluster = 3;
 }
 

@@ -295,8 +295,13 @@ public class MergeTwoGraphs {
 				if (options.includeCluster(rightCluster) && !leftData.getRepresentedClusters().contains(rightCluster)) {
 					Log.log("Copying right cluster %s because it does not appear in the left side.", rightCluster.name);
 
-					completion.mergeCompleted(new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) rightData
-							.getClusterGraph(rightCluster)));
+					ModuleGraphCluster<ClusterNode<?>> rightGraph = (ModuleGraphCluster<ClusterNode<?>>) rightData
+							.getClusterGraph(rightCluster);
+					if (rightGraph.metadata.isMain()) {
+						Log.log("The main cluster was not represented in the left side, so we must add a new metadata frame for it now.");
+					}
+
+					completion.mergeCompleted(new ClusterGraph(rightGraph));
 				}
 			}
 		}

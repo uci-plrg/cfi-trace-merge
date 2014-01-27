@@ -20,6 +20,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
+import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
 class AnonymousModuleSet {
 
@@ -88,12 +89,12 @@ class AnonymousModuleSet {
 		return modulesByOwner.get(owner);
 	}
 
-	void installSubgraphs(List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) throws IOException {
+	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) throws IOException {
 		if (anonymousGraphs.isEmpty())
 			return;
 
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : anonymousGraphs) {
-			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph)) {
+			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(source, dynamicGraph)) {
 				int size = maximalSubgraph.getNodeCount();
 				totalSize += size;
 				if (size < minSize)
@@ -378,6 +379,12 @@ class AnonymousModuleSet {
 				 */
 			}
 		}
+	}
+	
+	void printDotFiles() throws IOException {
+		for (AnonymousModule module : modulesByOwner.values()) {
+			module.printDotFiles();
+		}		
 	}
 
 	private boolean isStoryboarding(AutonomousSoftwareDistribution cluster) {

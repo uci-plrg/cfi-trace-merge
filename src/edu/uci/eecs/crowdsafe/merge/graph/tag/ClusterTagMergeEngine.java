@@ -47,6 +47,7 @@ class ClusterTagMergeEngine {
 			if (right == null) {
 				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
 				session.statistics.nodeAdded();
+				session.mergeFragment.nodeAdded(right);
 				if (session.subgraphAnalysisEnabled)
 					session.subgraphs.nodeAdded(right);
 			}
@@ -68,6 +69,7 @@ class ClusterTagMergeEngine {
 				rightFromNode.addOutgoingEdge(newRightEdge);
 				rightToNode.addIncomingEdge(newRightEdge);
 				session.statistics.edgeAdded();
+				session.mergeFragment.edgeAdded(newRightEdge);
 				if (session.subgraphAnalysisEnabled)
 					session.subgraphs.edgeAdded(newRightEdge);
 			} catch (IllegalArgumentException e) {
@@ -82,11 +84,24 @@ class ClusterTagMergeEngine {
 			return;
 
 		if (session.right.graph.metadata.isEmpty()) {
+			if (session.left.metadata.isMain()) {
+				Log.log("Pushing left metadata onto an empty right sequence for the main module %s",
+						session.left.cluster.name);
+				int i = 0;
+				for (ClusterMetadataSequence sequence : session.left.metadata.sequences.values()) {
+					Log.log("\tSequence %d has %d executions%s", i++, sequence.executions.size(),
+							sequence.isRoot() ? " (root)" : "");
+				}
+			}
 			session.right.graph.metadata.sequences.putAll(session.left.metadata.sequences);
 			return;
 		}
 
 		if (session.left.metadata.isSingletonExecution()) {
+			if (session.left.metadata.isMain()) {
+				Log.log("Pushing left singleton metadata onto the right sequence for the main module %s",
+						session.left.cluster.name);
+			}
 			session.right.graph.metadata.getRootSequence().addExecution(session.left.metadata.getSingletonExecution());
 		} else {
 			for (ClusterMetadataSequence leftSequence : session.left.metadata.sequences.values()) {

@@ -8,7 +8,7 @@ import edu.uci.eecs.crowdsafe.common.data.results.Graph.Process;
 public interface MergeResults {
 
 	void setGraphSummaries(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary);
-
+	
 	GeneratedMessage getResults();
 	
 	GraphMergeStrategy getStrategy();

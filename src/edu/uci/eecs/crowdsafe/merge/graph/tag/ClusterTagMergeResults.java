@@ -6,6 +6,7 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
 import edu.uci.eecs.crowdsafe.common.data.results.NodeResultsFactory;
+import edu.uci.eecs.crowdsafe.common.data.results.Graph.Process;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
@@ -19,6 +20,7 @@ public class ClusterTagMergeResults implements MergeResults {
 		final TagMerge.Mismatch.Builder mismatch = TagMerge.Mismatch.newBuilder();
 		final TagMerge.Subgraph.Builder subgraph = TagMerge.Subgraph.newBuilder();
 		final NodeResultsFactory nodeFactory = new NodeResultsFactory();
+		final Graph.Process.Builder fragment = Graph.Process.newBuilder();
 	}
 
 	private class ClusterResults {
@@ -63,6 +65,7 @@ public class ClusterTagMergeResults implements MergeResults {
 			}
 
 			builder.results.addCluster(builder.cluster.build());
+			builder.fragment.addCluster(session.mergeFragment.summarizeCurrentCluster());
 			session = null;
 		}
 	}
@@ -76,10 +79,14 @@ public class ClusterTagMergeResults implements MergeResults {
 	public void setGraphSummaries(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary) {
 		builder.results.setLeft(leftGraphSummary);
 		builder.results.setRight(rightGraphSummary);
+		
+		builder.fragment.setName(leftGraphSummary.getName() + " <merge fragment>");
+		builder.fragment.setMetadata(leftGraphSummary.getMetadata());
 	}
 
 	@Override
 	public TagMerge.TagMergeResults getResults() {
+		builder.results.setMergeFragment(builder.fragment.build());
 		return builder.results.build();
 	}
 

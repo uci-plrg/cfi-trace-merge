@@ -1,5 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph.anonymous;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -120,6 +122,8 @@ public class AnonymousModule {
 		return OWNER_ALIAS.get(unit.filename);
 	}
 
+	private static final File DOT_DIRECTORY = new File("./dot");
+
 	private static final Set<String> INELIGIBLE_OWNERS = new HashSet<String>();
 	private static final Map<String, String> OWNER_ALIAS = new HashMap<String, String>();
 
@@ -162,7 +166,7 @@ public class AnonymousModule {
 	public boolean isBlackBox() {
 		return isBlackBox;
 	}
-
+	
 	boolean hasEscapes(ModuleGraphCluster<ClusterNode<?>> subgraph) {
 		for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
 			if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(entry.getHash()) != owningCluster)
@@ -173,6 +177,16 @@ public class AnonymousModule {
 				return true;
 		}
 		return false;
+	}
+
+	void printDotFiles() throws IOException {
+		File outputDirectory = new File(DOT_DIRECTORY, owningCluster.getUnitFilename());
+		for (AnonymousSubgraph subgraph : subgraphs) {
+			String basename = isBlackBox ? "black-box" : "white-box";
+			File outputFile = new File(outputDirectory, String.format("%s.%d.gv", basename, subgraph.id));
+			String label = String.format("%s %s #%d", owningCluster.getUnitFilename(), basename, subgraph.id);
+			subgraph.writeDotFile(outputFile, label);
+		}
 	}
 
 	void reportEdgeProfile() {
@@ -201,7 +215,7 @@ public class AnonymousModule {
 								continue;
 
 							edgeType = edges.get(0).getEdgeType();
-								edgeCountsByType.tally(edgeType, edges.size());
+							edgeCountsByType.tally(edgeType, edges.size());
 							edgeOrdinalCountsByType.tally(edgeType);
 							totalEdges += edges.size();
 
