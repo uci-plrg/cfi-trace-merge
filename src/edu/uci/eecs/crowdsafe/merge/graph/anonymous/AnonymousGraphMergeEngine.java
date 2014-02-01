@@ -365,6 +365,11 @@ public class AnonymousGraphMergeEngine {
 						for (Edge<? extends Node<?>> edge : edges) {
 							ClusterNode<?> fromNode = copyMap.get(edge.getFromNode());
 							ClusterNode<?> toNode = copyMap.get(edge.getToNode());
+							if (toNode == null) {
+								Log.log("Error! Missing copy of 'to' node %s in edge from %s", edge.getToNode(),
+										edge.getFromNode());
+								continue;
+							}
 							Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
 									edge.getEdgeType(), edge.getOrdinal());
 							fromNode.addOutgoingEdge(mergedEdge);

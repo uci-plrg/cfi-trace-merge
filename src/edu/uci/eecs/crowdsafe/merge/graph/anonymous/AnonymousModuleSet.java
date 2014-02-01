@@ -89,7 +89,8 @@ class AnonymousModuleSet {
 		return modulesByOwner.get(owner);
 	}
 
-	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) throws IOException {
+	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs)
+			throws IOException {
 		if (anonymousGraphs.isEmpty())
 			return;
 
@@ -315,33 +316,7 @@ class AnonymousModuleSet {
 			if (module.isBlackBox()) {
 				Log.log(" === Anonymous black box module owned by %s ===", module.owningCluster.name);
 
-				AutonomousSoftwareDistribution cluster;
-				int arbitrarySubgraphId = -1;
-				for (AnonymousSubgraph subgraph : module.subgraphs) {
-					arbitrarySubgraphId++;
-					if (module.hasEscapes(subgraph)) {
-						Log.log("\tEscapes in subgraph %d:", arbitrarySubgraphId);
-						for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
-							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
-									entry.getHash());
-							if (cluster != module.owningCluster)
-								Log.log("\t\tEntry from %s", cluster.name);
-						}
-						for (ClusterNode<?> exit : subgraph.getExitPoints()) {
-							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
-									exit.getHash());
-							if (cluster == null)
-								Log.log("\t\tError! Exit to unknown cluster!");
-							else if (cluster != module.owningCluster)
-								Log.log("\t\tExit to %s", cluster.name);
-						}
-					} else {
-						Log.log("\tNo escapes in subgraph %d", arbitrarySubgraphId);
-					}
-
-					// subgraph.logGraph();
-				}
-				Log.log();
+				// subgraph.logGraph();
 			} else {
 				Log.log(" ==== Anonymous white box module owned by %s ====", module.owningCluster.name);
 				Log.log("\t%d subgraphs with %d total nodes", module.subgraphs.size(), module.getNodeCount());
@@ -378,13 +353,46 @@ class AnonymousModuleSet {
     			}
 				 */
 			}
+
+			AutonomousSoftwareDistribution cluster;
+			int arbitrarySubgraphId = -1;
+			for (AnonymousSubgraph subgraph : module.subgraphs) {
+				arbitrarySubgraphId++;
+				if (module.hasEscapes(subgraph)) {
+					Log.log("\tEscapes in subgraph %d:", arbitrarySubgraphId);
+					for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
+						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
+								entry.getHash());
+						if (cluster != module.owningCluster)
+							Log.log("\t\tEntry from %s", (cluster == null) ? "unknown cluster" : cluster.name);
+					}
+					for (ClusterNode<?> exit : subgraph.getExitPoints()) {
+						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
+								exit.getHash());
+						if (cluster == null) {
+							Log.log("\t\tExit to exported function with hash 0x%x.", exit.getHash());
+						} else if (cluster != module.owningCluster) {
+							if (cluster == ConfiguredSoftwareDistributions.SYSTEM_CLUSTER)
+								Log.log("\t\tExit to %s (calling sysnum #%d)", cluster.name,
+										ConfiguredSoftwareDistributions.getInstance().sysnumsBySyscallHash.get(exit
+												.getHash()));
+							else
+								Log.log("\t\tExit to %s", cluster.name);
+						}
+					}
+				} else if (module.isBlackBox()) {
+					Log.log("\tNo escapes in subgraph %d", arbitrarySubgraphId);
+				}
+			}
+
+			Log.log();
 		}
 	}
-	
+
 	void printDotFiles() throws IOException {
 		for (AnonymousModule module : modulesByOwner.values()) {
 			module.printDotFiles();
-		}		
+		}
 	}
 
 	private boolean isStoryboarding(AutonomousSoftwareDistribution cluster) {
