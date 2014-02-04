@@ -321,8 +321,8 @@ public class MergeTwoGraphs {
 					.createAnonymousGraph(leftAnonymousGraphs, rightAnonymousGraphs);
 			completion.mergeCompleted(anonymousGraph);
 
-			if (logFile != null)
-				writeResults(anonymousResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
+			// if (logFile != null)
+			// writeResults(anonymousResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
 		}
 
 		results.setGraphSummaries(leftData.summarizeGraph(), rightData.summarizeGraph());
