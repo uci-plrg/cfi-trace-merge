@@ -50,7 +50,7 @@ class ClusterTagMergedSubgraphs {
 
 		private void findBridges() {
 			for (Edge<? extends Node<?>> edge : edges) {
-				if ((edge.getEdgeType() == EdgeType.CLUSTER_ENTRY) || !nodes.contains(edge.getFromNode()))
+				if (edge.isClusterEntry() || !nodes.contains(edge.getFromNode()))
 					entries.add(edge);
 				else if ((edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT) || !nodes.contains(edge.getToNode()))
 					exits.add(edge);

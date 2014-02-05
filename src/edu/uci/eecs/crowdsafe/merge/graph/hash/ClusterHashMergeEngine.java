@@ -115,41 +115,55 @@ class ClusterHashMergeEngine {
 				// Find out the next matched node
 				// Prioritize direct edge and call continuation edge
 				Node<?> leftChild;
+				boolean isDirectMatchCandidate = false;
 				switch (rightEdge.getEdgeType()) {
+					case INDIRECT:
+					case UNEXPECTED_RETURN:
+						if (!rightEdge.isClusterEntry())
+							break;
 					case DIRECT:
 					case CALL_CONTINUATION:
 					case EXCEPTION_CONTINUATION:
-					case CLUSTER_ENTRY:
-						session.statistics.tryDirectMatch();
-
-						leftChild = matcher.getCorrespondingDirectChildNode(leftNode, rightEdge);
-						session.right.visitedEdges.add(rightEdge);
-
-						if (leftChild != null) {
-							if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
-								continue;
-
-							session.matchState.enqueueMatch(new HashNodeMatch(leftChild, rightEdge.getToNode(),
-									MatchType.DIRECT_BRANCH));
-
-							// Update matched relationship
-							if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
-								if (!session.matchedNodes.addPair(leftChild, rightEdge.getToNode(),
-										session.getScore(leftChild))) {
-									session.contextRecord.fail("Already matched %s", rightNode);
-									return;
-								}
-							}
-						} else {
-							addUnmatchedNode2Queue(rightEdge.getToNode());
-						}
+						isDirectMatchCandidate = true;
 						break;
-					default:
-						// Add the indirect node to the queue
-						// to delay its matching
-						if (!session.matchedNodes.containsRightKey(rightEdge.getToNode().getKey())) {
-							session.matchState.enqueueIndirectEdge(new HashEdgePair(leftNode, rightEdge, rightNode));
+				}
+
+				// if (rightEdge.isClusterEntry())
+				// Log.log("Cluster entry %S is direct match candidate? %b", rightEdge, isDirectMatchCandidate);
+
+				if (isDirectMatchCandidate) {
+					session.statistics.tryDirectMatch();
+
+					leftChild = matcher.getCorrespondingDirectChildNode(leftNode, rightEdge);
+					session.right.visitedEdges.add(rightEdge);
+
+					if (leftChild != null) {
+						if (session.matchedNodes.containsLeftKey(leftChild.getKey()))
+							continue;
+
+						session.matchState.enqueueMatch(new HashNodeMatch(leftChild, rightEdge.getToNode(),
+								MatchType.DIRECT_BRANCH));
+
+						// Update matched relationship
+						if (!session.matchedNodes.hasPair(leftChild.getKey(), rightEdge.getToNode().getKey())) {
+							if (!session.matchedNodes.addPair(leftChild, rightEdge.getToNode(),
+									session.getScore(leftChild))) {
+								session.contextRecord.fail("Already matched %s", rightNode);
+								return;
+							}
 						}
+					} else {
+						// if (rightEdge.isClusterEntry())
+						// Log.log("Cluster entry didn't have a direct match");
+
+						addUnmatchedNode2Queue(rightEdge.getToNode());
+					}
+				} else {
+					// Add the indirect node to the queue
+					// to delay its matching
+					if (!session.matchedNodes.containsRightKey(rightEdge.getToNode().getKey())) {
+						session.matchState.enqueueIndirectEdge(new HashEdgePair(leftNode, rightEdge, rightNode));
+					}
 				}
 			}
 		} finally {

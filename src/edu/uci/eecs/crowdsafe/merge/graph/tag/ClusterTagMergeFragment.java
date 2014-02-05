@@ -44,7 +44,8 @@ class ClusterTagMergeFragment {
 		clusterBuilder.setDistributionName(session.left.cluster.name);
 		clusterBuilder.setNodeCount(session.statistics.getAddedNodeCount());
 		clusterBuilder.setExecutableNodeCount(exeutableNodeCount);
-		clusterBuilder.setEntryPointCount(edgeCounter.getInterCount(EdgeType.CLUSTER_ENTRY));
+		clusterBuilder.setEntryPointCount(edgeCounter.getInterCount(EdgeType.DIRECT)
+				+ edgeCounter.getInterCount(EdgeType.INDIRECT));
 		clusterBuilder.setMetadata(Graph.ModuleMetadata.newBuilder().build());
 
 		for (ModuleGraph moduleGraph : CrowdSafeCollections.createSortedCopy(session.left.getGraphs(),

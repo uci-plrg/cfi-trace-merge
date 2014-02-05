@@ -359,7 +359,7 @@ class AnonymousModuleSet {
 			for (AnonymousSubgraph subgraph : module.subgraphs) {
 				arbitrarySubgraphId++;
 				if (module.hasEscapes(subgraph)) {
-					Log.log("\tEscapes in subgraph %d:", arbitrarySubgraphId);
+					// Log.log("\tEscapes in subgraph %d:", arbitrarySubgraphId);
 					for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
 						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 								entry.getHash());
@@ -370,14 +370,16 @@ class AnonymousModuleSet {
 						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
 								exit.getHash());
 						if (cluster == null) {
-							Log.log("\t\tExit to exported function with hash 0x%x.", exit.getHash());
+							// Log.log("\t\tExit to exported function with hash 0x%x.", exit.getHash());
 						} else if (cluster != module.owningCluster) {
-							if (cluster == ConfiguredSoftwareDistributions.SYSTEM_CLUSTER)
-								Log.log("\t\tExit to %s (calling sysnum #%d)", cluster.name,
-										ConfiguredSoftwareDistributions.getInstance().sysnumsBySyscallHash.get(exit
-												.getHash()));
-							else
-								Log.log("\t\tExit to %s", cluster.name);
+							if (module.isBlackBox()) {
+								if (cluster == ConfiguredSoftwareDistributions.SYSTEM_CLUSTER)
+									Log.log("\t\tExit to %s (calling sysnum #%d)", cluster.name,
+											ConfiguredSoftwareDistributions.getInstance().sysnumsBySyscallHash.get(exit
+													.getHash()));
+								else
+									Log.log("\t\tExit to %s", cluster.name);
+							}
 						}
 					}
 				} else if (module.isBlackBox()) {

@@ -267,7 +267,12 @@ public class ClusterHashMatchEngine {
 
 		session.debugLog.debugCheck(rightToNode);
 
-		OrdinalEdgeList<? extends Node<?>> leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
+		OrdinalEdgeList<? extends Node<?>> leftEdges;
+		if (rightEdge.isClusterEntry())
+			leftEdges = leftParent.getOutgoingEdges();
+		else
+			leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
+
 		try {
 			if (leftEdges.size() == 1) {
 				Node<?> leftChild = leftEdges.get(0).getToNode();
@@ -284,7 +289,8 @@ public class ClusterHashMatchEngine {
 			ArrayList<Node<?>> candidates = new ArrayList<Node<?>>();
 
 			for (Edge<? extends Node<?>> leftEdge : leftEdges) {
-				if (leftEdge.getEdgeType() == rightEdge.getEdgeType()) {
+				if ((leftEdge.getEdgeType() == rightEdge.getEdgeType())
+						|| (leftEdge.isClusterEntry() && rightEdge.isClusterEntry())) {
 					if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
 
 						if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()))
@@ -294,7 +300,6 @@ public class ClusterHashMatchEngine {
 
 						switch (leftEdge.getEdgeType()) {
 							case DIRECT:
-							case CLUSTER_ENTRY:
 								session.statistics.directMatch();
 								break;
 							case CALL_CONTINUATION:
@@ -303,9 +308,17 @@ public class ClusterHashMatchEngine {
 							case EXCEPTION_CONTINUATION:
 								session.statistics.exceptionContinuationMatch();
 								break;
+							case INDIRECT:
+							case UNEXPECTED_RETURN:
+								if (leftEdge.isClusterEntry()) {
+									session.statistics.directMatch();
+									break;
+								}
 							default:
 								throw new IllegalArgumentException(
-										"Method only expects edges of type direct, module entry and call continuation!");
+										String.format(
+												"Method only expects edges of type direct, module entry and call continuation! Left edge type %s, right edge type %s",
+												leftEdge.getEdgeType(), rightEdge.getEdgeType()));
 						}
 
 						session.contextRecord.reset(leftEdge.getToNode(), rightEdge.getToNode());
@@ -313,7 +326,7 @@ public class ClusterHashMatchEngine {
 						if (session.acceptContext(leftEdge.getToNode())) {
 							candidates.add(leftEdge.getToNode());
 						}
-					} else if (rightEdge.getEdgeType() != EdgeType.CLUSTER_ENTRY) {
+					} else if (!rightEdge.isClusterEntry()) {
 						// hashes differ on a matching direct edge!
 						session.statistics.possibleRewrite();
 					}

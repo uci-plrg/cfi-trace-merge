@@ -1,5 +1,6 @@
 package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
+import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 
 public class HashNodeMatch {
@@ -19,6 +20,11 @@ public class HashNodeMatch {
 		this.leftNode = left;
 		this.rightNode = right;
 		this.type = type;
+
+		if ((left.getType() == MetaNodeType.CLUSTER_ENTRY) != (right.getType() == MetaNodeType.CLUSTER_ENTRY))
+			throw new IllegalArgumentException(String.format(
+					"Cannot match a cluster entry node to some other kind of node! Left: %s, right: %s",
+					left.getType(), right.getType()));
 	}
 
 	public Node<?> getLeftNode() {

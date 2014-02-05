@@ -189,7 +189,7 @@ class ClusterTagMergeEngine {
 				int indirectEntryEdges = 0;
 				for (Edge<? extends Node> edge : subgraph.getEntries()) {
 					bridgeNodes.add(edge.getToNode());
-					if (edge.getEdgeType() == EdgeType.CLUSTER_ENTRY) {
+					if (edge.isClusterEntry()) {
 						edgeCounter.tallyInterEdge(edge.getEdgeType());
 					} else {
 						edgeCounter.tallyIntraEdge(edge.getEdgeType());
@@ -253,8 +253,7 @@ class ClusterTagMergeEngine {
 				for (Edge<? extends Node> edge : subgraph.getEdges()) {
 					if (!(subgraph.getEntries().contains(edge) || subgraph.getExits().contains(edge))) {
 						innerEdgeCount++;
-						if ((edge.getEdgeType() == EdgeType.CLUSTER_ENTRY)
-								|| (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)) {
+						if (edge.isClusterEntry() || edge.isClusterExit()) {
 							edgeCounter.tallyInterEdge(edge.getEdgeType());
 						} else {
 							edgeCounter.tallyIntraEdge(edge.getEdgeType());

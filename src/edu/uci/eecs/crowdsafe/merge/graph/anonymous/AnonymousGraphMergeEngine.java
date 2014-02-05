@@ -160,7 +160,7 @@ public class AnonymousGraphMergeEngine {
 				}
 				buffer.append("\n");
 			}
-			Log.log(buffer.toString());
+			// Log.log(buffer.toString());
 		}
 
 		ClusterCompatibilityRecord getCompatibilityRecord(int subgraphIndex) {
@@ -333,11 +333,11 @@ public class AnonymousGraphMergeEngine {
 				}
 			}
 			if (match) {
-				Log.log("White box duplicate %s#%d from the %s side omittted.",
-						inputSubgraph.cluster.getUnitFilename(), inputSubgraph.id, inputSubgraph.source);
+				//Log.log("White box duplicate %s#%d from the %s side omittted.",
+				//		inputSubgraph.cluster.getUnitFilename(), inputSubgraph.id, inputSubgraph.source);
 			} else {
-				Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
-						inputSubgraph.id, inputSubgraph.source);
+//				Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
+//						inputSubgraph.id, inputSubgraph.source);
 				mergedModule.addSubgraph(inputSubgraph);
 			}
 		}
@@ -482,7 +482,7 @@ public class AnonymousGraphMergeEngine {
 		SubgraphCluster spillCluster;
 		for (int s = 0; s < subgraphClusters.size(); s++) {
 			SubgraphCluster subgraphCluster = subgraphClusters.get(s);
-			Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
+			//Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
 			subgraphCluster.reportCompatibility();
 
 			spillCluster = null;

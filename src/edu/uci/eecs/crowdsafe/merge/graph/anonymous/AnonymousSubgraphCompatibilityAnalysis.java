@@ -289,9 +289,6 @@ class AnonymousSubgraphCompatibilityAnalysis {
 							}
 							visitedLeftNodes.remove(leftNode);
 							return false;
-						case CLUSTER_ENTRY:
-							throw new IllegalStateException(
-									"Cluster entry edges should only appear on cluster entry nodes!");
 					}
 					break;
 				} finally {

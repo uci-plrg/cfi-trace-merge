@@ -37,6 +37,14 @@ class ClusterHashMatchState {
 		return unmatched;
 	}
 
+	int getMatchCount() {
+		return matchedQueue.size();
+	}
+
+	int getUnmatchCount() {
+		return unmatchedQueue.size();
+	}
+
 	boolean hasMatches() {
 		return !matchedQueue.isEmpty();
 	}
