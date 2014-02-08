@@ -38,6 +38,7 @@ class ClusterTagMergeEngine {
 
 	private void addLeftNodes() {
 		session.subgraphAnalysisEnabled = true; // (session.left.getAllNodes().size() < 20000);
+		boolean rightAdded = false;
 		for (Node<?> left : session.left.getAllNodes()) {
 			ClusterNode<?> right = getCorrespondingNode(left);
 			if (right != null) {
@@ -50,8 +51,9 @@ class ClusterTagMergeEngine {
 				session.mergeFragment.nodeAdded(right);
 				if (session.subgraphAnalysisEnabled)
 					session.subgraphs.nodeAdded(right);
+				rightAdded = true;
 			}
-			enqueueLeftEdges(left, right);
+			enqueueLeftEdges(left, right, rightAdded);
 		}
 
 		session.subgraphAnalysisEnabled &= (session.edgeQueue.size() < 30000);
@@ -131,7 +133,7 @@ class ClusterTagMergeEngine {
 		return null;
 	}
 
-	private void enqueueLeftEdges(Node<?> left, ClusterNode<?> right) {
+	private void enqueueLeftEdges(Node<?> left, ClusterNode<?> right, boolean rightAdded) {
 		OrdinalEdgeList<ClusterNode<?>> rightEdges = right.getOutgoingEdges();
 		OrdinalEdgeList<?> leftEdges = left.getOutgoingEdges();
 		try {
@@ -139,8 +141,9 @@ class ClusterTagMergeEngine {
 				if (rightEdges.containsModuleRelativeEquivalent(leftEdge)) {
 					session.statistics.edgeMatched();
 				} else {
-					if (leftEdge.getEdgeType() == EdgeType.UNEXPECTED_RETURN)
-						Log.log("Warning: merging an unexpected return: %s", leftEdge);
+					if (leftEdge.getEdgeType() == EdgeType.UNEXPECTED_RETURN) {
+						reportUnexpectedReturn(leftEdge, rightAdded);
+					}
 					session.edgeQueue.leftEdges.add(leftEdge);
 					session.edgeQueue.rightFromNodes.add(right);
 				}
@@ -165,6 +168,32 @@ class ClusterTagMergeEngine {
 		// throw new MergedFailedException("Left node %s has module relative equivalent %s with incompatible edges!",
 		// left, right);
 		return true;
+	}
+
+	private void reportUnexpectedReturn(Edge<?> leftEdge, boolean rightAdded) {
+		Log.log("Warning: merging an unexpected return: %s. Right node new? %b", leftEdge, rightAdded);
+
+		if (rightAdded) {
+			Log.log("\tDataset does not contain 'from' node %s.", leftEdge.getFromNode());
+		} else {
+			ClusterNode<?> rightFromNode = session.right.graph.getNode(leftEdge.getFromNode().getKey());
+			if ((rightFromNode != null) && (rightFromNode.getHash() != leftEdge.getFromNode().getHash()))
+				rightFromNode = null;
+			if (rightFromNode != null) {
+				Log.log("\tDataset contains right 'from' node %s. Edges are:", leftEdge.getFromNode());
+				rightFromNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
+				rightFromNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s");
+			}
+		}
+
+		ClusterNode<?> rightToNode = session.right.graph.getNode(leftEdge.getToNode().getKey());
+		if ((rightToNode != null) && (rightToNode.getHash() != leftEdge.getToNode().getHash()))
+			rightToNode = null;
+		if (rightToNode != null) {
+			Log.log("\tDataset contains right 'to' node %s. Edges are:", leftEdge.getToNode());
+			rightToNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
+			rightToNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s");
+		}
 	}
 
 	private void reportUnexpectedCode() {
