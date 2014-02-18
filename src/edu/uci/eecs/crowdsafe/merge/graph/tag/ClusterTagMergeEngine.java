@@ -32,7 +32,7 @@ class ClusterTagMergeEngine {
 		addLeftEdges();
 		mergeMetadata();
 
-		reportUnexpectedCode();
+		// reportUnexpectedCode();
 		// reportAddedSubgraphs();
 	}
 
@@ -82,8 +82,12 @@ class ClusterTagMergeEngine {
 	}
 
 	private void mergeMetadata() {
-		if (session.left.metadata.isEmpty())
+		if (session.left.metadata.isEmpty()) {
+			if (session.left.metadata.isMain()) {
+				Log.log("Left main has no metadata. Cannot merge it.");
+			}
 			return;
+		}
 
 		if (session.right.graph.metadata.isEmpty()) {
 			if (session.left.metadata.isMain()) {
@@ -101,11 +105,17 @@ class ClusterTagMergeEngine {
 
 		if (session.left.metadata.isSingletonExecution()) {
 			if (session.left.metadata.isMain()) {
-				Log.log("Pushing left singleton metadata onto the right sequence for the main module %s",
-						session.left.cluster.name);
+				Log.log("Pushing left singleton metadata onto the right sequence for the main module %s; sequence size %d",
+						session.left.cluster.name, session.right.graph.metadata.getRootSequence().executions.size());
 			}
 			session.right.graph.metadata.getRootSequence().addExecution(session.left.metadata.getSingletonExecution());
+			if (session.left.metadata.isMain()) {
+				Log.log("Sequence size is now %d", session.right.graph.metadata.getRootSequence().executions.size());
+			}
 		} else {
+			if (session.left.metadata.isMain()) {
+				Log.log("Left main is not a singleton");
+			}
 			for (ClusterMetadataSequence leftSequence : session.left.metadata.sequences.values()) {
 				session.right.graph.metadata.mergeSequence(leftSequence);
 			}

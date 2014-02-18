@@ -275,6 +275,8 @@ class AnonymousSubgraphCompatibilityAnalysis {
 						}
 						case INDIRECT:
 						case UNEXPECTED_RETURN:
+						case GENCODE_PERM:
+						case GENCODE_WRITE:
 							for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
 								ClusterNode<?> leftToNode = leftEdge.getToNode();
 								for (Edge<ClusterNode<?>> rightEdge : rightEdges) {

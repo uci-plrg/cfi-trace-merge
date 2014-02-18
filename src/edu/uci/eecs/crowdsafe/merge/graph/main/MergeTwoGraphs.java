@@ -234,7 +234,7 @@ public class MergeTwoGraphs {
 			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
 			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
 			if (rightGraph == null) {
-				leftGraph.logUnknownSuspiciousUIB();
+				//leftGraph.logUnknownSuspiciousUIB();
 				if (strategy == GraphMergeStrategy.TAG) {
 					Log.log("Copying left cluster %s because it does not appear in the right side.", leftCluster.name);
 					mergedGraph = new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) leftGraph);

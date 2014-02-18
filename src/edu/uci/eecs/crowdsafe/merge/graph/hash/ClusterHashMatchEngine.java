@@ -132,6 +132,8 @@ public class ClusterHashMatchEngine {
 					}
 					break;
 				case INDIRECT:
+				case GENCODE_PERM:
+				case GENCODE_WRITE:
 					for (Edge<? extends Node<?>> leftEdge : leftEdges) {
 						for (Edge<? extends Node<?>> rightEdge : rightEdges) {
 							// TODO: what about existing PairNodes?
@@ -310,8 +312,10 @@ public class ClusterHashMatchEngine {
 								break;
 							case INDIRECT:
 							case UNEXPECTED_RETURN:
+							case GENCODE_PERM:
+							case GENCODE_WRITE:
 								if (leftEdge.isClusterEntry()) {
-									session.statistics.directMatch();
+									session.statistics.indirectMatch();
 									break;
 								}
 							default:

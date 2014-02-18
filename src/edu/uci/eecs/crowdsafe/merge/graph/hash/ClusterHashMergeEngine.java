@@ -119,6 +119,8 @@ class ClusterHashMergeEngine {
 				switch (rightEdge.getEdgeType()) {
 					case INDIRECT:
 					case UNEXPECTED_RETURN:
+					case GENCODE_PERM:
+					case GENCODE_WRITE:
 						if (!rightEdge.isClusterEntry())
 							break;
 					case DIRECT:

@@ -31,7 +31,7 @@ public class ClusterTagMergeSession {
 		ClusterTagMergeEngine engine = new ClusterTagMergeEngine(session);
 
 		engine.mergeGraph();
-		session.logSuspiciousUIB();
+		//session.logSuspiciousUIB();
 		session.results.clusterMergeCompleted();
 		return session.right;
 	}
