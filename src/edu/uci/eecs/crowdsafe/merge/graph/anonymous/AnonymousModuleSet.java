@@ -12,6 +12,7 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
+import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
@@ -19,6 +20,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.common.util.EdgeTypes;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
@@ -364,21 +366,27 @@ class AnonymousModuleSet {
 						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 								entry.getHash());
 						if (cluster != module.owningCluster)
-							Log.log("\t\tEntry from %s", (cluster == null) ? "unknown cluster" : cluster.name);
+							Log.log("\t\tEntry from %s; edge types: %s", (cluster == null) ? "unknown cluster"
+									: cluster.name, EdgeTypes.getOutgoing(entry));
 					}
-					for (ClusterNode<?> exit : subgraph.getExitPoints()) {
-						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
-								exit.getHash());
-						if (cluster == null) {
-							// Log.log("\t\tExit to exported function with hash 0x%x.", exit.getHash());
-						} else if (cluster != module.owningCluster) {
-							if (module.isBlackBox()) {
-								if (cluster == ConfiguredSoftwareDistributions.SYSTEM_CLUSTER)
-									Log.log("\t\tExit to %s (calling sysnum #%d)", cluster.name,
+					if (module.isBlackBox() || module.owningCluster.getUnitFilename().startsWith("chrome_child")) {
+						for (ClusterNode<?> exit : subgraph.getExitPoints()) {
+							cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
+									exit.getHash());
+							if (cluster == null) {
+								Log.log("\t\tExit to exported function with hash 0x%x; edge types %s", exit.getHash(),
+										EdgeTypes.getIncoming(exit));
+							} else if (cluster != module.owningCluster) {
+								if (cluster == ConfiguredSoftwareDistributions.SYSTEM_CLUSTER) {
+									Log.log("\t\tExit to %s (calling sysnum #%d); edge types %s", cluster.name,
 											ConfiguredSoftwareDistributions.getInstance().sysnumsBySyscallHash.get(exit
-													.getHash()));
-								else
-									Log.log("\t\tExit to %s", cluster.name);
+													.getHash()), EdgeTypes.getIncoming(exit));
+								} else {
+									Log.log("\t\tExit to %s; edge types %s", cluster.name, EdgeTypes.getIncoming(exit));
+									
+									if (module.owningCluster.getUnitFilename().startsWith("chrome_child"))
+										subgraph.logGraph();
+								}
 							}
 						}
 					}
