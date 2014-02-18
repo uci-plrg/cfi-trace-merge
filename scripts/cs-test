@@ -1,0 +1,34 @@
+#!/bin/bash
+
+. $csc/scripts/cs-common
+
+function print_usage() {
+  echo "cs-test [ -l <log-file> ] [ -n <dataset-name> ] <run-dir> [ <run-dir> ... ]"
+  exit
+}
+
+check_help $1 print_usage
+
+while getopts "l:d:o:n:c:" option
+do
+  case $option in
+    l) log_option="-l "$OPTARG;;
+    o) echo "Script cs-test does not generate a merged dataset. Use cs-train instead. Exiting now."; exit;;
+    d) dataset=$OPTARG;;
+    n) name=$OPTARG;;
+    c) cluster_option="-c "$OPTARG;;
+    *) print_usage; exit;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+[ -z "$log_option" ] && echo "No log directory provided, and default merge.log is disabled. Exiting now." && exit
+
+[ $# -eq 0 ] && echo "No training data provided." && print_usage && exit
+
+while [ $# -gt 0 ]
+do
+  echo "Test '$1' against the dataset '$dataset'"
+  cs-merge $log_option $cluster_option c:$1 c:$dataset
+  shift
+done
