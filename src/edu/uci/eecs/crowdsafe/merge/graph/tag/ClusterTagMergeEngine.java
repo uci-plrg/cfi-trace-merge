@@ -8,6 +8,7 @@ import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBasicBlock;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.common.log.Log;
@@ -124,14 +125,14 @@ class ClusterTagMergeEngine {
 
 	private ClusterNode<?> getCorrespondingNode(Node<?> left) {
 		ClusterNode<?> right = session.right.graph.getNode(left.getKey());
-		if ((right != null) && (right.getHash() == left.getHash()))
+		if ((right != null) && ((right.getHash() == left.getHash()) || isThatWonkyNode(left, right)))
 			return right;
 
 		NodeList<ClusterNode<?>> byHash = session.right.graph.getGraphData().nodesByHash.get(left.getHash());
 		if (byHash != null) {
 			for (int i = 0; i < byHash.size(); i++) {
 				ClusterNode<?> next = byHash.get(i);
-				if (left.isModuleRelativeEquivalent(next)) {
+				if (left.isModuleRelativeEquivalent(next) || isThatWonkyNode(left, next)) {
 					Log.log("Module-relative hash match of 0x%x: 0x%x-v%d <-> 0x%x-v%d in %s", next.getHash(),
 							left.getRelativeTag(), left.getInstanceId(), next.getRelativeTag(), next.getInstanceId(),
 							next.getModule().unit.filename);
@@ -141,6 +142,21 @@ class ClusterTagMergeEngine {
 		}
 
 		return null;
+	}
+
+	private/* hack */boolean isThatWonkyNode(Node<?> left, Node<?> right) {
+		if ((left instanceof ClusterBasicBlock) && (right instanceof ClusterBasicBlock)) {
+			ClusterBasicBlock bbLeft = (ClusterBasicBlock) left;
+			ClusterBasicBlock bbRight = (ClusterBasicBlock) right;
+
+			if (bbLeft.getKey().module.unit.filename.startsWith("ipcsecproc") && (bbLeft.getRelativeTag() == 0x3219bL)
+					&& bbRight.getKey().module.unit.filename.startsWith("ipcsecproc")
+					&& (bbRight.getRelativeTag() == 0x3219bL)) {
+				Log.log("Warning: hack match %s with %s", left, right);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void enqueueLeftEdges(Node<?> left, ClusterNode<?> right, boolean rightAdded) {
@@ -165,6 +181,9 @@ class ClusterTagMergeEngine {
 	}
 
 	private boolean verifyMatch(Node<?> left, Node<?> right) {
+		if (isThatWonkyNode(left, right))
+			return true;
+
 		if (left.getHash() != right.getHash()) {
 			session.statistics.hashMismatch(left, right);
 			return false;

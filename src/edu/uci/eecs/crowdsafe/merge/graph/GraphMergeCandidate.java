@@ -96,7 +96,7 @@ public interface GraphMergeCandidate {
 		private ClusterGraphLoadSession loadSession;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		private final Set<AutonomousSoftwareDistribution> summarizedClusters = new HashSet<AutonomousSoftwareDistribution>();
+		private final Set<ModuleGraphCluster<?>> graphs = new HashSet<ModuleGraphCluster<?>>();
 
 		public Cluster(File directory, ClusterHashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
@@ -123,6 +123,20 @@ public interface GraphMergeCandidate {
 
 		@Override
 		public Graph.Process summarizeGraph() {
+			Log.log("Summarizing %d graphs for %s", graphs.size(), dataSource.getDirectory().getName());
+			for (ModuleGraphCluster<?> graph : graphs) {
+				// This is the wrong time to summarize the graph. It's the wrong data. Don't summarize it now.
+				// There's nothing here now. It's not the data. That comes later on, it didn't happen yet.
+				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
+
+				if (graph.metadata.isMain()) {
+					Log.log("Setting interval metadata on the main graph %s of %s", graph.cluster.name, dataSource
+							.getDirectory().getName());
+					summaryBuilder.setMetadata(graph.metadata.summarizeIntervals());
+					Log.log("Execution index for <%s> main is %d", graph.name,
+							graph.metadata.getRootSequence().executions.size());
+				}
+			}
 			return summaryBuilder.build();
 		}
 
@@ -135,19 +149,7 @@ public interface GraphMergeCandidate {
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
 			if (graph != null) {
-				if (!summarizedClusters.contains(cluster)) {
-					summaryBuilder.addCluster(graph.summarize(cluster.isAnonymous()));
-
-					if (graph.metadata.isMain()) {
-						Log.log("Setting interval metadata on the main graph %s of %s", cluster.name, dataSource
-								.getDirectory().getName());
-						summaryBuilder.setMetadata(graph.metadata.summarizeIntervals());
-					}
-
-					summarizedClusters.add(cluster);
-				} else if (graph.metadata.isMain()) {
-
-				}
+				graphs.add(graph);
 			}
 			return graph;
 		}

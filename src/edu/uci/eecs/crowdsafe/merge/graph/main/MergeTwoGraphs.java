@@ -325,6 +325,7 @@ public class MergeTwoGraphs {
 			// writeResults(anonymousResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
 		}
 
+		Log.log("Summarizing both left and right now.");
 		results.setGraphSummaries(leftData.summarizeGraph(), rightData.summarizeGraph());
 
 		Log.log("\nClusters merged in %f seconds.", ((System.currentTimeMillis() - mergeStart) / 1000.));
