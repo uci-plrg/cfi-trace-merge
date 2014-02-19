@@ -180,6 +180,10 @@ class AnonymousModuleSet {
 			for (ClusterNode<?> entryPoint : subgraph.getEntryPoints()) {
 				OrdinalEdgeList<?> edges = entryPoint.getOutgoingEdges();
 				try {
+					if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousGencodeHash(
+							entryPoint.getHash()) != null)
+						continue; // no ownership by gencode, it's not reliable
+
 					// int leftCallSiteCount = 0, rightCallSiteCount = 0;
 					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 							entryPoint.getHash());
@@ -383,7 +387,7 @@ class AnonymousModuleSet {
 													.getHash()), EdgeTypes.getIncoming(exit));
 								} else {
 									Log.log("\t\tExit to %s; edge types %s", cluster.name, EdgeTypes.getIncoming(exit));
-									
+
 									if (module.owningCluster.getUnitFilename().startsWith("chrome_child"))
 										subgraph.logGraph();
 								}

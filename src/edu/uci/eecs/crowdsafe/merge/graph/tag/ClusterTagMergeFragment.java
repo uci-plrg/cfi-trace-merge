@@ -1,5 +1,9 @@
 package edu.uci.eecs.crowdsafe.merge.graph.tag;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
@@ -7,16 +11,16 @@ import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.results.Graph;
-import edu.uci.eecs.crowdsafe.common.data.results.NodeResultsFactory;
 import edu.uci.eecs.crowdsafe.common.util.CrowdSafeCollections;
 import edu.uci.eecs.crowdsafe.common.util.ModuleEdgeCounter;
 
-class ClusterTagMergeFragment {
+public class ClusterTagMergeFragment {
 
 	private final ClusterTagMergeSession session;
 
 	private int exeutableNodeCount = 0;
 	private final ModuleEdgeCounter edgeCounter = new ModuleEdgeCounter();
+	private final Set<Edge<ClusterNode<?>>> addedEdges = new HashSet<Edge<ClusterNode<?>>>();
 
 	ClusterTagMergeFragment(ClusterTagMergeSession session) {
 		this.session = session;
@@ -28,11 +32,16 @@ class ClusterTagMergeFragment {
 	}
 
 	void edgeAdded(Edge<ClusterNode<?>> edge) {
+		addedEdges.add(edge);
 		if ((edge.getFromNode().getType() == MetaNodeType.CLUSTER_ENTRY)
 				|| (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT))
 			edgeCounter.tallyInterEdge(edge.getEdgeType());
 		else
 			edgeCounter.tallyIntraEdge(edge.getEdgeType());
+	}
+
+	public Collection<Edge<ClusterNode<?>>> getAddedEdges() {
+		return addedEdges;
 	}
 
 	Graph.Cluster summarizeCurrentCluster() {

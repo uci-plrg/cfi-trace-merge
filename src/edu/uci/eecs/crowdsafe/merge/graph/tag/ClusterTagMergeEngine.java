@@ -1,13 +1,10 @@
 package edu.uci.eecs.crowdsafe.merge.graph.tag;
 
-import java.util.EnumMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
@@ -15,7 +12,6 @@ import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.ModuleEdgeCounter;
-import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
 
 // TODO: this really only works for ClusterNode graphs on both sides, b/c the hashes will differ with ExecutionNode 
 // and the equals() methods reject other types.
@@ -87,6 +83,10 @@ class ClusterTagMergeEngine {
 				Log.log("Left main has no metadata. Cannot merge it.");
 			}
 			return;
+		}
+
+		if (session.left.metadata.isSingletonExecution()) {
+			session.left.metadata.retainMergedUIBs(session.mergeFragment.getAddedEdges());
 		}
 
 		if (session.right.graph.metadata.isEmpty()) {
@@ -173,10 +173,14 @@ class ClusterTagMergeEngine {
 		// "Left node %s has module relative equivalent %s with a different hashcode!", left, right);
 		if (!left.hasCompatibleEdges(right)) {
 			session.statistics.edgeMismatch(left, right);
+
+			Log.log("Edge mismatch: left node %s has module relative equivalent %s with incompatible edges!", left,
+					right);
+			left.getOutgoingEdges().logEdges("\tLeft outgoing: %s");
+			right.getOutgoingEdges().logEdges("\tRight outgoing: %s");
+
 			return false;
 		}
-		// throw new MergedFailedException("Left node %s has module relative equivalent %s with incompatible edges!",
-		// left, right);
 		return true;
 	}
 
