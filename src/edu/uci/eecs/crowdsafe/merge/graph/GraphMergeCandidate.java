@@ -3,9 +3,8 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
@@ -26,6 +25,8 @@ public interface GraphMergeCandidate {
 	abstract void loadData() throws IOException;
 
 	abstract String parseTraceName();
+
+	abstract void summarizeCluster(AutonomousSoftwareDistribution cluster);
 
 	abstract Graph.Process summarizeGraph();
 
@@ -71,6 +72,10 @@ public interface GraphMergeCandidate {
 		public String parseTraceName() {
 			return dataSource.getProcessName() + "." + dataSource.getProcessId();
 		}
+		
+		@Override
+		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+		}
 
 		@Override
 		public Graph.Process summarizeGraph() {
@@ -96,7 +101,7 @@ public interface GraphMergeCandidate {
 		private ClusterGraphLoadSession loadSession;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		private final Set<ModuleGraphCluster<?>> graphs = new HashSet<ModuleGraphCluster<?>>();
+		private final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<?>> graphs = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<?>>();
 
 		public Cluster(File directory, ClusterHashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
@@ -122,11 +127,9 @@ public interface GraphMergeCandidate {
 		}
 
 		@Override
-		public Graph.Process summarizeGraph() {
-			Log.log("Summarizing %d graphs for %s", graphs.size(), dataSource.getDirectory().getName());
-			for (ModuleGraphCluster<?> graph : graphs) {
-				// This is the wrong time to summarize the graph. It's the wrong data. Don't summarize it now.
-				// There's nothing here now. It's not the data. That comes later on, it didn't happen yet.
+		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+			ModuleGraphCluster<?> graph = graphs.remove(cluster);
+			if (graph != null) {
 				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
 
 				if (graph.metadata.isMain()) {
@@ -137,6 +140,10 @@ public interface GraphMergeCandidate {
 							graph.metadata.getRootSequence().executions.size());
 				}
 			}
+		}
+
+		@Override
+		public Graph.Process summarizeGraph() {
 			return summaryBuilder.build();
 		}
 
@@ -149,7 +156,7 @@ public interface GraphMergeCandidate {
 		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
 			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
 			if (graph != null) {
-				graphs.add(graph);
+				graphs.put(cluster, graph);
 			}
 			return graph;
 		}
@@ -181,6 +188,10 @@ public interface GraphMergeCandidate {
 		@Override
 		public String parseTraceName() {
 			return name;
+		}
+		
+		@Override
+		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
 		}
 
 		@Override

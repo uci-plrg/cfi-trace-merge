@@ -220,6 +220,7 @@ public class MergeTwoGraphs {
 			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isAnonymous()) {
 				// cast is ok because tag merge only works on cluster graphs
 				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
+				leftData.summarizeCluster(leftCluster);
 				continue;
 			}
 
@@ -237,6 +238,7 @@ public class MergeTwoGraphs {
 				//leftGraph.logUnknownSuspiciousUIB();
 				if (strategy == GraphMergeStrategy.TAG) {
 					Log.log("Copying left cluster %s because it does not appear in the right side.", leftCluster.name);
+					leftData.summarizeCluster(leftCluster);
 					mergedGraph = new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) leftGraph);
 				} else {
 					Log.log("Skipping left cluster %s because it does not appear in the right side and has incompatible format with the merge data.",
@@ -280,6 +282,9 @@ public class MergeTwoGraphs {
 					}
 				}
 				 */
+				
+				leftData.summarizeCluster(leftCluster);
+				rightData.summarizeCluster(leftCluster);
 
 				Log.log("Checking reachability on the merged graph.");
 				mergedGraph.graph.resetAnalysis();
@@ -297,6 +302,7 @@ public class MergeTwoGraphs {
 
 					ModuleGraphCluster<ClusterNode<?>> rightGraph = (ModuleGraphCluster<ClusterNode<?>>) rightData
 							.getClusterGraph(rightCluster);
+					rightData.summarizeCluster(rightCluster);
 					completion.mergeCompleted(new ClusterGraph(rightGraph));
 				}
 			}
@@ -310,10 +316,12 @@ public class MergeTwoGraphs {
 					if (!options.includeCluster(rightCluster))
 						continue;
 
-					if (rightCluster.isAnonymous())
+					if (rightCluster.isAnonymous()){
 						// cast is ok because tag merge only works on cluster graphs
 						rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
 								.getClusterGraph(rightCluster));
+						rightData.summarizeCluster(rightCluster);
+					}
 				}
 			}
 			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);

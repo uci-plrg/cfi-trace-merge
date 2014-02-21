@@ -88,6 +88,10 @@ public class ClusterGraphTraining {
 			}
 
 			@Override
+			public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+			}
+
+			@Override
 			public Process summarizeGraph() {
 				summaryBuilder.clear().setName("dataset");
 				summaryBuilder.addCluster(graph.graph.summarize(graph.graph.cluster.isAnonymous()));
@@ -118,6 +122,10 @@ public class ClusterGraphTraining {
 			@Override
 			public String parseTraceName() {
 				return runIds.get(instanceIndex);
+			}
+
+			@Override
+			public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
 			}
 
 			@Override

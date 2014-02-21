@@ -149,11 +149,13 @@ class ClusterTagMergeEngine {
 			ClusterBasicBlock bbLeft = (ClusterBasicBlock) left;
 			ClusterBasicBlock bbRight = (ClusterBasicBlock) right;
 
-			if (bbLeft.getKey().module.unit.filename.startsWith("ipcsecproc") && (bbLeft.getRelativeTag() == 0x3219bL)
-					&& bbRight.getKey().module.unit.filename.startsWith("ipcsecproc")
-					&& (bbRight.getRelativeTag() == 0x3219bL)) {
-				Log.log("Warning: hack match %s with %s", left, right);
-				return true;
+			if (bbLeft.getKey().module.unit.filename.startsWith("ipcsecproc")
+					&& bbRight.getKey().module.unit.filename.startsWith("ipcsecproc")) {
+				if (((bbLeft.getRelativeTag() == 0x3219bL) && (bbRight.getRelativeTag() == 0x3219bL))
+						|| ((bbLeft.getRelativeTag() == 0xc8e5bL) && (bbRight.getRelativeTag() == 0xc8e5bL))) {
+					Log.log("Warning: hack match %s with %s", left, right);
+					return true;
+				}
 			}
 		}
 		return false;
