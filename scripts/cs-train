@@ -23,6 +23,8 @@ shift $(($OPTIND - 1))
 
 [ ! -e "$output_dir" ] && mkdir -p "$output_dir"
 
+[ -z "$log_option" ] && echo "No log directory provided, and default merge.log is disabled. Exiting now." && exit
+
 [ $# -eq 0 ] && echo "No training data provided." && print_usage && exit
 [ -z "$output_dir" ] || [ ! -e "$output_dir" ] && echo "No output directory specified." && print_usage && exit
 
@@ -45,7 +47,7 @@ fi
 
 while [ $# -gt 0 ]
 do
-  echo "Merge '$1' into the dataset"
+  echo "Merge '$1' into the dataset '$output_dir'"
   cs-merge $log_option $cluster_option -i $output_dir c:$1
   shift
 done

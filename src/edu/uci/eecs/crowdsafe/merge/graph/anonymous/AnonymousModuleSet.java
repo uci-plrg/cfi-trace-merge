@@ -367,6 +367,9 @@ class AnonymousModuleSet {
 				if (module.hasEscapes(subgraph)) {
 					// Log.log("\tEscapes in subgraph %d:", arbitrarySubgraphId);
 					for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
+						if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousGencodeHash(
+								entry.getHash()) != null)
+							continue;
 						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 								entry.getHash());
 						if (cluster != module.owningCluster)
