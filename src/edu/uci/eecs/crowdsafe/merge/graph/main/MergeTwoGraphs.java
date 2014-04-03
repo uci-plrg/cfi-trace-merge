@@ -300,10 +300,15 @@ public class MergeTwoGraphs {
 				if (options.includeCluster(rightCluster) && !leftData.getRepresentedClusters().contains(rightCluster)) {
 					Log.log("Copying right cluster %s because it does not appear in the left side.", rightCluster.name);
 
-					ModuleGraphCluster<ClusterNode<?>> rightGraph = (ModuleGraphCluster<ClusterNode<?>>) rightData
-							.getClusterGraph(rightCluster);
-					rightData.summarizeCluster(rightCluster);
-					completion.mergeCompleted(new ClusterGraph(rightGraph));
+          if (rightCluster.isAnonymous()) {
+            // cast is ok because tag merge only works on cluster graphs
+            rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
+          } else {
+            ModuleGraphCluster<ClusterNode<?>> rightGraph = (ModuleGraphCluster<ClusterNode<?>>) rightData
+                .getClusterGraph(rightCluster);
+            completion.mergeCompleted(new ClusterGraph(rightGraph));
+          }
+          rightData.summarizeCluster(rightCluster);
 				}
 			}
 		}

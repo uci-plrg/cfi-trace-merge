@@ -25,6 +25,15 @@ class ClusterTagMergeEngine {
 	}
 
 	void mergeGraph() {
+		/**
+		 * <pre>
+		if ((session.right.graph.metadata.getRootSequence() != null)
+				&& (session.right.graph.metadata.getRootSequence().executions.size() == 1)) {
+			for (Node<?> right : session.right.graph.getAllNodes())
+				Log.log("Base node %s", right);
+		}
+		 */
+
 		addLeftNodes();
 		addLeftEdges();
 		mergeMetadata();
@@ -35,8 +44,9 @@ class ClusterTagMergeEngine {
 
 	private void addLeftNodes() {
 		session.subgraphAnalysisEnabled = true; // (session.left.getAllNodes().size() < 20000);
-		boolean rightAdded = false;
+		boolean rightAdded;
 		for (Node<?> left : session.left.getAllNodes()) {
+			rightAdded = false;
 			ClusterNode<?> right = getCorrespondingNode(left);
 			if (right != null) {
 				if (!verifyMatch(left, right))
@@ -46,9 +56,13 @@ class ClusterTagMergeEngine {
 				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
 				session.statistics.nodeAdded();
 				session.mergeFragment.nodeAdded(right);
-				if (session.subgraphAnalysisEnabled)
+				//Log.log("Merging node %s", right);
+				if (session.subgraphAnalysisEnabled) {
 					session.subgraphs.nodeAdded(right);
+				}
 				rightAdded = true;
+				// } else {
+				// Log.log("Matched node %s", right);
 			}
 			enqueueLeftEdges(left, right, rightAdded);
 		}
@@ -169,9 +183,20 @@ class ClusterTagMergeEngine {
 				if (rightEdges.containsModuleRelativeEquivalent(leftEdge)) {
 					session.statistics.edgeMatched();
 				} else {
-					if (leftEdge.getEdgeType() == EdgeType.UNEXPECTED_RETURN) {
-						reportUnexpectedReturn(leftEdge, rightAdded);
+					switch (leftEdge.getEdgeType()) {
+						case UNEXPECTED_RETURN:
+							// reportUnexpectedReturn(leftEdge, rightAdded);
+							break;
+						case EXCEPTION_CONTINUATION:
+							Log.log("Merging exception-continuation from %s tag: %s", rightAdded ? "unknown"
+									: "existing", leftEdge);
+							break;
+						case GENCODE_WRITE:
+							Log.log("Merging gencode-write from %s tag: %s", rightAdded ? "unknown" : "existing",
+									leftEdge);
+							break;
 					}
+
 					session.edgeQueue.leftEdges.add(leftEdge);
 					session.edgeQueue.rightFromNodes.add(right);
 				}
