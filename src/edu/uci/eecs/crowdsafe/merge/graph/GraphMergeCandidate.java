@@ -135,7 +135,7 @@ public interface GraphMergeCandidate {
 				if (graph.metadata.isMain()) {
 					Log.log("Setting interval metadata on the main graph %s of %s", graph.cluster.name, dataSource
 							.getDirectory().getName());
-					summaryBuilder.setMetadata(graph.metadata.summarizeIntervals());
+					summaryBuilder.setMetadata(graph.metadata.summarizeProcess());
 					Log.log("Execution index for <%s> main is %d", graph.name,
 							graph.metadata.getRootSequence().executions.size());
 				}

@@ -63,7 +63,7 @@ public class MergeTwoGraphs {
 
 	static String getCorrespondingResultsFilename(File logFile) {
 		String resultsFilename = logFile.getName().substring(0, logFile.getName().lastIndexOf('.'));
-		return String.format("%s.results.log", resultsFilename);
+		return String.format("%s.results.dat", resultsFilename);
 	}
 
 	static String getCorrespondingDynamicResultsFilename(File logFile) {
