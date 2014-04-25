@@ -201,11 +201,13 @@ class AnonymousModuleSet {
 
 					cluster = AnonymousModule.resolveAlias(cluster);
 
+                    /*
 					if (isStoryboarding(cluster)) {
 						Log.log("Warning: skipping anonymous subgraph with entry from 'ni' cluster %s",
 								cluster.getUnitFilename());
 						continue subgraphs;
 					}
+                    */
 
 					allConnectingClusters.add(cluster);
 
@@ -248,11 +250,13 @@ class AnonymousModuleSet {
 
 						cluster = AnonymousModule.resolveAlias(cluster);
 
+                        /*
 						if (isStoryboarding(cluster)) {
 							Log.log("Warning: skipping anonymous subgraph with exit to 'ni' cluster %s",
 									cluster.getUnitFilename());
 							continue subgraphs;
 						}
+                        */
 
 						allConnectingClusters.add(cluster);
 

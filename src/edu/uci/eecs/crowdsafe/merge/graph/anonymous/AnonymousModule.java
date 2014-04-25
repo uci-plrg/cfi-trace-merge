@@ -108,8 +108,7 @@ public class AnonymousModule {
 					if (configuredUnit.filename.equals(aliasTo))
 						return ConfiguredSoftwareDistributions.getInstance().distributionsByUnit.get(configuredUnit);
 				}
-				throw new IllegalStateException(String.format("Failed to locate alias %s of %s!", aliasTo,
-						unit.filename));
+				Log.log("Warning: failed to locate alias %s of %s!", aliasTo, unit.filename);
 			}
 		}
 		return cluster;
@@ -166,7 +165,7 @@ public class AnonymousModule {
 	public boolean isBlackBox() {
 		return isBlackBox;
 	}
-	
+
 	boolean hasEscapes(ModuleGraphCluster<ClusterNode<?>> subgraph) {
 		for (ClusterNode<?> entry : subgraph.getEntryPoints()) {
 			if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(entry.getHash()) != owningCluster)
