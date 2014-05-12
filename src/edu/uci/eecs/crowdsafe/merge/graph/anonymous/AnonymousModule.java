@@ -86,7 +86,7 @@ public class AnonymousModule {
 		INELIGIBLE_OWNERS.add("adobelinguistic.dll");
 
 		OWNER_ALIAS.put("acrord32.dll", "acrord32.exe");
-		OWNER_ALIAS.put("clr.dll", "mso.dll");
+		//OWNER_ALIAS.put("clr.dll", "mso.dll");
 	}
 
 	static boolean isEligibleOwner(AutonomousSoftwareDistribution potentialOwner) {
