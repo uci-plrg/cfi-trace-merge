@@ -56,7 +56,7 @@ class ClusterTagMergeEngine {
 				right = session.right.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
 				session.statistics.nodeAdded();
 				session.mergeFragment.nodeAdded(right);
-				//Log.log("Merging node %s", right);
+				// Log.log("Merging node %s", right);
 				if (session.subgraphAnalysisEnabled) {
 					session.subgraphs.nodeAdded(right);
 				}
@@ -185,7 +185,7 @@ class ClusterTagMergeEngine {
 				} else {
 					switch (leftEdge.getEdgeType()) {
 						case UNEXPECTED_RETURN:
-							// reportUnexpectedReturn(leftEdge, rightAdded);
+							reportUnexpectedReturn(leftEdge, rightAdded);
 							break;
 						case EXCEPTION_CONTINUATION:
 							Log.log("Merging exception-continuation from %s tag: %s", rightAdded ? "unknown"
