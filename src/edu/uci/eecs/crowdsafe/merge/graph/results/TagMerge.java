@@ -3,6 +3,7 @@
 
 package edu.uci.eecs.crowdsafe.merge.graph.results;
 
+
 public final class TagMerge {
   private TagMerge() {}
   public static void registerAllExtensions(
@@ -19,11 +20,11 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getLeft();
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getLeftOrBuilder();
 
     // optional .crowd_safe_data_analysis.Process right = 2;
     /**
@@ -33,11 +34,11 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getRight();
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder();
 
     // optional .crowd_safe_data_analysis.Process merge_fragment = 4;
     /**
@@ -47,11 +48,11 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getMergeFragment();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getMergeFragment();
     /**
      * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder();
 
     // repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;
     /**
@@ -130,11 +131,11 @@ public final class TagMerge {
               break;
             }
             case 10: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = left_.toBuilder();
               }
-              left_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.PARSER, extensionRegistry);
+              left_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(left_);
                 left_ = subBuilder.buildPartial();
@@ -143,11 +144,11 @@ public final class TagMerge {
               break;
             }
             case 18: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = right_.toBuilder();
               }
-              right_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.PARSER, extensionRegistry);
+              right_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(right_);
                 right_ = subBuilder.buildPartial();
@@ -164,11 +165,11 @@ public final class TagMerge {
               break;
             }
             case 34: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder subBuilder = null;
               if (((bitField0_ & 0x00000004) == 0x00000004)) {
                 subBuilder = mergeFragment_.toBuilder();
               }
-              mergeFragment_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.PARSER, extensionRegistry);
+              mergeFragment_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(mergeFragment_);
                 mergeFragment_ = subBuilder.buildPartial();
@@ -221,7 +222,7 @@ public final class TagMerge {
     private int bitField0_;
     // optional .crowd_safe_data_analysis.Process left = 1;
     public static final int LEFT_FIELD_NUMBER = 1;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process left_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process left_;
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
@@ -231,19 +232,19 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getLeft() {
       return left_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
       return left_;
     }
 
     // optional .crowd_safe_data_analysis.Process right = 2;
     public static final int RIGHT_FIELD_NUMBER = 2;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process right_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process right_;
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
@@ -253,19 +254,19 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getRight() {
       return right_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
       return right_;
     }
 
     // optional .crowd_safe_data_analysis.Process merge_fragment = 4;
     public static final int MERGE_FRAGMENT_FIELD_NUMBER = 4;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process mergeFragment_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process mergeFragment_;
     /**
      * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
      */
@@ -275,13 +276,13 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getMergeFragment() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getMergeFragment() {
       return mergeFragment_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder() {
       return mergeFragment_;
     }
 
@@ -322,9 +323,9 @@ public final class TagMerge {
     }
 
     private void initFields() {
-      left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
-      right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
-      mergeFragment_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
+      right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
+      mergeFragment_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       cluster_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -497,19 +498,19 @@ public final class TagMerge {
       public Builder clear() {
         super.clear();
         if (leftBuilder_ == null) {
-          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
         } else {
           leftBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000001);
         if (rightBuilder_ == null) {
-          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
         } else {
           rightBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
         if (mergeFragmentBuilder_ == null) {
-          mergeFragment_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          mergeFragment_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
         } else {
           mergeFragmentBuilder_.clear();
         }
@@ -660,9 +661,9 @@ public final class TagMerge {
       private int bitField0_;
 
       // optional .crowd_safe_data_analysis.Process left = 1;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> leftBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> leftBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
@@ -672,7 +673,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getLeft() {
         if (leftBuilder_ == null) {
           return left_;
         } else {
@@ -682,7 +683,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public Builder setLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder setLeft(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (leftBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -699,7 +700,7 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public Builder setLeft(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder builderForValue) {
         if (leftBuilder_ == null) {
           left_ = builderForValue.build();
           onChanged();
@@ -712,12 +713,12 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public Builder mergeLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder mergeLeft(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (leftBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
-              left_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance()) {
+              left_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance()) {
             left_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.newBuilder(left_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.newBuilder(left_).mergeFrom(value).buildPartial();
           } else {
             left_ = value;
           }
@@ -733,7 +734,7 @@ public final class TagMerge {
        */
       public Builder clearLeft() {
         if (leftBuilder_ == null) {
-          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
           onChanged();
         } else {
           leftBuilder_.clear();
@@ -744,7 +745,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getLeftBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder getLeftBuilder() {
         bitField0_ |= 0x00000001;
         onChanged();
         return getLeftFieldBuilder().getBuilder();
@@ -752,7 +753,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
         if (leftBuilder_ != null) {
           return leftBuilder_.getMessageOrBuilder();
         } else {
@@ -763,11 +764,11 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> 
           getLeftFieldBuilder() {
         if (leftBuilder_ == null) {
           leftBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder>(
                   left_,
                   getParentForChildren(),
                   isClean());
@@ -777,9 +778,9 @@ public final class TagMerge {
       }
 
       // optional .crowd_safe_data_analysis.Process right = 2;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> rightBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> rightBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
@@ -789,7 +790,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getRight() {
         if (rightBuilder_ == null) {
           return right_;
         } else {
@@ -799,7 +800,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public Builder setRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder setRight(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (rightBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -816,7 +817,7 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public Builder setRight(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder builderForValue) {
         if (rightBuilder_ == null) {
           right_ = builderForValue.build();
           onChanged();
@@ -829,12 +830,12 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public Builder mergeRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder mergeRight(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (rightBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              right_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance()) {
+              right_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance()) {
             right_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.newBuilder(right_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.newBuilder(right_).mergeFrom(value).buildPartial();
           } else {
             right_ = value;
           }
@@ -850,7 +851,7 @@ public final class TagMerge {
        */
       public Builder clearRight() {
         if (rightBuilder_ == null) {
-          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
           onChanged();
         } else {
           rightBuilder_.clear();
@@ -861,7 +862,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getRightBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder getRightBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getRightFieldBuilder().getBuilder();
@@ -869,7 +870,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
         if (rightBuilder_ != null) {
           return rightBuilder_.getMessageOrBuilder();
         } else {
@@ -880,11 +881,11 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> 
           getRightFieldBuilder() {
         if (rightBuilder_ == null) {
           rightBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder>(
                   right_,
                   getParentForChildren(),
                   isClean());
@@ -894,9 +895,9 @@ public final class TagMerge {
       }
 
       // optional .crowd_safe_data_analysis.Process merge_fragment = 4;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process mergeFragment_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process mergeFragment_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> mergeFragmentBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> mergeFragmentBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
@@ -906,7 +907,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getMergeFragment() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getMergeFragment() {
         if (mergeFragmentBuilder_ == null) {
           return mergeFragment_;
         } else {
@@ -916,7 +917,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
-      public Builder setMergeFragment(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder setMergeFragment(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (mergeFragmentBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -933,7 +934,7 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
       public Builder setMergeFragment(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder builderForValue) {
         if (mergeFragmentBuilder_ == null) {
           mergeFragment_ = builderForValue.build();
           onChanged();
@@ -946,12 +947,12 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
-      public Builder mergeMergeFragment(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder mergeMergeFragment(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (mergeFragmentBuilder_ == null) {
           if (((bitField0_ & 0x00000004) == 0x00000004) &&
-              mergeFragment_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance()) {
+              mergeFragment_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance()) {
             mergeFragment_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.newBuilder(mergeFragment_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.newBuilder(mergeFragment_).mergeFrom(value).buildPartial();
           } else {
             mergeFragment_ = value;
           }
@@ -967,7 +968,7 @@ public final class TagMerge {
        */
       public Builder clearMergeFragment() {
         if (mergeFragmentBuilder_ == null) {
-          mergeFragment_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          mergeFragment_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
           onChanged();
         } else {
           mergeFragmentBuilder_.clear();
@@ -978,7 +979,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getMergeFragmentBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder getMergeFragmentBuilder() {
         bitField0_ |= 0x00000004;
         onChanged();
         return getMergeFragmentFieldBuilder().getBuilder();
@@ -986,7 +987,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder() {
         if (mergeFragmentBuilder_ != null) {
           return mergeFragmentBuilder_.getMessageOrBuilder();
         } else {
@@ -997,11 +998,11 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Process merge_fragment = 4;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> 
           getMergeFragmentFieldBuilder() {
         if (mergeFragmentBuilder_ == null) {
           mergeFragmentBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder>(
                   mergeFragment_,
                   getParentForChildren(),
                   isClean());
@@ -3153,11 +3154,11 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getLeft();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node getLeft();
     /**
      * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getLeftOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder getLeftOrBuilder();
 
     // optional .crowd_safe_data_analysis.Node right = 2;
     /**
@@ -3167,11 +3168,11 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getRight();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node getRight();
     /**
      * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getRightOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder getRightOrBuilder();
   }
   /**
    * Protobuf type {@code crowd_safe_data_analysis.Mismatch}
@@ -3225,11 +3226,11 @@ public final class TagMerge {
               break;
             }
             case 10: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = left_.toBuilder();
               }
-              left_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.PARSER, extensionRegistry);
+              left_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(left_);
                 left_ = subBuilder.buildPartial();
@@ -3238,11 +3239,11 @@ public final class TagMerge {
               break;
             }
             case 18: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = right_.toBuilder();
               }
-              right_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.PARSER, extensionRegistry);
+              right_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(right_);
                 right_ = subBuilder.buildPartial();
@@ -3292,7 +3293,7 @@ public final class TagMerge {
     private int bitField0_;
     // optional .crowd_safe_data_analysis.Node left = 1;
     public static final int LEFT_FIELD_NUMBER = 1;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node left_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node left_;
     /**
      * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
      */
@@ -3302,19 +3303,19 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getLeft() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node getLeft() {
       return left_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getLeftOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder getLeftOrBuilder() {
       return left_;
     }
 
     // optional .crowd_safe_data_analysis.Node right = 2;
     public static final int RIGHT_FIELD_NUMBER = 2;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node right_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node right_;
     /**
      * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
      */
@@ -3324,19 +3325,19 @@ public final class TagMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getRight() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node getRight() {
       return right_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getRightOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder getRightOrBuilder() {
       return right_;
     }
 
     private void initFields() {
-      left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
-      right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+      left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
+      right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -3492,13 +3493,13 @@ public final class TagMerge {
       public Builder clear() {
         super.clear();
         if (leftBuilder_ == null) {
-          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+          left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
         } else {
           leftBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000001);
         if (rightBuilder_ == null) {
-          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+          right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
         } else {
           rightBuilder_.clear();
         }
@@ -3597,9 +3598,9 @@ public final class TagMerge {
       private int bitField0_;
 
       // optional .crowd_safe_data_analysis.Node left = 1;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> leftBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder> leftBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
@@ -3609,7 +3610,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getLeft() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node getLeft() {
         if (leftBuilder_ == null) {
           return left_;
         } else {
@@ -3619,7 +3620,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
-      public Builder setLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+      public Builder setLeft(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node value) {
         if (leftBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -3636,7 +3637,7 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
       public Builder setLeft(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder builderForValue) {
         if (leftBuilder_ == null) {
           left_ = builderForValue.build();
           onChanged();
@@ -3649,12 +3650,12 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
-      public Builder mergeLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+      public Builder mergeLeft(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node value) {
         if (leftBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
-              left_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance()) {
+              left_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance()) {
             left_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.newBuilder(left_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.newBuilder(left_).mergeFrom(value).buildPartial();
           } else {
             left_ = value;
           }
@@ -3670,7 +3671,7 @@ public final class TagMerge {
        */
       public Builder clearLeft() {
         if (leftBuilder_ == null) {
-          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+          left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
           onChanged();
         } else {
           leftBuilder_.clear();
@@ -3681,7 +3682,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder getLeftBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder getLeftBuilder() {
         bitField0_ |= 0x00000001;
         onChanged();
         return getLeftFieldBuilder().getBuilder();
@@ -3689,7 +3690,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getLeftOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder getLeftOrBuilder() {
         if (leftBuilder_ != null) {
           return leftBuilder_.getMessageOrBuilder();
         } else {
@@ -3700,11 +3701,11 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Node left = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder> 
           getLeftFieldBuilder() {
         if (leftBuilder_ == null) {
           leftBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder>(
                   left_,
                   getParentForChildren(),
                   isClean());
@@ -3714,9 +3715,9 @@ public final class TagMerge {
       }
 
       // optional .crowd_safe_data_analysis.Node right = 2;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Node right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> rightBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder> rightBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
@@ -3726,7 +3727,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node getRight() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node getRight() {
         if (rightBuilder_ == null) {
           return right_;
         } else {
@@ -3736,7 +3737,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
-      public Builder setRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+      public Builder setRight(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node value) {
         if (rightBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -3753,7 +3754,7 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
       public Builder setRight(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder builderForValue) {
         if (rightBuilder_ == null) {
           right_ = builderForValue.build();
           onChanged();
@@ -3766,12 +3767,12 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
-      public Builder mergeRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Node value) {
+      public Builder mergeRight(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node value) {
         if (rightBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              right_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance()) {
+              right_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance()) {
             right_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.newBuilder(right_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.newBuilder(right_).mergeFrom(value).buildPartial();
           } else {
             right_ = value;
           }
@@ -3787,7 +3788,7 @@ public final class TagMerge {
        */
       public Builder clearRight() {
         if (rightBuilder_ == null) {
-          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.getDefaultInstance();
+          right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.getDefaultInstance();
           onChanged();
         } else {
           rightBuilder_.clear();
@@ -3798,7 +3799,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder getRightBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder getRightBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getRightFieldBuilder().getBuilder();
@@ -3806,7 +3807,7 @@ public final class TagMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder getRightOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder getRightOrBuilder() {
         if (rightBuilder_ != null) {
           return rightBuilder_.getMessageOrBuilder();
         } else {
@@ -3817,11 +3818,11 @@ public final class TagMerge {
        * <code>optional .crowd_safe_data_analysis.Node right = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder> 
           getRightFieldBuilder() {
         if (rightBuilder_ == null) {
           rightBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Node, edu.uci.eecs.crowdsafe.common.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.NodeOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Node.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.NodeOrBuilder>(
                   right_,
                   getParentForChildren(),
                   isClean());
@@ -4486,8 +4487,8 @@ public final class TagMerge {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.getDescriptor(),
-          edu.uci.eecs.crowdsafe.common.data.results.Statistics.getDescriptor(),
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.getDescriptor(),
+          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.getDescriptor(),
         }, assigner);
   }
 

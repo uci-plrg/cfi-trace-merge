@@ -2,17 +2,14 @@ package edu.uci.eecs.crowdsafe.merge.graph.tag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadata;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataExecution;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterUIB;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
 
 public class ClusterTagMergeSession {
 

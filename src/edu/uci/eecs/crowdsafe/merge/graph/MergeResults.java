@@ -2,8 +2,8 @@ package edu.uci.eecs.crowdsafe.merge.graph;
 
 import com.google.protobuf.GeneratedMessage;
 
-import edu.uci.eecs.crowdsafe.common.data.results.Graph;
-import edu.uci.eecs.crowdsafe.common.data.results.Graph.Process;
+import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
+
 
 public interface MergeResults {
 

@@ -5,15 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 
 class AnonymousSubgraphCompatibilityAnalysis {
 	final ModuleGraphCluster<ClusterNode<?>> leftGraph;

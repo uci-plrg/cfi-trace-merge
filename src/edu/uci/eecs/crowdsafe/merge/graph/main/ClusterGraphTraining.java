@@ -13,24 +13,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.common.data.dist.ConfiguredSoftwareDistributions;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.loader.ClusterGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.writer.ClusterGraphWriter;
-import edu.uci.eecs.crowdsafe.common.data.results.Graph;
-import edu.uci.eecs.crowdsafe.common.data.results.Graph.Process;
-import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSink;
-import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
-import edu.uci.eecs.crowdsafe.common.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
+import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.loader.ClusterGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
+import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSink;
+import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSource;
+import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
@@ -92,7 +90,7 @@ public class ClusterGraphTraining {
 			}
 
 			@Override
-			public Process summarizeGraph() {
+			public Graph.Process summarizeGraph() {
 				summaryBuilder.clear().setName("dataset");
 				summaryBuilder.addCluster(graph.graph.summarize(graph.graph.cluster.isAnonymous()));
 				return summaryBuilder.build();
@@ -129,7 +127,7 @@ public class ClusterGraphTraining {
 			}
 
 			@Override
-			public Process summarizeGraph() {
+			public Graph.Process summarizeGraph() {
 				summaryBuilder.clear().setName(parseTraceName());
 				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
 				return summaryBuilder.build();

@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.GraphLoadEventListener;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.GraphLoadEventListener;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
 public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
 

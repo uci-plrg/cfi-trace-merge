@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph;
 
-import edu.uci.eecs.crowdsafe.common.data.DataMessageType;
+import edu.uci.eecs.crowdsafe.graph.data.DataMessageType;
+
 
 public enum GraphMergeStrategy {
 	HASH("hash", 0),

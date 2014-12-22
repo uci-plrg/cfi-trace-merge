@@ -3,11 +3,10 @@ package edu.uci.eecs.crowdsafe.merge.graph.tag;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.common.data.results.Graph;
-import edu.uci.eecs.crowdsafe.common.data.results.NodeResultsFactory;
-import edu.uci.eecs.crowdsafe.common.data.results.Graph.Process;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
+import edu.uci.eecs.crowdsafe.graph.data.results.NodeResultsFactory;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge;

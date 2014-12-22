@@ -3,7 +3,7 @@ package edu.uci.eecs.crowdsafe.merge.graph.tag;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
 public class ClusterTagMergeStatistics {
 

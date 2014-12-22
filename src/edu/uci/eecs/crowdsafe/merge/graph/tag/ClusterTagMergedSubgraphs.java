@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 
 // generalize for splitting a graph into subgraphs? or make a new one based on this?
 class ClusterTagMergedSubgraphs {

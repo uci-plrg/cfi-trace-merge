@@ -2,8 +2,8 @@ package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
 import java.util.LinkedList;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
 class ClusterHashMatchState {
 	private final ClusterHashMergeSession session;

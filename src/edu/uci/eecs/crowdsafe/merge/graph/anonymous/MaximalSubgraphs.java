@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBoundaryNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterBoundaryNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
 public class MaximalSubgraphs {

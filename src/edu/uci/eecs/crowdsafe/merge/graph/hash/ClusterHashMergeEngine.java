@@ -4,14 +4,13 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 

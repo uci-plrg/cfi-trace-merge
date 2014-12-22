@@ -8,9 +8,8 @@ import java.util.Set;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
 /**
  * MatchedNodes contains pairs of matched nodes. It maintains one-to-one map that maps the matched nodes, an arraylist

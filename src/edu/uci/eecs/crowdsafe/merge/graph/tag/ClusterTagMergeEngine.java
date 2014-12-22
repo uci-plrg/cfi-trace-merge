@@ -3,16 +3,16 @@ package edu.uci.eecs.crowdsafe.merge.graph.tag;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterBasicBlock;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.common.util.ModuleEdgeCounter;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterBasicBlock;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataSequence;
+import edu.uci.eecs.crowdsafe.graph.util.ModuleEdgeCounter;
 
 // TODO: this really only works for ClusterNode graphs on both sides, b/c the hashes will differ with ExecutionNode 
 // and the equals() methods reject other types.

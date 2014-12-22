@@ -3,10 +3,9 @@ package edu.uci.eecs.crowdsafe.merge.graph.hash;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
 public class ClusterHashMergeSession {

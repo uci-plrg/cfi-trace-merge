@@ -3,14 +3,14 @@ package edu.uci.eecs.crowdsafe.merge.graph.hash;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
-import edu.uci.eecs.crowdsafe.common.data.graph.NodeList;
-import edu.uci.eecs.crowdsafe.common.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchRecord.EdgeMatchType;
 
 public class ClusterHashMatchEngine {

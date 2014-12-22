@@ -1,7 +1,8 @@
 package edu.uci.eecs.crowdsafe.merge.graph.main;
 
-import edu.uci.eecs.crowdsafe.common.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
+import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
+
 
 public class InfinitelyMergeTwoExecutionGraphs {
 

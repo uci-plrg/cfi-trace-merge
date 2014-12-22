@@ -1,7 +1,8 @@
 package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+
 
 /**
  * In this class, parentNode1 is from the graph1, which is fixed; and parentNode2 is from graph2, which is traversed.

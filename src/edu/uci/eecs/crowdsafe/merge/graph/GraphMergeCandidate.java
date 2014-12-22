@@ -6,18 +6,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.common.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.common.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.common.data.graph.cluster.loader.ClusterGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.ProcessExecutionGraph;
-import edu.uci.eecs.crowdsafe.common.data.graph.execution.loader.ProcessGraphLoadSession;
-import edu.uci.eecs.crowdsafe.common.data.results.Graph;
-import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.io.cluster.ClusterTraceDirectory;
-import edu.uci.eecs.crowdsafe.common.io.execution.ExecutionTraceDataSource;
-import edu.uci.eecs.crowdsafe.common.io.execution.ExecutionTraceDirectory;
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.loader.ClusterGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.data.graph.execution.ProcessExecutionGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.execution.loader.ProcessGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
+import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSource;
+import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.graph.io.execution.ExecutionTraceDataSource;
+import edu.uci.eecs.crowdsafe.graph.io.execution.ExecutionTraceDirectory;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 
 public interface GraphMergeCandidate {

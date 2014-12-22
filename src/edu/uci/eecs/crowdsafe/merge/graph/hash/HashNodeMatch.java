@@ -1,7 +1,8 @@
 package edu.uci.eecs.crowdsafe.merge.graph.hash;
 
-import edu.uci.eecs.crowdsafe.common.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.common.data.graph.Node;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
+
 
 public class HashNodeMatch {
 	public enum MatchType {

@@ -3,6 +3,7 @@
 
 package edu.uci.eecs.crowdsafe.merge.graph.results;
 
+
 public final class HashMerge {
   private HashMerge() {}
   public static void registerAllExtensions(
@@ -19,11 +20,11 @@ public final class HashMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getLeft();
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getLeftOrBuilder();
 
     // optional .crowd_safe_data_analysis.Process right = 2;
     /**
@@ -33,11 +34,11 @@ public final class HashMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getRight();
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder();
+    edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder();
 
     // repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;
     /**
@@ -116,11 +117,11 @@ public final class HashMerge {
               break;
             }
             case 10: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = left_.toBuilder();
               }
-              left_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.PARSER, extensionRegistry);
+              left_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(left_);
                 left_ = subBuilder.buildPartial();
@@ -129,11 +130,11 @@ public final class HashMerge {
               break;
             }
             case 18: {
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder subBuilder = null;
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder subBuilder = null;
               if (((bitField0_ & 0x00000002) == 0x00000002)) {
                 subBuilder = right_.toBuilder();
               }
-              right_ = input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.PARSER, extensionRegistry);
+              right_ = input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(right_);
                 right_ = subBuilder.buildPartial();
@@ -194,7 +195,7 @@ public final class HashMerge {
     private int bitField0_;
     // optional .crowd_safe_data_analysis.Process left = 1;
     public static final int LEFT_FIELD_NUMBER = 1;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process left_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process left_;
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
@@ -204,19 +205,19 @@ public final class HashMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getLeft() {
       return left_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
       return left_;
     }
 
     // optional .crowd_safe_data_analysis.Process right = 2;
     public static final int RIGHT_FIELD_NUMBER = 2;
-    private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process right_;
+    private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process right_;
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
@@ -226,13 +227,13 @@ public final class HashMerge {
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getRight() {
       return right_;
     }
     /**
      * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
       return right_;
     }
 
@@ -273,8 +274,8 @@ public final class HashMerge {
     }
 
     private void initFields() {
-      left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
-      right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
+      right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       cluster_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -439,13 +440,13 @@ public final class HashMerge {
       public Builder clear() {
         super.clear();
         if (leftBuilder_ == null) {
-          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
         } else {
           leftBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000001);
         if (rightBuilder_ == null) {
-          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
         } else {
           rightBuilder_.clear();
         }
@@ -585,9 +586,9 @@ public final class HashMerge {
       private int bitField0_;
 
       // optional .crowd_safe_data_analysis.Process left = 1;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> leftBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> leftBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
@@ -597,7 +598,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getLeft() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getLeft() {
         if (leftBuilder_ == null) {
           return left_;
         } else {
@@ -607,7 +608,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public Builder setLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder setLeft(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (leftBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -624,7 +625,7 @@ public final class HashMerge {
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       public Builder setLeft(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder builderForValue) {
         if (leftBuilder_ == null) {
           left_ = builderForValue.build();
           onChanged();
@@ -637,12 +638,12 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public Builder mergeLeft(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder mergeLeft(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (leftBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
-              left_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance()) {
+              left_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance()) {
             left_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.newBuilder(left_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.newBuilder(left_).mergeFrom(value).buildPartial();
           } else {
             left_ = value;
           }
@@ -658,7 +659,7 @@ public final class HashMerge {
        */
       public Builder clearLeft() {
         if (leftBuilder_ == null) {
-          left_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
           onChanged();
         } else {
           leftBuilder_.clear();
@@ -669,7 +670,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getLeftBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder getLeftBuilder() {
         bitField0_ |= 0x00000001;
         onChanged();
         return getLeftFieldBuilder().getBuilder();
@@ -677,7 +678,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getLeftOrBuilder() {
         if (leftBuilder_ != null) {
           return leftBuilder_.getMessageOrBuilder();
         } else {
@@ -688,11 +689,11 @@ public final class HashMerge {
        * <code>optional .crowd_safe_data_analysis.Process left = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> 
           getLeftFieldBuilder() {
         if (leftBuilder_ == null) {
           leftBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder>(
                   left_,
                   getParentForChildren(),
                   isClean());
@@ -702,9 +703,9 @@ public final class HashMerge {
       }
 
       // optional .crowd_safe_data_analysis.Process right = 2;
-      private edu.uci.eecs.crowdsafe.common.data.results.Graph.Process right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+      private edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> rightBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> rightBuilder_;
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
@@ -714,7 +715,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process getRight() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process getRight() {
         if (rightBuilder_ == null) {
           return right_;
         } else {
@@ -724,7 +725,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public Builder setRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder setRight(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (rightBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -741,7 +742,7 @@ public final class HashMerge {
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       public Builder setRight(
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder builderForValue) {
         if (rightBuilder_ == null) {
           right_ = builderForValue.build();
           onChanged();
@@ -754,12 +755,12 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public Builder mergeRight(edu.uci.eecs.crowdsafe.common.data.results.Graph.Process value) {
+      public Builder mergeRight(edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process value) {
         if (rightBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              right_ != edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance()) {
+              right_ != edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance()) {
             right_ =
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.newBuilder(right_).mergeFrom(value).buildPartial();
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.newBuilder(right_).mergeFrom(value).buildPartial();
           } else {
             right_ = value;
           }
@@ -775,7 +776,7 @@ public final class HashMerge {
        */
       public Builder clearRight() {
         if (rightBuilder_ == null) {
-          right_ = edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.getDefaultInstance();
+          right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
           onChanged();
         } else {
           rightBuilder_.clear();
@@ -786,7 +787,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder getRightBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder getRightBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getRightFieldBuilder().getBuilder();
@@ -794,7 +795,7 @@ public final class HashMerge {
       /**
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder() {
         if (rightBuilder_ != null) {
           return rightBuilder_.getMessageOrBuilder();
         } else {
@@ -805,11 +806,11 @@ public final class HashMerge {
        * <code>optional .crowd_safe_data_analysis.Process right = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder> 
           getRightFieldBuilder() {
         if (rightBuilder_ == null) {
           rightBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Graph.Process, edu.uci.eecs.crowdsafe.common.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.common.data.results.Graph.ProcessOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process, edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder>(
                   right_,
                   getParentForChildren(),
                   isClean());
@@ -1175,12 +1176,12 @@ public final class HashMerge {
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> 
+    java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> 
         getStatisticsList();
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index);
+    edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree getStatistics(int index);
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
@@ -1188,12 +1189,12 @@ public final class HashMerge {
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+    java.util.List<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
         getStatisticsOrBuilderList();
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+    edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
         int index);
   }
   /**
@@ -1332,10 +1333,10 @@ public final class HashMerge {
             }
             case 66: {
               if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-                statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree>();
+                statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree>();
                 mutable_bitField0_ |= 0x00000080;
               }
-              statistics_.add(input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.PARSER, extensionRegistry));
+              statistics_.add(input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.PARSER, extensionRegistry));
               break;
             }
           }
@@ -1558,17 +1559,17 @@ public final class HashMerge {
 
     // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
     public static final int STATISTICS_FIELD_NUMBER = 8;
-    private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> statistics_;
+    private java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> statistics_;
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> getStatisticsList() {
+    public java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> getStatisticsList() {
       return statistics_;
     }
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+    public java.util.List<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
         getStatisticsOrBuilderList() {
       return statistics_;
     }
@@ -1581,13 +1582,13 @@ public final class HashMerge {
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index) {
+    public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree getStatistics(int index) {
       return statistics_.get(index);
     }
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+    public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
         int index) {
       return statistics_.get(index);
     }
@@ -2804,22 +2805,22 @@ public final class HashMerge {
       }
 
       // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
-      private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> statistics_ =
+      private java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> statistics_ =
         java.util.Collections.emptyList();
       private void ensureStatisticsIsMutable() {
         if (!((bitField0_ & 0x00000080) == 0x00000080)) {
-          statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree>(statistics_);
+          statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree>(statistics_);
           bitField0_ |= 0x00000080;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> statisticsBuilder_;
+          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> statisticsBuilder_;
 
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> getStatisticsList() {
+      public java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> getStatisticsList() {
         if (statisticsBuilder_ == null) {
           return java.util.Collections.unmodifiableList(statistics_);
         } else {
@@ -2839,7 +2840,7 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index) {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree getStatistics(int index) {
         if (statisticsBuilder_ == null) {
           return statistics_.get(index);
         } else {
@@ -2850,7 +2851,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder setStatistics(
-          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
+          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree value) {
         if (statisticsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2867,7 +2868,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder setStatistics(
-          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder builderForValue) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           statistics_.set(index, builderForValue.build());
@@ -2880,7 +2881,7 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public Builder addStatistics(edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
+      public Builder addStatistics(edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree value) {
         if (statisticsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2897,7 +2898,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addStatistics(
-          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
+          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree value) {
         if (statisticsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2914,7 +2915,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addStatistics(
-          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder builderForValue) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           statistics_.add(builderForValue.build());
@@ -2928,7 +2929,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addStatistics(
-          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder builderForValue) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           statistics_.add(index, builderForValue.build());
@@ -2942,7 +2943,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addAllStatistics(
-          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> values) {
+          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> values) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           super.addAll(values, statistics_);
@@ -2981,14 +2982,14 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder getStatisticsBuilder(
+      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder getStatisticsBuilder(
           int index) {
         return getStatisticsFieldBuilder().getBuilder(index);
       }
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
           int index) {
         if (statisticsBuilder_ == null) {
           return statistics_.get(index);  } else {
@@ -2998,7 +2999,7 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+      public java.util.List<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
            getStatisticsOrBuilderList() {
         if (statisticsBuilder_ != null) {
           return statisticsBuilder_.getMessageOrBuilderList();
@@ -3009,31 +3010,31 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder() {
+      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder() {
         return getStatisticsFieldBuilder().addBuilder(
-            edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.getDefaultInstance());
+            edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.getDefaultInstance());
       }
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder(
+      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder(
           int index) {
         return getStatisticsFieldBuilder().addBuilder(
-            index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.getDefaultInstance());
+            index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.getDefaultInstance());
       }
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder> 
+      public java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder> 
            getStatisticsBuilderList() {
         return getStatisticsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
+          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
           getStatisticsFieldBuilder() {
         if (statisticsBuilder_ == null) {
           statisticsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder>(
+              edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder>(
                   statistics_,
                   ((bitField0_ & 0x00000080) == 0x00000080),
                   getParentForChildren(),
@@ -5483,8 +5484,8 @@ public final class HashMerge {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          edu.uci.eecs.crowdsafe.common.data.results.Graph.getDescriptor(),
-          edu.uci.eecs.crowdsafe.common.data.results.Statistics.getDescriptor(),
+          edu.uci.eecs.crowdsafe.graph.data.results.Graph.getDescriptor(),
+          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.getDescriptor(),
         }, assigner);
   }
 
