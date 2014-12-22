@@ -3,7 +3,6 @@
 
 package edu.uci.eecs.crowdsafe.merge.graph.results;
 
-
 public final class HashMerge {
   private HashMerge() {}
   public static void registerAllExtensions(
@@ -1176,12 +1175,12 @@ public final class HashMerge {
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> 
+    java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> 
         getStatisticsList();
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree getStatistics(int index);
+    edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index);
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
@@ -1189,12 +1188,12 @@ public final class HashMerge {
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    java.util.List<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
+    java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
         getStatisticsOrBuilderList();
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+    edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
         int index);
   }
   /**
@@ -1333,10 +1332,10 @@ public final class HashMerge {
             }
             case 66: {
               if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-                statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree>();
+                statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree>();
                 mutable_bitField0_ |= 0x00000080;
               }
-              statistics_.add(input.readMessage(edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.PARSER, extensionRegistry));
+              statistics_.add(input.readMessage(edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.PARSER, extensionRegistry));
               break;
             }
           }
@@ -1559,17 +1558,17 @@ public final class HashMerge {
 
     // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
     public static final int STATISTICS_FIELD_NUMBER = 8;
-    private java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> statistics_;
+    private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> statistics_;
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> getStatisticsList() {
+    public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> getStatisticsList() {
       return statistics_;
     }
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public java.util.List<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
+    public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
         getStatisticsOrBuilderList() {
       return statistics_;
     }
@@ -1582,13 +1581,13 @@ public final class HashMerge {
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree getStatistics(int index) {
+    public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index) {
       return statistics_.get(index);
     }
     /**
      * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
      */
-    public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+    public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
         int index) {
       return statistics_.get(index);
     }
@@ -2805,22 +2804,22 @@ public final class HashMerge {
       }
 
       // repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;
-      private java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> statistics_ =
+      private java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> statistics_ =
         java.util.Collections.emptyList();
       private void ensureStatisticsIsMutable() {
         if (!((bitField0_ & 0x00000080) == 0x00000080)) {
-          statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree>(statistics_);
+          statistics_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree>(statistics_);
           bitField0_ |= 0x00000080;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> statisticsBuilder_;
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> statisticsBuilder_;
 
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> getStatisticsList() {
+      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> getStatisticsList() {
         if (statisticsBuilder_ == null) {
           return java.util.Collections.unmodifiableList(statistics_);
         } else {
@@ -2840,7 +2839,7 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree getStatistics(int index) {
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree getStatistics(int index) {
         if (statisticsBuilder_ == null) {
           return statistics_.get(index);
         } else {
@@ -2851,7 +2850,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder setStatistics(
-          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree value) {
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
         if (statisticsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2868,7 +2867,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder setStatistics(
-          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           statistics_.set(index, builderForValue.build());
@@ -2881,7 +2880,7 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public Builder addStatistics(edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree value) {
+      public Builder addStatistics(edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
         if (statisticsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2898,7 +2897,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addStatistics(
-          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree value) {
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree value) {
         if (statisticsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2915,7 +2914,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addStatistics(
-          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           statistics_.add(builderForValue.build());
@@ -2929,7 +2928,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addStatistics(
-          int index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder builderForValue) {
+          int index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder builderForValue) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           statistics_.add(index, builderForValue.build());
@@ -2943,7 +2942,7 @@ public final class HashMerge {
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
       public Builder addAllStatistics(
-          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree> values) {
+          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree> values) {
         if (statisticsBuilder_ == null) {
           ensureStatisticsIsMutable();
           super.addAll(values, statistics_);
@@ -2982,14 +2981,14 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder getStatisticsBuilder(
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder getStatisticsBuilder(
           int index) {
         return getStatisticsFieldBuilder().getBuilder(index);
       }
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder getStatisticsOrBuilder(
           int index) {
         if (statisticsBuilder_ == null) {
           return statistics_.get(index);  } else {
@@ -2999,7 +2998,7 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
+      public java.util.List<? extends edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
            getStatisticsOrBuilderList() {
         if (statisticsBuilder_ != null) {
           return statisticsBuilder_.getMessageOrBuilderList();
@@ -3010,31 +3009,31 @@ public final class HashMerge {
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder() {
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder() {
         return getStatisticsFieldBuilder().addBuilder(
-            edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.getDefaultInstance());
+            edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.getDefaultInstance());
       }
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder(
+      public edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder addStatisticsBuilder(
           int index) {
         return getStatisticsFieldBuilder().addBuilder(
-            index, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.getDefaultInstance());
+            index, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.getDefaultInstance());
       }
       /**
        * <code>repeated .crowd_safe_data_analysis.StatisticsTree statistics = 8;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder> 
+      public java.util.List<edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder> 
            getStatisticsBuilderList() {
         return getStatisticsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder> 
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder> 
           getStatisticsFieldBuilder() {
         if (statisticsBuilder_ == null) {
           statisticsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.graph.data.results.Statistics.StatisticsTreeOrBuilder>(
+              edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTree.Builder, edu.uci.eecs.crowdsafe.common.data.results.Statistics.StatisticsTreeOrBuilder>(
                   statistics_,
                   ((bitField0_ & 0x00000080) == 0x00000080),
                   getParentForChildren(),
@@ -5485,7 +5484,7 @@ public final class HashMerge {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           edu.uci.eecs.crowdsafe.graph.data.results.Graph.getDescriptor(),
-          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.getDescriptor(),
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.getDescriptor(),
         }, assigner);
   }
 
