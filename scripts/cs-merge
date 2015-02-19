@@ -19,6 +19,7 @@ function print_usage() {
 check_help $1 print_usage
 
 append_classpath "CROWD_SAFE_MERGE_DIR"
+append_classpath "CROWD_SAFE_GRAPH_DIR"
 append_classpath "CROWD_SAFE_COMMON_DIR"
 
 # echo "classpath: $cp"
