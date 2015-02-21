@@ -232,7 +232,8 @@ class ClusterTagMergeEngine {
 
 	private void reportUnexpectedReturn(Edge<?> leftEdge, boolean rightAdded) {
 		Log.log("Warning: merging an unexpected return: %s. Right node new? %b", leftEdge, rightAdded);
-
+		
+		/*
 		if (rightAdded) {
 			Log.log("\tDataset does not contain 'from' node %s.", leftEdge.getFromNode());
 		} else {
@@ -254,6 +255,7 @@ class ClusterTagMergeEngine {
 			rightToNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
 			rightToNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s");
 		}
+		*/
 	}
 
 	private void reportUnexpectedCode() {
