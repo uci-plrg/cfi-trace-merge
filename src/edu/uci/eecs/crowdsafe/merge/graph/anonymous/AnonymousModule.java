@@ -60,7 +60,7 @@ public class AnonymousModule {
 		}
 	}
 
-	static void initialize() {
+	public static void initialize() {
 		INELIGIBLE_OWNERS.add("ntdll.dll");
 		INELIGIBLE_OWNERS.add("kernelbase.dll");
 		INELIGIBLE_OWNERS.add("kernel32.dll");
@@ -86,10 +86,10 @@ public class AnonymousModule {
 		INELIGIBLE_OWNERS.add("adobelinguistic.dll");
 
 		OWNER_ALIAS.put("acrord32.dll", "acrord32.exe");
-		//OWNER_ALIAS.put("clr.dll", "mso.dll");
+		// OWNER_ALIAS.put("clr.dll", "mso.dll");
 	}
 
-	static boolean isEligibleOwner(AutonomousSoftwareDistribution potentialOwner) {
+	public static boolean isEligibleOwner(AutonomousSoftwareDistribution potentialOwner) {
 		boolean onlyApiFiles = true;
 		for (SoftwareUnit potentialOwnerUnit : potentialOwner.getUnits()) {
 			if (INELIGIBLE_OWNERS.contains(potentialOwnerUnit.filename))
@@ -99,7 +99,7 @@ public class AnonymousModule {
 		return !onlyApiFiles;
 	}
 
-	static AutonomousSoftwareDistribution resolveAlias(AutonomousSoftwareDistribution cluster) {
+	public static AutonomousSoftwareDistribution resolveAlias(AutonomousSoftwareDistribution cluster) {
 		String aliasTo = null;
 		for (SoftwareUnit unit : cluster.getUnits()) {
 			aliasTo = getOwnerAlias(unit);

@@ -5,7 +5,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
-class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
+public class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
 
 	private static int ID_INDEX = 0;
 	
