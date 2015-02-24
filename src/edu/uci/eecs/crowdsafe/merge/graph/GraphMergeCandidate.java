@@ -72,7 +72,7 @@ public interface GraphMergeCandidate {
 		public String parseTraceName() {
 			return dataSource.getProcessName() + "." + dataSource.getProcessId();
 		}
-		
+
 		@Override
 		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
 		}
@@ -136,8 +136,10 @@ public interface GraphMergeCandidate {
 					Log.log("Setting interval metadata on the main graph %s of %s", graph.cluster.name, dataSource
 							.getDirectory().getName());
 					summaryBuilder.setMetadata(graph.metadata.summarizeProcess());
-					Log.log("Execution index for <%s> main is %d", graph.name,
-							graph.metadata.getRootSequence().executions.size());
+					if (graph.metadata.getRootSequence() != null) { // hack! FIXME
+						Log.log("Execution index for <%s> main is %d", graph.name,
+								graph.metadata.getRootSequence().executions.size());
+					}
 				}
 			}
 		}
@@ -189,7 +191,7 @@ public interface GraphMergeCandidate {
 		public String parseTraceName() {
 			return name;
 		}
-		
+
 		@Override
 		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
 		}

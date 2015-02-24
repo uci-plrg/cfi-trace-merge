@@ -95,7 +95,7 @@ class ClusterTagMergeEngine {
 	private void mergeMetadata() {
 		if (session.left.metadata.isEmpty()) {
 			if (session.left.metadata.isMain()) {
-				Log.log("Left main has no metadata. Cannot merge it.");
+				Log.log("Left main has no metadata. Skipping metadata merge.");
 			}
 			return;
 		}
