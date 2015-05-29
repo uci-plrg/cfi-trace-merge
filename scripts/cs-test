@@ -3,7 +3,7 @@
 . $csc/scripts/cs-common
 
 function print_usage() {
-  echo "cs-test [ -l <log-file> ] [ -n <dataset-name> ] <run-dir> [ <run-dir> ... ]"
+  echo "cs-test [ -l <log-file> ] [ -n <dataset-name> ] -d <dataset> <run-dir> [ <run-dir> ... ]"
   exit
 }
 

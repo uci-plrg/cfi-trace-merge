@@ -85,6 +85,10 @@ class ClusterTagMergeEngine {
 				session.mergeFragment.edgeAdded(newRightEdge);
 				if (session.subgraphAnalysisEnabled)
 					session.subgraphs.edgeAdded(newRightEdge);
+
+				if (newRightEdge.getEdgeType() == EdgeType.INDIRECT)
+					Log.log("Added edge %s", newRightEdge);
+
 			} catch (IllegalArgumentException e) {
 				Log.log("Error merging edges! %s", e.getMessage());
 				Log.log(e);
@@ -232,30 +236,21 @@ class ClusterTagMergeEngine {
 
 	private void reportUnexpectedReturn(Edge<?> leftEdge, boolean rightAdded) {
 		Log.log("Warning: merging an unexpected return: %s. Right node new? %b", leftEdge, rightAdded);
-		
-		/*
-		if (rightAdded) {
-			Log.log("\tDataset does not contain 'from' node %s.", leftEdge.getFromNode());
-		} else {
-			ClusterNode<?> rightFromNode = session.right.graph.getNode(leftEdge.getFromNode().getKey());
-			if ((rightFromNode != null) && (rightFromNode.getHash() != leftEdge.getFromNode().getHash()))
-				rightFromNode = null;
-			if (rightFromNode != null) {
-				Log.log("\tDataset contains right 'from' node %s. Edges are:", leftEdge.getFromNode());
-				rightFromNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
-				rightFromNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s");
-			}
-		}
 
-		ClusterNode<?> rightToNode = session.right.graph.getNode(leftEdge.getToNode().getKey());
-		if ((rightToNode != null) && (rightToNode.getHash() != leftEdge.getToNode().getHash()))
-			rightToNode = null;
-		if (rightToNode != null) {
-			Log.log("\tDataset contains right 'to' node %s. Edges are:", leftEdge.getToNode());
-			rightToNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
-			rightToNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s");
-		}
-		*/
+		/*
+		 * if (rightAdded) { Log.log("\tDataset does not contain 'from' node %s.", leftEdge.getFromNode()); } else {
+		 * ClusterNode<?> rightFromNode = session.right.graph.getNode(leftEdge.getFromNode().getKey()); if
+		 * ((rightFromNode != null) && (rightFromNode.getHash() != leftEdge.getFromNode().getHash())) rightFromNode =
+		 * null; if (rightFromNode != null) { Log.log("\tDataset contains right 'from' node %s. Edges are:",
+		 * leftEdge.getFromNode()); rightFromNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
+		 * rightFromNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s"); } }
+		 * 
+		 * ClusterNode<?> rightToNode = session.right.graph.getNode(leftEdge.getToNode().getKey()); if ((rightToNode !=
+		 * null) && (rightToNode.getHash() != leftEdge.getToNode().getHash())) rightToNode = null; if (rightToNode !=
+		 * null) { Log.log("\tDataset contains right 'to' node %s. Edges are:", leftEdge.getToNode());
+		 * rightToNode.getIncomingEdges().logEdges("\t\tIncoming: %s");
+		 * rightToNode.getOutgoingEdges().logEdges("\t\tOutgoing: %s"); }
+		 */
 	}
 
 	private void reportUnexpectedCode() {
