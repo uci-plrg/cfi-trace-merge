@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph.report;
 
-import edu.uci.eecs.crowdsafe.common.log.Log;
+import java.io.PrintStream;
+
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSSC;
 
 public class SuspiciousSyscallReport implements ReportEntry {
@@ -12,14 +13,16 @@ public class SuspiciousSyscallReport implements ReportEntry {
 	}
 
 	@Override
-	public void print() {
-		Log.log("Suspicious syscall #%d", ssc.sysnum);
-		/*
-		 * Log.log("Suspicious syscall #%d (stack suspicion raised by %s(0x%x) -%d-> %s(0x%x)", ssc.sysnum,
-		 * ssc.suspicionRaisingEdge.getFromNode().getModule().unit.filename, ssc.suspicionRaisingEdge
-		 * .getFromNode().getRelativeTag(), ssc.suspicionRaisingEdge.getOrdinal(),
-		 * ssc.suspicionRaisingEdge.getToNode().getModule().unit.filename, ssc.suspicionRaisingEdge.getToNode()
-		 * .getRelativeTag());
-		 */
+	public void print(PrintStream out) {
+		if (ssc.suspicionRaisingEdge == null) {
+			out.format("Suspicious syscall #%d", ssc.sysnum);
+		} else {
+			out.format("Suspicious syscall #%d (stack suspicion raised by %s(0x%x) -%d-> %s(0x%x)", ssc.sysnum,
+					ExecutionReport.getModuleName(ssc.suspicionRaisingEdge.getFromNode()),
+					ExecutionReport.getId(ssc.suspicionRaisingEdge.getFromNode()),
+					ssc.suspicionRaisingEdge.getOrdinal(),
+					ExecutionReport.getModuleName(ssc.suspicionRaisingEdge.getToNode()),
+					ExecutionReport.getId(ssc.suspicionRaisingEdge.getToNode()));
+		}
 	}
 }

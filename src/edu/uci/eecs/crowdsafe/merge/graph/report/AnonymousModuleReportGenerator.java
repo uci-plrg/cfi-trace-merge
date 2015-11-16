@@ -254,62 +254,63 @@ public class AnonymousModuleReportGenerator {
 			}
 		}
 
-		compileAnonymousGraph(mergedModules);
+		// compileAnonymousGraph(mergedModules);
 	}
 
-	// add to the left module all entry points and exit points that are unique to the right
-	private void mergeBlackBoxes(AnonymousModule leftModule, AnonymousModule rightModule) {
-		if (leftModule.subgraphs.size() != 1)
+	private void mergeBlackBoxes(AnonymousModule executionModule, AnonymousModule datasetModule) {
+		if (executionModule.subgraphs.size() != 1)
 			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
-					leftModule.subgraphs.size());
-		if (rightModule.subgraphs.size() != 1)
+					executionModule.subgraphs.size());
+		if (datasetModule.subgraphs.size() != 1)
 			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
-					rightModule.subgraphs.size());
+					datasetModule.subgraphs.size());
 
-		AnonymousSubgraph leftBox = leftModule.subgraphs.get(0);
-		AnonymousSubgraph rightBox = rightModule.subgraphs.get(0);
-		ClusterNode<?> leftSingleton = leftBox.getBlackBoxSingleton();
+		AnonymousSubgraph executionBox = executionModule.subgraphs.get(0);
+		AnonymousSubgraph datasetBox = datasetModule.subgraphs.get(0);
+		ClusterNode<?> executionSingleton = executionBox.getBlackBoxSingleton();
 
-		OrdinalEdgeList<?> leftIncoming = leftBox.getBlackBoxSingleton().getIncomingEdges();
-		OrdinalEdgeList<?> rightIncoming = rightBox.getBlackBoxSingleton().getIncomingEdges();
+		OrdinalEdgeList<?> executionIncoming = executionBox.getBlackBoxSingleton().getIncomingEdges();
+		OrdinalEdgeList<?> datasetIncoming = datasetBox.getBlackBoxSingleton().getIncomingEdges();
 		try {
-			for (Edge<? extends Node<?>> rightEdge : rightIncoming) {
-				if (!leftIncoming.contains(rightEdge)) {
-					ClusterBoundaryNode newEntry = new ClusterBoundaryNode(rightEdge.getFromNode().getHash(), rightEdge
-							.getFromNode().getType());
-					leftBox.addNode(newEntry);
+			for (Edge<? extends Node<?>> executionEdge : executionIncoming) {
+				if (!datasetIncoming.contains(executionEdge)) {
+					ClusterBoundaryNode newEntry = new ClusterBoundaryNode(executionEdge.getFromNode().getHash(),
+							executionEdge.getFromNode().getType());
+					datasetBox.addNode(newEntry);
 
-					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(newEntry, leftSingleton,
-							rightEdge.getEdgeType(), rightEdge.getOrdinal());
+					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(newEntry, executionSingleton,
+							executionEdge.getEdgeType(), executionEdge.getOrdinal());
 					newEntry.addOutgoingEdge(mergedEdge);
-					leftSingleton.addIncomingEdge(mergedEdge);
+					executionSingleton.addIncomingEdge(mergedEdge);
+					report.addEntry(mergedEdge);
 				}
 			}
 		} finally {
-			rightIncoming.release();
+			executionIncoming.release();
 		}
 
-		OrdinalEdgeList<?> leftOutgoing = leftBox.getBlackBoxSingleton().getOutgoingEdges();
-		OrdinalEdgeList<?> rightOutgoing = rightBox.getBlackBoxSingleton().getOutgoingEdges();
+		OrdinalEdgeList<?> executionOutgoing = executionBox.getBlackBoxSingleton().getOutgoingEdges();
+		OrdinalEdgeList<?> datasetOutgoing = datasetBox.getBlackBoxSingleton().getOutgoingEdges();
 		try {
-			for (Edge<? extends Node<?>> rightEdge : rightOutgoing) {
-				if (!leftOutgoing.contains(rightEdge)) {
-					ClusterBoundaryNode newExit = new ClusterBoundaryNode(rightEdge.getToNode().getHash(), rightEdge
-							.getToNode().getType());
-					leftBox.addNode(newExit);
+			for (Edge<? extends Node<?>> executionEdge : executionOutgoing) {
+				if (!datasetOutgoing.contains(executionEdge)) {
+					ClusterBoundaryNode newExit = new ClusterBoundaryNode(executionEdge.getToNode().getHash(),
+							executionEdge.getToNode().getType());
+					executionBox.addNode(newExit);
 
-					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(leftSingleton, newExit,
-							rightEdge.getEdgeType(), rightEdge.getOrdinal());
+					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(executionSingleton, newExit,
+							executionEdge.getEdgeType(), executionEdge.getOrdinal());
 					newExit.addIncomingEdge(mergedEdge);
-					leftSingleton.addOutgoingEdge(mergedEdge);
+					executionSingleton.addOutgoingEdge(mergedEdge);
+					report.addEntry(mergedEdge);
 				}
 			}
 		} finally {
-			rightOutgoing.release();
+			executionOutgoing.release();
 		}
 	}
 
-	private void compileWhiteBoxes(AnonymousModule inputModule, AnonymousModule mergedModule, boolean report) {
+	private void compileWhiteBoxes(AnonymousModule inputModule, AnonymousModule mergedModule, boolean reportNew) {
 		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) {
 			boolean match = false;
 			for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
@@ -321,11 +322,9 @@ public class AnonymousModuleReportGenerator {
 				}
 			}
 			if (!match) {
-				if (report) {
-					Log.log("Add dynamic standalone of size %d nodes owned by %s",
-							inputSubgraph.getExecutableNodeCount(), inputModule.owningCluster.name);
-				}
 				mergedModule.addSubgraph(inputSubgraph);
+				if (reportNew) 
+					report.addEntry(inputModule, inputSubgraph);
 			}
 		}
 	}

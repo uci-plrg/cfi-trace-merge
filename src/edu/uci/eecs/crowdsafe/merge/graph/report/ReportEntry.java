@@ -1,6 +1,8 @@
 package edu.uci.eecs.crowdsafe.merge.graph.report;
 
+import java.io.PrintStream;
+
 interface ReportEntry {
 
-	void print();
+	void print(PrintStream out);
 }

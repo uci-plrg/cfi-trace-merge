@@ -55,6 +55,8 @@ public class ExecutionReporter {
 	private static final OptionArgumentMap.StringOption executionGraphOption = OptionArgumentMap
 			.createStringOption('e');
 	private static final OptionArgumentMap.StringOption datasetOption = OptionArgumentMap.createStringOption('d');
+	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l',
+			"reporter.log"); // or the app name?
 	private static final OptionArgumentMap.StringOption reportFilenameOption = OptionArgumentMap.createStringOption(
 			'f', "execution.log"); // or the app name?
 	private static final OptionArgumentMap.BooleanOption stdoutOption = OptionArgumentMap.createBooleanOption('o',
@@ -73,13 +75,16 @@ public class ExecutionReporter {
 		try {
 			options.parseOptions();
 
-			File reportFile = LogFile.create(reportFilenameOption.getValue(), LogFile.CollisionMode.AVOID,
-					LogFile.NoSuchPathMode.ERROR);
-			Log.addOutput(reportFile);
-			System.out.println("Generating report file " + reportFile.getAbsolutePath());
-
+			File logFile = LogFile.create(logFilenameOption.getValue(), LogFile.CollisionMode.OVERWRITE,
+					LogFile.NoSuchPathMode.SKIP);
+			if (logFile != null)
+				Log.addOutput(logFile);
 			if (stdoutOption.getValue())
 				Log.addOutput(System.out);
+
+			File reportFile = LogFile.create(reportFilenameOption.getValue(), LogFile.CollisionMode.AVOID,
+					LogFile.NoSuchPathMode.ERROR);
+			System.out.println("Generating report file " + reportFile.getAbsolutePath());
 
 			String leftPath = executionGraphOption.getValue();
 			String rightPath = datasetOption.getValue();
@@ -97,9 +102,9 @@ public class ExecutionReporter {
 			GraphMergeCandidate rightCandidate = (leftPath.equals(rightPath) ? leftCandidate
 					: loadMergeCandidate(rightPath));
 
-			ExecutionReport report = generateReport(leftCandidate, rightCandidate, reportFile);
+			ExecutionReport report = generateReport(leftCandidate, rightCandidate);
 			report.sort();
-			report.print();
+			report.print(reportFile);
 
 		} catch (Log.OutputException e) {
 			e.printStackTrace();
@@ -117,8 +122,7 @@ public class ExecutionReporter {
 	}
 
 	@SuppressWarnings("unchecked")
-	ExecutionReport generateReport(GraphMergeCandidate leftData, GraphMergeCandidate rightData, File logFile)
-			throws IOException {
+	ExecutionReport generateReport(GraphMergeCandidate leftData, GraphMergeCandidate rightData) throws IOException {
 		ExecutionReport report = new ExecutionReport();
 		List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
@@ -141,12 +145,14 @@ public class ExecutionReporter {
 
 			ClusterGraph leftGraph = new ClusterGraph(
 					(ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
-			ModuleGraphCluster<ClusterNode<?>> rightModule = (ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster);
+			ModuleGraphCluster<ClusterNode<?>> rightModule = (ModuleGraphCluster<ClusterNode<?>>) rightData
+					.getClusterGraph(leftCluster);
+			ClusterGraph rightGraph = null;
 			if (rightModule == null) {
-				Log.log("Module %s is missing from the dataset!", leftCluster.name);
-				continue;
+				Log.warn("Module %s is missing from the dataset!", leftCluster.name);
+			} else {
+				rightGraph = new ClusterGraph(rightModule);
 			}
-			ClusterGraph rightGraph = new ClusterGraph(rightModule);
 			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);
 		}
 
@@ -174,7 +180,7 @@ public class ExecutionReporter {
 
 	private void printUsageAndExit() {
 		System.out.println("Usage:");
-		System.out.println(String.format("%s: -e <execution-graph> -d <dataset> -o <report-file>",
+		System.out.println(String.format("%s: -e <execution-graph> -d <dataset> -f <report-file>",
 				ExecutionReporter.class.getSimpleName()));
 		System.exit(1);
 	}
@@ -182,8 +188,8 @@ public class ExecutionReporter {
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
 		ExecutionReporter main = new ExecutionReporter(new CommonMergeOptions(stack,
-				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, reportFilenameOption,
-				stdoutOption));
+				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, logFilenameOption,
+				reportFilenameOption, stdoutOption));
 		main.run(stack, 1);
 		main.toString();
 	}

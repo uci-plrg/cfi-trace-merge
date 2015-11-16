@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph.report;
 
-import edu.uci.eecs.crowdsafe.common.log.Log;
+import java.io.PrintStream;
+
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
@@ -11,21 +12,6 @@ class NewEdgeReport implements ReportEntry {
 
 	public NewEdgeReport(Edge<ClusterNode<?>> edge) {
 		this.edge = edge;
-	}
-
-	private boolean isReported(EdgeType type) {
-		switch (type) {
-			case DIRECT:
-			case INDIRECT:
-			case UNEXPECTED_RETURN:
-			case GENCODE_PERM:
-			case GENCODE_WRITE:
-				return true;
-			case CALL_CONTINUATION:
-			case EXCEPTION_CONTINUATION:
-				return false;
-		}
-		throw new IllegalArgumentException("Unknown EdgeType " + type);
 	}
 
 	private String reportEdgeType(EdgeType type) {
@@ -49,11 +35,10 @@ class NewEdgeReport implements ReportEntry {
 	}
 
 	@Override
-	public void print() {
-		if (isReported(edge.getEdgeType())) {
-			Log.log("Edge [%s] %s(0x%x) -%d-> %s(0x%x)", reportEdgeType(edge.getEdgeType()), edge.getFromNode()
-					.getModule().unit.filename, edge.getFromNode().getRelativeTag(), edge.getOrdinal(), edge
-					.getToNode().getModule().unit.filename, edge.getToNode().getRelativeTag());
-		}
+	public void print(PrintStream out) {
+		out.format("Edge [%s] %s(0x%x) -%d-> %s(0x%x)", reportEdgeType(edge.getEdgeType()),
+				ExecutionReport.getModuleName(edge.getFromNode()), ExecutionReport.getId(edge.getFromNode()),
+				edge.getOrdinal(), ExecutionReport.getModuleName(edge.getToNode()),
+				ExecutionReport.getId(edge.getToNode()));
 	}
 }

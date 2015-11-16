@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph.report;
 
-import edu.uci.eecs.crowdsafe.common.log.Log;
+import java.io.PrintStream;
+
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 
 class NewNodeReport implements ReportEntry {
@@ -12,7 +13,7 @@ class NewNodeReport implements ReportEntry {
 	}
 
 	@Override
-	public void print() {
-		Log.log("Node %s(0x%x)", node.getModule().unit.name, node.getRelativeTag());
+	public void print(PrintStream out) {
+		out.format("Node %s(0x%x)", ExecutionReport.getModuleName(node), ExecutionReport.getId(node));
 	}
 }

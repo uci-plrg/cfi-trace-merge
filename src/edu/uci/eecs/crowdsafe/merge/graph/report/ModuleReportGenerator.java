@@ -47,8 +47,10 @@ public class ModuleReportGenerator {
 	}
 
 	void addReportEntries() {
-		addLeftNodeEntries();
-		addLeftEdgeEntries();
+		if (dataset != null) { // hack, need to report all events in this case
+			addLeftNodeEntries();
+			addLeftEdgeEntries();
+		}
 		addMetadataEntries();
 	}
 
@@ -85,7 +87,8 @@ public class ModuleReportGenerator {
 			try {
 				rightFromNode.addOutgoingEdge(newRightEdge);
 				rightToNode.addIncomingEdge(newRightEdge);
-				report.addEntry(newRightEdge);
+				if (ExecutionReport.isReportedEdgeType(newRightEdge.getEdgeType()))
+					report.addEntry(newRightEdge);
 				mergedEdges.add(newRightEdge);
 				// if (session.subgraphAnalysisEnabled)
 				// session.subgraphs.edgeAdded(newRightEdge);
