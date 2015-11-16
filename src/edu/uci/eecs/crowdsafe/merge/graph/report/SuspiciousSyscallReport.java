@@ -13,10 +13,13 @@ public class SuspiciousSyscallReport implements ReportEntry {
 
 	@Override
 	public void print() {
-		Log.log("Suspicious syscall #%d (stack suspicion raised by %s(0x%x) -%d-> %s(0x%x)", ssc.sysnum,
-				ssc.suspicionRaisingEdge.getFromNode().getModule().unit.filename, ssc.suspicionRaisingEdge
-						.getFromNode().getRelativeTag(), ssc.suspicionRaisingEdge.getOrdinal(),
-				ssc.suspicionRaisingEdge.getToNode().getModule().unit.filename, ssc.suspicionRaisingEdge.getToNode()
-						.getRelativeTag());
+		Log.log("Suspicious syscall #%d", ssc.sysnum);
+		/*
+		 * Log.log("Suspicious syscall #%d (stack suspicion raised by %s(0x%x) -%d-> %s(0x%x)", ssc.sysnum,
+		 * ssc.suspicionRaisingEdge.getFromNode().getModule().unit.filename, ssc.suspicionRaisingEdge
+		 * .getFromNode().getRelativeTag(), ssc.suspicionRaisingEdge.getOrdinal(),
+		 * ssc.suspicionRaisingEdge.getToNode().getModule().unit.filename, ssc.suspicionRaisingEdge.getToNode()
+		 * .getRelativeTag());
+		 */
 	}
 }

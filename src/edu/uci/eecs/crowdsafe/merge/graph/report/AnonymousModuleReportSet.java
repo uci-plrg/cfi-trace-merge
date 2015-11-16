@@ -54,7 +54,7 @@ public class AnonymousModuleReportSet {
 	}
 
 	final String name;
-	
+
 	List<AnonymousSubgraph> maximalSubgraphs = new ArrayList<AnonymousSubgraph>();
 	private final Map<AnonymousModule.OwnerKey, AnonymousModule> modulesByOwner = new HashMap<AnonymousModule.OwnerKey, AnonymousModule>();
 
@@ -70,16 +70,15 @@ public class AnonymousModuleReportSet {
 		return modulesByOwner.get(owner);
 	}
 
-	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs)
-			throws IOException {
+	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) {
 		if (anonymousGraphs.isEmpty())
 			return;
 
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : anonymousGraphs) {
-			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(source, dynamicGraph)) 
+			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(source, dynamicGraph))
 				maximalSubgraphs.add(maximalSubgraph);
 		}
-		reportStatistics();
+		analyzeModules();
 	}
 
 	void installModules(List<AnonymousModule> modules) throws IOException {
@@ -87,15 +86,14 @@ public class AnonymousModuleReportSet {
 			return;
 
 		for (AnonymousModule module : modules) {
-			for (AnonymousSubgraph subgraph : module.subgraphs) 
+			for (AnonymousSubgraph subgraph : module.subgraphs)
 				maximalSubgraphs.add(subgraph);
 		}
-		reportStatistics();
+		analyzeModules();
 	}
 
-	private void reportStatistics() {
+	private void analyzeModules() {
 		Collections.sort(maximalSubgraphs, new SizeOrder());
-
 
 		Set<AutonomousSoftwareDistribution> allConnectingClusters = new HashSet<AutonomousSoftwareDistribution>();
 		AutonomousSoftwareDistribution owningCluster;

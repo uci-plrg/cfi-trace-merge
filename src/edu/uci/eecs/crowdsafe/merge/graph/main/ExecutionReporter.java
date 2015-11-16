@@ -18,7 +18,6 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.writer.ClusterGraphWriter
 import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSink;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousGraphMergeEngine;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.report.AnonymousModuleReportGenerator;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ExecutionReport;
@@ -128,7 +127,6 @@ public class ExecutionReporter {
 
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (leftCluster.isAnonymous()) {
-				// cast is ok because tag merge only works on cluster graphs
 				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
 				leftData.summarizeCluster(leftCluster);
 				continue;
@@ -143,16 +141,21 @@ public class ExecutionReporter {
 
 			ClusterGraph leftGraph = new ClusterGraph(
 					(ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
-			ClusterGraph rightGraph = new ClusterGraph(
-					(ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster));
+			ModuleGraphCluster<ClusterNode<?>> rightModule = (ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster);
+			if (rightModule == null) {
+				Log.log("Module %s is missing from the dataset!", leftCluster.name);
+				continue;
+			}
+			ClusterGraph rightGraph = new ClusterGraph(rightModule);
 			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);
 		}
 
 		for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-			if (rightCluster.isAnonymous()) 
+			if (rightCluster.isAnonymous())
 				rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
 		}
-		AnonymousModuleReportGenerator.addAnonymousReportEntries(report, leftData, rightData, leftAnonymousGraphs, rightAnonymousGraphs);
+		AnonymousModuleReportGenerator.addAnonymousReportEntries(report, leftData, rightData, leftAnonymousGraphs,
+				rightAnonymousGraphs);
 
 		return report;
 	}
