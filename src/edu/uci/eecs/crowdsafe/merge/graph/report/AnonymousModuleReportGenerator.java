@@ -1,8 +1,7 @@
-package edu.uci.eecs.crowdsafe.merge.graph.anonymous;
+package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +20,13 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousModule;
+import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousSubgraph;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchState;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMatchedNodes;
 
-public class AnonymousGraphMergeEngine {
+class AnonymousModuleReportGenerator {
 
 	private static class DynamicHashMatchEvaluator implements ClusterHashMergeSession.MergeEvaluator {
 		private int reportCount = 0;
@@ -195,33 +194,51 @@ public class AnonymousGraphMergeEngine {
 		}
 	}
 
+	static void addAnonymousReportEntries(ExecutionReport report, GraphMergeCandidate leftData,
+			GraphMergeCandidate rightData, List<ModuleGraphCluster<ClusterNode<?>>> execution,
+			List<ModuleGraphCluster<ClusterNode<?>>> dataset) {
+		AnonymousModuleReportGenerator generator = new AnonymousModuleReportGenerator(report, leftData, rightData,
+				execution, dataset);
+		generator.addEntries();
+	}
+
 	private static int SUBGRAPH_ID_INDEX = 0;
 
-	private final AnonymousModuleSet leftModuleSet;
-	private final AnonymousModuleSet rightModuleSet;
-
 	private final DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
-	private final ClusterHashMergeDebugLog debugLog;
 
-	public AnonymousGraphMergeEngine(GraphMergeCandidate leftData, GraphMergeCandidate rightData,
-			ClusterHashMergeDebugLog debugLog) {
-		leftModuleSet = new AnonymousModuleSet("<left>", leftData);
-		rightModuleSet = new AnonymousModuleSet("<right>", rightData);
-		this.debugLog = debugLog;
+	private final ExecutionReport report;
+	private final GraphMergeCandidate leftData;
+	private final GraphMergeCandidate rightData;
+
+	private final List<ModuleGraphCluster<ClusterNode<?>>> execution;
+	private final List<ModuleGraphCluster<ClusterNode<?>>> dataset;
+	private final AnonymousModuleReportSet leftModuleSet;
+	private final AnonymousModuleReportSet rightModuleSet;
+
+	private AnonymousModuleReportGenerator(ExecutionReport report, GraphMergeCandidate leftData,
+			GraphMergeCandidate rightData, List<ModuleGraphCluster<ClusterNode<?>>> execution,
+			List<ModuleGraphCluster<ClusterNode<?>>> dataset) {
+		this.leftData = leftData;
+		this.rightData = rightData;
+		this.report = report;
+
+		this.execution = execution;
+		this.dataset = dataset;
+		this.leftModuleSet = new AnonymousModuleReportSet("<left>");
+		this.rightModuleSet = new AnonymousModuleReportSet("<right>");
 
 		AnonymousModule.initialize();
+	}
+
+	private void addEntries() {
+
 	}
 
 	public ClusterGraph createAnonymousGraph(List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs,
 			List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs) throws IOException {
 
 		leftModuleSet.installSubgraphs(GraphMergeSource.LEFT, leftAnonymousGraphs);
-		leftModuleSet.analyzeModules();
-		// leftModuleSet.printDotFiles();
-
 		rightModuleSet.installSubgraphs(GraphMergeSource.RIGHT, rightAnonymousGraphs);
-		rightModuleSet.analyzeModules();
-		// rightModuleSet.printDotFiles();
 
 		List<AnonymousModule> mergedModules = new ArrayList<AnonymousModule>();
 		for (AnonymousModule.OwnerKey leftOwner : leftModuleSet.getModuleOwners()) {
@@ -254,12 +271,6 @@ public class AnonymousGraphMergeEngine {
 				}
 			}
 		}
-
-		// this step is just for logging
-		Log.log("\n     ========== Merged Anonymous Graph ==========\n");
-		AnonymousModuleSet mergedModuleSet = new AnonymousModuleSet("<merge>");
-		mergedModuleSet.installModules(mergedModules);
-		mergedModuleSet.analyzeModules();
 
 		ClusterGraph anonymousGraph = compileAnonymousGraph(mergedModules);
 		return anonymousGraph;
@@ -318,23 +329,17 @@ public class AnonymousGraphMergeEngine {
 	}
 
 	private void compileWhiteBoxes(AnonymousModule inputModule, AnonymousModule mergedModule) {
-		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) { // could skip this if right is a dataset
+		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) {
 			boolean match = false;
 			for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
-				ClusterHashMergeSession.evaluateTwoGraphs(inputSubgraph, mergedSubgraph, dynamicEvaluator, debugLog);
+				ClusterHashMergeSession.evaluateTwoGraphs(inputSubgraph, mergedSubgraph, dynamicEvaluator, null);
 				if (dynamicEvaluator.exactMatch) {
 					match = true;
 					break;
 				}
 			}
-			if (match) {
-				//Log.log("White box duplicate %s#%d from the %s side omittted.",
-				//		inputSubgraph.cluster.getUnitFilename(), inputSubgraph.id, inputSubgraph.source);
-			} else {
-//				Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
-//						inputSubgraph.id, inputSubgraph.source);
+			if (!match)
 				mergedModule.addSubgraph(inputSubgraph);
-			}
 		}
 	}
 
@@ -379,176 +384,5 @@ public class AnonymousGraphMergeEngine {
 			}
 		}
 		return compiledGraph;
-	}
-
-	private ClusterGraph crazyClusteringThing() {
-
-		// TODO: this will be faster if any existing anonymous graph is used as the initial comparison set for any
-		// dynamic and static graphs
-
-		List<SubgraphCluster> subgraphClusters = new ArrayList<SubgraphCluster>();
-		ClusterGraph anonymousGraph = new ClusterGraph("Anonymous cluster",
-				ConfiguredSoftwareDistributions.ANONYMOUS_CLUSTER);
-		DynamicHashMatchEvaluator dynamicEvaluator = new DynamicHashMatchEvaluator();
-		boolean match = false, fail;
-		ClusterCompatibilityRecord clusterCompatibilityRecord = new ClusterCompatibilityRecord();
-		for (ModuleGraphCluster<ClusterNode<?>> maximalSubgraph : leftModuleSet.maximalSubgraphs) { // repeat for
-																									// rightModuleSet
-			// if ((maximalSubgraph.getNodeCount() > analyzer.twiceAverage) || (maximalSubgraph.getNodeCount() < 7))
-			// continue;
-			// Log.log("Postponing subgraph of size %d", maximalSubgraph.getNodeCount());
-			// largeSubgraphs.add(maximalSubgraph);
-			// continue;
-			// }
-
-			for (SubgraphCluster subgraphCluster : subgraphClusters) {
-				match = false;
-				fail = false;
-				clusterCompatibilityRecord.initialize(maximalSubgraph.getExecutableNodeCount());
-				int score = 0;
-				for (int i = 0; i < subgraphCluster.graphs.size(); i++) {
-					ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraph, subgraphCluster.graphs.get(i),
-							dynamicEvaluator, debugLog);
-
-					if (dynamicEvaluator.exactMatch) {
-						match = true; // skip this graph because an identical graph is already in this cluster
-						break;
-					} else if (dynamicEvaluator.isFailed) {
-						fail = true;
-						break;
-					}
-
-					if ((dynamicEvaluator.greaterMatchPercentage > 50)
-							&& (dynamicEvaluator.greaterMatchPercentage < 80))
-						ClusterHashMergeSession.evaluateTwoGraphs(maximalSubgraph, subgraphCluster.graphs.get(i),
-								dynamicEvaluator, debugLog);
-					// maximalSubgraph.logGraph();
-					// subgraphCluster.graphs.get(i).logGraph()
-					/**
-					 * <pre> else if (dynamicEvaluator.greaterMatchPercentage > 80) {
-						ClusterGraph mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(maximalSubgraph,
-								subgraphCluster.graphs.get(i), ClusterHashMergeResults.Empty.INSTANCE,
-								dynamicEvaluator, debugLog);
-						subgraphCluster.graphs.set(i, mergedGraph.graph);
-						match = true;
-						break;
-					}
-					 */
-					score += dynamicEvaluator.greaterMatchPercentage;
-					clusterCompatibilityRecord.add(subgraphCluster.graphs.get(i).getExecutableNodeCount(),
-							dynamicEvaluator.greaterMatchPercentage);
-				}
-
-				if (fail)
-					continue;
-
-				if (match)
-					break;
-
-				int clusterPercentage = (score / subgraphCluster.graphs.size());
-				if (clusterPercentage > 50) {
-					// Log.log("\nAdding subgraph of %d nodes to cluster %d", maximalSubgraph.getExecutableNodeCount(),
-					// subgraphCluster.id);
-					// maximalSubgraph.logGraph();
-
-					subgraphCluster.add(maximalSubgraph, clusterCompatibilityRecord);
-					clusterCompatibilityRecord = new ClusterCompatibilityRecord();
-					match = true;
-					break;
-				}
-			}
-
-			if (!match) {
-				SubgraphCluster cluster = new SubgraphCluster(maximalSubgraph);
-				// Log.log("\nCreated cluster %d:", cluster.id);
-				// maximalSubgraph.logGraph();
-
-				subgraphClusters.add(cluster);
-			}
-		}
-
-		dynamicEvaluator.mergeMode = true;
-
-		// TODO: evaluate each cluster -> merge all its graphs together if valid
-
-		Map<ClusterNode<?>, ClusterNode<?>> copyMap = new HashMap<ClusterNode<?>, ClusterNode<?>>();
-		Log.log("\nReduced anonymous graph to %d subgraph clusters:", subgraphClusters.size());
-		Collections.sort(subgraphClusters, new SizeOrder());
-		SubgraphCluster spillCluster;
-		for (int s = 0; s < subgraphClusters.size(); s++) {
-			SubgraphCluster subgraphCluster = subgraphClusters.get(s);
-			//Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
-			subgraphCluster.reportCompatibility();
-
-			spillCluster = null;
-
-			ModuleGraphCluster<ClusterNode<?>> mergedClusterGraph;
-			if (subgraphCluster.graphs.size() == 1) {
-				mergedClusterGraph = subgraphCluster.graphs.get(0);
-			} else {
-				ClusterGraph mergedPairGraph = ClusterHashMergeSession.mergeTwoGraphs(subgraphCluster.graphs.get(0),
-						subgraphCluster.graphs.get(1), ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator,
-						debugLog);
-				if (mergedPairGraph == null) {
-					Log.log("Failed to merge subgraph #1. Spilling it.");
-
-					mergedClusterGraph = subgraphCluster.graphs.get(0);
-					spillCluster = new SubgraphCluster(subgraphCluster.graphs.get(1));
-					subgraphClusters.add(spillCluster);
-				} else {
-					mergedClusterGraph = mergedPairGraph.graph;
-				}
-
-				for (int i = 2; i < subgraphCluster.graphs.size(); i++) {
-					mergedPairGraph = ClusterHashMergeSession.mergeTwoGraphs(mergedClusterGraph,
-							subgraphCluster.graphs.get(i), ClusterHashMergeResults.Empty.INSTANCE, dynamicEvaluator,
-							debugLog);
-					if (mergedPairGraph == null) {
-						Log.log("Failed to merge subgraph #%d. Spilling it.", i);
-						Log.log("Current cluster graph:");
-						mergedClusterGraph.logGraph();
-						Log.log("\nFailed member:");
-						subgraphCluster.graphs.get(i).logGraph();
-
-						if (spillCluster == null) {
-							spillCluster = new SubgraphCluster(subgraphCluster.graphs.get(i));
-							subgraphClusters.add(spillCluster);
-						} else {
-							spillCluster.add(subgraphCluster.graphs.get(i), subgraphCluster.getCompatibilityRecord(i));
-						}
-					} else {
-						mergedClusterGraph = mergedPairGraph.graph;
-					}
-				}
-			}
-
-			// analyzer.reportSubgraph("Merged cluster subgraph", mergedClusterGraph);
-
-			for (ClusterNode<?> node : mergedClusterGraph.getAllNodes()) {
-				ClusterNode<?> copy = anonymousGraph.addNode(node.getHash(), SoftwareModule.ANONYMOUS_MODULE,
-						node.getRelativeTag(), node.getType()); // retag, or there will be collisions!
-				copyMap.put(node, copy);
-			}
-
-			for (ClusterNode<?> node : mergedClusterGraph.getAllNodes()) {
-				OrdinalEdgeList<?> edges = node.getOutgoingEdges();
-				try {
-					for (Edge<? extends Node<?>> edge : edges) {
-						ClusterNode<?> fromNode = copyMap.get(edge.getFromNode());
-						ClusterNode<?> toNode = copyMap.get(edge.getToNode());
-						Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(fromNode, toNode,
-								edge.getEdgeType(), edge.getOrdinal());
-						fromNode.addOutgoingEdge(mergedEdge);
-						toNode.addIncomingEdge(mergedEdge);
-					}
-				} finally {
-					edges.release();
-				}
-			}
-
-			copyMap.clear();
-		}
-
-		return anonymousGraph;
 	}
 }

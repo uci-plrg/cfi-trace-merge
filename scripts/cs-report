@@ -1,0 +1,22 @@
+#!/bin/bash
+
+. $csc/scripts/cs-common
+
+function print_usage() {
+  echo "Usage: cs-report <execution-dir> <dataset-dir>"
+  exit
+}
+
+check_help $1 print_usage
+
+append_classpath "CROWD_SAFE_MERGE_DIR"
+append_classpath "CROWD_SAFE_GRAPH_DIR"
+append_classpath "CROWD_SAFE_COMMON_DIR"
+
+# echo "classpath: $cp"
+
+main_class="edu.uci.eecs.crowdsafe.merge.graph.main.ExecutionReporter"
+
+java $vm_args -cp $cp $main_class $@
+#java -cp $cp $main_class $@
+  

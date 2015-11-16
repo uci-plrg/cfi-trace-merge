@@ -1,7 +1,6 @@
 package edu.uci.eecs.crowdsafe.merge.graph.main;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +16,13 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.writer.ClusterGraphWriter;
 import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSink;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
-import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
-import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousGraphMergeEngine;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeAnalysis;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
-import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeResults;
-import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
+import edu.uci.eecs.crowdsafe.merge.graph.report.AnonymousModuleReportGenerator;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ExecutionReport;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleReportGenerator;
 
 public class ExecutionReporter {
 
@@ -62,7 +57,9 @@ public class ExecutionReporter {
 			.createStringOption('e');
 	private static final OptionArgumentMap.StringOption datasetOption = OptionArgumentMap.createStringOption('d');
 	private static final OptionArgumentMap.StringOption reportFilenameOption = OptionArgumentMap.createStringOption(
-			'o', "execution.log"); // or the app name?
+			'f', "execution.log"); // or the app name?
+	private static final OptionArgumentMap.BooleanOption stdoutOption = OptionArgumentMap.createBooleanOption('o',
+			false);
 
 	private final CommonMergeOptions options;
 	private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
@@ -77,19 +74,16 @@ public class ExecutionReporter {
 		try {
 			options.parseOptions();
 
-			File reportFile = null;
-			if (reportFilenameOption.getValue() != null) {
-				reportFile = LogFile.create(reportFilenameOption.getValue(), LogFile.CollisionMode.AVOID,
-						LogFile.NoSuchPathMode.ERROR);
-				Log.addOutput(reportFile);
-				System.out.println("Generating report file " + reportFile.getAbsolutePath());
-			} else {
-				System.out.println("Generating report to system out");
-				Log.addOutput(System.out);
-			}
+			File reportFile = LogFile.create(reportFilenameOption.getValue(), LogFile.CollisionMode.AVOID,
+					LogFile.NoSuchPathMode.ERROR);
+			Log.addOutput(reportFile);
+			System.out.println("Generating report file " + reportFile.getAbsolutePath());
 
-			String leftPath = args.pop();
-			String rightPath = args.pop();
+			if (stdoutOption.getValue())
+				Log.addOutput(System.out);
+
+			String leftPath = executionGraphOption.getValue();
+			String rightPath = datasetOption.getValue();
 
 			if (args.size() > 0)
 				Log.log("Ignoring %d extraneous command-line arguments", args.size());
@@ -104,7 +98,9 @@ public class ExecutionReporter {
 			GraphMergeCandidate rightCandidate = (leftPath.equals(rightPath) ? leftCandidate
 					: loadMergeCandidate(rightPath));
 
-			merge(leftCandidate, rightCandidate, reportFile);
+			ExecutionReport report = generateReport(leftCandidate, rightCandidate, reportFile);
+			report.sort();
+			report.print();
 
 		} catch (Log.OutputException e) {
 			e.printStackTrace();
@@ -122,16 +118,15 @@ public class ExecutionReporter {
 	}
 
 	@SuppressWarnings("unchecked")
-	void merge(GraphMergeCandidate leftData, GraphMergeCandidate rightData, File logFile) throws IOException {
-		long mergeStart = System.currentTimeMillis();
-
+	ExecutionReport generateReport(GraphMergeCandidate leftData, GraphMergeCandidate rightData, File logFile)
+			throws IOException {
+		ExecutionReport report = new ExecutionReport();
 		List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
-		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
-			if (!options.includeCluster(leftCluster))
-				continue;
+		Log.log("Reporting %d represented clusters", leftData.getRepresentedClusters().size());
 
+		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (leftCluster.isAnonymous()) {
 				// cast is ok because tag merge only works on cluster graphs
 				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
@@ -146,30 +141,20 @@ public class ExecutionReporter {
 
 			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
 
-			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
-			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
-			//ClusterTagMergeSession.mergeTwoGraphs(leftGraph, (ModuleGraphCluster<ClusterNode<?>>) rightGraph);
-
-			leftData.summarizeCluster(leftCluster);
-			rightData.summarizeCluster(leftCluster);
+			ClusterGraph leftGraph = new ClusterGraph(
+					(ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
+			ClusterGraph rightGraph = new ClusterGraph(
+					(ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster));
+			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);
 		}
 
-		ClusterHashMergeAnalysis anonymousResults = new ClusterHashMergeAnalysis();
-
-		if (rightData != leftData) {
-			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-				if (!options.includeCluster(rightCluster))
-					continue;
-
-				if (rightCluster.isAnonymous()) {
-					rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
-							.getClusterGraph(rightCluster));
-					rightData.summarizeCluster(rightCluster);
-				}
-			}
+		for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
+			if (rightCluster.isAnonymous()) 
+				rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
 		}
-		AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
-		ClusterGraph anonymousGraph = anonymousMerge.createAnonymousGraph(leftAnonymousGraphs, rightAnonymousGraphs);
+		AnonymousModuleReportGenerator.addAnonymousReportEntries(report, leftData, rightData, leftAnonymousGraphs, rightAnonymousGraphs);
+
+		return report;
 	}
 
 	private GraphMergeCandidate loadMergeCandidate(String path) throws IOException {
@@ -194,7 +179,8 @@ public class ExecutionReporter {
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
 		ExecutionReporter main = new ExecutionReporter(new CommonMergeOptions(stack,
-				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, reportFilenameOption));
+				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, reportFilenameOption,
+				stdoutOption));
 		main.run(stack, 1);
 		main.toString();
 	}

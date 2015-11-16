@@ -22,11 +22,11 @@ import edu.uci.eecs.crowdsafe.graph.util.EdgeCounter;
 
 public class AnonymousModule {
 
-	static class OwnerKey {
-		final AutonomousSoftwareDistribution cluster;
-		final boolean isBlackBox;
+	public static class OwnerKey {
+		public final AutonomousSoftwareDistribution cluster;
+		public final boolean isBlackBox;
 
-		OwnerKey(AutonomousSoftwareDistribution cluster, boolean isBlackBox) {
+		public OwnerKey(AutonomousSoftwareDistribution cluster, boolean isBlackBox) {
 			this.cluster = cluster;
 			this.isBlackBox = isBlackBox;
 		}
@@ -126,8 +126,8 @@ public class AnonymousModule {
 	private static final Set<String> INELIGIBLE_OWNERS = new HashSet<String>();
 	private static final Map<String, String> OWNER_ALIAS = new HashMap<String, String>();
 
-	final AutonomousSoftwareDistribution owningCluster;
-	final List<AnonymousSubgraph> subgraphs = new ArrayList<AnonymousSubgraph>();
+	public final AutonomousSoftwareDistribution owningCluster;
+	public final List<AnonymousSubgraph> subgraphs = new ArrayList<AnonymousSubgraph>();
 
 	private int totalNodeCount = 0;
 	private int executableNodeCount = 0;
@@ -137,7 +137,7 @@ public class AnonymousModule {
 		this.owningCluster = owningCluster;
 	}
 
-	void addSubgraph(AnonymousSubgraph subgraph) {
+	public void addSubgraph(AnonymousSubgraph subgraph) {
 		if (subgraphs.isEmpty()) {
 			isBlackBox = subgraph.isAnonymousBlackBox();
 		} else if (subgraph.isAnonymousBlackBox() != isBlackBox) {
