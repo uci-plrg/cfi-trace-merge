@@ -282,7 +282,7 @@ public class AnonymousModuleReportGenerator {
 							executionEdge.getEdgeType(), executionEdge.getOrdinal());
 					newEntry.addOutgoingEdge(mergedEdge);
 					executionSingleton.addIncomingEdge(mergedEdge);
-					report.addEntry(mergedEdge);
+					report.addEntry(new NewEdgeReport(mergedEdge));
 				}
 			}
 		} finally {
@@ -302,7 +302,7 @@ public class AnonymousModuleReportGenerator {
 							executionEdge.getEdgeType(), executionEdge.getOrdinal());
 					newExit.addIncomingEdge(mergedEdge);
 					executionSingleton.addOutgoingEdge(mergedEdge);
-					report.addEntry(mergedEdge);
+					report.addEntry(new NewEdgeReport(mergedEdge));
 				}
 			}
 		} finally {
@@ -323,8 +323,8 @@ public class AnonymousModuleReportGenerator {
 			}
 			if (!match) {
 				mergedModule.addSubgraph(inputSubgraph);
-				if (reportNew) 
-					report.addEntry(inputModule, inputSubgraph);
+				if (reportNew)
+					report.addEntry(new NewWhiteBoxReport(inputModule, inputSubgraph));
 			}
 		}
 	}

@@ -4,18 +4,37 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSGE;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSSC;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousModule;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousSubgraph;
 
 public class ExecutionReport {
+
+	private static class RiskSorter implements Comparator<ReportEntry> {
+
+		private static final RiskSorter INSTANCE = new RiskSorter();
+
+		@Override
+		public int compare(ReportEntry first, ReportEntry second) {
+			int result = first.getRiskIndex() - second.getRiskIndex();
+			if (result == 0)
+				return result;
+			
+			long hashCompare = (first.hashCode() - second.hashCode());
+			if (hashCompare > 0)
+				return 1;
+			else if (hashCompare < 0)
+				return -1;
+			else
+				return 0;
+		}
+	}
 
 	static String getModuleName(ClusterNode<?> node) {
 		switch (node.getType()) {
@@ -46,12 +65,12 @@ public class ExecutionReport {
 
 	static boolean isReportedEdgeType(EdgeType type) {
 		switch (type) {
-			case DIRECT:
 			case INDIRECT:
 			case UNEXPECTED_RETURN:
 			case GENCODE_PERM:
 			case GENCODE_WRITE:
 				return true;
+			case DIRECT:
 			case CALL_CONTINUATION:
 			case EXCEPTION_CONTINUATION:
 				return false;
@@ -60,40 +79,40 @@ public class ExecutionReport {
 	}
 
 	private List<ReportEntry> entries = new ArrayList<ReportEntry>();
+	private Set<Edge<ClusterNode<?>>> filteredEdges = new HashSet<Edge<ClusterNode<?>>>();
 
-	public void sort() {
+	private ModuleEventFrequencies currentModuleEventFrequencies = null;
 
+	void setCurrentModuleEventFrequencies(ModuleEventFrequencies moduleEventFrequencies) {
+		this.currentModuleEventFrequencies = moduleEventFrequencies;
+	}
+
+	public void sort(ProgramEventFrequencies programEventFrequencies) {
+		for (ReportEntry entry : entries) {
+			entry.setEventFrequencies(programEventFrequencies);
+			entry.evaluateRisk();
+		}
+
+		Collections.sort(entries, RiskSorter.INSTANCE);
 	}
 
 	public void print(File outputFile) throws FileNotFoundException {
 		PrintStream out = new PrintStream(outputFile);
 		for (ReportEntry entry : entries) {
+			if (entry instanceof NewEdgeReport && filteredEdges.contains(((NewEdgeReport) entry).edge))
+				continue;
 			entry.print(out);
 			out.println();
 		}
 	}
 
-	void addEntry(ClusterNode<?> node) {
-		entries.add(new NewNodeReport(node));
+	void addEntry(ReportEntry entry) {
+		entries.add(entry);
+
+		entry.setEventFrequencies(currentModuleEventFrequencies);
 	}
 
-	void addEntry(Edge<ClusterNode<?>> edge) {
-		entries.add(new NewEdgeReport(edge));
-	}
-
-	void addEntry(ClusterUIB uib) {
-		// entries.add(new what??
-	}
-
-	void addEntry(ClusterSSC ssc) {
-		entries.add(new SuspiciousSyscallReport(ssc));
-	}
-
-	void addEntry(ClusterSGE sge) {
-		entries.add(new SuspiciousGencodeReport(sge));
-	}
-
-	void addEntry(AnonymousModule module, AnonymousSubgraph box) {
-		entries.add(new NewWhiteBoxReport(module, box));
+	void filterEdgeReport(Edge<ClusterNode<?>> edge) {
+		filteredEdges.add(edge);
 	}
 }

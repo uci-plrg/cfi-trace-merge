@@ -22,6 +22,7 @@ import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.report.AnonymousModuleReportGenerator;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ExecutionReport;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleReportGenerator;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies;
 
 public class ExecutionReporter {
 
@@ -65,6 +66,8 @@ public class ExecutionReporter {
 	private final CommonMergeOptions options;
 	private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
 
+	private ProgramEventFrequencies programEventFrequencies = new ProgramEventFrequencies();
+
 	public ExecutionReporter(CommonMergeOptions options) {
 		this.options = options;
 	}
@@ -103,7 +106,7 @@ public class ExecutionReporter {
 					: loadMergeCandidate(rightPath));
 
 			ExecutionReport report = generateReport(leftCandidate, rightCandidate);
-			report.sort();
+			report.sort(programEventFrequencies);
 			report.print(reportFile);
 
 		} catch (Log.OutputException e) {
@@ -129,6 +132,7 @@ public class ExecutionReporter {
 
 		Log.log("Reporting %d represented clusters", leftData.getRepresentedClusters().size());
 
+		// compile program events from the execution
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (leftCluster.isAnonymous()) {
 				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
@@ -145,20 +149,30 @@ public class ExecutionReporter {
 
 			ClusterGraph leftGraph = new ClusterGraph(
 					(ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
-			ModuleGraphCluster<ClusterNode<?>> rightModule = (ModuleGraphCluster<ClusterNode<?>>) rightData
-					.getClusterGraph(leftCluster);
 			ClusterGraph rightGraph = null;
-			if (rightModule == null) {
-				Log.warn("Module %s is missing from the dataset!", leftCluster.name);
-			} else {
-				rightGraph = new ClusterGraph(rightModule);
+			if (rightData.getRepresentedClusters().contains(leftCluster)) {
+				rightGraph = new ClusterGraph(
+						(ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster));
+				programEventFrequencies.countMetadataEvents(rightGraph.graph.metadata.getRootSequence()
+						.getHeadExecution());
 			}
-			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);
+			ModuleReportGenerator.addModuleReportEntries(report, programEventFrequencies, leftGraph, rightGraph);
+			System.gc();
 		}
 
 		for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
 			if (rightCluster.isAnonymous())
 				rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
+			else if (!leftData.getRepresentedClusters().contains(rightCluster)) {
+				// compile metadata frequencies for the whole program, based on the dataset
+				ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(rightCluster);
+				if (rightGraph != null && rightGraph.metadata.getRootSequence() != null
+						&& rightGraph.metadata.getRootSequence().getHeadExecution() != null) {
+					programEventFrequencies.countMetadataEvents(rightGraph.metadata.getRootSequence()
+							.getHeadExecution());
+				}
+			}
+			System.gc();
 		}
 		AnonymousModuleReportGenerator.addAnonymousReportEntries(report, leftData, rightData, leftAnonymousGraphs,
 				rightAnonymousGraphs);

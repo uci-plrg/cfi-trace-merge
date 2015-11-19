@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
@@ -26,8 +27,9 @@ public class ModuleReportGenerator {
 		}
 	}
 
-	public static void addModuleReportEntries(ExecutionReport report, ClusterGraph execution, ClusterGraph dataset) {
-		ModuleReportGenerator generator = new ModuleReportGenerator(report, execution, dataset);
+	public static void addModuleReportEntries(ExecutionReport report, ProgramEventFrequencies programEventFrequencies,
+			ClusterGraph execution, ClusterGraph dataset) {
+		ModuleReportGenerator generator = new ModuleReportGenerator(report, programEventFrequencies, execution, dataset);
 		generator.addReportEntries();
 	}
 
@@ -36,21 +38,25 @@ public class ModuleReportGenerator {
 	final ClusterGraph execution;
 	final ClusterGraph dataset;
 
-	List<Edge<ClusterNode<?>>> mergedEdges = new ArrayList<Edge<ClusterNode<?>>>();
+	// after addMetadataEntries, contains no SUIB
+	List<Edge<ClusterNode<?>>> mergedIndirects = new ArrayList<Edge<ClusterNode<?>>>();
 
 	final PendingEdgeQueue edgeQueue = new PendingEdgeQueue();
 
-	public ModuleReportGenerator(ExecutionReport report, ClusterGraph execution, ClusterGraph dataset) {
+	public ModuleReportGenerator(ExecutionReport report, ProgramEventFrequencies programEventFrequencies,
+			ClusterGraph execution, ClusterGraph dataset) {
+		
+		ModuleEventFrequencies eventFrequencies = new ModuleEventFrequencies(dataset, programEventFrequencies);
+		report.setCurrentModuleEventFrequencies(eventFrequencies);
+
 		this.report = report;
 		this.execution = execution;
 		this.dataset = dataset;
 	}
 
 	void addReportEntries() {
-		if (dataset != null) { // hack, need to report all events in this case
-			addLeftNodeEntries();
-			addLeftEdgeEntries();
-		}
+		addLeftNodeEntries();
+		addLeftEdgeEntries();
 		addMetadataEntries();
 	}
 
@@ -58,15 +64,30 @@ public class ModuleReportGenerator {
 		boolean rightAdded;
 		for (Node<?> left : execution.graph.getAllNodes()) {
 			rightAdded = false;
-			ClusterNode<?> right = getCorrespondingNode(left);
+			ClusterNode<?> right = getDatasetNode(left);
 			if (right != null) {
 				if (!verifyMatch(left, right))
 					right = null;
 			}
 			if (right == null) {
 				// Do I need to add it? May need to see it later.
-				right = dataset.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
-				report.addEntry(right);
+				if (dataset == null)
+					right = execution.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
+				else
+					right = dataset.addNode(left.getHash(), left.getModule(), left.getRelativeTag(), left.getType());
+				switch (right.getType()) {
+					case RETURN:
+						OrdinalEdgeList<?> outgoing = right.getOutgoingEdges();
+						try {
+							if (outgoing.size() > 0)
+								report.addEntry(new NewNodeReport(NewNodeReport.Type.ABNORMAL_RETURN, right));
+						} finally {
+							outgoing.release();
+						}
+					case SINGLETON:
+						if (right.isBlackBoxSingleton())
+							report.addEntry(new NewNodeReport(NewNodeReport.Type.BLACK_BOX_SINGLETON, right));
+				}
 				// if (session.subgraphAnalysisEnabled) {
 				// session.subgraphs.nodeAdded(right);
 				// }
@@ -80,7 +101,7 @@ public class ModuleReportGenerator {
 		for (int i = 0; i < edgeQueue.size(); i++) {
 			ClusterNode<?> rightFromNode = edgeQueue.rightFromNodes.get(i);
 			Edge<?> leftEdge = edgeQueue.leftEdges.get(i);
-			ClusterNode<?> rightToNode = getCorrespondingNode(leftEdge.getToNode());
+			ClusterNode<?> rightToNode = getDatasetNode(leftEdge.getToNode());
 			Edge<ClusterNode<?>> newRightEdge = new Edge<ClusterNode<?>>(rightFromNode, rightToNode,
 					leftEdge.getEdgeType(), leftEdge.getOrdinal());
 
@@ -88,8 +109,9 @@ public class ModuleReportGenerator {
 				rightFromNode.addOutgoingEdge(newRightEdge);
 				rightToNode.addIncomingEdge(newRightEdge);
 				if (ExecutionReport.isReportedEdgeType(newRightEdge.getEdgeType()))
-					report.addEntry(newRightEdge);
-				mergedEdges.add(newRightEdge);
+					report.addEntry(new NewEdgeReport(newRightEdge));
+				if (newRightEdge.getEdgeType() == EdgeType.INDIRECT)
+					mergedIndirects.add(newRightEdge);
 				// if (session.subgraphAnalysisEnabled)
 				// session.subgraphs.edgeAdded(newRightEdge);
 			} catch (IllegalArgumentException e) {
@@ -106,17 +128,24 @@ public class ModuleReportGenerator {
 			return;
 		}
 		ClusterMetadataExecution metadata = execution.graph.metadata.getSingletonExecution();
-		metadata.retainMergedUIBs(mergedEdges);
+		metadata.retainMergedUIBs(mergedIndirects, true);
 
-		for (ClusterUIB uib : metadata.uibs)
-			report.addEntry(uib);
+		for (ClusterUIB uib : metadata.uibs) {
+			if (!uib.isAdmitted) {
+				report.addEntry(new SuspiciousIndirectEdgeReport(uib)); // already know it's a new suspicious target
+				report.filterEdgeReport(uib.edge);
+			}
+		}
 		for (ClusterSSC ssc : metadata.sscs)
-			report.addEntry(ssc);
+			report.addEntry(new SuspiciousSyscallReport(ssc));
 		for (ClusterSGE sge : metadata.sges)
-			report.addEntry(sge);
+			report.addEntry(new SuspiciousGencodeReport(sge));
 	}
 
-	private ClusterNode<?> getCorrespondingNode(Node<?> left) {
+	private ClusterNode<?> getDatasetNode(Node<?> left) {
+		if (dataset == null)
+			return null;
+
 		ClusterNode<?> right = dataset.graph.getNode(left.getKey());
 		if ((right != null) && ((right.getHash() == left.getHash())))
 			return right;

@@ -14,6 +14,23 @@ public class NewWhiteBoxReport implements ReportEntry {
 		this.module = module;
 		this.box = box;
 	}
+	
+	@Override
+	public void setEventFrequencies(ModuleEventFrequencies frequencies) {
+	}
+	
+	@Override
+	public void setEventFrequencies(ProgramEventFrequencies frequencies) {
+	}
+	
+	@Override
+	public void evaluateRisk() {
+	}
+	
+	@Override
+	public int getRiskIndex() {
+		return 0;
+	}
 
 	@Override
 	public void print(PrintStream out) {
