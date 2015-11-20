@@ -108,7 +108,7 @@ public class AnonymousModuleReportSet {
 				Log.log("Error: entry point missing for anonymous subgraph of %d nodes in %s!",
 						subgraph.getNodeCount(), name);
 				Log.log("\tOmitting this subgraph from the merge.");
-				subgraph.logGraph();
+				// subgraph.logGraph();
 				continue subgraphs;
 			}
 

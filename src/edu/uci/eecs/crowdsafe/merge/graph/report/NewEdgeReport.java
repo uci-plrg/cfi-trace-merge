@@ -2,10 +2,14 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.io.PrintStream;
 
+import javax.sound.midi.spi.MidiFileReader;
+
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 class NewEdgeReport implements ReportEntry {
 
@@ -13,10 +17,10 @@ class NewEdgeReport implements ReportEntry {
 
 	private int moduleSameTarget = 0;
 	private int programSameTarget = 0;
-	
+
 	private int crossModuleUnexpectedReturns = 0;
 	private int intraModuleUnexpectedReturns = 0;
-	
+
 	private int moduleGencodeWrite = 0;
 	private int programGencodeWrite = 0;
 
@@ -33,6 +37,7 @@ class NewEdgeReport implements ReportEntry {
 				return "direct";
 			case INDIRECT:
 				// 1. # other targets on this node
+				// 2. # UIB in this module
 				// [ 3. # indirects from this module to similar targets { CM, IM } ]
 				return "indirect";
 			case UNEXPECTED_RETURN:
@@ -52,34 +57,17 @@ class NewEdgeReport implements ReportEntry {
 	}
 
 	@Override
-	public void setEventFrequencies(ModuleEventFrequencies frequencies) {
-		if (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)
-			moduleSameTarget = frequencies.getIndirectEdgeTargetCount(edge.getToNode().getHash());
-		else
-			moduleSameTarget = frequencies.getIndirectEdgeTargetCount((long) edge.getToNode().getRelativeTag());
-		
-		crossModuleUnexpectedReturns = frequencies.getCrossModuleUnexpectedReturns();
-		intraModuleUnexpectedReturns = frequencies.getIntraModuleUnexpectedReturns();
-		
-		moduleGencodeWrite = frequencies.getGencodeWriteCount();
-		moduleGencodePerm = frequencies.getGencodePermCount();
+	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
+		crossModuleUnexpectedReturns = moduleFrequencies.getProperty(ModuleEventFrequencies.CROSS_MODULE_UNEXPECTED_RETURNS);
+		intraModuleUnexpectedReturns = moduleFrequencies.getProperty(ModuleEventFrequencies.INTRA_MODULE_UNEXPECTED_RETURNS);
+
+		moduleGencodeWrite = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_WRITE_COUNT);
+		moduleGencodePerm = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_PERM_COUNT);
+
+		programGencodeWrite = programFrequencies.getProperty(ProgramEventFrequencies.GENCODE_WRITE_COUNT);
+		programGencodePerm = programFrequencies.getProperty(ProgramEventFrequencies.GENCODE_PERM_COUNT);
 	}
 
-	@Override
-	public void setEventFrequencies(ProgramEventFrequencies frequencies) {
-		if (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)
-			programSameTarget = frequencies.getIndirectEdgeTargetCount(edge.getToNode().getHash());
-		else
-			programSameTarget = frequencies.getIndirectEdgeTargetCount((long) edge.getToNode().getRelativeTag());
-		
-		programGencodeWrite = frequencies.getGencodeWriteCount();
-		programGencodePerm = frequencies.getGencodePermCount();
-	}
-	
-	@Override
-	public void evaluateRisk() {
-	}
-	
 	@Override
 	public int getRiskIndex() {
 		return 0;

@@ -4,6 +4,8 @@ import java.io.PrintStream;
 
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 class NewNodeReport implements ReportEntry {
 
@@ -24,16 +26,8 @@ class NewNodeReport implements ReportEntry {
 	}
 
 	@Override
-	public void setEventFrequencies(ModuleEventFrequencies frequencies) {
-		moduleAbnormalReturnCount = frequencies.getAbnormalReturnCount();
-	}
-
-	@Override
-	public void setEventFrequencies(ProgramEventFrequencies frequencies) {
-	}
-
-	@Override
-	public void evaluateRisk() {
+	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
+		moduleAbnormalReturnCount = moduleFrequencies.getProperty(ModuleEventFrequencies.ABNORMAL_RETURNS);
 		// if (node.getType() == MetaNodeType.RETURN) {
 	}
 	

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
+import edu.uci.eecs.crowdsafe.common.util.RiskySystemCall;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
@@ -27,9 +28,8 @@ public class ModuleReportGenerator {
 		}
 	}
 
-	public static void addModuleReportEntries(ExecutionReport report, ProgramEventFrequencies programEventFrequencies,
-			ClusterGraph execution, ClusterGraph dataset) {
-		ModuleReportGenerator generator = new ModuleReportGenerator(report, programEventFrequencies, execution, dataset);
+	public static void addModuleReportEntries(ExecutionReport report, ClusterGraph execution, ClusterGraph dataset) {
+		ModuleReportGenerator generator = new ModuleReportGenerator(report, execution, dataset);
 		generator.addReportEntries();
 	}
 
@@ -43,15 +43,16 @@ public class ModuleReportGenerator {
 
 	final PendingEdgeQueue edgeQueue = new PendingEdgeQueue();
 
-	public ModuleReportGenerator(ExecutionReport report, ProgramEventFrequencies programEventFrequencies,
-			ClusterGraph execution, ClusterGraph dataset) {
-		
-		ModuleEventFrequencies eventFrequencies = new ModuleEventFrequencies(dataset, programEventFrequencies);
-		report.setCurrentModuleEventFrequencies(eventFrequencies);
+	public ModuleReportGenerator(ExecutionReport report, ClusterGraph execution, ClusterGraph dataset) {
+
+		report.setCurrentModule(execution.graph.cluster.name);
 
 		this.report = report;
 		this.execution = execution;
 		this.dataset = dataset;
+
+		// Log.log("Module %s has %d indirects with %d distinct targets", execution.graph.cluster.name,
+		// eventFrequencies.getTotalIndirectCount(), eventFrequencies.getUniqueIndirectTargetCount());
 	}
 
 	void addReportEntries() {
@@ -136,8 +137,10 @@ public class ModuleReportGenerator {
 				report.filterEdgeReport(uib.edge);
 			}
 		}
-		for (ClusterSSC ssc : metadata.sscs)
-			report.addEntry(new SuspiciousSyscallReport(ssc));
+		for (ClusterSSC ssc : metadata.sscs) {
+			if (RiskySystemCall.sysnumMap.containsKey(ssc.sysnum))
+				report.addEntry(new SuspiciousSyscallReport(ssc));
+		}
 		for (ClusterSGE sge : metadata.sges)
 			report.addEntry(new SuspiciousGencodeReport(sge));
 	}

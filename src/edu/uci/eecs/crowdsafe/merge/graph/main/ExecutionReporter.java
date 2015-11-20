@@ -1,16 +1,17 @@
 package edu.uci.eecs.crowdsafe.merge.graph.main;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
@@ -53,9 +54,14 @@ public class ExecutionReporter {
 		}
 	}
 
+	private static double elapsedTime(long start) {
+		return (System.currentTimeMillis() - start) / 1000.0;
+	}
+
 	private static final OptionArgumentMap.StringOption executionGraphOption = OptionArgumentMap
 			.createStringOption('e');
 	private static final OptionArgumentMap.StringOption datasetOption = OptionArgumentMap.createStringOption('d');
+	private static final OptionArgumentMap.StringOption statisticsOption = OptionArgumentMap.createStringOption('s');
 	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l',
 			"reporter.log"); // or the app name?
 	private static final OptionArgumentMap.StringOption reportFilenameOption = OptionArgumentMap.createStringOption(
@@ -66,7 +72,9 @@ public class ExecutionReporter {
 	private final CommonMergeOptions options;
 	private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
 
-	private ProgramEventFrequencies programEventFrequencies = new ProgramEventFrequencies();
+	private ProgramEventFrequencies.ProgramPropertyReader programEventFrequencies;
+
+	private long start;
 
 	public ExecutionReporter(CommonMergeOptions options) {
 		this.options = options;
@@ -89,6 +97,11 @@ public class ExecutionReporter {
 					LogFile.NoSuchPathMode.ERROR);
 			System.out.println("Generating report file " + reportFile.getAbsolutePath());
 
+			File statisticsFile = new File(statisticsOption.getValue());
+			Properties statisticsProperties = new Properties();
+			statisticsProperties.load(new FileReader(statisticsFile));
+			programEventFrequencies = new ProgramEventFrequencies.ProgramPropertyReader(statisticsProperties);
+
 			String leftPath = executionGraphOption.getValue();
 			String rightPath = datasetOption.getValue();
 
@@ -105,10 +118,18 @@ public class ExecutionReporter {
 			GraphMergeCandidate rightCandidate = (leftPath.equals(rightPath) ? leftCandidate
 					: loadMergeCandidate(rightPath));
 
+			start = System.currentTimeMillis();
+
 			ExecutionReport report = generateReport(leftCandidate, rightCandidate);
-			report.sort(programEventFrequencies);
+			Log.log("\n > Sorting report entries at %.3f < \n", elapsedTime(start));
+			report.sort();
+			Log.log("\n > Printing report entries at %.3f < \n", elapsedTime(start));
 			report.print(reportFile);
 
+			// Log.log("The whole program has %d indirects with %d distinct targets",
+			// programEventFrequencies.getTotalIndirectCount(),
+			// programEventFrequencies.getUniqueIndirectTargetCount());
+			Log.log("\n > Report complete at %.3f < \n", elapsedTime(start));
 		} catch (Log.OutputException e) {
 			e.printStackTrace();
 		} catch (Throwable t) {
@@ -126,7 +147,7 @@ public class ExecutionReporter {
 
 	@SuppressWarnings("unchecked")
 	ExecutionReport generateReport(GraphMergeCandidate leftData, GraphMergeCandidate rightData) throws IOException {
-		ExecutionReport report = new ExecutionReport();
+		ExecutionReport report = new ExecutionReport(programEventFrequencies);
 		List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 
@@ -135,48 +156,33 @@ public class ExecutionReporter {
 		// compile program events from the execution
 		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
 			if (leftCluster.isAnonymous()) {
+				Log.log("\n > Loading left anonymous cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
 				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
-				leftData.summarizeCluster(leftCluster);
 				continue;
 			}
 
-			if (ConfiguredSoftwareDistributions.getInstance().clusterMode != ConfiguredSoftwareDistributions.ClusterMode.UNIT)
-				throw new UnsupportedOperationException(
-						"Cluster compatibility has not yet been defined for cluster mode "
-								+ ConfiguredSoftwareDistributions.getInstance().clusterMode);
-
-			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
+			Log.log("\n > Loading left static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
 
 			ClusterGraph leftGraph = new ClusterGraph(
 					(ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
 			ClusterGraph rightGraph = null;
 			if (rightData.getRepresentedClusters().contains(leftCluster)) {
+				Log.log("\n > Loading right static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
 				rightGraph = new ClusterGraph(
 						(ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster));
-				programEventFrequencies.countMetadataEvents(rightGraph.graph.metadata.getRootSequence()
-						.getHeadExecution());
+				Log.log("\n > Counting metadata for right cluster %s at %.3f < \n", leftCluster.name,
+						elapsedTime(start));
 			}
-			ModuleReportGenerator.addModuleReportEntries(report, programEventFrequencies, leftGraph, rightGraph);
+			Log.log("\n > Generating report for static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
+			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);
 			System.gc();
 		}
 
-		for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-			if (rightCluster.isAnonymous())
-				rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
-			else if (!leftData.getRepresentedClusters().contains(rightCluster)) {
-				// compile metadata frequencies for the whole program, based on the dataset
-				ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(rightCluster);
-				if (rightGraph != null && rightGraph.metadata.getRootSequence() != null
-						&& rightGraph.metadata.getRootSequence().getHeadExecution() != null) {
-					programEventFrequencies.countMetadataEvents(rightGraph.metadata.getRootSequence()
-							.getHeadExecution());
-				}
-			}
-			System.gc();
-		}
+		Log.log("\n > Generating report for dynamic code at %.3f < \n", elapsedTime(start));
 		AnonymousModuleReportGenerator.addAnonymousReportEntries(report, leftData, rightData, leftAnonymousGraphs,
 				rightAnonymousGraphs);
 
+		Log.log("\n > All report entries generated at %.3f < \n", elapsedTime(start));
 		return report;
 	}
 
@@ -202,8 +208,8 @@ public class ExecutionReporter {
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
 		ExecutionReporter main = new ExecutionReporter(new CommonMergeOptions(stack,
-				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, logFilenameOption,
-				reportFilenameOption, stdoutOption));
+				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, statisticsOption,
+				logFilenameOption, reportFilenameOption, stdoutOption));
 		main.run(stack, 1);
 		main.toString();
 	}

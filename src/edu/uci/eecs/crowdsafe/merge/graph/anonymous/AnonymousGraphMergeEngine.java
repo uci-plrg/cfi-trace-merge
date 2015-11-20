@@ -13,6 +13,7 @@ import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.graph.data.dist.SoftwareModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
@@ -194,6 +195,8 @@ public class AnonymousGraphMergeEngine {
 			return (int) second.hashCode() - (int) first.hashCode();
 		}
 	}
+	
+	
 
 	private static int SUBGRAPH_ID_INDEX = 0;
 
@@ -267,12 +270,23 @@ public class AnonymousGraphMergeEngine {
 
 	// add to the left module all entry points and exit points that are unique to the right
 	private void mergeBlackBoxes(AnonymousModule leftModule, AnonymousModule rightModule) {
-		if (leftModule.subgraphs.size() != 1)
+		if (leftModule.subgraphs.size() != 1) {
 			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
 					leftModule.subgraphs.size());
-		if (rightModule.subgraphs.size() != 1)
+		}
+		if (rightModule.subgraphs.size() != 1) {
+			int index = 0;
+			for (AnonymousSubgraph subgraph : rightModule.subgraphs) {
+				Log.log("Subgraph %d has %d nodes (%d entry, %d exit)", index++, subgraph.getNodeCount(), subgraph
+						.getEntryPoints().size(), subgraph.getExitPoints().size());
+				for (ClusterNode<?> node : subgraph.getAllNodes()) {
+					if (node.getType() != MetaNodeType.CLUSTER_ENTRY && node.getType() != MetaNodeType.CLUSTER_EXIT)
+						Log.log("    Node type %s with hash 0x%x", node.getType(), node.getHash());
+				}
+			}
 			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
 					rightModule.subgraphs.size());
+		}
 
 		AnonymousSubgraph leftBox = leftModule.subgraphs.get(0);
 		AnonymousSubgraph rightBox = rightModule.subgraphs.get(0);
@@ -328,11 +342,11 @@ public class AnonymousGraphMergeEngine {
 				}
 			}
 			if (match) {
-				//Log.log("White box duplicate %s#%d from the %s side omittted.",
-				//		inputSubgraph.cluster.getUnitFilename(), inputSubgraph.id, inputSubgraph.source);
+				// Log.log("White box duplicate %s#%d from the %s side omittted.",
+				// inputSubgraph.cluster.getUnitFilename(), inputSubgraph.id, inputSubgraph.source);
 			} else {
-//				Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
-//						inputSubgraph.id, inputSubgraph.source);
+				// Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
+				// inputSubgraph.id, inputSubgraph.source);
 				mergedModule.addSubgraph(inputSubgraph);
 			}
 		}
@@ -477,7 +491,7 @@ public class AnonymousGraphMergeEngine {
 		SubgraphCluster spillCluster;
 		for (int s = 0; s < subgraphClusters.size(); s++) {
 			SubgraphCluster subgraphCluster = subgraphClusters.get(s);
-			//Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
+			// Log.log("\nCluster of %d subgraphs:", subgraphCluster.graphs.size());
 			subgraphCluster.reportCompatibility();
 
 			spillCluster = null;

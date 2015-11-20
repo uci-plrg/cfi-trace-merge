@@ -13,6 +13,7 @@ import java.util.Set;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 public class ExecutionReport {
 
@@ -25,7 +26,7 @@ public class ExecutionReport {
 			int result = first.getRiskIndex() - second.getRiskIndex();
 			if (result == 0)
 				return result;
-			
+
 			long hashCompare = (first.hashCode() - second.hashCode());
 			if (hashCompare > 0)
 				return 1;
@@ -81,18 +82,18 @@ public class ExecutionReport {
 	private List<ReportEntry> entries = new ArrayList<ReportEntry>();
 	private Set<Edge<ClusterNode<?>>> filteredEdges = new HashSet<Edge<ClusterNode<?>>>();
 
-	private ModuleEventFrequencies currentModuleEventFrequencies = null;
+	private final ProgramEventFrequencies.ProgramPropertyReader programEventFrequencies;
+	private ModuleEventFrequencies.ModulePropertyReader currentModuleEventFrequencies = null;
 
-	void setCurrentModuleEventFrequencies(ModuleEventFrequencies moduleEventFrequencies) {
-		this.currentModuleEventFrequencies = moduleEventFrequencies;
+	public ExecutionReport(ProgramPropertyReader programEventFrequencies) {
+		this.programEventFrequencies = programEventFrequencies;
 	}
 
-	public void sort(ProgramEventFrequencies programEventFrequencies) {
-		for (ReportEntry entry : entries) {
-			entry.setEventFrequencies(programEventFrequencies);
-			entry.evaluateRisk();
-		}
+	void setCurrentModule(String moduleName) {
+		this.currentModuleEventFrequencies = programEventFrequencies.getModule(moduleName);
+	}
 
+	public void sort() {
 		Collections.sort(entries, RiskSorter.INSTANCE);
 	}
 
@@ -109,7 +110,7 @@ public class ExecutionReport {
 	void addEntry(ReportEntry entry) {
 		entries.add(entry);
 
-		entry.setEventFrequencies(currentModuleEventFrequencies);
+		entry.setEventFrequencies(programEventFrequencies, currentModuleEventFrequencies);
 	}
 
 	void filterEdgeReport(Edge<ClusterNode<?>> edge) {

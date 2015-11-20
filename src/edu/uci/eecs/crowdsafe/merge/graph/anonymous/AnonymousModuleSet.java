@@ -23,7 +23,7 @@ import edu.uci.eecs.crowdsafe.graph.util.EdgeTypes;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
-class AnonymousModuleSet {
+public class AnonymousModuleSet {
 
 	private static class SizeOrder implements Comparator<ModuleGraphCluster<ClusterNode<?>>> {
 		@Override
@@ -82,16 +82,16 @@ class AnonymousModuleSet {
 		this.name = name;
 	}
 
-	Set<AnonymousModule.OwnerKey> getModuleOwners() {
+	public Set<AnonymousModule.OwnerKey> getModuleOwners() {
 		return modulesByOwner.keySet();
 	}
 
-	AnonymousModule getModule(AnonymousModule.OwnerKey owner) {
+	public AnonymousModule getModule(AnonymousModule.OwnerKey owner) {
 		return modulesByOwner.get(owner);
 	}
 
-	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs)
-			throws IOException {
+	public void installSubgraphs(GraphMergeSource source,
+			List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) throws IOException {
 		if (anonymousGraphs.isEmpty())
 			return;
 
@@ -172,7 +172,7 @@ class AnonymousModuleSet {
 				Log.log("Error: entry point missing for anonymous subgraph of %d nodes in %s!",
 						subgraph.getNodeCount(), name);
 				Log.log("\tOmitting this subgraph from the merge.");
-				subgraph.logGraph();
+				// subgraph.logGraph();
 				continue subgraphs;
 			}
 
@@ -200,13 +200,11 @@ class AnonymousModuleSet {
 
 					cluster = AnonymousModule.resolveAlias(cluster);
 
-                    /*
-					if (isStoryboarding(cluster)) {
-						Log.log("Warning: skipping anonymous subgraph with entry from 'ni' cluster %s",
-								cluster.getUnitFilename());
-						continue subgraphs;
-					}
-                    */
+					/*
+					 * if (isStoryboarding(cluster)) {
+					 * Log.log("Warning: skipping anonymous subgraph with entry from 'ni' cluster %s",
+					 * cluster.getUnitFilename()); continue subgraphs; }
+					 */
 
 					allConnectingClusters.add(cluster);
 
@@ -249,13 +247,11 @@ class AnonymousModuleSet {
 
 						cluster = AnonymousModule.resolveAlias(cluster);
 
-                        /*
-						if (isStoryboarding(cluster)) {
-							Log.log("Warning: skipping anonymous subgraph with exit to 'ni' cluster %s",
-									cluster.getUnitFilename());
-							continue subgraphs;
-						}
-                        */
+						/*
+						 * if (isStoryboarding(cluster)) {
+						 * Log.log("Warning: skipping anonymous subgraph with exit to 'ni' cluster %s",
+						 * cluster.getUnitFilename()); continue subgraphs; }
+						 */
 
 						allConnectingClusters.add(cluster);
 
@@ -263,22 +259,7 @@ class AnonymousModuleSet {
 							if (owningCluster == null) {
 								owningCluster = cluster;
 							}
-							/**
-							 * <pre>else if (owningCluster != cluster) {
-							Log.log("Error: subgraph of %d nodes owned by %s has exit points to a potential alternate owner: %s",
-									subgraph.getNodeCount(), owningCluster.name, cluster.name);
-							owningCluster = null;
-							break;
 						}
-							 */
-						}
-
-						// clusterName = cluster.name;
-						// leftTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getLeftGraph(cluster));
-						// rightTargetCount = getEntryEdgeCount(exitPoint.getHash(), graphCache.getRightGraph(cluster));
-
-						// Log.log("     Callout 0x%x (%s) from %d nodes to %d left targets and %d right targets",
-						// node.getHash(), clusterName, edges.size(), leftTargetCount, rightTargetCount);
 					} finally {
 						edges.release();
 					}
@@ -320,47 +301,13 @@ class AnonymousModuleSet {
 		}
 	}
 
-	void analyzeModules() throws IOException {
+	public void analyzeModules() throws IOException {
 		for (AnonymousModule module : modulesByOwner.values()) {
 			if (module.isBlackBox()) {
 				Log.log(" === Anonymous black box module owned by %s ===", module.owningCluster.name);
-
-				// subgraph.logGraph();
 			} else {
 				Log.log(" ==== Anonymous white box module owned by %s ====", module.owningCluster.name);
 				Log.log("\t%d subgraphs with %d total nodes", module.subgraphs.size(), module.getNodeCount());
-
-				module.reportEdgeProfile();
-
-				/**
-				 * <pre>
-				if (module.subgraphs.size() < 10) {
-					for (AnonymousSubgraph subgraph : module.subgraphs)
-						if (subgraph.getNodeCount() < 10)
-							subgraph.logGraph();
-				}
-				 */
-
-				// flowAnalsis.clear();
-				// flowAnalsis.analyzeFlow(module);
-
-				/**
-				 * <pre>
-    			for (int i = 0; i < module.subgraphs.size() - 1; i++) {
-    				for (int j = i + 1; j < module.subgraphs.size(); j++) {
-    					ModuleGraphCluster<ClusterNode<?>> iGraph = module.subgraphs.get(i);
-    					ModuleGraphCluster<ClusterNode<?>> jGraph = module.subgraphs.get(j);
-    
-    					int sizeDelta = (iGraph.getNodeCount() / jGraph.getNodeCount());
-    					if (sizeDelta > 100)
-    						continue;
-    
-    					AnonymousSubgraphCompatibilityAnalysis analysis = new AnonymousSubgraphCompatibilityAnalysis(
-    							iGraph, jGraph);
-    					analysis.fullCompatibilityPerEntry();
-    				}
-    			}
-				 */
 			}
 
 			AutonomousSoftwareDistribution cluster;
@@ -394,8 +341,8 @@ class AnonymousModuleSet {
 								} else {
 									Log.log("\t\tExit to %s; edge types %s", cluster.name, EdgeTypes.getIncoming(exit));
 
-									if (module.owningCluster.getUnitFilename().startsWith("chrome_child"))
-										subgraph.logGraph();
+									// if (module.owningCluster.getUnitFilename().startsWith("chrome_child"))
+									// subgraph.logGraph();
 								}
 							}
 						}

@@ -147,6 +147,9 @@ public class AnonymousModule {
 				throw new IllegalArgumentException("Attempt to add a black box subgraph to a white box module!");
 			}
 		}
+		
+		if (isBlackBox && !subgraphs.isEmpty())
+			throw new IllegalArgumentException("Cannot add a second subgraph to a black box module!");
 
 		subgraphs.add(subgraph);
 

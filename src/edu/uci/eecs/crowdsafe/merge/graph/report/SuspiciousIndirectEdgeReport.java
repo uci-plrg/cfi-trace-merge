@@ -3,6 +3,8 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 import java.io.PrintStream;
 
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 public class SuspiciousIndirectEdgeReport implements ReportEntry {
 
@@ -18,17 +20,9 @@ public class SuspiciousIndirectEdgeReport implements ReportEntry {
 	}
 
 	@Override
-	public void setEventFrequencies(ModuleEventFrequencies frequencies) {
-		moduleSuspiciousEdges = frequencies.getSuibCount();
-	}
-
-	@Override
-	public void setEventFrequencies(ProgramEventFrequencies frequencies) {
-		programSuspiciousEdges = frequencies.getSuibCount();
-	}
-
-	@Override
-	public void evaluateRisk() {
+	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
+		moduleSuspiciousEdges =  moduleFrequencies.getProperty(ModuleEventFrequencies.SUIB_COUNT);
+		programSuspiciousEdges = programFrequencies.getProperty(ProgramEventFrequencies.SUIB_COUNT);
 	}
 	
 	@Override

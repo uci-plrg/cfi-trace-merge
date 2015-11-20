@@ -4,6 +4,8 @@ import java.io.PrintStream;
 
 import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousModule;
 import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousSubgraph;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
+import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 public class NewWhiteBoxReport implements ReportEntry {
 
@@ -16,17 +18,9 @@ public class NewWhiteBoxReport implements ReportEntry {
 	}
 	
 	@Override
-	public void setEventFrequencies(ModuleEventFrequencies frequencies) {
+	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
 	}
-	
-	@Override
-	public void setEventFrequencies(ProgramEventFrequencies frequencies) {
-	}
-	
-	@Override
-	public void evaluateRisk() {
-	}
-	
+
 	@Override
 	public int getRiskIndex() {
 		return 0;

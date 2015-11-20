@@ -3,7 +3,10 @@
 . $csc/scripts/cs-common
 
 function print_usage() {
-  echo "Usage: cs-report <execution-dir> <dataset-dir>"
+  echo "Usage: cs-report -e <execution-dir>"
+  echo "                 -d <dataset-dir>"
+  echo "                 -f <report-file>"
+  echo "                 -s <statistics-file>"
   exit
 }
 
