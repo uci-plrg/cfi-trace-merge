@@ -172,6 +172,9 @@ public class ExecutionReporter {
 						(ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster));
 				Log.log("\n > Counting metadata for right cluster %s at %.3f < \n", leftCluster.name,
 						elapsedTime(start));
+			} else {
+				Log.log("\n > Skipping right static cluster %s because it is not represented among %d dataset modules < \n",
+						leftCluster.name, rightData.getRepresentedClusters().size());
 			}
 			Log.log("\n > Generating report for static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
 			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);

@@ -21,7 +21,7 @@ public class ModuleReportGenerator {
 
 	class PendingEdgeQueue {
 		final List<ClusterNode<?>> rightFromNodes = new ArrayList<ClusterNode<?>>();
-		final List<Edge<?>> leftEdges = new ArrayList<Edge<?>>();
+		final List<Edge<ClusterNode<?>>> leftEdges = new ArrayList<Edge<ClusterNode<?>>>();
 
 		int size() {
 			return leftEdges.size();
@@ -56,14 +56,18 @@ public class ModuleReportGenerator {
 	}
 
 	void addReportEntries() {
-		addLeftNodeEntries();
-		addLeftEdgeEntries();
-		addMetadataEntries();
+		if (dataset == null) {
+			report.addEntry(new NewModuleReport(execution.graph.cluster));
+		} else {
+			addLeftNodeEntries();
+			addLeftEdgeEntries();
+			addMetadataEntries();
+		}
 	}
 
 	private void addLeftNodeEntries() {
 		boolean rightAdded;
-		for (Node<?> left : execution.graph.getAllNodes()) {
+		for (ClusterNode<?> left : new ArrayList<ClusterNode<?>>(execution.graph.getAllNodes())) {
 			rightAdded = false;
 			ClusterNode<?> right = getDatasetNode(left);
 			if (right != null) {
@@ -85,9 +89,11 @@ public class ModuleReportGenerator {
 						} finally {
 							outgoing.release();
 						}
+						break;
 					case SINGLETON:
 						if (right.isBlackBoxSingleton())
 							report.addEntry(new NewNodeReport(NewNodeReport.Type.BLACK_BOX_SINGLETON, right));
+						break;
 				}
 				// if (session.subgraphAnalysisEnabled) {
 				// session.subgraphs.nodeAdded(right);
@@ -101,8 +107,10 @@ public class ModuleReportGenerator {
 	private void addLeftEdgeEntries() {
 		for (int i = 0; i < edgeQueue.size(); i++) {
 			ClusterNode<?> rightFromNode = edgeQueue.rightFromNodes.get(i);
-			Edge<?> leftEdge = edgeQueue.leftEdges.get(i);
+			Edge<ClusterNode<?>> leftEdge = edgeQueue.leftEdges.get(i);
 			ClusterNode<?> rightToNode = getDatasetNode(leftEdge.getToNode());
+			if (rightToNode == null)
+				rightToNode = leftEdge.getToNode();
 			Edge<ClusterNode<?>> newRightEdge = new Edge<ClusterNode<?>>(rightFromNode, rightToNode,
 					leftEdge.getEdgeType(), leftEdge.getOrdinal());
 
@@ -150,7 +158,7 @@ public class ModuleReportGenerator {
 			return null;
 
 		ClusterNode<?> right = dataset.graph.getNode(left.getKey());
-		if ((right != null) && ((right.getHash() == left.getHash())))
+		if (right != null && right.getHash() == left.getHash())
 			return right;
 
 		NodeList<ClusterNode<?>> byHash = dataset.graph.getGraphData().nodesByHash.get(left.getHash());
@@ -167,11 +175,11 @@ public class ModuleReportGenerator {
 		return null;
 	}
 
-	private void enqueueLeftEdges(Node<?> left, ClusterNode<?> right, boolean rightAdded) {
+	private void enqueueLeftEdges(ClusterNode<?> left, ClusterNode<?> right, boolean rightAdded) {
 		OrdinalEdgeList<ClusterNode<?>> rightEdges = right.getOutgoingEdges();
-		OrdinalEdgeList<?> leftEdges = left.getOutgoingEdges();
+		OrdinalEdgeList<ClusterNode<?>> leftEdges = left.getOutgoingEdges();
 		try {
-			for (Edge<?> leftEdge : leftEdges) {
+			for (Edge<ClusterNode<?>> leftEdge : leftEdges) {
 				if (!rightEdges.containsModuleRelativeEquivalent(leftEdge)) {
 					edgeQueue.leftEdges.add(leftEdge);
 					edgeQueue.rightFromNodes.add(right);

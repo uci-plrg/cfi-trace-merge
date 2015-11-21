@@ -27,10 +27,11 @@ class NewNodeReport implements ReportEntry {
 
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
-		moduleAbnormalReturnCount = moduleFrequencies.getProperty(ModuleEventFrequencies.ABNORMAL_RETURNS);
+		if (moduleFrequencies != null)
+			moduleAbnormalReturnCount = moduleFrequencies.getProperty(ModuleEventFrequencies.ABNORMAL_RETURNS);
 		// if (node.getType() == MetaNodeType.RETURN) {
 	}
-	
+
 	@Override
 	public int getRiskIndex() {
 		return 0;

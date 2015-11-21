@@ -9,22 +9,23 @@ import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.Program
 public class SuspiciousIndirectEdgeReport implements ReportEntry {
 
 	private final ClusterUIB suib;
-	
+
 	private int programSuspiciousEdges = 0;
 	private int moduleSuspiciousEdges = 0;
 
 	SuspiciousIndirectEdgeReport(ClusterUIB suib) {
 		this.suib = suib;
-		
+
 		// 1. # other targets on this node
 	}
 
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
-		moduleSuspiciousEdges =  moduleFrequencies.getProperty(ModuleEventFrequencies.SUIB_COUNT);
+		if (moduleFrequencies != null)
+			moduleSuspiciousEdges = moduleFrequencies.getProperty(ModuleEventFrequencies.SUIB_COUNT);
 		programSuspiciousEdges = programFrequencies.getProperty(ProgramEventFrequencies.SUIB_COUNT);
 	}
-	
+
 	@Override
 	public int getRiskIndex() {
 		return 0;

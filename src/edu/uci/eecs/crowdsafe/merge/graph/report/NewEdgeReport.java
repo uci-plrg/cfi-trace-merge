@@ -58,11 +58,15 @@ class NewEdgeReport implements ReportEntry {
 
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
-		crossModuleUnexpectedReturns = moduleFrequencies.getProperty(ModuleEventFrequencies.CROSS_MODULE_UNEXPECTED_RETURNS);
-		intraModuleUnexpectedReturns = moduleFrequencies.getProperty(ModuleEventFrequencies.INTRA_MODULE_UNEXPECTED_RETURNS);
+		if (moduleFrequencies != null) {
+			crossModuleUnexpectedReturns = moduleFrequencies
+					.getProperty(ModuleEventFrequencies.CROSS_MODULE_UNEXPECTED_RETURNS);
+			intraModuleUnexpectedReturns = moduleFrequencies
+					.getProperty(ModuleEventFrequencies.INTRA_MODULE_UNEXPECTED_RETURNS);
 
-		moduleGencodeWrite = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_WRITE_COUNT);
-		moduleGencodePerm = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_PERM_COUNT);
+			moduleGencodeWrite = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_WRITE_COUNT);
+			moduleGencodePerm = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_PERM_COUNT);
+		}
 
 		programGencodeWrite = programFrequencies.getProperty(ProgramEventFrequencies.GENCODE_WRITE_COUNT);
 		programGencodePerm = programFrequencies.getProperty(ProgramEventFrequencies.GENCODE_PERM_COUNT);

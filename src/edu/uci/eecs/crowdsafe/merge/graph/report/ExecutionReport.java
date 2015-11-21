@@ -23,17 +23,17 @@ public class ExecutionReport {
 
 		@Override
 		public int compare(ReportEntry first, ReportEntry second) {
-			int result = first.getRiskIndex() - second.getRiskIndex();
-			if (result == 0)
+			if (first == second)
+				return 0;
+			
+			int result = second.getRiskIndex() - first.getRiskIndex();
+			if (result != 0)
 				return result;
 
-			long hashCompare = (first.hashCode() - second.hashCode());
-			if (hashCompare > 0)
+			if (first.hashCode() > second.hashCode())
 				return 1;
-			else if (hashCompare < 0)
+			else 
 				return -1;
-			else
-				return 0;
 		}
 	}
 

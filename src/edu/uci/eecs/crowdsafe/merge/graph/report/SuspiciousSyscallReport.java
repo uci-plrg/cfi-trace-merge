@@ -2,6 +2,7 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.io.PrintStream;
 
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.RiskySystemCall;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSSC;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
@@ -15,6 +16,7 @@ public class SuspiciousSyscallReport implements ReportEntry {
 	private final ClusterSSC ssc;
 
 	private int sameSuspiciousSysnumCount = 0;
+	private int riskIndex;
 
 	SuspiciousSyscallReport(ClusterSSC ssc) {
 		this.ssc = ssc;
@@ -27,11 +29,18 @@ public class SuspiciousSyscallReport implements ReportEntry {
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
 		sameSuspiciousSysnumCount = programFrequencies.getProperty(ProgramEventFrequencies.SUSPICIOUS_SYSCALL
 				+ ssc.sysnum);
+
+		double riskScale = 1.0;
+		if (sameSuspiciousSysnumCount > 0)
+			riskScale = (1 / (double) sameSuspiciousSysnumCount);
+		riskIndex = (int) (riskScale * 1000);
+		
+		Log.log("Suspicious syscall risk scale %f => risk index %d", riskScale, riskIndex);
 	}
 
 	@Override
 	public int getRiskIndex() {
-		return 0;
+		return riskIndex;
 	}
 
 	@Override
