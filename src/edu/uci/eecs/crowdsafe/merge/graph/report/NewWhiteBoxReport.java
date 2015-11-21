@@ -12,18 +12,34 @@ public class NewWhiteBoxReport implements ReportEntry {
 	private final AnonymousModule module;
 	private final AnonymousSubgraph box;
 
+	private int programWhiteBoxes = 0;
+	private int moduleWhiteBoxes = 0;
+
+	private int riskIndex;
+
 	NewWhiteBoxReport(AnonymousModule module, AnonymousSubgraph box) {
 		this.module = module;
 		this.box = box;
 	}
-	
+
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
+		programWhiteBoxes = programFrequencies.getProperty(ProgramEventFrequencies.WHITE_BOX_COUNT);
+		moduleWhiteBoxes = moduleFrequencies.getProperty(ModuleEventFrequencies.WHITE_BOX_COUNT);
+
+		double programPrecedence = ExecutionReport.calculatePrecedence(200, programWhiteBoxes);
+		double modulePrecedence = 0.0;
+		if (moduleWhiteBoxes > 0)
+			modulePrecedence = ExecutionReport.calculatePrecedence(50, moduleWhiteBoxes);
+
+		double riskScale = 2.0 / (programPrecedence + modulePrecedence);
+		riskScale = Math.min(0.02, riskScale);
+		riskIndex = (int) (riskScale * 1000.0);
 	}
 
 	@Override
 	public int getRiskIndex() {
-		return 0;
+		return riskIndex;
 	}
 
 	@Override

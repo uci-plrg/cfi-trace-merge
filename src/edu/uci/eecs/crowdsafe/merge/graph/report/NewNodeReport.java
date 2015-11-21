@@ -17,8 +17,10 @@ class NewNodeReport implements ReportEntry {
 	private final Type type;
 	private final ClusterNode<?> node;
 
-	private int moduleAbnormalReturnCount;
-	private int programAbnormalReturnCount;
+	private int moduleAbnormalReturnCount = 0;
+	private int programAbnormalReturnCount = 0;
+
+	private int riskIndex;
 
 	NewNodeReport(Type type, ClusterNode<?> node) {
 		this.type = type;
@@ -29,12 +31,24 @@ class NewNodeReport implements ReportEntry {
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
 		if (moduleFrequencies != null)
 			moduleAbnormalReturnCount = moduleFrequencies.getProperty(ModuleEventFrequencies.ABNORMAL_RETURNS);
-		// if (node.getType() == MetaNodeType.RETURN) {
+
+		double riskScale;
+		if (node.getType() == MetaNodeType.RETURN) {
+			double programPrecedence = ExecutionReport.calculatePrecedence(8, programAbnormalReturnCount);
+			double modulePrecedence = 0.0;
+			if (moduleAbnormalReturnCount > 0)
+				modulePrecedence = ExecutionReport.calculatePrecedence(3, moduleAbnormalReturnCount);
+
+			riskScale = 2.0 / (programPrecedence + modulePrecedence);
+		} else {
+			riskScale = 1.0; // this generally seems like a problem
+		}
+		riskIndex = (int) (riskScale * 1000.0);
 	}
 
 	@Override
 	public int getRiskIndex() {
-		return 0;
+		return riskIndex;
 	}
 
 	@Override

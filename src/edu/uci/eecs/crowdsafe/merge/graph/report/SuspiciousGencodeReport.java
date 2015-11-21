@@ -11,22 +11,30 @@ import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.Program
 public class SuspiciousGencodeReport implements ReportEntry {
 
 	private final ClusterSGE sge;
-	
+
 	// [ private int moduleProgramSGEs = 0; ]
 	private int totalProgramSGEs = 0;
+
+	private int riskIndex;
 
 	SuspiciousGencodeReport(ClusterSGE sge) {
 		this.sge = sge;
 	}
-	
+
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
 		totalProgramSGEs = programFrequencies.getProperty(ProgramEventFrequencies.SGE_COUNT);
+		double riskScale;
+		if (totalProgramSGEs == 0)
+			riskScale = 1.0;
+		else
+			riskScale = 1.0 - ExecutionReport.calculatePrecedence(20, totalProgramSGEs);
+		riskIndex = (int) (riskScale * 1000.0);
 	}
 
 	@Override
 	public int getRiskIndex() {
-		return 0;
+		return riskIndex;
 	}
 
 	@Override

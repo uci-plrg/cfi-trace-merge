@@ -25,14 +25,14 @@ public class ExecutionReport {
 		public int compare(ReportEntry first, ReportEntry second) {
 			if (first == second)
 				return 0;
-			
+
 			int result = second.getRiskIndex() - first.getRiskIndex();
 			if (result != 0)
 				return result;
 
 			if (first.hashCode() > second.hashCode())
 				return 1;
-			else 
+			else
 				return -1;
 		}
 	}
@@ -79,6 +79,13 @@ public class ExecutionReport {
 		throw new IllegalArgumentException("Unknown EdgeType " + type);
 	}
 
+	static double calculatePrecedence(int median, int observed) {
+		double medianScale = Math.log10(median);
+		double observedScale = Math.log10(observed);
+		double observedFrequency = Math.min(1.0, (medianScale * 2.0) / observedScale);
+		return 1.0 / observedFrequency;
+	}
+
 	private List<ReportEntry> entries = new ArrayList<ReportEntry>();
 	private Set<Edge<ClusterNode<?>>> filteredEdges = new HashSet<Edge<ClusterNode<?>>>();
 
@@ -102,6 +109,7 @@ public class ExecutionReport {
 		for (ReportEntry entry : entries) {
 			if (entry instanceof NewEdgeReport && filteredEdges.contains(((NewEdgeReport) entry).edge))
 				continue;
+			out.format("%04d ", entry.getRiskIndex());
 			entry.print(out);
 			out.println();
 		}
