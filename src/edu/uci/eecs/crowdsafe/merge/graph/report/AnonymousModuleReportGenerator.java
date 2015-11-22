@@ -1,6 +1,7 @@
 package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -186,11 +187,36 @@ public class AnonymousModuleReportGenerator {
 	private static class SizeOrder implements Comparator<SubgraphCluster> {
 		@Override
 		public int compare(SubgraphCluster first, SubgraphCluster second) {
+			if (first == second)
+				return 0;
+
 			int comparison = second.graphs.size() - first.graphs.size();
 			if (comparison != 0)
 				return comparison;
 
-			return (int) second.hashCode() - (int) first.hashCode();
+			if (first.hashCode() < second.hashCode())
+				return -1;
+			else
+				return 1;
+		}
+	}
+
+	private static class DescendingSizeSorter implements Comparator<AnonymousSubgraph> {
+		static final DescendingSizeSorter INSTANCE = new DescendingSizeSorter();
+
+		@Override
+		public int compare(AnonymousSubgraph first, AnonymousSubgraph second) {
+			if (first == second)
+				return 0;
+
+			int result = second.getNodeCount() - first.getNodeCount();
+			if (result != 0)
+				return result;
+
+			if (first.hashCode() < second.hashCode())
+				return -1;
+			else
+				return 1;
 		}
 	}
 
@@ -248,6 +274,8 @@ public class AnonymousModuleReportGenerator {
 				AnonymousModule mergedModule = new AnonymousModule(leftOwner.cluster);
 				if (rightModule != null) {
 					compileWhiteBoxes(rightModule, mergedModule, false);
+				} else {
+					Log.log("Dataset has no anonymous module owned by %s", leftOwner.cluster.getUnitFilename());
 				}
 				compileWhiteBoxes(leftModule, mergedModule, true);
 				mergedModules.add(mergedModule);
@@ -311,20 +339,35 @@ public class AnonymousModuleReportGenerator {
 	}
 
 	private void compileWhiteBoxes(AnonymousModule inputModule, AnonymousModule mergedModule, boolean reportNew) {
-		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) {
+		ClusterHashMergeDebugLog ignoreDebug = new ClusterHashMergeDebugLog();
+		List<AnonymousSubgraph> descendingSizeInputSubgraphs = new ArrayList<AnonymousSubgraph>(inputModule.subgraphs);
+		Collections.sort(descendingSizeInputSubgraphs, DescendingSizeSorter.INSTANCE);
+		for (AnonymousSubgraph inputSubgraph : descendingSizeInputSubgraphs) {
 			boolean match = false;
+			AnonymousSubgraph replace = null;
 			for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
-				ClusterHashMergeSession.evaluateTwoGraphs(inputSubgraph, mergedSubgraph, dynamicEvaluator,
-						new ClusterHashMergeDebugLog());
+				ClusterHashMergeSession.evaluateTwoGraphs(inputSubgraph, mergedSubgraph, dynamicEvaluator, ignoreDebug);
 				if (dynamicEvaluator.exactMatch) {
-					match = true;
+					if (inputSubgraph.getNodeCount() > mergedSubgraph.getNodeCount()) {
+						replace = mergedSubgraph;
+					} else {
+						match = true;
+					}
 					break;
 				}
 			}
 			if (!match) {
-				mergedModule.addSubgraph(inputSubgraph);
-				if (reportNew)
-					report.addEntry(new NewWhiteBoxReport(inputModule, inputSubgraph));
+				if (replace != null)
+					mergedModule.replaceSubgraph(replace, inputSubgraph);
+				else
+					mergedModule.addSubgraph(inputSubgraph);
+				if (reportNew) {
+					if (replace != null) {
+						report.addEntry(new NewWhiteBoxReport(inputModule, inputSubgraph, replace.getNodeCount()));
+					} else {
+						report.addEntry(new NewWhiteBoxReport(inputModule, inputSubgraph));
+					}
+				}
 			}
 		}
 	}

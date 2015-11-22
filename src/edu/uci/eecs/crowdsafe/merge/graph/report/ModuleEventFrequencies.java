@@ -2,6 +2,7 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.util.Properties;
 
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
@@ -27,11 +28,16 @@ public class ModuleEventFrequencies {
 		}
 
 		public int getProperty(String key) {
+			return getProperty(key, moduleId);
+		}
+
+		public int getProperty(String key, int moduleId) {
 			String value = properties.getProperty(key + moduleId);
-			if (value == null)
+			if (value == null) {
 				return 0;
-			else
+			} else {
 				return Integer.parseInt(value);
+			}
 		}
 	}
 
@@ -55,6 +61,12 @@ public class ModuleEventFrequencies {
 	private int suibCount = 0;
 	private int isBlackBox = 0;
 	private int whiteBoxCount = 0;
+
+	public final int moduleId;
+
+	public ModuleEventFrequencies(int moduleId) {
+		this.moduleId = moduleId;
+	}
 
 	public void extractStatistics(ModuleGraphCluster<ClusterNode<?>> dataset,
 			ProgramEventFrequencies programEventFrequencies) {

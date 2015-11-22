@@ -158,7 +158,7 @@ class NewEdgeReport implements ReportEntry {
 
 	@Override
 	public void print(PrintStream out) {
-		out.format("%s %s(0x%x) -%d-> %s(0x%x)", reportEdgeType(edge.getEdgeType()),
+		out.format("%s: %s(0x%x) -%d-> %s(0x%x)", reportEdgeType(edge.getEdgeType()),
 				ExecutionReport.getModuleName(edge.getFromNode()), ExecutionReport.getId(edge.getFromNode()),
 				edge.getOrdinal(), ExecutionReport.getModuleName(edge.getToNode()),
 				ExecutionReport.getId(edge.getToNode()));

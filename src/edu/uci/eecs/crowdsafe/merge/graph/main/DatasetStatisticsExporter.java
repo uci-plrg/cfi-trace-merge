@@ -97,14 +97,14 @@ public class DatasetStatisticsExporter {
 
 			ModuleGraphCluster<ClusterNode<?>> graph = (ModuleGraphCluster<ClusterNode<?>>) dataset
 					.getClusterGraph(cluster);
-			ModuleEventFrequencies moduleEventFrequencies = new ModuleEventFrequencies();
+			ModuleEventFrequencies moduleEventFrequencies = new ModuleEventFrequencies(moduleId++);
 			moduleEventMap.put(cluster, moduleEventFrequencies);
 			moduleEventFrequencies.extractStatistics(graph, programEventFrequencies);
-			moduleStatistics.setProperty(cluster.name, String.valueOf(moduleId));
-			moduleEventFrequencies.exportTo(moduleId++, moduleStatistics);
+			moduleStatistics.setProperty(cluster.name, String.valueOf(moduleEventFrequencies.moduleId));
 			System.gc();
 		}
 
+		Log.log("Dataset has %d anonymous modules", anonymousGraphs.size());
 		if (!anonymousGraphs.isEmpty()) {
 			AnonymousModuleSet anonymousModuleParser = new AnonymousModuleSet("<dataset>", dataset);
 			AnonymousModule.initialize();
@@ -114,9 +114,16 @@ public class DatasetStatisticsExporter {
 			for (AnonymousModule.OwnerKey owner : anonymousModuleParser.getModuleOwners()) {
 				AnonymousModule module = anonymousModuleParser.getModule(owner);
 				ModuleEventFrequencies moduleFrequencies = moduleEventMap.get(module.owningCluster);
+				Log.log("Extract stats for anonymous module owned by %s with %d subgraphs",
+						owner.cluster.getUnitFilename(), module.subgraphs.size());
 				moduleFrequencies.extractStatistics(module, programEventFrequencies);
 			}
 		}
+
+		for (ModuleEventFrequencies moduleEventFrequencies : moduleEventMap.values()) {
+			moduleEventFrequencies.exportTo(moduleEventFrequencies.moduleId, moduleStatistics);
+		}
+		programEventFrequencies.exportTo(moduleStatistics);
 	}
 
 	private GraphMergeCandidate loadMergeCandidate(String path) throws IOException {

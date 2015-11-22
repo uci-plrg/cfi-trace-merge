@@ -2,6 +2,7 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.util.Properties;
 
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.IdCounter;
 import edu.uci.eecs.crowdsafe.common.util.RiskySystemCall;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataExecution;
@@ -23,6 +24,7 @@ public class ProgramEventFrequencies {
 
 		public int getProperty(String key) {
 			String value = properties.getProperty(key);
+			Log.log("Found program value %s for key %s", value, key);
 			if (value == null)
 				return 0;
 			else
@@ -35,6 +37,14 @@ public class ProgramEventFrequencies {
 				return null;
 			else
 				return new ModuleEventFrequencies.ModulePropertyReader(Integer.parseInt(idValue), properties);
+		}
+
+		public int getModuleId(String moduleName) {
+			String idValue = properties.getProperty(moduleName);
+			if (idValue == null)
+				return -1;
+			else
+				return Integer.parseInt(idValue);
 		}
 	}
 

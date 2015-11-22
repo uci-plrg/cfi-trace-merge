@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
@@ -81,9 +82,9 @@ public class ExecutionReport {
 
 	static double calculatePrecedence(int median, int observed) {
 		double medianScale = Math.log10(median);
-		double observedScale = Math.log10(observed);
-		double observedFrequency = Math.min(1.0, (medianScale * 2.0) / observedScale);
-		return 1.0 / observedFrequency;
+		double observedScale = (observed < 2) ? 0.01 : Math.log10(observed);
+		double observedFrequency = Math.min(1.0, observedScale / (medianScale * 2.0));
+		return observedFrequency;
 	}
 
 	private List<ReportEntry> entries = new ArrayList<ReportEntry>();
@@ -98,6 +99,10 @@ public class ExecutionReport {
 
 	void setCurrentModule(String moduleName) {
 		this.currentModuleEventFrequencies = programEventFrequencies.getModule(moduleName);
+		if (currentModuleEventFrequencies == null)
+			Log.log("No module event frequences for %s", moduleName);
+		else
+			Log.log("Found module event frequences for %s", moduleName);
 	}
 
 	public void sort() {

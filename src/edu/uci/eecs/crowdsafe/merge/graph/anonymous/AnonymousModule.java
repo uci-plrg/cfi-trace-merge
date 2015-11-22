@@ -147,14 +147,25 @@ public class AnonymousModule {
 				throw new IllegalArgumentException("Attempt to add a black box subgraph to a white box module!");
 			}
 		}
-		
-		if (isBlackBox && !subgraphs.isEmpty())
-			throw new IllegalArgumentException("Cannot add a second subgraph to a black box module!");
+
+		if (isBlackBox && !subgraphs.isEmpty()) {
+			Log.error("Attempting to add a second subgraph to a black box module. Discarding it.");
+			return;
+			// throw new IllegalArgumentException("Cannot add a second subgraph to a black box module!");
+		}
 
 		subgraphs.add(subgraph);
 
 		totalNodeCount += subgraph.getNodeCount();
 		executableNodeCount += subgraph.getExecutableNodeCount();
+	}
+
+	public void replaceSubgraph(AnonymousSubgraph replaceMe, AnonymousSubgraph withMe) {
+		subgraphs.set(subgraphs.indexOf(replaceMe), withMe);
+		totalNodeCount -= replaceMe.getNodeCount();
+		totalNodeCount += withMe.getNodeCount();
+		executableNodeCount -= replaceMe.getExecutableNodeCount();
+		executableNodeCount += withMe.getExecutableNodeCount();
 	}
 
 	public int getNodeCount() {

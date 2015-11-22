@@ -181,6 +181,13 @@ public class ExecutionReporter {
 			System.gc();
 		}
 
+		for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
+			if (rightCluster.isAnonymous()) {
+				Log.log("\n > Loading right anonymous cluster %s at %.3f < \n", rightCluster.name, elapsedTime(start));
+				rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
+			}
+		}
+
 		Log.log("\n > Generating report for dynamic code at %.3f < \n", elapsedTime(start));
 		AnonymousModuleReportGenerator.addAnonymousReportEntries(report, leftData, rightData, leftAnonymousGraphs,
 				rightAnonymousGraphs);

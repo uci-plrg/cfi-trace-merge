@@ -195,8 +195,6 @@ public class AnonymousGraphMergeEngine {
 			return (int) second.hashCode() - (int) first.hashCode();
 		}
 	}
-	
-	
 
 	private static int SUBGRAPH_ID_INDEX = 0;
 
@@ -334,10 +332,14 @@ public class AnonymousGraphMergeEngine {
 	private void compileWhiteBoxes(AnonymousModule inputModule, AnonymousModule mergedModule) {
 		for (AnonymousSubgraph inputSubgraph : inputModule.subgraphs) { // could skip this if right is a dataset
 			boolean match = false;
+			AnonymousSubgraph replace = null;
 			for (AnonymousSubgraph mergedSubgraph : mergedModule.subgraphs) {
 				ClusterHashMergeSession.evaluateTwoGraphs(inputSubgraph, mergedSubgraph, dynamicEvaluator, debugLog);
 				if (dynamicEvaluator.exactMatch) {
-					match = true;
+					if (inputSubgraph.getNodeCount() > mergedSubgraph.getNodeCount())
+						replace = mergedSubgraph;
+					else
+						match = true;
 					break;
 				}
 			}
@@ -347,7 +349,10 @@ public class AnonymousGraphMergeEngine {
 			} else {
 				// Log.log("White box %s#%d from the %s side included.", inputSubgraph.cluster.getUnitFilename(),
 				// inputSubgraph.id, inputSubgraph.source);
-				mergedModule.addSubgraph(inputSubgraph);
+				if (replace != null)
+					mergedModule.replaceSubgraph(replace, inputSubgraph);
+				else
+					mergedModule.addSubgraph(inputSubgraph);
 			}
 		}
 	}
