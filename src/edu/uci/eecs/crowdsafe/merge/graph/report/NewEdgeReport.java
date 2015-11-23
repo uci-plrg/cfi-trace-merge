@@ -140,6 +140,8 @@ class NewEdgeReport implements ReportEntry {
 				riskScale = 0.01; // missing good data for this
 				break;
 			case UNEXPECTED_RETURN:
+				riskScale = calculateUnexpectedReturnRiskScale(intraModuleUnexpectedReturns,
+						crossModuleUnexpectedReturns);
 				break;
 			case GENCODE_PERM:
 				riskScale = calculateGencodeRiskScale(moduleGencodePerm, programGencodePerm);

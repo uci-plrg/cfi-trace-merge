@@ -34,26 +34,29 @@ public class SuspiciousIndirectEdgeReport implements ReportEntry {
 		double riskScale;
 		if (suib.edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT) {
 			riskScale = 1.0; // should never happen
-		} else if (programSuspiciousEdges == 0) {
-			riskScale = 1.0;
 		} else {
-			int targetCount = 0;
-			OrdinalEdgeList<ClusterNode<?>> edgeList = suib.edge.getFromNode().getOutgoingEdges();
-			try {
-				targetCount = edgeList.size();
-			} finally {
-				edgeList.release();
-			}
-
-			if (targetCount > 2) {
-				riskScale = 0.0; // wonky branch
+			if (programSuspiciousEdges == 0) {
+				riskScale = 1.0;
 			} else {
-				double programScale = 1.0 - ExecutionReport.calculatePrecedence(200, programSuspiciousEdges);
-				double moduleScale = 0.7;
-				if (moduleSuspiciousEdges > 0)
-					moduleScale = 1.0 - ExecutionReport.calculatePrecedence(40, moduleSuspiciousEdges);
-				riskScale = Math.min(programScale, moduleScale);
+				int targetCount = 0;
+				OrdinalEdgeList<ClusterNode<?>> edgeList = suib.edge.getFromNode().getOutgoingEdges();
+				try {
+					targetCount = edgeList.size();
+				} finally {
+					edgeList.release();
+				}
+
+				if (targetCount > 2) {
+					riskScale = 0.0; // wonky branch
+				} else {
+					double programScale = 1.0 - ExecutionReport.calculatePrecedence(200, programSuspiciousEdges);
+					double moduleScale = 0.7;
+					if (moduleSuspiciousEdges > 0)
+						moduleScale = 1.0 - ExecutionReport.calculatePrecedence(40, moduleSuspiciousEdges);
+					riskScale = Math.min(programScale, moduleScale);
+				}
 			}
+			riskScale = Math.min(0.8, riskScale);
 		}
 		riskIndex = (int) (riskScale * 1000.0);
 	}
