@@ -24,7 +24,6 @@ public class ProgramEventFrequencies {
 
 		public int getProperty(String key) {
 			String value = properties.getProperty(key);
-			Log.log("Found program value %s for key %s", value, key);
 			if (value == null)
 				return 0;
 			else

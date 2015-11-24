@@ -39,9 +39,13 @@ public class SuspiciousGencodeReport implements ReportEntry {
 
 	@Override
 	public void print(PrintStream out) {
-		out.format("Suspicious entry into dynamic code. Stack suspicion raised by %s(0x%x) -%d-> %s(0x%x).",
-				ExecutionReport.getModuleName(sge.edge.getFromNode()), ExecutionReport.getId(sge.edge.getFromNode()),
-				sge.edge.getOrdinal(), ExecutionReport.getModuleName(sge.edge.getToNode()),
-				ExecutionReport.getId(sge.edge.getToNode()));
+		if (sge.edge == null) {
+			out.format("Suspicious entry into dynamic code.");
+		} else {
+			out.format("Suspicious entry into dynamic code. Stack suspicion raised by %s(0x%x) -%d-> %s(0x%x).",
+					ExecutionReport.getModuleName(sge.edge.getFromNode()),
+					ExecutionReport.getId(sge.edge.getFromNode()), sge.edge.getOrdinal(),
+					ExecutionReport.getModuleName(sge.edge.getToNode()), ExecutionReport.getId(sge.edge.getToNode()));
+		}
 	}
 }

@@ -35,8 +35,6 @@ public class SuspiciousSyscallReport implements ReportEntry {
 			riskScale = (1 / (double) sameSuspiciousSysnumCount);
 		riskScale = Math.min(0.9, riskScale);
 		riskIndex = (int) (riskScale * 1000.0);
-		
-		Log.log("Suspicious syscall risk scale %f => risk index %d", riskScale, riskIndex);
 	}
 
 	@Override
