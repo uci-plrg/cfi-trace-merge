@@ -100,6 +100,7 @@ public class DatasetStatisticsExporter {
 			ModuleEventFrequencies moduleEventFrequencies = new ModuleEventFrequencies(moduleId++);
 			moduleEventMap.put(cluster, moduleEventFrequencies);
 			moduleEventFrequencies.extractStatistics(graph, programEventFrequencies);
+			programEventFrequencies.countMetadataEvents(graph.metadata);
 			moduleStatistics.setProperty(cluster.name, String.valueOf(moduleEventFrequencies.moduleId));
 			System.gc();
 		}

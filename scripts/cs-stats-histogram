@@ -1,0 +1,55 @@
+#!/bin/bash
+
+function usage() {
+  echo "cs-stats-histogram -s <stats-dir> -f <output-file>"
+}
+
+while getopts "s:f:" option
+do
+  case $option in
+    s) stats_dir=$OPTARG;;
+    f) outfile=$OPTARG;;
+  esac
+done
+
+shift $(( $OPTIND-1 ))
+
+[ -z "$stats_dir" ] && echo "Please specify a stats directory. Exiting now." && usage && exit
+[ -z "$outfile" ] && echo "Please specify an output file. Exiting now." && usage && exit
+
+sample_file=$(ls $stats_dir/*.properties | head -1)
+keys=$(grep "@1=" $sample_file | cut -d '@' -f 1)
+
+module_list=$(grep "\-.*\-.*\-" stats/* | grep -v "@" | awk -F'[:=]' '{print $2}' | sort -u)
+
+key_count=$(echo "$keys" | wc -l)
+module_count=$(echo "$module_list" | wc -l)
+echo "Extracting histogram for $key_count keys from $module_count modules"
+
+metadata_keys="uib-count suib-count"
+
+for m in $module_list
+do
+  for k in $keys
+  do
+    prev=""
+    id=10
+    echo -n "$k@$m: "
+    for s in $(ls $stats_dir/*.properties)
+    do
+      module_id=$(grep $m $s | cut -d '=' -f 2)
+      value=$(grep "^$k\>@$module_id=" $s | cut -d '=' -f 2)
+      if [[ ! "$metadata_keys" =~ "$k" ]] && [ ! -z "$prev" ] && [ ! -z "$value" ] && [ "$value" -ge "$prev" ]
+      then
+        iteration_value=$(( $value - $prev ))
+      else
+        iteration_value=$value
+      fi
+      printf " %d.%02d" $iteration_value $id
+      prev=$value
+      id=$(( $id + 1 ))
+    done
+    echo ""
+  done
+done > $outfile
+  

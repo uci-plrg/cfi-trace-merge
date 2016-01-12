@@ -42,9 +42,9 @@ public class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
 				}
 				// It would be nicer to skip the anonymous part of the merge, but I'm not really sure how to copy an
 				// anonymous module
-				throw new IllegalArgumentException(String.format(
-						"Cannot add a black box singleton to a graph having executable nodes (%d).",
-						getExecutableNodeCount()));
+//				throw new IllegalArgumentException(String.format(
+//						"Cannot add a black box singleton to a graph having executable nodes (%d).",
+//						getExecutableNodeCount()));
 			}
 			blackBoxSingleton = node;
 		} else if (node.getType().isExecutable) {

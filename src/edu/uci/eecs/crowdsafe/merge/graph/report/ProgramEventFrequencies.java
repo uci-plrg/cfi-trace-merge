@@ -5,7 +5,9 @@ import java.util.Properties;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.IdCounter;
 import edu.uci.eecs.crowdsafe.common.util.RiskySystemCall;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadata;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataExecution;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSSC;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
 
@@ -66,15 +68,22 @@ public class ProgramEventFrequencies {
 	private int blackBoxCount = 0;
 	private int whiteBoxCount = 0;
 
-	public void countMetadataEvents(ClusterMetadataExecution metadata) {
-		sgeCount += metadata.sges.size();
+	public void countMetadataEvents(ClusterMetadata metadata) {
+		ClusterMetadataSequence sequence = metadata.getRootSequence();
+		if (sequence == null)
+			return;
+		ClusterMetadataExecution execution = sequence.getHeadExecution();
+		if (execution == null)
+			return;
 
-		for (ClusterSSC ssc : metadata.sscs) {
+		sgeCount += execution.sges.size();
+
+		for (ClusterSSC ssc : execution.sscs) {  
 			if (RiskySystemCall.sysnumMap.containsKey(ssc.sysnum))
 				sscCountsBySysnum.increment(ssc.sysnum);
 		}
 
-		for (ClusterUIB uib : metadata.uibs) {
+		for (ClusterUIB uib : execution.uibs) {
 			if (!uib.isAdmitted)
 				suibCount++;
 		}
