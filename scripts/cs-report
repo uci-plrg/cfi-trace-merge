@@ -7,6 +7,7 @@ function print_usage() {
   echo "                 -d <dataset-dir>"
   echo "                 -f <report-file>"
   echo "                 -s <statistics-file>"
+  echo "                 -a <alphas-file>"
   exit
 }
 

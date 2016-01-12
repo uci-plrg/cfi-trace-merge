@@ -61,6 +61,7 @@ public class ExecutionReporter {
 	private static final OptionArgumentMap.StringOption executionGraphOption = OptionArgumentMap
 			.createStringOption('e');
 	private static final OptionArgumentMap.StringOption datasetOption = OptionArgumentMap.createStringOption('d');
+	private static final OptionArgumentMap.StringOption alphasOption = OptionArgumentMap.createStringOption('a');
 	private static final OptionArgumentMap.StringOption statisticsOption = OptionArgumentMap.createStringOption('s');
 	private static final OptionArgumentMap.StringOption logFilenameOption = OptionArgumentMap.createStringOption('l',
 			"reporter.log"); // or the app name?
@@ -100,7 +101,12 @@ public class ExecutionReporter {
 			File statisticsFile = new File(statisticsOption.getValue());
 			Properties statisticsProperties = new Properties();
 			statisticsProperties.load(new FileReader(statisticsFile));
-			programEventFrequencies = new ProgramEventFrequencies.ProgramPropertyReader(statisticsProperties);
+
+			File alphasFile = new File(alphasOption.getValue());
+			Properties alphasProperties = new Properties();
+			alphasProperties.load(new FileReader(alphasFile));
+			programEventFrequencies = new ProgramEventFrequencies.ProgramPropertyReader(alphasProperties,
+					statisticsProperties);
 
 			String leftPath = executionGraphOption.getValue();
 			String rightPath = datasetOption.getValue();
@@ -218,8 +224,8 @@ public class ExecutionReporter {
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
 		ExecutionReporter main = new ExecutionReporter(new CommonMergeOptions(stack,
-				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, statisticsOption,
-				logFilenameOption, reportFilenameOption, stdoutOption));
+				CommonMergeOptions.crowdSafeCommonDir, executionGraphOption, datasetOption, alphasOption,
+				statisticsOption, logFilenameOption, reportFilenameOption, stdoutOption));
 		main.run(stack, 1);
 		main.toString();
 	}

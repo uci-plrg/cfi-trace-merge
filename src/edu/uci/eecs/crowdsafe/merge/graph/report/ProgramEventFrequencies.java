@@ -18,14 +18,16 @@ public class ProgramEventFrequencies {
 	}
 
 	public static class ProgramPropertyReader {
-		private final Properties properties;
+		private final Properties alphas;
+		private final Properties counts;
 
-		public ProgramPropertyReader(Properties properties) {
-			this.properties = properties;
+		public ProgramPropertyReader(Properties alphas, Properties counts) {
+			this.alphas = alphas;
+			this.counts = counts;
 		}
 
-		public int getProperty(String key) {
-			String value = properties.getProperty(key);
+		public int getCount(String key) {
+			String value = counts.getProperty(key);
 			if (value == null)
 				return 0;
 			else
@@ -33,15 +35,16 @@ public class ProgramEventFrequencies {
 		}
 
 		public ModuleEventFrequencies.ModulePropertyReader getModule(String moduleName) {
-			String idValue = properties.getProperty(moduleName);
+			String idValue = counts.getProperty(moduleName);
 			if (idValue == null)
 				return null;
 			else
-				return new ModuleEventFrequencies.ModulePropertyReader(Integer.parseInt(idValue), properties);
+				return new ModuleEventFrequencies.ModulePropertyReader(moduleName, Integer.parseInt(idValue), alphas,
+						counts);
 		}
 
 		public int getModuleId(String moduleName) {
-			String idValue = properties.getProperty(moduleName);
+			String idValue = counts.getProperty(moduleName);
 			if (idValue == null)
 				return -1;
 			else
@@ -55,8 +58,8 @@ public class ProgramEventFrequencies {
 	static final String ABNORMAL_RETURNS = "abnormal-return-count";
 	static final String GENCODE_PERM_COUNT = "gencode-perm-count";
 	static final String GENCODE_WRITE_COUNT = "gencode-write-count";
-	static final String BLACK_BOX_COUNT = "black-box-count@";
-	static final String WHITE_BOX_COUNT = "white-box-count@";
+	static final String BLACK_BOX_COUNT = "black-box-count";
+	static final String WHITE_BOX_COUNT = "white-box-count";
 
 	// private final IdCounter<Long> indirectEdgeTargetCounts = new IdCounter<Long>();
 	private IdCounter<Integer> sscCountsBySysnum = new IdCounter<Integer>();
@@ -78,7 +81,7 @@ public class ProgramEventFrequencies {
 
 		sgeCount += execution.sges.size();
 
-		for (ClusterSSC ssc : execution.sscs) {  
+		for (ClusterSSC ssc : execution.sscs) {
 			if (RiskySystemCall.sysnumMap.containsKey(ssc.sysnum))
 				sscCountsBySysnum.increment(ssc.sysnum);
 		}

@@ -23,7 +23,7 @@ public class SuspiciousGencodeReport implements ReportEntry {
 
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
-		totalProgramSGEs = programFrequencies.getProperty(ProgramEventFrequencies.SGE_COUNT);
+		totalProgramSGEs = programFrequencies.getCount(ProgramEventFrequencies.SGE_COUNT);
 		double riskScale;
 		if (totalProgramSGEs == 0)
 			riskScale = 1.0;

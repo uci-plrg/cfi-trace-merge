@@ -1,14 +1,15 @@
 package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.util.Properties;
+import java.util.UUID;
 
-import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataExecution;
+import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataSequence;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
 import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousModule;
 
@@ -19,25 +20,37 @@ public class ModuleEventFrequencies {
 	}
 
 	public static class ModulePropertyReader {
+		private final String moduleName;
 		private final int moduleId;
-		private final Properties properties;
+		private final Properties alphas;
+		private final Properties counts;
 
-		public ModulePropertyReader(int moduleId, Properties properties) {
+		public ModulePropertyReader(String moduleName, int moduleId, Properties alphas, Properties counts) {
+			this.moduleName = moduleName;
 			this.moduleId = moduleId;
-			this.properties = properties;
+			this.alphas = alphas;
+			this.counts = counts;
 		}
 
-		public int getProperty(String key) {
-			return getProperty(key, moduleId);
+		public int getCount(String key) {
+			return getCount(key, moduleId);
 		}
 
-		public int getProperty(String key, int moduleId) {
-			String value = properties.getProperty(key + moduleId);
+		public int getCount(String key, int moduleId) {
+			String value = counts.getProperty(key + moduleId);
 			if (value == null) {
 				return 0;
 			} else {
 				return Integer.parseInt(value);
 			}
+		}
+		
+		public double getAlpha(String key) {
+			String value = alphas.getProperty(key + moduleName);
+			if (value == null)
+				return 0.0;
+			else
+				return Double.parseDouble(value);
 		}
 	}
 
@@ -63,6 +76,8 @@ public class ModuleEventFrequencies {
 	private int whiteBoxCount = 0;
 
 	public final int moduleId;
+
+	private UUID metadataId;
 
 	public ModuleEventFrequencies(int moduleId) {
 		this.moduleId = moduleId;
@@ -107,8 +122,10 @@ public class ModuleEventFrequencies {
 			}
 		}
 
-		if (dataset.metadata.getRootSequence() != null) {
-			ClusterMetadataExecution metadata = dataset.metadata.getRootSequence().getHeadExecution();
+		ClusterMetadataSequence root = dataset.metadata.getRootSequence();
+		if (root != null) {
+			ClusterMetadataExecution metadata = root.getHeadExecution();
+			metadataId = metadata.id;
 			for (ClusterUIB uib : metadata.uibs) {
 				if (uib.isAdmitted)
 					uibCount++;
@@ -140,7 +157,10 @@ public class ModuleEventFrequencies {
 		suibCount = 0;
 	}
 
-	public void exportTo(int moduleId, Properties properties) {
+	public void exportTo(int moduleId, Properties properties, UUID mainId) {
+		if (metadataId != null && mainId != null && !metadataId.equals(mainId)) {
+			uibCount = suibCount = 0; // lazily clear metadata counts for a missing execution
+		}
 		setInt(properties, moduleId, GENCODE_PERM_COUNT, gencodePermCount);
 		setInt(properties, moduleId, GENCODE_WRITE_COUNT, gencodeWriteCount);
 		setInt(properties, moduleId, INTRA_MODULE_UNEXPECTED_RETURNS, intraModuleUnexpectedReturns);

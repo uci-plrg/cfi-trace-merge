@@ -123,16 +123,16 @@ class NewEdgeReport implements ReportEntry {
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
 		if (moduleFrequencies != null) {
 			crossModuleUnexpectedReturns = moduleFrequencies
-					.getProperty(ModuleEventFrequencies.CROSS_MODULE_UNEXPECTED_RETURNS);
+					.getCount(ModuleEventFrequencies.CROSS_MODULE_UNEXPECTED_RETURNS);
 			intraModuleUnexpectedReturns = moduleFrequencies
-					.getProperty(ModuleEventFrequencies.INTRA_MODULE_UNEXPECTED_RETURNS);
+					.getCount(ModuleEventFrequencies.INTRA_MODULE_UNEXPECTED_RETURNS);
 
-			moduleGencodeWrite = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_WRITE_COUNT);
-			moduleGencodePerm = moduleFrequencies.getProperty(ModuleEventFrequencies.GENCODE_PERM_COUNT);
+			moduleGencodeWrite = moduleFrequencies.getCount(ModuleEventFrequencies.GENCODE_WRITE_COUNT);
+			moduleGencodePerm = moduleFrequencies.getCount(ModuleEventFrequencies.GENCODE_PERM_COUNT);
 		}
 
-		programGencodeWrite = programFrequencies.getProperty(ProgramEventFrequencies.GENCODE_WRITE_COUNT);
-		programGencodePerm = programFrequencies.getProperty(ProgramEventFrequencies.GENCODE_PERM_COUNT);
+		programGencodeWrite = programFrequencies.getCount(ProgramEventFrequencies.GENCODE_WRITE_COUNT);
+		programGencodePerm = programFrequencies.getCount(ProgramEventFrequencies.GENCODE_PERM_COUNT);
 
 		double riskScale = 0.0;
 		switch (edge.getEdgeType()) {

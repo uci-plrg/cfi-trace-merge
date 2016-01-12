@@ -140,9 +140,11 @@ public class ModuleReportGenerator {
 		metadata.retainMergedUIBs(mergedIndirects, true);
 
 		for (ClusterUIB uib : metadata.uibs) {
-			if (!uib.isAdmitted) {
-				report.addEntry(new SuspiciousIndirectEdgeReport(uib)); // already know it's a new suspicious target
-				report.filterEdgeReport(uib.edge);
+			if (uib.isAdmitted) {
+				report.addEntry(new IndirectEdgeReport(uib));
+			} else {
+				report.addEntry(new SuspiciousIndirectEdgeReport(uib));
+				// report.filterEdgeReport(uib.edge);
 			}
 		}
 		for (ClusterSSC ssc : metadata.sscs) {

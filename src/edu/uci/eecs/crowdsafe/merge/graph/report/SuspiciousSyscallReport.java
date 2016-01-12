@@ -27,7 +27,7 @@ public class SuspiciousSyscallReport implements ReportEntry {
 
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
-		sameSuspiciousSysnumCount = programFrequencies.getProperty(ProgramEventFrequencies.SUSPICIOUS_SYSCALL
+		sameSuspiciousSysnumCount = programFrequencies.getCount(ProgramEventFrequencies.SUSPICIOUS_SYSCALL
 				+ ssc.sysnum);
 
 		double riskScale = 1.0;

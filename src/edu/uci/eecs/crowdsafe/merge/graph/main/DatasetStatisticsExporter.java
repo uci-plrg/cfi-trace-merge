@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
@@ -87,13 +88,14 @@ public class DatasetStatisticsExporter {
 
 	private void extractProperties(GraphMergeCandidate dataset) throws IOException {
 		int moduleId = 0;
+		UUID mainId = null;
 		List<ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
 		Map<AutonomousSoftwareDistribution, ModuleEventFrequencies> moduleEventMap = new HashMap<AutonomousSoftwareDistribution, ModuleEventFrequencies>();
 		for (AutonomousSoftwareDistribution cluster : dataset.getRepresentedClusters()) {
 			if (cluster.isAnonymous()) {
 				anonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) dataset.getClusterGraph(cluster));
 				continue;
-			}
+			} 
 
 			ModuleGraphCluster<ClusterNode<?>> graph = (ModuleGraphCluster<ClusterNode<?>>) dataset
 					.getClusterGraph(cluster);
@@ -103,6 +105,9 @@ public class DatasetStatisticsExporter {
 			programEventFrequencies.countMetadataEvents(graph.metadata);
 			moduleStatistics.setProperty(cluster.name, String.valueOf(moduleEventFrequencies.moduleId));
 			System.gc();
+			
+			if (graph.metadata.isMain() && graph.metadata.getRootSequence() != null)
+				mainId = graph.metadata.getRootSequence().getHeadExecution().id;
 		}
 
 		Log.log("Dataset has %d anonymous modules", anonymousGraphs.size());
@@ -122,7 +127,7 @@ public class DatasetStatisticsExporter {
 		}
 
 		for (ModuleEventFrequencies moduleEventFrequencies : moduleEventMap.values()) {
-			moduleEventFrequencies.exportTo(moduleEventFrequencies.moduleId, moduleStatistics);
+			moduleEventFrequencies.exportTo(moduleEventFrequencies.moduleId, moduleStatistics, mainId);
 		}
 		programEventFrequencies.exportTo(moduleStatistics);
 	}

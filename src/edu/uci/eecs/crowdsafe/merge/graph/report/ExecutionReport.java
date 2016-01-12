@@ -67,11 +67,11 @@ public class ExecutionReport {
 
 	static boolean isReportedEdgeType(EdgeType type) {
 		switch (type) {
-			case INDIRECT:
 			case UNEXPECTED_RETURN:
 			case GENCODE_PERM:
 			case GENCODE_WRITE:
 				return true;
+			case INDIRECT:
 			case DIRECT:
 			case CALL_CONTINUATION:
 			case EXCEPTION_CONTINUATION:
@@ -88,7 +88,7 @@ public class ExecutionReport {
 	}
 
 	private List<ReportEntry> entries = new ArrayList<ReportEntry>();
-	private Set<Edge<ClusterNode<?>>> filteredEdges = new HashSet<Edge<ClusterNode<?>>>();
+	// private Set<Edge<ClusterNode<?>>> filteredEdges = new HashSet<Edge<ClusterNode<?>>>();
 
 	private final ProgramEventFrequencies.ProgramPropertyReader programEventFrequencies;
 	private ModuleEventFrequencies.ModulePropertyReader currentModuleEventFrequencies = null;
@@ -98,11 +98,11 @@ public class ExecutionReport {
 	}
 
 	void setCurrentModule(String moduleName) {
-		this.currentModuleEventFrequencies = programEventFrequencies.getModule(moduleName);
+		currentModuleEventFrequencies = programEventFrequencies.getModule(moduleName);
 		if (currentModuleEventFrequencies == null)
-			Log.log("No module event frequences for %s", moduleName);
+			Log.log("No module event frequencies for %s", moduleName);
 		else
-			Log.log("Found module event frequences for %s", moduleName);
+			Log.log("Found module event frequencies for %s", moduleName);
 	}
 
 	public void sort() {
@@ -112,8 +112,8 @@ public class ExecutionReport {
 	public void print(File outputFile) throws FileNotFoundException {
 		PrintStream out = new PrintStream(outputFile);
 		for (ReportEntry entry : entries) {
-			if (entry instanceof NewEdgeReport && filteredEdges.contains(((NewEdgeReport) entry).edge))
-				continue;
+			// if (entry instanceof NewEdgeReport && filteredEdges.contains(((NewEdgeReport) entry).edge))
+			// continue;
 			out.format("%04d ", entry.getRiskIndex());
 			entry.print(out);
 			out.println();
@@ -126,7 +126,7 @@ public class ExecutionReport {
 		entry.setEventFrequencies(programEventFrequencies, currentModuleEventFrequencies);
 	}
 
-	void filterEdgeReport(Edge<ClusterNode<?>> edge) {
-		filteredEdges.add(edge);
-	}
+	// void filterEdgeReport(Edge<ClusterNode<?>> edge) {
+	// filteredEdges.add(edge);
+	// }
 }

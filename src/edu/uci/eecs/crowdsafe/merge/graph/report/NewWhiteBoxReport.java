@@ -31,9 +31,9 @@ public class NewWhiteBoxReport implements ReportEntry {
 
 	@Override
 	public void setEventFrequencies(ProgramPropertyReader programFrequencies, ModulePropertyReader moduleFrequencies) {
-		programWhiteBoxes = programFrequencies.getProperty(ProgramEventFrequencies.WHITE_BOX_COUNT);
+		programWhiteBoxes = programFrequencies.getCount(ProgramEventFrequencies.WHITE_BOX_COUNT);
 		if (moduleFrequencies != null) {
-			moduleWhiteBoxes = moduleFrequencies.getProperty(ModuleEventFrequencies.WHITE_BOX_COUNT,
+			moduleWhiteBoxes = moduleFrequencies.getCount(ModuleEventFrequencies.WHITE_BOX_COUNT,
 					programFrequencies.getModuleId(module.owningCluster.name));
 		}
 
