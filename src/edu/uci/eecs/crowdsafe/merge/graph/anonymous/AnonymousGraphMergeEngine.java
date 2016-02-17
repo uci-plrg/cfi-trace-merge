@@ -85,53 +85,27 @@ public class AnonymousGraphMergeEngine {
 			ModuleGraphCluster<?> right = session.getRight();
 			HashMatchedNodes matchedNodes = session.getMatchedNodes();
 
-			try {
-				if (session.isFailed()) {
-					greaterMatchPercentage = -1;
-					isFailed = true;
-					exactMatch = false;
-					return false;
-				}
-
-				if (matchedNodes.size() == Math.min(left.getNodeCount(), right.getNodeCount())) {
-					greaterMatchPercentage = 100;
-					exactMatch = true;
-					return true;
-				}
-
-				// TODO: may want to tag subgraphs with an id representing the original anonymous module, to use as a
-				// hint
-
+			if (session.isFailed()) {
+				greaterMatchPercentage = -1;
+				isFailed = true;
 				exactMatch = false;
-				int leftMatchPercentage = Math.round((matchedNodes.size() / (float) left.getNodeCount()) * 100f);
-				int rightMatchPercentage = Math.round((matchedNodes.size() / (float) right.getNodeCount()) * 100f);
-				greaterMatchPercentage = Math.max(leftMatchPercentage, rightMatchPercentage);
-
-				if (greaterMatchPercentage > 50)
-					return true;
-
-				// Log.log("Rejecting match of %d nodes for graphs of size %d (%d%%) and %d (%d%%)",
-				// matchedNodes.size(),
-				// left.getNodeCount(), leftMatchPercentage, right.getNodeCount(), rightMatchPercentage);
 				return false;
-			} finally {
-				// if ((left.getExecutableNodeCount() < 35) && (right.getExecutableNodeCount() < 35)) {
-				// if (reportCount < 50) {
-				// Log.log("Evaluate subgraphs of %d and %d nodes: %d%% | exact? %b | failed? %b",
-				// left.getNodeCount(), right.getNodeCount(), greaterMatchPercentage, exactMatch, isFailed);
-				// left.logGraph();
-				// right.logGraph();
-				// reportCount++;
-				// }
-				// } else {
-				// Log.log("%d%% | exact? %b | failed? %b", greaterMatchPercentage, exactMatch, isFailed);
-				// }
-
-				// if ((greaterMatchPercentage > 50) && (greaterMatchPercentage < 80))
-				// toString();
-				// left.logGraph();
-				// right.logGraph();
 			}
+
+			if (matchedNodes.size() == Math.min(left.getNodeCount(), right.getNodeCount())) {
+				greaterMatchPercentage = 100;
+				exactMatch = true;
+				return true;
+			}
+
+			// TODO: may want to tag subgraphs with an id representing the original anonymous module, to use as a hint
+
+			exactMatch = false;
+			int leftMatchPercentage = Math.round((matchedNodes.size() / (float) left.getNodeCount()) * 100f);
+			int rightMatchPercentage = Math.round((matchedNodes.size() / (float) right.getNodeCount()) * 100f);
+			greaterMatchPercentage = Math.max(leftMatchPercentage, rightMatchPercentage);
+
+			return greaterMatchPercentage > 50;
 		}
 	}
 

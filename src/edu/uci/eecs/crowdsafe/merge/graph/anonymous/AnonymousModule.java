@@ -115,9 +115,6 @@ public class AnonymousModule {
 	}
 
 	private static String getOwnerAlias(SoftwareUnit unit) {
-		// if (unit.filename.endsWith(".ni.dll"))
-		// return "mso.dll";
-		// else
 		return OWNER_ALIAS.get(unit.filename);
 	}
 

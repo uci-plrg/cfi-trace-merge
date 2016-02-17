@@ -14,9 +14,11 @@ import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
+import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeHashMap;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
+import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.loader.ClusterGraphLoadSession;
 import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSource;
@@ -29,6 +31,23 @@ import edu.uci.eecs.crowdsafe.merge.graph.anonymous.MaximalSubgraphs;
 
 public class TrampolineAnalyzer {
 
+	private static class EntryEdge {
+
+		private final Edge<ClusterNode<?>> edge;
+		private final AutonomousSoftwareDistribution cluster;
+
+		EntryEdge(Edge<ClusterNode<?>> edge, AutonomousSoftwareDistribution cluster) {
+			this.edge = edge;
+			this.cluster = cluster;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s--%d|%s-->%s", cluster.getUnitFilename(), edge.getOrdinal(),
+					edge.getEdgeType().code, edge.getToNode());
+		}
+	}
+
 	private class AnonymousModuleAnalyzer {
 		private final Map<AutonomousSoftwareDistribution, Set<Long>> hashesByTrampolineGenerator = new HashMap<AutonomousSoftwareDistribution, Set<Long>>();
 
@@ -37,42 +56,69 @@ public class TrampolineAnalyzer {
 				Log.warn("No anonymous graph for run %d", runIndex);
 				return;
 			}
+			
+			Log.log(" === Original anonymous graph:");
+			anonymous.logGraph();
 
-			Set<AnonymousSubgraph> anonymousSubgraphs;
-
-			try { // hack!
-				anonymousSubgraphs = MaximalSubgraphs.getMaximalSubgraphs(GraphMergeSource.LEFT, anonymous);
-			} catch (Exception e) {
-				Log.error(
-						"Failed to divide the anonymous graph into maximal subgraphs: %s. Skipping this graph completely.",
-						e);
-				return;
-			}
+			Set<AnonymousSubgraph> anonymousSubgraphs = MaximalSubgraphs.getMaximalSubgraphs(GraphMergeSource.LEFT,
+					anonymous);
+			List<EntryEdge> gencodeEntries = new ArrayList<EntryEdge>();
+			List<EntryEdge> executionEntries = new ArrayList<EntryEdge>();
 
 			for (AnonymousSubgraph subgraph : anonymousSubgraphs) {
 				if (subgraph.isAnonymousBlackBox())
 					continue;
 
-				AutonomousSoftwareDistribution cluster = null;
+				gencodeEntries.clear();
+				executionEntries.clear();
+				AutonomousSoftwareDistribution cluster = null, owner = null, gencodeFromModule;
 				for (ClusterNode<?> entryPoint : subgraph.getEntryPoints()) {
-					if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousGencodeHash(
-							entryPoint.getHash()) != null)
+					gencodeFromModule = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousGencodeHash(
+							entryPoint.getHash());
+					if (gencodeFromModule != null) {
+						OrdinalEdgeList<ClusterNode<?>> edges = entryPoint.getOutgoingEdges();
+						try {
+							for (Edge<ClusterNode<?>> gencodeEdge : edges)
+								gencodeEntries.add(new EntryEdge(gencodeEdge, gencodeFromModule));
+						} finally {
+							edges.release();
+						}
 						continue;
+					}
 
 					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
 							entryPoint.getHash());
-					cluster = AnonymousModule.resolveAlias(cluster);
-					if (AnonymousModule.isEligibleOwner(cluster))
-						break;
-					else
-						cluster = null;
+					OrdinalEdgeList<ClusterNode<?>> edges = entryPoint.getOutgoingEdges();
+					try {
+						for (Edge<ClusterNode<?>> executionEdge : edges)
+							executionEntries.add(new EntryEdge(executionEdge, cluster));
+					} finally {
+						edges.release();
+					}
+					if (owner == null) {
+						cluster = AnonymousModule.resolveAlias(cluster);
+						if (AnonymousModule.isEligibleOwner(cluster))
+							owner = cluster;
+						else
+							cluster = null;
+					}
 				}
 
-				if (cluster == null) {
+				if (owner == null) {
 					Log.warn("Cannot find the owner for an anonymous subgraph of %d nodes",
 							subgraph.getExecutableNodeCount());
 					continue;
 				}
+
+				Log.log(" === SDR of %d executable nodes owned by %s:", subgraph.getExecutableNodeCount(),
+						owner.getUnitFilename());
+				Log.log("\t--- Gencode entries:");
+				for (EntryEdge gencodeEdge : gencodeEntries)
+					Log.log("\t%s", gencodeEdge);
+				Log.log("\t--- Execution entries:");
+				for (EntryEdge executionEdge : executionEntries)
+					Log.log("\t%s", executionEdge);
+				subgraph.logGraph();
 
 				Set<Long> hashes = hashesByTrampolineGenerator.get(cluster);
 				if (hashes == null) {
@@ -80,15 +126,17 @@ public class TrampolineAnalyzer {
 					hashesByTrampolineGenerator.put(cluster, hashes);
 				}
 
-				NodeHashMap<?> nodeMap = anonymous.getGraphData().nodesByHash;
-				for (Long hash : nodeMap.keySet()) {
-					NodeList<?> nodes = nodeMap.get(hash);
-					for (int i = 0; i < nodes.size(); i++) {
-						ClusterNode<?> node = (ClusterNode<?>) nodes.get(i);
-						if (!hashes.contains(node.getHash())) {
-							hashes.add(node.getHash());
-							Log.log("#%d: Found new hash 0x%x in %s's trampoline", runIndex, node.getHash(),
-									cluster.getSingletonUnit().filename);
+				if (false) {
+					NodeHashMap<?> nodeMap = anonymous.getGraphData().nodesByHash;
+					for (Long hash : nodeMap.keySet()) {
+						NodeList<?> nodes = nodeMap.get(hash);
+						for (int i = 0; i < nodes.size(); i++) {
+							ClusterNode<?> node = (ClusterNode<?>) nodes.get(i);
+							if (!hashes.contains(node.getHash())) {
+								hashes.add(node.getHash());
+								Log.log("#%d: Found new hash 0x%x in %s's trampoline", runIndex, node.getHash(),
+										cluster.getSingletonUnit().filename);
+							}
 						}
 					}
 				}
@@ -114,7 +162,7 @@ public class TrampolineAnalyzer {
 	private void run() {
 		try {
 			AnonymousModule.initialize();
-			
+
 			options.parseOptions();
 			options.initializeGraphEnvironment();
 
@@ -162,7 +210,7 @@ public class TrampolineAnalyzer {
 	private void printUsageAndExit() {
 		System.out.println(String.format("Usage: %s <run-catalog>", getClass().getSimpleName()));
 		System.out.println("# The run catalog lists relative paths to the run directories.");
-		System.out.println("# Entries must be in execution sequence, one per line..");
+		System.out.println("# Entries must be in execution sequence, one per line.");
 		System.exit(1);
 	}
 
