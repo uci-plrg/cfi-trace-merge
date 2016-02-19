@@ -101,32 +101,32 @@ public class MaximalSubgraphs {
 
 		void addFrontierEntryEdge(Edge<ClusterNode<?>> edge) {
 			ClusterBoundaryNode globalEntryNode = (ClusterBoundaryNode) edge.getFromNode();
-			ClusterBoundaryNode subgraphBoundaryNode = boundaryNodes.get(globalEntryNode);
+			ClusterBoundaryNode subgraphBoundaryNode = boundaryNodes.get(globalEntryNode.getHash());
 			if (subgraphBoundaryNode == null) {
 				subgraphBoundaryNode = new ClusterBoundaryNode(globalEntryNode.getHash(), globalEntryNode.getType());
 				graph.addNode(subgraphBoundaryNode);
 				boundaryNodes.put(globalEntryNode.getHash(), subgraphBoundaryNode);
-
-				Edge<ClusterNode<?>> replacement = new Edge<ClusterNode<?>>(subgraphBoundaryNode, edge.getToNode(),
-						edge.getEdgeType(), edge.getOrdinal());
-				edge.getToNode().replaceEdge(edge, replacement);
-				subgraphBoundaryNode.addOutgoingEdge(replacement);
 			}
+
+			Edge<ClusterNode<?>> replacement = new Edge<ClusterNode<?>>(subgraphBoundaryNode, edge.getToNode(),
+					edge.getEdgeType(), edge.getOrdinal());
+			edge.getToNode().replaceEdge(edge, replacement);
+			subgraphBoundaryNode.addOutgoingEdge(replacement);
 		}
 
 		void addFrontierExitEdge(Edge<ClusterNode<?>> edge) {
 			ClusterBoundaryNode globalExitNode = (ClusterBoundaryNode) edge.getToNode();
-			ClusterBoundaryNode subgraphBoundaryNode = boundaryNodes.get(globalExitNode);
+			ClusterBoundaryNode subgraphBoundaryNode = boundaryNodes.get(globalExitNode.getHash());
 			if (subgraphBoundaryNode == null) {
 				subgraphBoundaryNode = new ClusterBoundaryNode(globalExitNode.getHash(), globalExitNode.getType());
 				graph.addNode(subgraphBoundaryNode);
 				boundaryNodes.put(globalExitNode.getHash(), subgraphBoundaryNode);
-
-				Edge<ClusterNode<?>> replacement = new Edge<ClusterNode<?>>(edge.getFromNode(), subgraphBoundaryNode,
-						edge.getEdgeType(), edge.getOrdinal());
-				edge.getFromNode().replaceEdge(edge, replacement);
-				subgraphBoundaryNode.addIncomingEdge(replacement);
 			}
+
+			Edge<ClusterNode<?>> replacement = new Edge<ClusterNode<?>>(edge.getFromNode(), subgraphBoundaryNode,
+					edge.getEdgeType(), edge.getOrdinal());
+			edge.getFromNode().replaceEdge(edge, replacement);
+			subgraphBoundaryNode.addIncomingEdge(replacement);
 		}
 	}
 
@@ -136,7 +136,7 @@ public class MaximalSubgraphs {
 		MaximalSubgraphs processor = new MaximalSubgraphs(source, graph);
 
 		for (ClusterNode<?> node : graph.getAllNodes()) {
-			if (node.getType().isExecutable)
+			if (node.getType().isApplicationNode)
 				processor.atoms.add(node);
 		}
 
@@ -172,8 +172,8 @@ public class MaximalSubgraphs {
 
 		Log.log("Process edge: %s | from: %s | to: %s", edge, fromAtom, toAtom);
 
-		if (edge.getFromNode().getType().isExecutable) {
-			if (edge.getToNode().getType().isExecutable) {
+		if (edge.getFromNode().getType().isApplicationNode) {
+			if (edge.getToNode().getType().isApplicationNode) {
 
 				Log.log("\tBoth sides executable");
 
@@ -187,7 +187,7 @@ public class MaximalSubgraphs {
 						subgraph.graph.addNode(toAtom);
 						subgraphs.put(toAtom, subgraph);
 
-						Log.log("\tAttach <to> to <from>'s subgraph");
+						Log.log("\tAttach <to> to <from>'s subgraph (0x%x)", subgraph.graph.hashCode());
 					}
 				} else {
 					if (edge.getFromNode() == edge.getToNode())
@@ -197,7 +197,8 @@ public class MaximalSubgraphs {
 						subgraph.graph.addNode(fromAtom);
 						subgraphs.put(fromAtom, subgraph);
 
-						Log.log("\tAttach <from> to <to>'s subgraph");
+						Log.log("\tAttach <from> to <to>'s subgraph (0x%x)", subgraph.graph.hashCode());
+						subgraph.graph.logGraph();
 					} else {
 						addIsolatedEdge(edge);
 
@@ -208,9 +209,10 @@ public class MaximalSubgraphs {
 				Log.log("\tCluster exit");
 
 				if (fromAtom == null) { /* already in a subgraph */
-					subgraphs.get(edge.getFromNode()).addFrontierExitEdge(edge);
+					Subgraph subgraph = subgraphs.get(edge.getFromNode());
+					subgraph.addFrontierExitEdge(edge);
 
-					Log.log("\tAdd frontier exit edge");
+					Log.log("\tAdd frontier exit edge to 0x%x", subgraph.graph.hashCode());
 				} else {
 					addIsolatedEdge(edge);
 
@@ -220,13 +222,14 @@ public class MaximalSubgraphs {
 		} else { /* cluster entry */
 			Log.log("\tCluster entry");
 
-			if (!edge.getToNode().getType().isExecutable)
-				throw new InvalidGraphException("Cluster entry links directly to cluster exit!");
+			if (!edge.getToNode().getType().isApplicationNode)
+				throw new InvalidGraphException("Cluster entry links directly to cluster exit:\n%s", edge);
 
 			if (toAtom == null) { /* already in a subgraph */
-				subgraphs.get(edge.getToNode()).addFrontierEntryEdge(edge);
+				Subgraph subgraph = subgraphs.get(edge.getToNode());
+				subgraph.addFrontierEntryEdge(edge);
 
-				Log.log("\tAdd frontier entry edge");
+				Log.log("\tAdd frontier entry edge to 0x%x", subgraph.graph.hashCode());
 			} else {
 				addIsolatedEdge(edge);
 
@@ -238,7 +241,7 @@ public class MaximalSubgraphs {
 	private void addIsolatedEdge(Edge<ClusterNode<?>> edge) {
 		Subgraph subgraph = addSubgraph();
 		ClusterNode<?> fromNode = edge.getFromNode();
-		if (fromNode.getType().isExecutable) {
+		if (fromNode.getType().isApplicationNode) {
 			subgraphs.put(fromNode, subgraph);
 			subgraph.graph.addNode(fromNode);
 		} else {
@@ -246,7 +249,7 @@ public class MaximalSubgraphs {
 		}
 
 		ClusterNode<?> toNode = edge.getToNode();
-		if (toNode.getType().isExecutable) {
+		if (toNode.getType().isApplicationNode) {
 			subgraphs.put(toNode, subgraph);
 			subgraph.graph.addNode(toNode);
 		} else {
@@ -277,6 +280,11 @@ public class MaximalSubgraphs {
 						subgraphs.put(node, largeSubgraph);
 				}
 			}
+			Log.log("Merged subgraph 0x%x into 0x%x", smallSubgraph.graph.hashCode(), largeSubgraph.graph.hashCode());
+			Log.log("\tConsumed: ");
+			smallSubgraph.graph.logGraph();
+			Log.log("\tInto: ");
+			largeSubgraph.graph.logGraph();
 			distinctSubgraphs.remove(smallSubgraph.graph);
 		}
 	}
@@ -300,6 +308,7 @@ public class MaximalSubgraphs {
 		for (ModuleGraph moduleGraph : originalGraph.getGraphs()) {
 			subgraph.graph.addModule(new ModuleGraph(moduleGraph.softwareUnit));
 		}
+		Log.log("Adding subgraph 0x%x", subgraph.graph.hashCode());
 		distinctSubgraphs.add(subgraph.graph);
 		return subgraph;
 	}

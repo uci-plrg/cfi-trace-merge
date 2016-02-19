@@ -56,7 +56,7 @@ public class TrampolineAnalyzer {
 				Log.warn("No anonymous graph for run %d", runIndex);
 				return;
 			}
-			
+
 			Log.log(" === Original anonymous graph:");
 			anonymous.logGraph();
 
@@ -68,6 +68,8 @@ public class TrampolineAnalyzer {
 			for (AnonymousSubgraph subgraph : anonymousSubgraphs) {
 				if (subgraph.isAnonymousBlackBox())
 					continue;
+				
+				Log.log("Reporting graph 0x%x", subgraph.hashCode());
 
 				gencodeEntries.clear();
 				executionEntries.clear();
@@ -105,20 +107,23 @@ public class TrampolineAnalyzer {
 				}
 
 				if (owner == null) {
-					Log.warn("Cannot find the owner for an anonymous subgraph of %d nodes",
-							subgraph.getExecutableNodeCount());
+					Log.warn(" ### Cannot find the owner for an anonymous subgraph of %d nodes with entry points %s",
+							subgraph.getExecutableNodeCount(), subgraph.getEntryPoints());
+					subgraph.logGraph(true);
+					Log.warn(" ###\n");
 					continue;
 				}
 
-				Log.log(" === SDR of %d executable nodes owned by %s:", subgraph.getExecutableNodeCount(),
-						owner.getUnitFilename());
+				Log.log(" === SDR of %d executable nodes with %d entries owned by %s:",
+						subgraph.getExecutableNodeCount(), executionEntries.size(), owner.getUnitFilename());
 				Log.log("\t--- Gencode entries:");
 				for (EntryEdge gencodeEdge : gencodeEntries)
 					Log.log("\t%s", gencodeEdge);
 				Log.log("\t--- Execution entries:");
 				for (EntryEdge executionEdge : executionEntries)
 					Log.log("\t%s", executionEdge);
-				subgraph.logGraph();
+				subgraph.logGraph(true);
+				Log.log(" === SDR end");
 
 				Set<Long> hashes = hashesByTrampolineGenerator.get(cluster);
 				if (hashes == null) {
