@@ -15,6 +15,7 @@ import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
 import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
+import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeHashMap;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
@@ -31,12 +32,12 @@ import edu.uci.eecs.crowdsafe.merge.graph.anonymous.MaximalSubgraphs;
 
 public class TrampolineAnalyzer {
 
-	private static class EntryEdge {
+	private static class BoundaryEdge {
 
 		private final Edge<ClusterNode<?>> edge;
 		private final AutonomousSoftwareDistribution cluster;
 
-		EntryEdge(Edge<ClusterNode<?>> edge, AutonomousSoftwareDistribution cluster) {
+		BoundaryEdge(Edge<ClusterNode<?>> edge, AutonomousSoftwareDistribution cluster) {
 			this.edge = edge;
 			this.cluster = cluster;
 		}
@@ -62,17 +63,26 @@ public class TrampolineAnalyzer {
 
 			Set<AnonymousSubgraph> anonymousSubgraphs = MaximalSubgraphs.getMaximalSubgraphs(GraphMergeSource.LEFT,
 					anonymous);
-			List<EntryEdge> gencodeEntries = new ArrayList<EntryEdge>();
-			List<EntryEdge> executionEntries = new ArrayList<EntryEdge>();
+			List<BoundaryEdge> gencodeEntries = new ArrayList<BoundaryEdge>();
+			List<BoundaryEdge> executionEntries = new ArrayList<BoundaryEdge>();
+			List<BoundaryEdge> executionExits = new ArrayList<BoundaryEdge>();
+			List<ClusterNode<?>> returnNodes = new ArrayList<ClusterNode<?>>();
+
+			Set<AutonomousSoftwareDistribution> entryModules = new HashSet<AutonomousSoftwareDistribution>();
+			Set<AutonomousSoftwareDistribution> owners = new HashSet<AutonomousSoftwareDistribution>();
 
 			for (AnonymousSubgraph subgraph : anonymousSubgraphs) {
 				if (subgraph.isAnonymousBlackBox())
 					continue;
-				
+
 				Log.log("Reporting graph 0x%x", subgraph.hashCode());
 
 				gencodeEntries.clear();
 				executionEntries.clear();
+				executionExits.clear();
+				returnNodes.clear();
+				owners.clear();
+				entryModules.clear();
 				AutonomousSoftwareDistribution cluster = null, owner = null, gencodeFromModule;
 				for (ClusterNode<?> entryPoint : subgraph.getEntryPoints()) {
 					gencodeFromModule = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousGencodeHash(
@@ -81,10 +91,11 @@ public class TrampolineAnalyzer {
 						OrdinalEdgeList<ClusterNode<?>> edges = entryPoint.getOutgoingEdges();
 						try {
 							for (Edge<ClusterNode<?>> gencodeEdge : edges)
-								gencodeEntries.add(new EntryEdge(gencodeEdge, gencodeFromModule));
+								gencodeEntries.add(new BoundaryEdge(gencodeEdge, gencodeFromModule));
 						} finally {
 							edges.release();
 						}
+						owners.add(gencodeFromModule);
 						continue;
 					}
 
@@ -93,37 +104,74 @@ public class TrampolineAnalyzer {
 					OrdinalEdgeList<ClusterNode<?>> edges = entryPoint.getOutgoingEdges();
 					try {
 						for (Edge<ClusterNode<?>> executionEdge : edges)
-							executionEntries.add(new EntryEdge(executionEdge, cluster));
+							executionEntries.add(new BoundaryEdge(executionEdge, cluster));
 					} finally {
 						edges.release();
 					}
-					if (owner == null) {
-						cluster = AnonymousModule.resolveAlias(cluster);
-						if (AnonymousModule.isEligibleOwner(cluster))
-							owner = cluster;
-						else
-							cluster = null;
+					entryModules.add(cluster);
+				}
+
+				owners.retainAll(entryModules);
+
+				for (ClusterNode<?> exitPoint : subgraph.getExitPoints()) {
+					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
+							exitPoint.getHash());
+					if (cluster == null)
+						continue; // can have gencode edges
+
+					OrdinalEdgeList<ClusterNode<?>> edges = exitPoint.getIncomingEdges();
+					try {
+						for (Edge<ClusterNode<?>> executionEdge : edges)
+							executionExits.add(new BoundaryEdge(executionEdge, cluster));
+					} finally {
+						edges.release();
 					}
 				}
 
-				if (owner == null) {
-					Log.warn(" ### Cannot find the owner for an anonymous subgraph of %d nodes with entry points %s",
+				for (ClusterNode<?> node : subgraph.getAllNodes()) {
+					if (node.getType() == MetaNodeType.RETURN)
+						returnNodes.add(node);
+				}
+
+				if (owners.size() == 1) {
+					owner = owners.iterator().next();
+				} else {
+					if (owners.isEmpty()) {
+						Log.error(
+								" ### Cannot find the owner for an anonymous subgraph of %d nodes with entry points %s",
+								subgraph.getExecutableNodeCount(), subgraph.getEntryPoints());
+					} else {
+						Log.error(
+								" ### Multiple potential owners for an anonymous subgraph of %d nodes with entry points %s",
+								subgraph.getExecutableNodeCount(), subgraph.getEntryPoints());
+					}
+					subgraph.logGraph(true);
+					Log.warn(" ### ownership\n");
+					continue;
+				}
+
+				if (executionExits.isEmpty() && returnNodes.isEmpty()) {
+					Log.error(" ### Missing exit from anonymous subgraph of %d nodes with entry points %s",
 							subgraph.getExecutableNodeCount(), subgraph.getEntryPoints());
 					subgraph.logGraph(true);
-					Log.warn(" ###\n");
+					Log.warn(" ### exit\n");
 					continue;
 				}
 
 				Log.log(" === SDR of %d executable nodes with %d entries owned by %s:",
 						subgraph.getExecutableNodeCount(), executionEntries.size(), owner.getUnitFilename());
 				Log.log("\t--- Gencode entries:");
-				for (EntryEdge gencodeEdge : gencodeEntries)
+				for (BoundaryEdge gencodeEdge : gencodeEntries)
 					Log.log("\t%s", gencodeEdge);
 				Log.log("\t--- Execution entries:");
-				for (EntryEdge executionEdge : executionEntries)
+				for (BoundaryEdge executionEdge : executionEntries)
 					Log.log("\t%s", executionEdge);
-				subgraph.logGraph(true);
-				Log.log(" === SDR end");
+				Log.log("\t--- Execution exits:");
+				for (BoundaryEdge executionEdge : executionExits)
+					Log.log("\t%s", executionEdge);
+				for (ClusterNode<?> returnNode : returnNodes)
+					Log.log("\t%s", returnNode);
+				Log.log(" === SDR end\n");
 
 				Set<Long> hashes = hashesByTrampolineGenerator.get(cluster);
 				if (hashes == null) {

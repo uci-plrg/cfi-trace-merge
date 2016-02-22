@@ -73,12 +73,10 @@ public class AnonymousSubgraph extends ModuleGraphCluster<ClusterNode<?>> {
 				}
 				throw new InvalidGraphException("Subgraph partition failed!", unvisitedNodes);
 			}
-
-			Log.log();
 		}
 
 		void traverseFromEntries() {
-			queue: while (bfsQueue.size() > 0) {
+			while (bfsQueue.size() > 0) {
 				ClusterNode<?> node = bfsQueue.remove();
 				visitedNodes.add(node);
 				unvisitedNodes.remove(node);
