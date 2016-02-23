@@ -75,8 +75,7 @@ public class AnonymousModuleReportSet {
 			return;
 
 		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : anonymousGraphs) {
-			for (AnonymousSubgraph maximalSubgraph : MaximalSubgraphs.getMaximalSubgraphs(source, dynamicGraph))
-				maximalSubgraphs.add(maximalSubgraph);
+			maximalSubgraphs.addAll(MaximalSubgraphs.getMaximalSubgraphs(source, dynamicGraph));
 		}
 		analyzeModules();
 	}
@@ -86,8 +85,7 @@ public class AnonymousModuleReportSet {
 			return;
 
 		for (AnonymousModule module : modules) {
-			for (AnonymousSubgraph subgraph : module.subgraphs)
-				maximalSubgraphs.add(subgraph);
+			maximalSubgraphs.addAll(module.subgraphs);
 		}
 		analyzeModules();
 	}
