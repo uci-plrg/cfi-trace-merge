@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd $cstm/..
+protoc --proto_path=crowd-safe-trace-merge/protos:crowd-safe-graph/protos:crowd-safe-common/protos --java_out=crowd-safe-trace-merge/src crowd-safe-trace-merge/protos/*.proto

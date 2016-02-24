@@ -2,17 +2,17 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.io.PrintStream;
 
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 class NewModuleReport implements ReportEntry {
 
-	private final AutonomousSoftwareDistribution cluster;
+	private final ApplicationModule cluster;
 
-	NewModuleReport(AutonomousSoftwareDistribution cluster) {
+	NewModuleReport(ApplicationModule cluster) {
 		this.cluster = cluster;
 	}
 

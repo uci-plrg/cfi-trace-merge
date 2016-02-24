@@ -11,21 +11,21 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModuleSet;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.MaximalSubgraphs;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousModule;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousSubgraph;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.MaximalSubgraphs;
 
 public class AnonymousModuleReportSet {
-	private static class SizeOrder implements Comparator<ModuleGraphCluster<ClusterNode<?>>> {
+	private static class SizeOrder implements Comparator<ModuleGraph<ModuleNode<?>>> {
 		@Override
-		public int compare(ModuleGraphCluster<ClusterNode<?>> first, ModuleGraphCluster<ClusterNode<?>> second) {
+		public int compare(ModuleGraph<ModuleNode<?>> first, ModuleGraph<ModuleNode<?>> second) {
 			int comparison = second.getExecutableNodeCount() - first.getExecutableNodeCount();
 			if (comparison != 0)
 				return comparison;
@@ -34,20 +34,20 @@ public class AnonymousModuleReportSet {
 		}
 	}
 
-	private static class ClusterGraphCache {
+	private static class GraphCache {
 		final GraphMergeCandidate mergeCandidate;
 
-		final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<?>> graphs = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<?>>();
+		final Map<ApplicationModule, ModuleGraph<?>> graphs = new HashMap<ApplicationModule, ModuleGraph<?>>();
 
-		public ClusterGraphCache(GraphMergeCandidate mergeCandidate) {
+		public GraphCache(GraphMergeCandidate mergeCandidate) {
 			this.mergeCandidate = mergeCandidate;
 		}
 
-		ModuleGraphCluster<?> getGraph(AutonomousSoftwareDistribution cluster) throws IOException {
-			ModuleGraphCluster<?> graph = graphs.get(cluster);
+		ModuleGraph<?> getGraph(ApplicationModule module) throws IOException {
+			ModuleGraph<?> graph = graphs.get(module);
 			if (graph == null) {
-				graph = mergeCandidate.getClusterGraph(cluster);
-				graphs.put(cluster, graph);
+				graph = mergeCandidate.getModuleGraph(module);
+				graphs.put(module, graph);
 			}
 			return graph;
 		}
@@ -55,36 +55,36 @@ public class AnonymousModuleReportSet {
 
 	final String name;
 
-	List<AnonymousSubgraph> maximalSubgraphs = new ArrayList<AnonymousSubgraph>();
-	private final Map<AnonymousModule.OwnerKey, AnonymousModule> modulesByOwner = new HashMap<AnonymousModule.OwnerKey, AnonymousModule>();
+	List<AnonymousGraph> maximalSubgraphs = new ArrayList<AnonymousGraph>();
+	private final Map<AnonymousGraphCollection.OwnerKey, AnonymousGraphCollection> modulesByOwner = new HashMap<AnonymousGraphCollection.OwnerKey, AnonymousGraphCollection>();
 
 	public AnonymousModuleReportSet(String name) {
 		this.name = name;
 	}
 
-	Set<AnonymousModule.OwnerKey> getModuleOwners() {
+	Set<AnonymousGraphCollection.OwnerKey> getModuleOwners() {
 		return modulesByOwner.keySet();
 	}
 
-	AnonymousModule getModule(AnonymousModule.OwnerKey owner) {
+	AnonymousGraphCollection getModule(AnonymousGraphCollection.OwnerKey owner) {
 		return modulesByOwner.get(owner);
 	}
 
-	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraphCluster<ClusterNode<?>>> anonymousGraphs) {
+	void installSubgraphs(GraphMergeSource source, List<? extends ModuleGraph<ModuleNode<?>>> anonymousGraphs) {
 		if (anonymousGraphs.isEmpty())
 			return;
 
-		for (ModuleGraphCluster<ClusterNode<?>> dynamicGraph : anonymousGraphs) {
-			maximalSubgraphs.addAll(MaximalSubgraphs.getMaximalSubgraphs(source, dynamicGraph));
+		for (ModuleGraph<ModuleNode<?>> dynamicGraph : anonymousGraphs) {
+			maximalSubgraphs.addAll(MaximalSubgraphs.getMaximalSubgraphs(dynamicGraph));
 		}
 		analyzeModules();
 	}
 
-	void installModules(List<AnonymousModule> modules) throws IOException {
+	void installModules(List<AnonymousGraphCollection> modules) throws IOException {
 		if (modules.isEmpty())
 			return;
 
-		for (AnonymousModule module : modules) {
+		for (AnonymousGraphCollection module : modules) {
 			maximalSubgraphs.addAll(module.subgraphs);
 		}
 		analyzeModules();
@@ -93,16 +93,16 @@ public class AnonymousModuleReportSet {
 	private void analyzeModules() {
 		Collections.sort(maximalSubgraphs, new SizeOrder());
 
-		Set<AutonomousSoftwareDistribution> allConnectingClusters = new HashSet<AutonomousSoftwareDistribution>();
-		AutonomousSoftwareDistribution owningCluster;
-		Set<AutonomousSoftwareDistribution> ambiguousOwnerSet = new HashSet<AutonomousSoftwareDistribution>();
-		subgraphs: for (AnonymousSubgraph subgraph : maximalSubgraphs) {
-			AutonomousSoftwareDistribution cluster;
+		Set<ApplicationModule> allConnectingModules = new HashSet<ApplicationModule>();
+		ApplicationModule owningModule;
+		Set<ApplicationModule> ambiguousOwnerSet = new HashSet<ApplicationModule>();
+		subgraphs: for (AnonymousGraph subgraph : maximalSubgraphs) {
+			ApplicationModule module;
 			boolean ambiguousOwner = false;
 			ambiguousOwnerSet.clear();
-			owningCluster = null;
-			allConnectingClusters.clear();
-			if (subgraph.getEntryPoints().isEmpty() && !subgraph.isAnonymousBlackBox()) {
+			owningModule = null;
+			allConnectingModules.clear();
+			if (subgraph.getEntryPoints().isEmpty() && !subgraph.isJIT()) {
 				Log.log("Error: entry point missing for anonymous subgraph of %d nodes in %s!",
 						subgraph.getNodeCount(), name);
 				Log.log("\tOmitting this subgraph from the merge.");
@@ -110,20 +110,17 @@ public class AnonymousModuleReportSet {
 				continue subgraphs;
 			}
 
-			for (ClusterNode<?> entryPoint : subgraph.getEntryPoints()) {
+			for (ModuleNode<?> entryPoint : subgraph.getEntryPoints()) {
 				OrdinalEdgeList<?> edges = entryPoint.getOutgoingEdges();
 				try {
-					if (ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousGencodeHash(
-							entryPoint.getHash()) != null)
+					if (ApplicationModuleSet.getInstance().getClusterByAnonymousGencodeHash(entryPoint.getHash()) != null)
 						continue; // no ownership by gencode, it's not reliable
 
-					cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousEntryHash(
-							entryPoint.getHash());
-					if (cluster == null) {
-						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByInterceptionHash(
-								entryPoint.getHash());
+					module = ApplicationModuleSet.getInstance().getClusterByAnonymousEntryHash(entryPoint.getHash());
+					if (module == null) {
+						module = ApplicationModuleSet.getInstance().getClusterByInterceptionHash(entryPoint.getHash());
 					}
-					if (cluster == null) {
+					if (module == null) {
 						Log.log("Error: unrecognized entry point 0x%x for anonymous subgraph of %d nodes!",
 								entryPoint.getHash(), subgraph.getNodeCount());
 						Log.log("\tKeeping the edge but discarding this owner.");
@@ -131,20 +128,20 @@ public class AnonymousModuleReportSet {
 						continue;
 					}
 
-					cluster = AnonymousModule.resolveAlias(cluster);
+					module = AnonymousGraphCollection.resolveAlias(module);
 
-					allConnectingClusters.add(cluster);
+					allConnectingModules.add(module);
 
-					if (AnonymousModule.isEligibleOwner(cluster)) {
+					if (AnonymousGraphCollection.isEligibleOwner(module)) {
 						if (ambiguousOwner) {
-							ambiguousOwnerSet.add(cluster);
+							ambiguousOwnerSet.add(module);
 						} else {
-							if (owningCluster == null) {
-								owningCluster = cluster;
-							} else if (owningCluster != cluster) {
+							if (owningModule == null) {
+								owningModule = module;
+							} else if (owningModule != module) {
 								ambiguousOwner = true;
-								ambiguousOwnerSet.add(owningCluster);
-								ambiguousOwnerSet.add(cluster);
+								ambiguousOwnerSet.add(owningModule);
+								ambiguousOwnerSet.add(module);
 							}
 						}
 					}
@@ -154,23 +151,22 @@ public class AnonymousModuleReportSet {
 			}
 
 			if (!ambiguousOwner) {
-				for (ClusterNode<?> exitPoint : subgraph.getExitPoints()) {
+				for (ModuleNode<?> exitPoint : subgraph.getExitPoints()) {
 					OrdinalEdgeList<?> edges = exitPoint.getIncomingEdges();
 					try {
 						// int leftTargetCount = 0, rightTargetCount = 0;
-						cluster = ConfiguredSoftwareDistributions.getInstance().getClusterByAnonymousExitHash(
-								exitPoint.getHash());
-						if (cluster == null) {
+						module = ApplicationModuleSet.getInstance().getClusterByAnonymousExitHash(exitPoint.getHash());
+						if (module == null) {
 							// Log.log("     Callout 0x%x (%s) to an exported function", node.getHash());
 							continue;
 						}
 
-						cluster = AnonymousModule.resolveAlias(cluster);
-						allConnectingClusters.add(cluster);
+						module = AnonymousGraphCollection.resolveAlias(module);
+						allConnectingModules.add(module);
 
-						if (AnonymousModule.isEligibleOwner(cluster)) {
-							if (owningCluster == null) {
-								owningCluster = cluster;
+						if (AnonymousGraphCollection.isEligibleOwner(module)) {
+							if (owningModule == null) {
+								owningModule = module;
 							}
 						}
 					} finally {
@@ -181,32 +177,32 @@ public class AnonymousModuleReportSet {
 
 			if (ambiguousOwner) {
 				StringBuilder buffer = new StringBuilder();
-				for (AutonomousSoftwareDistribution c : ambiguousOwnerSet) {
+				for (ApplicationModule c : ambiguousOwnerSet) {
 					buffer.append(c.getUnitFilename());
 					buffer.append(", ");
 				}
 				buffer.setLength(buffer.length() - 2);
-				Log.log("Error: subgraph of %d nodes has entry points from multiple clusters: %s",
+				Log.log("Error: subgraph of %d nodes has entry points from multiple modules: %s",
 						subgraph.getNodeCount(), buffer);
 				Log.log("\tOmitting this subgraph from the merge.");
 			} else {
-				if (owningCluster == null) {
-					if (allConnectingClusters.size() == 1) {
-						owningCluster = allConnectingClusters.iterator().next();
+				if (owningModule == null) {
+					if (allConnectingModules.size() == 1) {
+						owningModule = allConnectingModules.iterator().next();
 					} else {
-						Log.log("Error: could not determine the owning cluster of an anonymous subgraph with %d nodes!",
+						Log.log("Error: could not determine the owning module of an anonymous subgraph with %d nodes!",
 								subgraph.getNodeCount());
-						Log.log("\tPotential owners are: %s", allConnectingClusters);
+						Log.log("\tPotential owners are: %s", allConnectingModules);
 						Log.log("\tOmitting this subgraph from the merge.");
 						continue subgraphs;
 					}
 				}
 
-				AnonymousModule.OwnerKey key = new AnonymousModule.OwnerKey(owningCluster,
-						subgraph.isAnonymousBlackBox());
-				AnonymousModule module = modulesByOwner.get(key);
+				AnonymousGraphCollection.OwnerKey key = new AnonymousGraphCollection.OwnerKey(owningModule,
+						subgraph.isJIT());
+				AnonymousGraphCollection module = modulesByOwner.get(key);
 				if (module == null) {
-					module = new AnonymousModule(owningCluster);
+					module = new AnonymousGraphCollection(owningModule);
 					modulesByOwner.put(key, module);
 				}
 				module.addSubgraph(subgraph);

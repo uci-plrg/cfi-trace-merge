@@ -26,7 +26,7 @@ public class ContextMatchRecord {
 	private static final int INITIAL_STATE_COUNT = 20;
 
 	private final ContextMatchState currentState = new ContextMatchState();
-	private ClusterHashMergeSession.MergeEvaluator evaluator;
+	private HashMergeSession.MergeEvaluator evaluator;
 
 	private final List<EdgeComparison> edges = new ArrayList<EdgeComparison>(INITIAL_COMPARISON_COUNT);
 
@@ -42,10 +42,10 @@ public class ContextMatchRecord {
 	private Node<?> rightSubtreeRoot;
 
 	public ContextMatchRecord() {
-		this(new ClusterHashMergeSession.DefaultEvaluator());
+		this(new HashMergeSession.DefaultEvaluator());
 	}
 
-	public ContextMatchRecord(ClusterHashMergeSession.MergeEvaluator evaluator) {
+	public ContextMatchRecord(HashMergeSession.MergeEvaluator evaluator) {
 		this.evaluator = evaluator;
 
 		for (int i = 0; i < INITIAL_COMPARISON_COUNT; i++) {
@@ -74,7 +74,7 @@ public class ContextMatchRecord {
 		this.rightSubtreeRoot = rightSubtreeRoot;
 	}
 
-	void setEvaluator(ClusterHashMergeSession.MergeEvaluator evaluator) {
+	void setEvaluator(HashMergeSession.MergeEvaluator evaluator) {
 		this.evaluator = evaluator;
 	}
 

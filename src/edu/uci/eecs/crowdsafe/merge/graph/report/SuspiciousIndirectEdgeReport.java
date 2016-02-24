@@ -5,8 +5,8 @@ import java.io.PrintStream;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleUIB;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
@@ -14,7 +14,7 @@ public class SuspiciousIndirectEdgeReport implements ReportEntry {
 
 	private static int executionSuibCount = 0; // hazard? multiple reports in a reporter run?
 
-	private final ClusterUIB suib;
+	private final ModuleUIB suib;
 
 	private int programSuspiciousEdges = 0;
 	private int moduleSuspiciousEdges = 0;
@@ -22,7 +22,7 @@ public class SuspiciousIndirectEdgeReport implements ReportEntry {
 
 	private double riskScale;
 
-	SuspiciousIndirectEdgeReport(ClusterUIB suib) {
+	SuspiciousIndirectEdgeReport(ModuleUIB suib) {
 		this.suib = suib;
 	}
 
@@ -34,7 +34,7 @@ public class SuspiciousIndirectEdgeReport implements ReportEntry {
 
 		executionSuibCount++;
 
-		if (suib.edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT) {
+		if (suib.edge.getToNode().getType() == MetaNodeType.MODULE_EXIT) {
 			riskScale = 1.0; // should never happen
 		} else {
 			double alpha = moduleFrequencies.getAlpha(ModuleEventFrequencies.SUIB_COUNT);
@@ -46,7 +46,7 @@ public class SuspiciousIndirectEdgeReport implements ReportEntry {
 					riskScale = 1.0;
 				} else {
 					int targetCount = 0;
-					OrdinalEdgeList<ClusterNode<?>> edgeList = suib.edge.getFromNode().getOutgoingEdges();
+					OrdinalEdgeList<ModuleNode<?>> edgeList = suib.edge.getFromNode().getOutgoingEdges();
 					try {
 						targetCount = edgeList.size();
 					} finally {

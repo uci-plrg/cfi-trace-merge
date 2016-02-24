@@ -2,7 +2,7 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 
 import java.io.PrintStream;
 
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSGE;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleSGE;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
@@ -10,14 +10,14 @@ import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.Program
 // [ 2. # sge from this program ] // not really available since it's relatively new
 public class SuspiciousGencodeReport implements ReportEntry {
 
-	private final ClusterSGE sge;
+	private final ModuleSGE sge;
 
 	// [ private int moduleProgramSGEs = 0; ]
 	private int totalProgramSGEs = 0;
 
 	private int riskIndex;
 
-	SuspiciousGencodeReport(ClusterSGE sge) {
+	SuspiciousGencodeReport(ModuleSGE sge) {
 		this.sge = sge;
 	}
 

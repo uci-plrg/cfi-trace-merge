@@ -8,10 +8,10 @@ import java.util.Set;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.GraphLoadEventListener;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
-public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
+public class HashMergeDebugLog implements GraphLoadEventListener {
 
 	private static class TrackedNodeKey {
 		int pageOffset;
@@ -70,7 +70,7 @@ public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
 	private final TrackedNodeKey trackedNodeLookupKey = new TrackedNodeKey();
 	private final List<Long> debugRelativeTags = new ArrayList<Long>();
 
-	public ClusterHashMergeDebugLog() {
+	public HashMergeDebugLog() {
 		// TODO: hash differs on peer run of ls: omit absolute ops for nodes in the unknown module?
 
 		// duplicate CC
@@ -78,12 +78,12 @@ public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
 	}
 
 	void debugCheck(Node<?> node) {
-		if (node.getModule().unit.filename.equals("kernel32.dll"))
+		if (node.getModule().filename.equals("kernel32.dll"))
 			return;
 
 		switch (node.getType()) {
-			case CLUSTER_ENTRY:
-			case CLUSTER_EXIT:
+			case MODULE_ENTRY:
+			case MODULE_EXIT:
 				if (debugRelativeTags.contains(node.getHash()))
 					node.getClass();
 				break;
@@ -192,9 +192,9 @@ public class ClusterHashMergeDebugLog implements GraphLoadEventListener {
 	}
 
 	@Override
-	public void graphAddition(Node<?> node, ModuleGraphCluster<?> cluster) {
+	public void graphAddition(Node<?> node, ModuleGraph<?> cluster) {
 		if (isTracked(node)) {
-			Log.log("Node %s added to cluster %s.", node.toString(), cluster.cluster.name);
+			Log.log("Node %s added to cluster %s.", node.toString(), cluster.module.name);
 		}
 	}
 }

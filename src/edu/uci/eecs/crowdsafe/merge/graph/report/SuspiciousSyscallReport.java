@@ -4,7 +4,7 @@ import java.io.PrintStream;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.RiskySystemCall;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSSC;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleSSC;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
@@ -13,12 +13,12 @@ import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.Program
 // [ 2. # SSC where suspicion is raised from this module ] // not really available since it's relatively new
 public class SuspiciousSyscallReport implements ReportEntry {
 
-	private final ClusterSSC ssc;
+	private final ModuleSSC ssc;
 
 	private int sameSuspiciousSysnumCount = 0;
 	private int riskIndex;
 
-	SuspiciousSyscallReport(ClusterSSC ssc) {
+	SuspiciousSyscallReport(ModuleSSC ssc) {
 		this.ssc = ssc;
 
 		if (RiskySystemCall.sysnumMap.get(ssc.sysnum) == null)

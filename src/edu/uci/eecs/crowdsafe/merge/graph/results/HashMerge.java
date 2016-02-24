@@ -39,29 +39,29 @@ public final class HashMerge {
      */
     edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getRightOrBuilder();
 
-    // repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;
+    // repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge> 
-        getClusterList();
+    java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge> 
+        getMergeList();
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge getCluster(int index);
+    edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge getMerge(int index);
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    int getClusterCount();
+    int getMergeCount();
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder> 
-        getClusterOrBuilderList();
+    java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder> 
+        getMergeOrBuilderList();
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder getClusterOrBuilder(
+    edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder getMergeOrBuilder(
         int index);
   }
   /**
@@ -143,10 +143,10 @@ public final class HashMerge {
             }
             case 26: {
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                cluster_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge>();
+                merge_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge>();
                 mutable_bitField0_ |= 0x00000004;
               }
-              cluster_.add(input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.PARSER, extensionRegistry));
+              merge_.add(input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.PARSER, extensionRegistry));
               break;
             }
           }
@@ -158,7 +158,7 @@ public final class HashMerge {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          cluster_ = java.util.Collections.unmodifiableList(cluster_);
+          merge_ = java.util.Collections.unmodifiableList(merge_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -236,46 +236,46 @@ public final class HashMerge {
       return right_;
     }
 
-    // repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;
-    public static final int CLUSTER_FIELD_NUMBER = 3;
-    private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge> cluster_;
+    // repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;
+    public static final int MERGE_FIELD_NUMBER = 3;
+    private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge> merge_;
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge> getClusterList() {
-      return cluster_;
+    public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge> getMergeList() {
+      return merge_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder> 
-        getClusterOrBuilderList() {
-      return cluster_;
+    public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder> 
+        getMergeOrBuilderList() {
+      return merge_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    public int getClusterCount() {
-      return cluster_.size();
+    public int getMergeCount() {
+      return merge_.size();
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge getCluster(int index) {
-      return cluster_.get(index);
+    public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge getMerge(int index) {
+      return merge_.get(index);
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder getClusterOrBuilder(
+    public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder getMergeOrBuilder(
         int index) {
-      return cluster_.get(index);
+      return merge_.get(index);
     }
 
     private void initFields() {
       left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
-      cluster_ = java.util.Collections.emptyList();
+      merge_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -295,8 +295,8 @@ public final class HashMerge {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, right_);
       }
-      for (int i = 0; i < cluster_.size(); i++) {
-        output.writeMessage(3, cluster_.get(i));
+      for (int i = 0; i < merge_.size(); i++) {
+        output.writeMessage(3, merge_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -315,9 +315,9 @@ public final class HashMerge {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, right_);
       }
-      for (int i = 0; i < cluster_.size(); i++) {
+      for (int i = 0; i < merge_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, cluster_.get(i));
+          .computeMessageSize(3, merge_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -429,7 +429,7 @@ public final class HashMerge {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getLeftFieldBuilder();
           getRightFieldBuilder();
-          getClusterFieldBuilder();
+          getMergeFieldBuilder();
         }
       }
       private static Builder create() {
@@ -450,11 +450,11 @@ public final class HashMerge {
           rightBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
-        if (clusterBuilder_ == null) {
-          cluster_ = java.util.Collections.emptyList();
+        if (mergeBuilder_ == null) {
+          merge_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000004);
         } else {
-          clusterBuilder_.clear();
+          mergeBuilder_.clear();
         }
         return this;
       }
@@ -500,14 +500,14 @@ public final class HashMerge {
         } else {
           result.right_ = rightBuilder_.build();
         }
-        if (clusterBuilder_ == null) {
+        if (mergeBuilder_ == null) {
           if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            cluster_ = java.util.Collections.unmodifiableList(cluster_);
+            merge_ = java.util.Collections.unmodifiableList(merge_);
             bitField0_ = (bitField0_ & ~0x00000004);
           }
-          result.cluster_ = cluster_;
+          result.merge_ = merge_;
         } else {
-          result.cluster_ = clusterBuilder_.build();
+          result.merge_ = mergeBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -531,29 +531,29 @@ public final class HashMerge {
         if (other.hasRight()) {
           mergeRight(other.getRight());
         }
-        if (clusterBuilder_ == null) {
-          if (!other.cluster_.isEmpty()) {
-            if (cluster_.isEmpty()) {
-              cluster_ = other.cluster_;
+        if (mergeBuilder_ == null) {
+          if (!other.merge_.isEmpty()) {
+            if (merge_.isEmpty()) {
+              merge_ = other.merge_;
               bitField0_ = (bitField0_ & ~0x00000004);
             } else {
-              ensureClusterIsMutable();
-              cluster_.addAll(other.cluster_);
+              ensureMergeIsMutable();
+              merge_.addAll(other.merge_);
             }
             onChanged();
           }
         } else {
-          if (!other.cluster_.isEmpty()) {
-            if (clusterBuilder_.isEmpty()) {
-              clusterBuilder_.dispose();
-              clusterBuilder_ = null;
-              cluster_ = other.cluster_;
+          if (!other.merge_.isEmpty()) {
+            if (mergeBuilder_.isEmpty()) {
+              mergeBuilder_.dispose();
+              mergeBuilder_ = null;
+              merge_ = other.merge_;
               bitField0_ = (bitField0_ & ~0x00000004);
-              clusterBuilder_ = 
+              mergeBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getClusterFieldBuilder() : null;
+                   getMergeFieldBuilder() : null;
             } else {
-              clusterBuilder_.addAllMessages(other.cluster_);
+              mergeBuilder_.addAllMessages(other.merge_);
             }
           }
         }
@@ -818,244 +818,244 @@ public final class HashMerge {
         return rightBuilder_;
       }
 
-      // repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;
-      private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge> cluster_ =
+      // repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;
+      private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge> merge_ =
         java.util.Collections.emptyList();
-      private void ensureClusterIsMutable() {
+      private void ensureMergeIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          cluster_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge>(cluster_);
+          merge_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge>(merge_);
           bitField0_ |= 0x00000004;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder> clusterBuilder_;
+          edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder> mergeBuilder_;
 
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge> getClusterList() {
-        if (clusterBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(cluster_);
+      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge> getMergeList() {
+        if (mergeBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(merge_);
         } else {
-          return clusterBuilder_.getMessageList();
+          return mergeBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public int getClusterCount() {
-        if (clusterBuilder_ == null) {
-          return cluster_.size();
+      public int getMergeCount() {
+        if (mergeBuilder_ == null) {
+          return merge_.size();
         } else {
-          return clusterBuilder_.getCount();
+          return mergeBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge getCluster(int index) {
-        if (clusterBuilder_ == null) {
-          return cluster_.get(index);
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge getMerge(int index) {
+        if (mergeBuilder_ == null) {
+          return merge_.get(index);
         } else {
-          return clusterBuilder_.getMessage(index);
+          return mergeBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder setCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge value) {
-        if (clusterBuilder_ == null) {
+      public Builder setMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge value) {
+        if (mergeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureClusterIsMutable();
-          cluster_.set(index, value);
+          ensureMergeIsMutable();
+          merge_.set(index, value);
           onChanged();
         } else {
-          clusterBuilder_.setMessage(index, value);
+          mergeBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder setCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder builderForValue) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.set(index, builderForValue.build());
+      public Builder setMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder builderForValue) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.set(index, builderForValue.build());
           onChanged();
         } else {
-          clusterBuilder_.setMessage(index, builderForValue.build());
+          mergeBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder addCluster(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge value) {
-        if (clusterBuilder_ == null) {
+      public Builder addMerge(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge value) {
+        if (mergeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureClusterIsMutable();
-          cluster_.add(value);
+          ensureMergeIsMutable();
+          merge_.add(value);
           onChanged();
         } else {
-          clusterBuilder_.addMessage(value);
+          mergeBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder addCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge value) {
-        if (clusterBuilder_ == null) {
+      public Builder addMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge value) {
+        if (mergeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureClusterIsMutable();
-          cluster_.add(index, value);
+          ensureMergeIsMutable();
+          merge_.add(index, value);
           onChanged();
         } else {
-          clusterBuilder_.addMessage(index, value);
+          mergeBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder addCluster(
-          edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder builderForValue) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.add(builderForValue.build());
+      public Builder addMerge(
+          edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder builderForValue) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.add(builderForValue.build());
           onChanged();
         } else {
-          clusterBuilder_.addMessage(builderForValue.build());
+          mergeBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder addCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder builderForValue) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.add(index, builderForValue.build());
+      public Builder addMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder builderForValue) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.add(index, builderForValue.build());
           onChanged();
         } else {
-          clusterBuilder_.addMessage(index, builderForValue.build());
+          mergeBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder addAllCluster(
-          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge> values) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          super.addAll(values, cluster_);
+      public Builder addAllMerge(
+          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge> values) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          super.addAll(values, merge_);
           onChanged();
         } else {
-          clusterBuilder_.addAllMessages(values);
+          mergeBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder clearCluster() {
-        if (clusterBuilder_ == null) {
-          cluster_ = java.util.Collections.emptyList();
+      public Builder clearMerge() {
+        if (mergeBuilder_ == null) {
+          merge_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000004);
           onChanged();
         } else {
-          clusterBuilder_.clear();
+          mergeBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public Builder removeCluster(int index) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.remove(index);
+      public Builder removeMerge(int index) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.remove(index);
           onChanged();
         } else {
-          clusterBuilder_.remove(index);
+          mergeBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder getClusterBuilder(
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder getMergeBuilder(
           int index) {
-        return getClusterFieldBuilder().getBuilder(index);
+        return getMergeFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder getClusterOrBuilder(
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder getMergeOrBuilder(
           int index) {
-        if (clusterBuilder_ == null) {
-          return cluster_.get(index);  } else {
-          return clusterBuilder_.getMessageOrBuilder(index);
+        if (mergeBuilder_ == null) {
+          return merge_.get(index);  } else {
+          return mergeBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder> 
-           getClusterOrBuilderList() {
-        if (clusterBuilder_ != null) {
-          return clusterBuilder_.getMessageOrBuilderList();
+      public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder> 
+           getMergeOrBuilderList() {
+        if (mergeBuilder_ != null) {
+          return mergeBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(cluster_);
+          return java.util.Collections.unmodifiableList(merge_);
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder addClusterBuilder() {
-        return getClusterFieldBuilder().addBuilder(
-            edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.getDefaultInstance());
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder addMergeBuilder() {
+        return getMergeFieldBuilder().addBuilder(
+            edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.getDefaultInstance());
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder addClusterBuilder(
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder addMergeBuilder(
           int index) {
-        return getClusterFieldBuilder().addBuilder(
-            index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.getDefaultInstance());
+        return getMergeFieldBuilder().addBuilder(
+            index, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.getDefaultInstance());
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.HashClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleHashMerge merge = 3;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder> 
-           getClusterBuilderList() {
-        return getClusterFieldBuilder().getBuilderList();
+      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder> 
+           getMergeBuilderList() {
+        return getMergeFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder> 
-          getClusterFieldBuilder() {
-        if (clusterBuilder_ == null) {
-          clusterBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder>(
-                  cluster_,
+          edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder> 
+          getMergeFieldBuilder() {
+        if (mergeBuilder_ == null) {
+          mergeBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder>(
+                  merge_,
                   ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
-          cluster_ = null;
+          merge_ = null;
         }
-        return clusterBuilder_;
+        return mergeBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.HashMergeResults)
@@ -1069,7 +1069,7 @@ public final class HashMerge {
     // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.HashMergeResults)
   }
 
-  public interface HashClusterMergeOrBuilder
+  public interface ModuleHashMergeOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
     // optional string distribution_name = 1;
@@ -1197,24 +1197,24 @@ public final class HashMerge {
         int index);
   }
   /**
-   * Protobuf type {@code crowd_safe_data_analysis.HashClusterMerge}
+   * Protobuf type {@code crowd_safe_data_analysis.ModuleHashMerge}
    */
-  public static final class HashClusterMerge extends
+  public static final class ModuleHashMerge extends
       com.google.protobuf.GeneratedMessage
-      implements HashClusterMergeOrBuilder {
-    // Use HashClusterMerge.newBuilder() to construct.
-    private HashClusterMerge(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      implements ModuleHashMergeOrBuilder {
+    // Use ModuleHashMerge.newBuilder() to construct.
+    private ModuleHashMerge(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private HashClusterMerge(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+    private ModuleHashMerge(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-    private static final HashClusterMerge defaultInstance;
-    public static HashClusterMerge getDefaultInstance() {
+    private static final ModuleHashMerge defaultInstance;
+    public static ModuleHashMerge getDefaultInstance() {
       return defaultInstance;
     }
 
-    public HashClusterMerge getDefaultInstanceForType() {
+    public ModuleHashMerge getDefaultInstanceForType() {
       return defaultInstance;
     }
 
@@ -1224,7 +1224,7 @@ public final class HashMerge {
         getUnknownFields() {
       return this.unknownFields;
     }
-    private HashClusterMerge(
+    private ModuleHashMerge(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1355,28 +1355,28 @@ public final class HashMerge {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_HashClusterMerge_descriptor;
+      return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_ModuleHashMerge_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_HashClusterMerge_fieldAccessorTable
+      return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_ModuleHashMerge_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder.class);
+              edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<HashClusterMerge> PARSER =
-        new com.google.protobuf.AbstractParser<HashClusterMerge>() {
-      public HashClusterMerge parsePartialFrom(
+    public static com.google.protobuf.Parser<ModuleHashMerge> PARSER =
+        new com.google.protobuf.AbstractParser<ModuleHashMerge>() {
+      public ModuleHashMerge parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new HashClusterMerge(input, extensionRegistry);
+        return new ModuleHashMerge(input, extensionRegistry);
       }
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<HashClusterMerge> getParserForType() {
+    public com.google.protobuf.Parser<ModuleHashMerge> getParserForType() {
       return PARSER;
     }
 
@@ -1691,53 +1691,53 @@ public final class HashMerge {
       return super.writeReplace();
     }
 
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(byte[] data)
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(java.io.InputStream input)
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseDelimitedFrom(java.io.InputStream input)
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseDelimitedFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1746,7 +1746,7 @@ public final class HashMerge {
 
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge prototype) {
+    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -1758,24 +1758,24 @@ public final class HashMerge {
       return builder;
     }
     /**
-     * Protobuf type {@code crowd_safe_data_analysis.HashClusterMerge}
+     * Protobuf type {@code crowd_safe_data_analysis.ModuleHashMerge}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMergeOrBuilder {
+       implements edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMergeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_HashClusterMerge_descriptor;
+        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_ModuleHashMerge_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_HashClusterMerge_fieldAccessorTable
+        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_ModuleHashMerge_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.Builder.class);
+                edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.Builder.class);
       }
 
-      // Construct using edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.newBuilder()
+      // Construct using edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -1855,23 +1855,23 @@ public final class HashMerge {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_HashClusterMerge_descriptor;
+        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.internal_static_crowd_safe_data_analysis_ModuleHashMerge_descriptor;
       }
 
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge getDefaultInstanceForType() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.getDefaultInstance();
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge getDefaultInstanceForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.getDefaultInstance();
       }
 
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge build() {
-        edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge result = buildPartial();
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge build() {
+        edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge buildPartial() {
-        edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge result = new edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge(this);
+      public edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge buildPartial() {
+        edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge result = new edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -1941,16 +1941,16 @@ public final class HashMerge {
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge) {
-          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge)other);
+        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge) {
+          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge other) {
-        if (other == edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge.getDefaultInstance()) return this;
+      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge other) {
+        if (other == edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge.getDefaultInstance()) return this;
         if (other.hasDistributionName()) {
           bitField0_ |= 0x00000001;
           distributionName_ = other.distributionName_;
@@ -2012,11 +2012,11 @@ public final class HashMerge {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge parsedMessage = null;
+        edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.HashClusterMerge) e.getUnfinishedMessage();
+          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge.ModuleHashMerge) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -3043,15 +3043,15 @@ public final class HashMerge {
         return statisticsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.HashClusterMerge)
+      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.ModuleHashMerge)
     }
 
     static {
-      defaultInstance = new HashClusterMerge(true);
+      defaultInstance = new ModuleHashMerge(true);
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.HashClusterMerge)
+    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.ModuleHashMerge)
   }
 
   public interface UnmatchedNodeSummaryOrBuilder
@@ -5377,10 +5377,10 @@ public final class HashMerge {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_crowd_safe_data_analysis_HashMergeResults_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_crowd_safe_data_analysis_HashClusterMerge_descriptor;
+    internal_static_crowd_safe_data_analysis_ModuleHashMerge_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_crowd_safe_data_analysis_HashClusterMerge_fieldAccessorTable;
+      internal_static_crowd_safe_data_analysis_ModuleHashMerge_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor;
   private static
@@ -5407,40 +5407,40 @@ public final class HashMerge {
     java.lang.String[] descriptorData = {
       "\n\030hash-merge-results.proto\022\030crowd_safe_d" +
       "ata_analysis\032\013graph.proto\032\020statistics.pr" +
-      "oto\"\262\001\n\020HashMergeResults\022/\n\004left\030\001 \001(\0132!" +
+      "oto\"\257\001\n\020HashMergeResults\022/\n\004left\030\001 \001(\0132!" +
       ".crowd_safe_data_analysis.Process\0220\n\005rig" +
       "ht\030\002 \001(\0132!.crowd_safe_data_analysis.Proc" +
-      "ess\022;\n\007cluster\030\003 \003(\0132*.crowd_safe_data_a" +
-      "nalysis.HashClusterMerge\"\255\004\n\020HashCluster" +
-      "Merge\022\031\n\021distribution_name\030\001 \001(\t\022F\n\016left" +
-      "_unmatched\030\002 \001(\0132..crowd_safe_data_analy" +
-      "sis.UnmatchedNodeSummary\022G\n\017right_unmatc",
-      "hed\030\003 \001(\0132..crowd_safe_data_analysis.Unm" +
-      "atchedNodeSummary\022G\n\014hash_profile\030\004 \001(\0132" +
-      "1.crowd_safe_data_analysis.TraceCompilat" +
-      "ionProfile\022H\n\rgraph_profile\030\005 \001(\01321.crow" +
-      "d_safe_data_analysis.TraceCompilationPro" +
-      "file\022Y\n\036graph_within_hash_intersection\030\006" +
-      " \001(\01321.crowd_safe_data_analysis.TraceCom" +
-      "pilationProfile\022A\n\rmerge_summary\030\007 \001(\0132*" +
-      ".crowd_safe_data_analysis.HashMergeSumma" +
-      "ry\022<\n\nstatistics\030\010 \003(\0132(.crowd_safe_data",
-      "_analysis.StatisticsTree\"\212\001\n\024UnmatchedNo" +
-      "deSummary\022\022\n\nnode_count\030\001 \001(\005\022\033\n\023eligibl" +
-      "e_node_count\030\002 \001(\005\022\036\n\026unreachable_node_c" +
-      "ount\030\003 \001(\005\022!\n\031hash_exclusive_node_count\030" +
-      "\004 \001(\005\"[\n\027TraceCompilationProfile\022\r\n\005unio" +
-      "n\030\001 \001(\005\022\024\n\014intersection\030\002 \001(\005\022\014\n\004left\030\003 " +
-      "\001(\005\022\r\n\005right\030\004 \001(\005\"\302\002\n\020HashMergeSummary\022" +
-      "\036\n\026indirect_edges_matched\030\001 \001(\005\022\036\n\026pure_" +
-      "heuristic_matches\030\002 \001(\005\022\'\n\037call_continua" +
-      "tion_edges_matched\030\003 \001(\005\022,\n$exception_co",
-      "ntinuation_edges_matched\030\010 \001(\005\022!\n\031possib" +
-      "ly_rewritten_blocks\030\004 \001(\005\022&\n\036module_rela" +
-      "tive_tag_mismatches\030\005 \001(\005\022!\n\031mismatched_" +
-      "subgraph_count\030\006 \001(\005\022)\n!largest_mismatch" +
-      "ed_subgraphs_size\030\007 \003(\005B7\n*edu.uci.eecs." +
-      "crowdsafe.merge.graph.resultsB\tHashMerge"
+      "ess\0228\n\005merge\030\003 \003(\0132).crowd_safe_data_ana" +
+      "lysis.ModuleHashMerge\"\254\004\n\017ModuleHashMerg" +
+      "e\022\031\n\021distribution_name\030\001 \001(\t\022F\n\016left_unm" +
+      "atched\030\002 \001(\0132..crowd_safe_data_analysis." +
+      "UnmatchedNodeSummary\022G\n\017right_unmatched\030",
+      "\003 \001(\0132..crowd_safe_data_analysis.Unmatch" +
+      "edNodeSummary\022G\n\014hash_profile\030\004 \001(\01321.cr" +
+      "owd_safe_data_analysis.TraceCompilationP" +
+      "rofile\022H\n\rgraph_profile\030\005 \001(\01321.crowd_sa" +
+      "fe_data_analysis.TraceCompilationProfile" +
+      "\022Y\n\036graph_within_hash_intersection\030\006 \001(\013" +
+      "21.crowd_safe_data_analysis.TraceCompila" +
+      "tionProfile\022A\n\rmerge_summary\030\007 \001(\0132*.cro" +
+      "wd_safe_data_analysis.HashMergeSummary\022<" +
+      "\n\nstatistics\030\010 \003(\0132(.crowd_safe_data_ana",
+      "lysis.StatisticsTree\"\212\001\n\024UnmatchedNodeSu" +
+      "mmary\022\022\n\nnode_count\030\001 \001(\005\022\033\n\023eligible_no" +
+      "de_count\030\002 \001(\005\022\036\n\026unreachable_node_count" +
+      "\030\003 \001(\005\022!\n\031hash_exclusive_node_count\030\004 \001(" +
+      "\005\"[\n\027TraceCompilationProfile\022\r\n\005union\030\001 " +
+      "\001(\005\022\024\n\014intersection\030\002 \001(\005\022\014\n\004left\030\003 \001(\005\022" +
+      "\r\n\005right\030\004 \001(\005\"\302\002\n\020HashMergeSummary\022\036\n\026i" +
+      "ndirect_edges_matched\030\001 \001(\005\022\036\n\026pure_heur" +
+      "istic_matches\030\002 \001(\005\022\'\n\037call_continuation" +
+      "_edges_matched\030\003 \001(\005\022,\n$exception_contin",
+      "uation_edges_matched\030\010 \001(\005\022!\n\031possibly_r" +
+      "ewritten_blocks\030\004 \001(\005\022&\n\036module_relative" +
+      "_tag_mismatches\030\005 \001(\005\022!\n\031mismatched_subg" +
+      "raph_count\030\006 \001(\005\022)\n!largest_mismatched_s" +
+      "ubgraphs_size\030\007 \003(\005B7\n*edu.uci.eecs.crow" +
+      "dsafe.merge.graph.resultsB\tHashMerge"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -5452,12 +5452,12 @@ public final class HashMerge {
           internal_static_crowd_safe_data_analysis_HashMergeResults_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_crowd_safe_data_analysis_HashMergeResults_descriptor,
-              new java.lang.String[] { "Left", "Right", "Cluster", });
-          internal_static_crowd_safe_data_analysis_HashClusterMerge_descriptor =
+              new java.lang.String[] { "Left", "Right", "Merge", });
+          internal_static_crowd_safe_data_analysis_ModuleHashMerge_descriptor =
             getDescriptor().getMessageTypes().get(1);
-          internal_static_crowd_safe_data_analysis_HashClusterMerge_fieldAccessorTable = new
+          internal_static_crowd_safe_data_analysis_ModuleHashMerge_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_crowd_safe_data_analysis_HashClusterMerge_descriptor,
+              internal_static_crowd_safe_data_analysis_ModuleHashMerge_descriptor,
               new java.lang.String[] { "DistributionName", "LeftUnmatched", "RightUnmatched", "HashProfile", "GraphProfile", "GraphWithinHashIntersection", "MergeSummary", "Statistics", });
           internal_static_crowd_safe_data_analysis_UnmatchedNodeSummary_descriptor =
             getDescriptor().getMessageTypes().get(2);

@@ -21,7 +21,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
  */
 public class HashMatchedNodes {
 
-	private final ClusterHashMergeSession session;
+	private final HashMergeSession session;
 
 	private final BiMap<Node.Key, Node.Key> matchedNodesLeftRight = HashBiMap.create();
 
@@ -32,7 +32,7 @@ public class HashMatchedNodes {
 	public final Set<Node.Key> HACK_leftMismatchedNodes = new HashSet<Node.Key>();
 	public final Set<Node.Key> HACK_rightMismatchedNodes = new HashSet<Node.Key>();
 
-	HashMatchedNodes(ClusterHashMergeSession session) {
+	HashMatchedNodes(HashMergeSession session) {
 		this.session = session;
 	}
 

@@ -10,51 +10,50 @@ import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.writer.ClusterGraphWriter;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSink;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.writer.ModuleGraphWriter;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSink;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
+import edu.uci.eecs.crowdsafe.merge.graph.AnonymousGraphMergeEngine;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousGraphMergeEngine;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeAnalysis;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeSession;
-import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeResults;
-import edu.uci.eecs.crowdsafe.merge.graph.tag.ClusterTagMergeSession;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeAnalysis;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeSession;
+import edu.uci.eecs.crowdsafe.merge.graph.tag.TagMergeResults;
+import edu.uci.eecs.crowdsafe.merge.graph.tag.TagMergeSession;
 
 public class MergeTwoGraphs {
 
 	public interface MergeCompletion {
-		void mergeCompleted(ClusterGraph mergedGraph) throws IOException;
+		void mergeCompleted(ApplicationGraph mergedGraph) throws IOException;
 	}
 
 	public static class WriteCompletedGraphs implements MergeCompletion {
-		private final ClusterTraceDataSink dataSink;
+		private final ModularTraceDataSink dataSink;
 		private final String filenameFormat;
 
-		public WriteCompletedGraphs(ClusterTraceDataSink dataSink, String filenameFormat) {
+		public WriteCompletedGraphs(ModularTraceDataSink dataSink, String filenameFormat) {
 			this.dataSink = dataSink;
 			this.filenameFormat = filenameFormat;
 		}
 
 		@Override
-		public void mergeCompleted(ClusterGraph mergedGraph) throws IOException {
-			dataSink.addCluster(mergedGraph.graph.cluster, filenameFormat);
-			ClusterGraphWriter writer = new ClusterGraphWriter(mergedGraph, dataSink);
+		public void mergeCompleted(ApplicationGraph mergedGraph) throws IOException {
+			dataSink.addModule(mergedGraph.graph.module, filenameFormat);
+			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph, dataSink);
 			writer.writeGraph();
 		}
 	}
 
 	public static class IgnoreMergeCompletion implements MergeCompletion {
 		@Override
-		public void mergeCompleted(ClusterGraph mergedGraph) throws IOException {
+		public void mergeCompleted(ApplicationGraph mergedGraph) throws IOException {
 		}
 	}
 
@@ -78,13 +77,13 @@ public class MergeTwoGraphs {
 	private static final OptionArgumentMap.BooleanOption verboseOption = OptionArgumentMap.createBooleanOption('v');
 
 	private final CommonMergeOptions options;
-	private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
+	private final HashMergeDebugLog debugLog = new HashMergeDebugLog();
 
 	public MergeTwoGraphs(CommonMergeOptions options) {
 		this.options = options;
 	}
 
-	void run(ArgumentStack args, int iterationCount) {
+	void run(ArgumentStack args) {
 		boolean parsingArguments = true;
 
 		try {
@@ -148,10 +147,6 @@ public class MergeTwoGraphs {
 			GraphMergeCandidate rightCandidate = (leftPath.equals(rightPath) ? leftCandidate
 					: loadMergeCandidate(rightPath));
 
-			if (iterationCount > 1)
-				System.err
-						.println(String.format(" *** Warning: entering loop of %d merge iterations!", iterationCount));
-
 			MergeCompletion completion = new IgnoreMergeCompletion();
 			File outputDir = null;
 			if (outputOption.hasValue())
@@ -161,7 +156,7 @@ public class MergeTwoGraphs {
 			if (outputDir != null) {
 				outputDir.mkdir();
 
-				ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
+				ModularTraceDataSink dataSink = new ModularTraceDirectory(outputDir);
 				String filenameFormat = "%s.%%s.%%s.%%s";
 				if (nameOption.hasValue()) {
 					filenameFormat = String.format(filenameFormat, nameOption.getValue());
@@ -171,9 +166,7 @@ public class MergeTwoGraphs {
 				completion = new WriteCompletedGraphs(dataSink, filenameFormat);
 			}
 
-			for (int i = 0; i < iterationCount; i++) {
-				merge(leftCandidate, rightCandidate, strategy, logFile, completion);
-			}
+			merge(leftCandidate, rightCandidate, strategy, logFile, completion);
 
 		} catch (Log.OutputException e) {
 			e.printStackTrace();
@@ -197,46 +190,41 @@ public class MergeTwoGraphs {
 		MergeResults results;
 		switch (strategy) {
 			case HASH:
-				results = new ClusterHashMergeAnalysis();
+				results = new HashMergeAnalysis();
 				break;
 			case TAG:
-				results = new ClusterTagMergeResults();
+				results = new TagMergeResults();
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown merge strategy " + strategy);
 		}
 
-		List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
-		List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		List<ModuleGraph<ModuleNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraph<ModuleNode<?>>>();
+		List<ModuleGraph<ModuleNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraph<ModuleNode<?>>>();
 
 		// cs-todo: this can be multi-threaded for large training datasets
-		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
-			if (!options.includeCluster(leftCluster))
+		for (ApplicationModule leftCluster : leftData.getRepresentedModules()) {
+			if (!options.includeModule(leftCluster))
 				continue;
 
-			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isAnonymous()) {
+			if ((strategy == GraphMergeStrategy.TAG) && leftCluster.isAnonymous) {
 				// cast is ok because tag merge only works on cluster graphs
-				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
+				leftAnonymousGraphs.add((ModuleGraph<ModuleNode<?>>) leftData.getModuleGraph(leftCluster));
 				// leftData.summarizeCluster(leftCluster);
 				continue;
 			}
 
-			if (ConfiguredSoftwareDistributions.getInstance().clusterMode != ConfiguredSoftwareDistributions.ClusterMode.UNIT)
-				throw new UnsupportedOperationException(
-						"Cluster compatibility has not yet been defined for cluster mode "
-								+ ConfiguredSoftwareDistributions.getInstance().clusterMode);
-
 			Log.log("\n > Loading cluster %s < \n", leftCluster.name);
 
-			ClusterGraph mergedGraph = null;
-			ModuleGraphCluster<?> leftGraph = leftData.getClusterGraph(leftCluster);
-			ModuleGraphCluster<?> rightGraph = rightData.getClusterGraph(leftCluster);
+			ApplicationGraph mergedGraph = null;
+			ModuleGraph<?> leftGraph = leftData.getModuleGraph(leftCluster);
+			ModuleGraph<?> rightGraph = rightData.getModuleGraph(leftCluster);
 			if (rightGraph == null) {
 				// leftGraph.logUnknownSuspiciousUIB();
 				if (strategy == GraphMergeStrategy.TAG) {
 					Log.log("Copying left cluster %s because it does not appear in the right side.", leftCluster.name);
 					// leftData.summarizeCluster(leftCluster);
-					mergedGraph = new ClusterGraph((ModuleGraphCluster<ClusterNode<?>>) leftGraph);
+					mergedGraph = new ApplicationGraph((ModuleGraph<ModuleNode<?>>) leftGraph);
 				} else {
 					Log.log("Skipping left cluster %s because it does not appear in the right side and has incompatible format with the merge data.",
 							leftCluster.name);
@@ -254,13 +242,12 @@ public class MergeTwoGraphs {
 
 				switch (strategy) {
 					case HASH:
-						mergedGraph = ClusterHashMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
-								(ClusterHashMergeAnalysis) results, new ClusterHashMergeSession.DefaultEvaluator(),
-								debugLog);
+						mergedGraph = HashMergeSession.mergeTwoGraphs(leftGraph, rightGraph,
+								(HashMergeAnalysis) results, new HashMergeSession.DefaultEvaluator(), debugLog);
 						break;
 					case TAG:
-						mergedGraph = ClusterTagMergeSession.mergeTwoGraphs(leftGraph,
-								(ModuleGraphCluster<ClusterNode<?>>) rightGraph, (ClusterTagMergeResults) results);
+						mergedGraph = TagMergeSession.mergeTwoGraphs(leftGraph,
+								(ModuleGraph<ModuleNode<?>>) rightGraph, (TagMergeResults) results);
 						break;
 					default:
 						throw new IllegalArgumentException("Unknown merge strategy " + strategy);
@@ -293,18 +280,17 @@ public class MergeTwoGraphs {
 		}
 
 		if ((strategy == GraphMergeStrategy.TAG) && (rightData != leftData)) {
-			for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-				if (options.includeCluster(rightCluster) && !leftData.getRepresentedClusters().contains(rightCluster)) {
+			for (ApplicationModule rightCluster : rightData.getRepresentedModules()) {
+				if (options.includeModule(rightCluster) && !leftData.getRepresentedModules().contains(rightCluster)) {
 					Log.log("Copying right cluster %s because it does not appear in the left side.", rightCluster.name);
 
-					if (rightCluster.isAnonymous()) {
+					if (rightCluster.isAnonymous) {
 						// cast is ok because tag merge only works on cluster graphs
-						rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
-								.getClusterGraph(rightCluster));
+						rightAnonymousGraphs.add((ModuleGraph<ModuleNode<?>>) rightData.getModuleGraph(rightCluster));
 					} else {
-						ModuleGraphCluster<ClusterNode<?>> rightGraph = (ModuleGraphCluster<ClusterNode<?>>) rightData
-								.getClusterGraph(rightCluster);
-						completion.mergeCompleted(new ClusterGraph(rightGraph));
+						ModuleGraph<ModuleNode<?>> rightGraph = (ModuleGraph<ModuleNode<?>>) rightData
+								.getModuleGraph(rightCluster);
+						completion.mergeCompleted(new ApplicationGraph(rightGraph));
 					}
 					// rightData.summarizeCluster(rightCluster);
 				}
@@ -312,24 +298,23 @@ public class MergeTwoGraphs {
 		}
 
 		if (strategy == GraphMergeStrategy.TAG) {
-			ClusterHashMergeAnalysis anonymousResults = new ClusterHashMergeAnalysis();
+			HashMergeAnalysis anonymousResults = new HashMergeAnalysis();
 
 			if (rightData != leftData) {
-				for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-					if (!options.includeCluster(rightCluster))
+				for (ApplicationModule rightCluster : rightData.getRepresentedModules()) {
+					if (!options.includeModule(rightCluster))
 						continue;
 
-					if (rightCluster.isAnonymous()) {
+					if (rightCluster.isAnonymous) {
 						// cast is ok because tag merge only works on cluster graphs
-						rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData
-								.getClusterGraph(rightCluster));
-						//rightData.summarizeCluster(rightCluster);
+						rightAnonymousGraphs.add((ModuleGraph<ModuleNode<?>>) rightData.getModuleGraph(rightCluster));
+						// rightData.summarizeCluster(rightCluster);
 					}
 				}
 			}
 			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
-			ClusterGraph anonymousGraph = anonymousMerge
-					.createAnonymousGraph(leftAnonymousGraphs, rightAnonymousGraphs);
+			ApplicationGraph anonymousGraph = anonymousMerge.createAnonymousGraph(leftAnonymousGraphs,
+					rightAnonymousGraphs);
 			completion.mergeCompleted(anonymousGraph);
 
 			// if (logFile != null)
@@ -358,7 +343,7 @@ public class MergeTwoGraphs {
 		GraphMergeCandidate candidate = null;
 		switch (path.charAt(0)) {
 			case 'c':
-				candidate = new GraphMergeCandidate.Cluster(directory, debugLog);
+				candidate = new GraphMergeCandidate.Modular(directory, debugLog);
 				break;
 			case 'e':
 				candidate = new GraphMergeCandidate.Execution(directory, debugLog);
@@ -408,10 +393,10 @@ public class MergeTwoGraphs {
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
 		MergeTwoGraphs main = new MergeTwoGraphs(new CommonMergeOptions(stack, CommonMergeOptions.crowdSafeCommonDir,
-				CommonMergeOptions.restrictedClusterOption, CommonMergeOptions.unitClusterOption,
-				CommonMergeOptions.excludeClusterOption, logFilenameOption, nameOption, strategyOption, outputOption,
+				CommonMergeOptions.restrictedModuleOption, CommonMergeOptions.unitModuleOption,
+				CommonMergeOptions.excludeModuleOption, logFilenameOption, nameOption, strategyOption, outputOption,
 				inPlaceOption, verboseOption));
-		main.run(stack, 1);
+		main.run(stack);
 
 		main.toString();
 	}

@@ -5,8 +5,8 @@ import java.io.PrintStream;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleUIB;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
@@ -14,13 +14,13 @@ public class IndirectEdgeReport implements ReportEntry {
 
 	private static int executionUibCount = 0;
 	
-	private final ClusterUIB uib;
+	private final ModuleUIB uib;
 
 	private double alpha = 0.0;
 
 	private double riskScale;
 
-	IndirectEdgeReport(ClusterUIB uib) {
+	IndirectEdgeReport(ModuleUIB uib) {
 		this.uib = uib;
 	}
 

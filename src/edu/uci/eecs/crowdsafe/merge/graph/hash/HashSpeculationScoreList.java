@@ -44,7 +44,7 @@ public class HashSpeculationScoreList {
 		}
 	}
 
-	private final ClusterHashMergeSession session;
+	private final HashMergeSession session;
 	private final List<HashSpeculationScoreRecord> records = new ArrayList<HashSpeculationScoreRecord>();
 	private final Map<MatchResult, ArrayList<HashSpeculationScoreRecord>> result2Records = new HashMap<MatchResult, ArrayList<HashSpeculationScoreRecord>>();
 
@@ -54,7 +54,7 @@ public class HashSpeculationScoreList {
 
 	private boolean hasConflict;
 
-	public HashSpeculationScoreList(ClusterHashMergeSession session) {
+	public HashSpeculationScoreList(HashMergeSession session) {
 		this.session = session;
 	}
 

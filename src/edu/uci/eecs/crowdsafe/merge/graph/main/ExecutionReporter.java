@@ -11,15 +11,15 @@ import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.writer.ClusterGraphWriter;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSink;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.writer.ModuleGraphWriter;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSink;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.report.AnonymousModuleReportGenerator;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ExecutionReport;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleReportGenerator;
@@ -28,29 +28,29 @@ import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies;
 public class ExecutionReporter {
 
 	public interface MergeCompletion {
-		void mergeCompleted(ClusterGraph mergedGraph) throws IOException;
+		void mergeCompleted(ApplicationGraph mergedGraph) throws IOException;
 	}
 
 	public static class WriteCompletedGraphs implements MergeCompletion {
-		private final ClusterTraceDataSink dataSink;
+		private final ModularTraceDataSink dataSink;
 		private final String filenameFormat;
 
-		public WriteCompletedGraphs(ClusterTraceDataSink dataSink, String filenameFormat) {
+		public WriteCompletedGraphs(ModularTraceDataSink dataSink, String filenameFormat) {
 			this.dataSink = dataSink;
 			this.filenameFormat = filenameFormat;
 		}
 
 		@Override
-		public void mergeCompleted(ClusterGraph mergedGraph) throws IOException {
-			dataSink.addCluster(mergedGraph.graph.cluster, filenameFormat);
-			ClusterGraphWriter writer = new ClusterGraphWriter(mergedGraph, dataSink);
+		public void mergeCompleted(ApplicationGraph mergedGraph) throws IOException {
+			dataSink.addModule(mergedGraph.graph.module, filenameFormat);
+			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph, dataSink);
 			writer.writeGraph();
 		}
 	}
 
 	public static class IgnoreMergeCompletion implements MergeCompletion {
 		@Override
-		public void mergeCompleted(ClusterGraph mergedGraph) throws IOException {
+		public void mergeCompleted(ApplicationGraph mergedGraph) throws IOException {
 		}
 	}
 
@@ -71,7 +71,7 @@ public class ExecutionReporter {
 			false);
 
 	private final CommonMergeOptions options;
-	private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
+	private final HashMergeDebugLog debugLog = new HashMergeDebugLog();
 
 	private ProgramEventFrequencies.ProgramPropertyReader programEventFrequencies;
 
@@ -154,43 +154,42 @@ public class ExecutionReporter {
 	@SuppressWarnings("unchecked")
 	ExecutionReport generateReport(GraphMergeCandidate leftData, GraphMergeCandidate rightData) throws IOException {
 		ExecutionReport report = new ExecutionReport(programEventFrequencies);
-		List<ModuleGraphCluster<ClusterNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
-		List<ModuleGraphCluster<ClusterNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraphCluster<ClusterNode<?>>>();
+		List<ModuleGraph<ModuleNode<?>>> leftAnonymousGraphs = new ArrayList<ModuleGraph<ModuleNode<?>>>();
+		List<ModuleGraph<ModuleNode<?>>> rightAnonymousGraphs = new ArrayList<ModuleGraph<ModuleNode<?>>>();
 
-		Log.log("Reporting %d represented clusters", leftData.getRepresentedClusters().size());
+		Log.log("Reporting %d represented modules", leftData.getRepresentedModules().size());
 
 		// compile program events from the execution
-		for (AutonomousSoftwareDistribution leftCluster : leftData.getRepresentedClusters()) {
-			if (leftCluster.isAnonymous()) {
-				Log.log("\n > Loading left anonymous cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
-				leftAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
+		for (ApplicationModule leftModule : leftData.getRepresentedModules()) {
+			if (leftModule.isAnonymous) {
+				Log.log("\n > Loading left anonymous cluster %s at %.3f < \n", leftModule.name, elapsedTime(start));
+				leftAnonymousGraphs.add((ModuleGraph<ModuleNode<?>>) leftData.getModuleGraph(leftModule));
 				continue;
 			}
 
-			Log.log("\n > Loading left static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
+			Log.log("\n > Loading left static module %s at %.3f < \n", leftModule.name, elapsedTime(start));
 
-			ClusterGraph leftGraph = new ClusterGraph(
-					(ModuleGraphCluster<ClusterNode<?>>) leftData.getClusterGraph(leftCluster));
-			ClusterGraph rightGraph = null;
-			if (rightData.getRepresentedClusters().contains(leftCluster)) {
-				Log.log("\n > Loading right static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
-				rightGraph = new ClusterGraph(
-						(ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(leftCluster));
-				Log.log("\n > Counting metadata for right cluster %s at %.3f < \n", leftCluster.name,
+			ApplicationGraph leftGraph = new ApplicationGraph(
+					(ModuleGraph<ModuleNode<?>>) leftData.getModuleGraph(leftModule));
+			ApplicationGraph rightGraph = null;
+			if (rightData.getRepresentedModules().contains(leftModule)) {
+				Log.log("\n > Loading right static module %s at %.3f < \n", leftModule.name, elapsedTime(start));
+				rightGraph = new ApplicationGraph((ModuleGraph<ModuleNode<?>>) rightData.getModuleGraph(leftModule));
+				Log.log("\n > Counting metadata for right module %s at %.3f < \n", leftModule.name,
 						elapsedTime(start));
 			} else {
-				Log.log("\n > Skipping right static cluster %s because it is not represented among %d dataset modules < \n",
-						leftCluster.name, rightData.getRepresentedClusters().size());
+				Log.log("\n > Skipping right static module %s because it is not represented among %d dataset modules < \n",
+						leftModule.name, rightData.getRepresentedModules().size());
 			}
-			Log.log("\n > Generating report for static cluster %s at %.3f < \n", leftCluster.name, elapsedTime(start));
+			Log.log("\n > Generating report for static module %s at %.3f < \n", leftModule.name, elapsedTime(start));
 			ModuleReportGenerator.addModuleReportEntries(report, leftGraph, rightGraph);
 			System.gc();
 		}
 
-		for (AutonomousSoftwareDistribution rightCluster : rightData.getRepresentedClusters()) {
-			if (rightCluster.isAnonymous()) {
-				Log.log("\n > Loading right anonymous cluster %s at %.3f < \n", rightCluster.name, elapsedTime(start));
-				rightAnonymousGraphs.add((ModuleGraphCluster<ClusterNode<?>>) rightData.getClusterGraph(rightCluster));
+		for (ApplicationModule rightModule : rightData.getRepresentedModules()) {
+			if (rightModule.isAnonymous) {
+				Log.log("\n > Loading right anonymous module %s at %.3f < \n", rightModule.name, elapsedTime(start));
+				rightAnonymousGraphs.add((ModuleGraph<ModuleNode<?>>) rightData.getModuleGraph(rightModule));
 			}
 		}
 
@@ -209,7 +208,7 @@ public class ExecutionReporter {
 			printUsageAndExit();
 		}
 
-		GraphMergeCandidate candidate = new GraphMergeCandidate.Cluster(directory, debugLog);
+		GraphMergeCandidate candidate = new GraphMergeCandidate.Modular(directory, debugLog);
 		candidate.loadData();
 		return candidate;
 	}

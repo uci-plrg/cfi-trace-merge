@@ -9,18 +9,18 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterBasicBlock;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataSequence;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleBasicBlock;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataSequence;
 import edu.uci.eecs.crowdsafe.graph.util.ModuleEdgeCounter;
 
 // TODO: this really only works for ClusterNode graphs on both sides, b/c the hashes will differ with ExecutionNode 
 // and the equals() methods reject other types.
-class ClusterTagMergeEngine {
+class TagMergeEngine {
 
-	private final ClusterTagMergeSession session;
+	private final TagMergeSession session;
 
-	ClusterTagMergeEngine(ClusterTagMergeSession session) {
+	TagMergeEngine(TagMergeSession session) {
 		this.session = session;
 	}
 
@@ -47,7 +47,7 @@ class ClusterTagMergeEngine {
 		boolean rightAdded;
 		for (Node<?> left : session.left.getAllNodes()) {
 			rightAdded = false;
-			ClusterNode<?> right = getCorrespondingNode(left);
+			ModuleNode<?> right = getCorrespondingNode(left);
 			if (right != null) {
 				if (!verifyMatch(left, right))
 					right = null;
@@ -72,10 +72,10 @@ class ClusterTagMergeEngine {
 
 	private void addLeftEdges() {
 		for (int i = 0; i < session.edgeQueue.size(); i++) {
-			ClusterNode<?> rightFromNode = session.edgeQueue.rightFromNodes.get(i);
+			ModuleNode<?> rightFromNode = session.edgeQueue.rightFromNodes.get(i);
 			Edge<?> leftEdge = session.edgeQueue.leftEdges.get(i);
-			ClusterNode<?> rightToNode = getCorrespondingNode(leftEdge.getToNode());
-			Edge<ClusterNode<?>> newRightEdge = new Edge<ClusterNode<?>>(rightFromNode, rightToNode,
+			ModuleNode<?> rightToNode = getCorrespondingNode(leftEdge.getToNode());
+			Edge<ModuleNode<?>> newRightEdge = new Edge<ModuleNode<?>>(rightFromNode, rightToNode,
 					leftEdge.getEdgeType(), leftEdge.getOrdinal());
 
 			try {
@@ -111,9 +111,9 @@ class ClusterTagMergeEngine {
 		if (session.right.graph.metadata.isEmpty()) {
 			if (session.left.metadata.isMain()) {
 				Log.log("Pushing left metadata onto an empty right sequence for the main module %s",
-						session.left.cluster.name);
+						session.left.module.name);
 				int i = 0;
-				for (ClusterMetadataSequence sequence : session.left.metadata.sequences.values()) {
+				for (ModuleMetadataSequence sequence : session.left.metadata.sequences.values()) {
 					Log.log("\tSequence %d has %d executions%s", i++, sequence.executions.size(),
 							sequence.isRoot() ? " (root)" : "");
 				}
@@ -125,7 +125,7 @@ class ClusterTagMergeEngine {
 		if (session.left.metadata.isSingletonExecution()) {
 			if (session.left.metadata.isMain()) {
 				Log.log("Pushing left singleton metadata onto the right sequence for the main module %s; sequence size %d",
-						session.left.cluster.name, session.right.graph.metadata.getRootSequence().executions.size());
+						session.left.module.name, session.right.graph.metadata.getRootSequence().executions.size());
 			}
 			session.right.graph.metadata.getRootSequence().addExecution(session.left.metadata.getSingletonExecution());
 			if (session.left.metadata.isMain()) {
@@ -135,25 +135,25 @@ class ClusterTagMergeEngine {
 			if (session.left.metadata.isMain()) {
 				Log.log("Left main is not a singleton");
 			}
-			for (ClusterMetadataSequence leftSequence : session.left.metadata.sequences.values()) {
+			for (ModuleMetadataSequence leftSequence : session.left.metadata.sequences.values()) {
 				session.right.graph.metadata.mergeSequence(leftSequence);
 			}
 		}
 	}
 
-	private ClusterNode<?> getCorrespondingNode(Node<?> left) {
-		ClusterNode<?> right = session.right.graph.getNode(left.getKey());
+	private ModuleNode<?> getCorrespondingNode(Node<?> left) {
+		ModuleNode<?> right = session.right.graph.getNode(left.getKey());
 		if ((right != null) && ((right.getHash() == left.getHash()) || isThatWonkyNode(left, right)))
 			return right;
 
-		NodeList<ClusterNode<?>> byHash = session.right.graph.getGraphData().nodesByHash.get(left.getHash());
+		NodeList<ModuleNode<?>> byHash = session.right.graph.getGraphData().nodesByHash.get(left.getHash());
 		if (byHash != null) {
 			for (int i = 0; i < byHash.size(); i++) {
-				ClusterNode<?> next = byHash.get(i);
+				ModuleNode<?> next = byHash.get(i);
 				if (left.isModuleRelativeEquivalent(next) || isThatWonkyNode(left, next)) {
 					Log.log("Module-relative hash match of 0x%x: 0x%x-v%d <-> 0x%x-v%d in %s", next.getHash(),
 							left.getRelativeTag(), left.getInstanceId(), next.getRelativeTag(), next.getInstanceId(),
-							next.getModule().unit.filename);
+							next.getModule().filename);
 					return next;
 				}
 			}
@@ -163,12 +163,12 @@ class ClusterTagMergeEngine {
 	}
 
 	private/* hack */boolean isThatWonkyNode(Node<?> left, Node<?> right) {
-		if ((left instanceof ClusterBasicBlock) && (right instanceof ClusterBasicBlock)) {
-			ClusterBasicBlock bbLeft = (ClusterBasicBlock) left;
-			ClusterBasicBlock bbRight = (ClusterBasicBlock) right;
+		if ((left instanceof ModuleBasicBlock) && (right instanceof ModuleBasicBlock)) {
+			ModuleBasicBlock bbLeft = (ModuleBasicBlock) left;
+			ModuleBasicBlock bbRight = (ModuleBasicBlock) right;
 
-			if (bbLeft.getKey().module.unit.filename.startsWith("ipcsecproc")
-					&& bbRight.getKey().module.unit.filename.startsWith("ipcsecproc")) {
+			if (bbLeft.getKey().module.filename.startsWith("ipcsecproc")
+					&& bbRight.getKey().module.filename.startsWith("ipcsecproc")) {
 				if (((bbLeft.getRelativeTag() == 0x3219bL) && (bbRight.getRelativeTag() == 0x3219bL))
 						|| ((bbLeft.getRelativeTag() == 0xc8e5bL) && (bbRight.getRelativeTag() == 0xc8e5bL))) {
 					Log.log("Warning: hack match %s with %s", left, right);
@@ -179,8 +179,8 @@ class ClusterTagMergeEngine {
 		return false;
 	}
 
-	private void enqueueLeftEdges(Node<?> left, ClusterNode<?> right, boolean rightAdded) {
-		OrdinalEdgeList<ClusterNode<?>> rightEdges = right.getOutgoingEdges();
+	private void enqueueLeftEdges(Node<?> left, ModuleNode<?> right, boolean rightAdded) {
+		OrdinalEdgeList<ModuleNode<?>> rightEdges = right.getOutgoingEdges();
 		OrdinalEdgeList<?> leftEdges = left.getOutgoingEdges();
 		try {
 			for (Edge<?> leftEdge : leftEdges) {
@@ -255,7 +255,7 @@ class ClusterTagMergeEngine {
 
 	private void reportUnexpectedCode() {
 		Log.log("Unexpected code summary for %s: %d nodes, %d edges, %d subgraphs",
-				session.right.graph.cluster.getUnitFilename(), session.subgraphs.getTotalUnmatchedNodes(),
+				session.right.graph.module.filename, session.subgraphs.getTotalUnmatchedNodes(),
 				session.subgraphs.getTotalUnmatchedEdges(), session.subgraphs.getSubgraphCount());
 		Log.log("Unexpected indirect branches: %d T, %d K->K, %d K->U, %d U->K, %d U->U",
 				session.subgraphs.unmatchedIndirectCounts.getTotal(),
@@ -270,12 +270,12 @@ class ClusterTagMergeEngine {
 		Set<Node> bridgeNodes = new HashSet<Node>();
 		StringBuilder buffer = new StringBuilder();
 
-		for (ClusterTagMergedSubgraphs.Subgraph subgraph : session.subgraphs.getSubgraphs()) {
+		for (TagMergedSubgraphs.Subgraph subgraph : session.subgraphs.getSubgraphs()) {
 			if (subgraph.getNodeCount() > 10) {
 				int indirectEntryEdges = 0;
 				for (Edge<? extends Node> edge : subgraph.getEntries()) {
 					bridgeNodes.add(edge.getToNode());
-					if (edge.isClusterEntry()) {
+					if (edge.isModuleEntry()) {
 						edgeCounter.tallyInterEdge(edge.getEdgeType());
 					} else {
 						edgeCounter.tallyIntraEdge(edge.getEdgeType());
@@ -290,7 +290,7 @@ class ClusterTagMergeEngine {
 					Node<?> neighbor = edge.getToNode();
 					bridgeNodes.add(neighbor);
 					switch (neighbor.getType()) {
-						case CLUSTER_EXIT:
+						case MODULE_EXIT:
 							edgeCounter.tallyInterEdge(edge.getEdgeType());
 							break;
 						default:
@@ -339,7 +339,7 @@ class ClusterTagMergeEngine {
 				for (Edge<? extends Node> edge : subgraph.getEdges()) {
 					if (!(subgraph.getEntries().contains(edge) || subgraph.getExits().contains(edge))) {
 						innerEdgeCount++;
-						if (edge.isClusterEntry() || edge.isClusterExit()) {
+						if (edge.isModuleEntry() || edge.isModuleExit()) {
 							edgeCounter.tallyInterEdge(edge.getEdgeType());
 						} else {
 							edgeCounter.tallyIntraEdge(edge.getEdgeType());
@@ -370,9 +370,8 @@ class ClusterTagMergeEngine {
 				String edgeProfile = buffer.toString();
 
 				Log.log("Profile of %d node subgraph in %s (max path %d, max indirects %d):\n\t%s\n\t%s",
-						subgraph.getNodeCount(), session.right.graph.cluster.getUnitFilename(),
-						subgraph.getMaximumPathLength(), subgraph.getMaximumIndirectsInPath(), bridgeProfile,
-						edgeProfile);
+						subgraph.getNodeCount(), session.right.graph.module.filename, subgraph.getMaximumPathLength(),
+						subgraph.getMaximumIndirectsInPath(), bridgeProfile, edgeProfile);
 
 				if (subgraph.getNodeCount() < 50)
 					subgraph.logGraph();

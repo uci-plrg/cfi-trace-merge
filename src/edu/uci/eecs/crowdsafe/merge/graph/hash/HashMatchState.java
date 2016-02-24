@@ -5,14 +5,14 @@ import java.util.LinkedList;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
-class ClusterHashMatchState {
-	private final ClusterHashMergeSession session;
+class HashMatchState {
+	private final HashMergeSession session;
 
 	private final LinkedList<HashNodeMatch> matchedQueue = new LinkedList<HashNodeMatch>();
 	private final LinkedList<Node<?>> unmatchedQueue = new LinkedList<Node<?>>();
 	private final LinkedList<HashEdgePair> indirectChildren = new LinkedList<HashEdgePair>();
 
-	ClusterHashMatchState(ClusterHashMergeSession session) {
+	HashMatchState(HashMergeSession session) {
 		this.session = session;
 	}
 

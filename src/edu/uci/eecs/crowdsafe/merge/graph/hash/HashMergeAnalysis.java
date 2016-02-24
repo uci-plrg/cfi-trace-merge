@@ -13,11 +13,11 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.MutableInteger;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
@@ -26,18 +26,18 @@ import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.results.HashMerge;
 import edu.uci.eecs.crowdsafe.merge.util.AnalysisUtil;
 
-public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
+public class HashMergeAnalysis implements HashMergeResults {
 
 	private static class Builder {
 		final HashMerge.HashMergeResults.Builder results = HashMerge.HashMergeResults.newBuilder();
-		final HashMerge.HashClusterMerge.Builder cluster = HashMerge.HashClusterMerge.newBuilder();
+		final HashMerge.ModuleHashMerge.Builder merge = HashMerge.ModuleHashMerge.newBuilder();
 		final HashMerge.UnmatchedNodeSummary.Builder unmatchedNodeSummary = HashMerge.UnmatchedNodeSummary.newBuilder();
 		final HashMerge.TraceCompilationProfile.Builder traceProfile = HashMerge.TraceCompilationProfile.newBuilder();
 		final HashMerge.HashMergeSummary.Builder summary = HashMerge.HashMergeSummary.newBuilder();
 	}
 
 	private class ClusterResults {
-		private ClusterHashMergeSession session;
+		private HashMergeSession session;
 
 		private int hashUnionSize = 0;
 		private int hashIntersectionSize = 0;
@@ -50,10 +50,10 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 		private final Map<Set<Node.Key>, Set<Node.Key>> HACK_missedSubgraphs = new IdentityHashMap<Set<Node.Key>, Set<Node.Key>>();
 		private int averageMissedSubgraphSize = 0;
 
-		ClusterResults(ClusterHashMergeSession session) {
+		ClusterResults(HashMergeSession session) {
 			this.session = session;
 
-			builder.cluster.clear().setDistributionName(session.left.cluster.cluster.name);
+			builder.merge.clear().setDistributionName(session.left.module.module.name);
 		}
 
 		void mergeCompleted() {
@@ -62,38 +62,37 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 			computeMissedSubgraphs();
 			outputMergedGraphInfo();
 
-			builder.results.addCluster(builder.cluster.build());
+			builder.results.addMerge(builder.merge.build());
 		}
 
 		private void computeResults() {
 			Set<Long> hashIntersection = AnalysisUtil.intersection(
-					session.left.cluster.getGraphData().nodesByHash.keySet(),
-					session.right.cluster.getGraphData().nodesByHash.keySet());
-			Set<Long> hashUnion = AnalysisUtil.union(session.left.cluster.getGraphData().nodesByHash.keySet(),
-					session.right.cluster.getGraphData().nodesByHash.keySet());
+					session.left.module.getGraphData().nodesByHash.keySet(),
+					session.right.module.getGraphData().nodesByHash.keySet());
+			Set<Long> hashUnion = AnalysisUtil.union(session.left.module.getGraphData().nodesByHash.keySet(),
+					session.right.module.getGraphData().nodesByHash.keySet());
 			hashIntersectionSize = hashIntersection.size();
 			hashUnionSize = hashUnion.size();
 
 			for (Long hash : hashIntersection) {
 				hashIntersectionBlockCount += session.mergedGraphBuilder.graph.getGraphData().nodesByHash.get(hash)
 						.size();
-				hashIntersectionLeftBlockCount += session.left.cluster.getGraphData().nodesByHash.get(hash).size();
-				hashIntersectionRightBlockCount += session.right.cluster.getGraphData().nodesByHash.get(hash).size();
+				hashIntersectionLeftBlockCount += session.left.module.getGraphData().nodesByHash.get(hash).size();
+				hashIntersectionRightBlockCount += session.right.module.getGraphData().nodesByHash.get(hash).size();
 			}
 
 			mergedGraphNodeCount = session.mergedGraphBuilder.graph.getGraphData().nodesByHash.getNodeCount();
 		}
 
 		private void reportUnmatchedNodes() {
-			reportUnmatchedNodes(session.left.cluster, session.right.cluster, "left");
-			builder.cluster.setLeftUnmatched(builder.unmatchedNodeSummary.build());
+			reportUnmatchedNodes(session.left.module, session.right.module, "left");
+			builder.merge.setLeftUnmatched(builder.unmatchedNodeSummary.build());
 
-			reportUnmatchedNodes(session.right.cluster, session.left.cluster, "right");
-			builder.cluster.setRightUnmatched(builder.unmatchedNodeSummary.build());
+			reportUnmatchedNodes(session.right.module, session.left.module, "right");
+			builder.merge.setRightUnmatched(builder.unmatchedNodeSummary.build());
 		}
 
-		private void reportUnmatchedNodes(ModuleGraphCluster<?> cluster, ModuleGraphCluster<?> oppositeCluster,
-				String side) {
+		private void reportUnmatchedNodes(ModuleGraph<?> cluster, ModuleGraph<?> oppositeCluster, String side) {
 			Set<Node.Key> unmatchedNodes = new HashSet<Node.Key>(cluster.getAllKeys());
 			unmatchedNodes.removeAll(session.matchedNodes.getLeftKeySet());
 			unmatchedNodes.removeAll(session.matchedNodes.getRightKeySet());
@@ -134,9 +133,9 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 					HACK_missedSubgraphs.put(currentSubgraph, currentSubgraph);
 				}
 				boolean joined = false;
-				Node<?> missedNode = session.left.cluster.getNode(missed);
+				Node<?> missedNode = session.left.module.getNode(missed);
 				if (missedNode == null) {
-					missedNode = session.right.cluster.getNode(missed);
+					missedNode = session.right.module.getNode(missed);
 				}
 				OrdinalEdgeList<?> edgeList = missedNode.getOutgoingEdges();
 				try {
@@ -173,7 +172,7 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 					continue;
 				for (Node.Key key : subgraph) {
 					boolean connected = false;
-					Node<?> missedNode = session.left.cluster.getNode(key);
+					Node<?> missedNode = session.left.module.getNode(key);
 					for (Edge<?> out : missedNode.getOutgoingEdges()) {
 						if (subgraph.contains(out.getToNode().getKey())) {
 							connected = true;
@@ -207,7 +206,7 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 					List<Node<?>> entryPoints = new ArrayList<Node<?>>();
 					List<Node<?>> nodes = new ArrayList<Node<?>>();
 					for (Node.Key key : subgraph) {
-						Node<?> node = session.left.cluster.getNode(key);
+						Node<?> node = session.left.module.getNode(key);
 						nodes.add(node);
 						nodeTypeCounts.get(node.getType()).increment();
 
@@ -248,21 +247,21 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 		private void outputMergedGraphInfo() {
 			builder.traceProfile.clear().setUnion(hashUnionSize);
 			builder.traceProfile.setIntersection(hashIntersectionSize);
-			builder.traceProfile.setLeft(session.left.cluster.getGraphData().nodesByHash.keySet().size());
-			builder.traceProfile.setRight(session.right.cluster.getGraphData().nodesByHash.keySet().size());
-			builder.cluster.setHashProfile(builder.traceProfile.build());
+			builder.traceProfile.setLeft(session.left.module.getGraphData().nodesByHash.keySet().size());
+			builder.traceProfile.setRight(session.right.module.getGraphData().nodesByHash.keySet().size());
+			builder.merge.setHashProfile(builder.traceProfile.build());
 
 			builder.traceProfile.clear().setUnion(mergedGraphNodeCount); // simple node count of the entire merged graph
 			builder.traceProfile.setIntersection(session.matchedNodes.size());
-			builder.traceProfile.setLeft(session.left.cluster.getNodeCount());
-			builder.traceProfile.setRight(session.right.cluster.getNodeCount());
-			builder.cluster.setGraphProfile(builder.traceProfile.build());
+			builder.traceProfile.setLeft(session.left.module.getNodeCount());
+			builder.traceProfile.setRight(session.right.module.getNodeCount());
+			builder.merge.setGraphProfile(builder.traceProfile.build());
 
 			builder.traceProfile.clear().setUnion(mergedGraphNodeCount); // simple node count of the entire merged graph
 			builder.traceProfile.setIntersection(hashIntersectionBlockCount);
 			builder.traceProfile.setLeft(hashIntersectionLeftBlockCount);
 			builder.traceProfile.setRight(hashIntersectionRightBlockCount);
-			builder.cluster.setGraphWithinHashIntersection(builder.traceProfile.build());
+			builder.merge.setGraphWithinHashIntersection(builder.traceProfile.build());
 
 			builder.summary.clear().setIndirectEdgesMatched(session.statistics.getIndirectEdgeMatchCount());
 			builder.summary.setPureHeuristicMatches(session.statistics.getPureHeuristicMatchCount());
@@ -297,12 +296,12 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 				builder.summary.addLargestMismatchedSubgraphsSize(missedSubgraphSize);
 			}
 
-			builder.cluster.setMergeSummary(builder.summary.build());
+			builder.merge.setMergeSummary(builder.summary.build());
 		}
 	}
 
 	private final Builder builder = new Builder();
-	private final Map<AutonomousSoftwareDistribution, ClusterResults> resultsByCluster = new HashMap<AutonomousSoftwareDistribution, ClusterResults>();
+	private final Map<ApplicationModule, ClusterResults> resultsByCluster = new HashMap<ApplicationModule, ClusterResults>();
 
 	private ClusterResults currentCluster = null;
 
@@ -323,11 +322,11 @@ public class ClusterHashMergeAnalysis implements ClusterHashMergeResults {
 	}
 
 	@Override
-	public void beginCluster(ClusterHashMergeSession session) {
+	public void beginCluster(HashMergeSession session) {
 		currentCluster = new ClusterResults(session);
-		resultsByCluster.put(session.left.cluster.cluster, currentCluster);
+		resultsByCluster.put(session.left.module.module, currentCluster);
 
-		Log.log("\n  === Merging cluster %s ===\n", session.left.cluster.cluster.name);
+		Log.log("\n  === Merging cluster %s ===\n", session.left.module.module.name);
 	}
 
 	@Override

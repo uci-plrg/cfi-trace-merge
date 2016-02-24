@@ -3,30 +3,30 @@ package edu.uci.eecs.crowdsafe.merge.graph.hash;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
-public class ClusterHashMergeSession {
+public class HashMergeSession {
 
 	public interface MergeEvaluator {
 		void reset();
 
-		boolean attemptMerge(ClusterHashMergeSession session);
+		boolean attemptMerge(HashMergeSession session);
 
 		int evaluateMatch(ContextMatchState state);
 
-		boolean acceptGraphs(ClusterHashMergeSession session);
+		boolean acceptGraphs(HashMergeSession session);
 	}
 
-	public static class DefaultEvaluator implements ClusterHashMergeSession.MergeEvaluator {
+	public static class DefaultEvaluator implements HashMergeSession.MergeEvaluator {
 		@Override
 		public void reset() {
 		}
 
 		@Override
-		public boolean attemptMerge(ClusterHashMergeSession session) {
+		public boolean attemptMerge(HashMergeSession session) {
 			return true;
 		}
 
@@ -55,16 +55,16 @@ public class ClusterHashMergeSession {
 		}
 
 		@Override
-		public boolean acceptGraphs(ClusterHashMergeSession session) {
+		public boolean acceptGraphs(HashMergeSession session) {
 			return true;
 		}
 	}
 
-	public static boolean evaluateTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
-			MergeEvaluator mergeEvaluator, ClusterHashMergeDebugLog debugLog) {
+	public static boolean evaluateTwoGraphs(ModuleGraph<?> left, ModuleGraph<?> right,
+			MergeEvaluator mergeEvaluator, HashMergeDebugLog debugLog) {
 		mergeEvaluator.reset();
-		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right,
-				ClusterHashMergeResults.Empty.INSTANCE, debugLog);
+		HashMergeSession session = new HashMergeSession(left, right,
+				HashMergeResults.Empty.INSTANCE, debugLog);
 
 		if (!mergeEvaluator.attemptMerge(session))
 			return false;
@@ -72,32 +72,32 @@ public class ClusterHashMergeSession {
 		// Log.log("\nEvaluation merge: subgraphs of %d and %d nodes", left.getExecutableNodeCount(),
 		// right.getExecutableNodeCount());
 		session.contextRecord.setEvaluator(mergeEvaluator);
-		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
+		HashMergeEngine engine = new HashMergeEngine(session);
 		engine.mergeGraph();
 
 		return mergeEvaluator.acceptGraphs(session);
 	}
 
-	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
-			ClusterHashMergeResults results, MergeEvaluator mergeEvaluator, ClusterHashMergeDebugLog debugLog) {
+	public static ApplicationGraph mergeTwoGraphs(ModuleGraph<?> left, ModuleGraph<?> right,
+			HashMergeResults results, MergeEvaluator mergeEvaluator, HashMergeDebugLog debugLog) {
 		mergeEvaluator.reset();
-		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
+		HashMergeSession session = new HashMergeSession(left, right, results, debugLog);
 		return mergeTwoGraphs(session, mergeEvaluator);
 	}
 
-	public static ClusterGraph mergeTwoGraphs(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right,
-			MergeEvaluator mergeEvaluator, ClusterHashMergeResults results, ClusterHashMergeDebugLog debugLog) {
+	public static ApplicationGraph mergeTwoGraphs(ModuleGraph<?> left, ModuleGraph<?> right,
+			MergeEvaluator mergeEvaluator, HashMergeResults results, HashMergeDebugLog debugLog) {
 		mergeEvaluator.reset();
-		ClusterHashMergeSession session = new ClusterHashMergeSession(left, right, results, debugLog);
+		HashMergeSession session = new HashMergeSession(left, right, results, debugLog);
 		session.contextRecord.setEvaluator(mergeEvaluator);
 		return mergeTwoGraphs(session, mergeEvaluator);
 	}
 
-	private static ClusterGraph mergeTwoGraphs(ClusterHashMergeSession session, MergeEvaluator mergeEvaluator) {
+	private static ApplicationGraph mergeTwoGraphs(HashMergeSession session, MergeEvaluator mergeEvaluator) {
 		if (!mergeEvaluator.attemptMerge(session))
 			return null;
 
-		ClusterHashMergeEngine engine = new ClusterHashMergeEngine(session);
+		HashMergeEngine engine = new HashMergeEngine(session);
 		engine.mergeGraph();
 		session.results.clusterMergeCompleted();
 		if (mergeEvaluator.acceptGraphs(session)) {
@@ -117,16 +117,16 @@ public class ClusterHashMergeSession {
 
 	State state = State.INITIALIZATION;
 
-	final ClusterHashMergeTarget left;
-	final ClusterHashMergeTarget right;
-	final ClusterGraph mergedGraphBuilder;
+	final HashMergeTarget left;
+	final HashMergeTarget right;
+	final ApplicationGraph mergedGraphBuilder;
 
-	final ClusterHashMergeStatistics statistics;
-	final ClusterHashMergeResults results;
-	final ClusterHashMergeDebugLog debugLog;
+	final HashMergeStatistics statistics;
+	final HashMergeResults results;
+	final HashMergeDebugLog debugLog;
 
 	final HashMatchedNodes matchedNodes;
-	final ClusterHashMatchState matchState;
+	final HashMatchState matchState;
 
 	final ContextMatchRecord contextRecord = new ContextMatchRecord();
 
@@ -134,20 +134,20 @@ public class ClusterHashMergeSession {
 
 	boolean hasConflict;
 
-	final ClusterHashMergeEngine engine = new ClusterHashMergeEngine(this);
+	final HashMergeEngine engine = new HashMergeEngine(this);
 
-	ClusterHashMergeSession(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, ClusterHashMergeResults results,
-			ClusterHashMergeDebugLog debugLog) {
-		this.left = new ClusterHashMergeTarget(left);
-		this.right = new ClusterHashMergeTarget(right);
+	HashMergeSession(ModuleGraph<?> left, ModuleGraph<?> right, HashMergeResults results,
+			HashMergeDebugLog debugLog) {
+		this.left = new HashMergeTarget(left);
+		this.right = new HashMergeTarget(right);
 		this.results = results;
 		results.beginCluster(this);
 		this.debugLog = debugLog;
 
 		matchedNodes = new HashMatchedNodes(this);
-		matchState = new ClusterHashMatchState(this);
-		statistics = new ClusterHashMergeStatistics(this);
-		mergedGraphBuilder = new ClusterGraph(String.format("merge of %s and %s", left.name, right.name), left.cluster);
+		matchState = new HashMatchState(this);
+		statistics = new HashMergeStatistics(this);
+		mergedGraphBuilder = new ApplicationGraph(String.format("merge of %s and %s", left.name, right.name), left.module);
 	}
 
 	public void initializeMerge() {
@@ -158,10 +158,10 @@ public class ClusterHashMergeSession {
 		statistics.reset();
 		hasConflict = false;
 
-		for (long hash : right.cluster.getEntryHashes()) {
-			if (left.cluster.getEntryHashes().contains(hash)) {
-				Node<?> leftNode = left.cluster.getEntryPoint(hash);
-				Node<?> rightNode = right.cluster.getEntryPoint(hash);
+		for (long hash : right.module.getEntryHashes()) {
+			if (left.module.getEntryHashes().contains(hash)) {
+				Node<?> leftNode = left.module.getEntryPoint(hash);
+				Node<?> rightNode = right.module.getEntryPoint(hash);
 
 				debugLog.debugCheck(leftNode);
 				debugLog.debugCheck(rightNode);
@@ -174,25 +174,25 @@ public class ClusterHashMergeSession {
 				}
 			}
 
-			Node<?> rightEntryPoint = right.cluster.getEntryPoint(hash);
+			Node<?> rightEntryPoint = right.module.getEntryPoint(hash);
 			matchState.enqueueUnmatch(rightEntryPoint);
 			engine.addUnmatchedNode2Queue(rightEntryPoint);
 		}
 	}
 
-	public ModuleGraphCluster<? extends Node<?>> getLeft() {
-		return left.cluster;
+	public ModuleGraph<? extends Node<?>> getLeft() {
+		return left.module;
 	}
 
-	public ModuleGraphCluster<? extends Node<?>> getRight() {
-		return right.cluster;
+	public ModuleGraph<? extends Node<?>> getRight() {
+		return right.module;
 	}
 
 	public HashMatchedNodes getMatchedNodes() {
 		return matchedNodes;
 	}
 
-	public void setMatchEvaluator(ClusterHashMergeSession.MergeEvaluator evaluator) {
+	public void setMatchEvaluator(HashMergeSession.MergeEvaluator evaluator) {
 		contextRecord.setEvaluator(evaluator);
 	}
 
@@ -220,6 +220,6 @@ public class ClusterHashMergeSession {
 	}
 
 	boolean isMutuallyUnreachable(Node<?> node) {
-		return right.cluster.getUnreachableNodes().contains(node) && left.cluster.getUnreachableNodes().contains(node);
+		return right.module.getUnreachableNodes().contains(node) && left.module.getUnreachableNodes().contains(node);
 	}
 }

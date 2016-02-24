@@ -3,26 +3,26 @@ package edu.uci.eecs.crowdsafe.merge.graph.report;
 import java.io.PrintStream;
 
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 class NewNodeReport implements ReportEntry {
 
 	enum Type {
-		BLACK_BOX_SINGLETON,
+		JIT_SINGLETON,
 		ABNORMAL_RETURN
 	}
 
 	private final Type type;
-	private final ClusterNode<?> node;
+	private final ModuleNode<?> node;
 
 	private int moduleAbnormalReturnCount = 0;
 	private int programAbnormalReturnCount = 0;
 
 	private int riskIndex;
 
-	NewNodeReport(Type type, ClusterNode<?> node) {
+	NewNodeReport(Type type, ModuleNode<?> node) {
 		this.type = type;
 		this.node = node;
 	}

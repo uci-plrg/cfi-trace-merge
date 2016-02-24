@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 
-public class ClusterTagMergeStatistics {
+public class TagMergeStatistics {
 
 	class Mismatches {
 		final List<Node<?>> left = new ArrayList<Node<?>>();

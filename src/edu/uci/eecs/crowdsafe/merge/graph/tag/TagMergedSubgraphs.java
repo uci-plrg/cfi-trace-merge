@@ -18,7 +18,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 
 // generalize for splitting a graph into subgraphs? or make a new one based on this?
-class ClusterTagMergedSubgraphs {
+class TagMergedSubgraphs {
 
 	// this could be separated into a subgraph and a profile
 	// comparison is based on profile, not node content
@@ -50,9 +50,9 @@ class ClusterTagMergedSubgraphs {
 
 		private void findBridges() {
 			for (Edge<? extends Node<?>> edge : edges) {
-				if (edge.isClusterEntry() || !nodes.contains(edge.getFromNode()))
+				if (edge.isModuleEntry() || !nodes.contains(edge.getFromNode()))
 					entries.add(edge);
-				else if ((edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT) || !nodes.contains(edge.getToNode()))
+				else if ((edge.getToNode().getType() == MetaNodeType.MODULE_EXIT) || !nodes.contains(edge.getToNode()))
 					exits.add(edge);
 			}
 		}

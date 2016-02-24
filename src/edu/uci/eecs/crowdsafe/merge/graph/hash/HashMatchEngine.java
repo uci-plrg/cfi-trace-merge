@@ -13,7 +13,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.ContextMatchRecord.EdgeMatchType;
 
-public class ClusterHashMatchEngine {
+public class HashMatchEngine {
 
 	// The static threshold for indirect speculation and pure heuristics
 	// These two values are completely hypothetic and need further verification
@@ -34,9 +34,9 @@ public class ClusterHashMatchEngine {
 
 	private static final float VALID_SCORE_LIMIT = 0.5f;
 
-	private final ClusterHashMergeSession session;
+	private final HashMergeSession session;
 
-	ClusterHashMatchEngine(ClusterHashMergeSession session) {
+	HashMatchEngine(HashMergeSession session) {
 		this.session = session;
 	}
 
@@ -176,11 +176,11 @@ public class ClusterHashMatchEngine {
 		// First check if this is a node already merged
 		Node.Key leftNodeKey = session.matchedNodes.getMatchByRightKey(rightNode.getKey());
 		if (leftNodeKey != null) {
-			return session.left.cluster.getNode(leftNodeKey);
+			return session.left.module.getNode(leftNodeKey);
 		}
 
 		// This node is not in the left graph and is not yet merged
-		NodeList<?> leftNodes = session.left.cluster.getGraphData().nodesByHash.get(rightNode.getHash());
+		NodeList<?> leftNodes = session.left.module.getGraphData().nodesByHash.get(rightNode.getHash());
 		if (leftNodes == null || leftNodes.size() == 0) {
 			return null;
 		}
@@ -193,7 +193,7 @@ public class ClusterHashMatchEngine {
 			if (leftNode.isModuleRelativeMismatch(rightNode))
 				continue;
 
-			if (leftNode.getType() == MetaNodeType.CLUSTER_EXIT)
+			if (leftNode.getType() == MetaNodeType.MODULE_EXIT)
 				continue;
 
 			if (leftNode.isModuleRelativeEquivalent(rightNode)) {
@@ -270,7 +270,7 @@ public class ClusterHashMatchEngine {
 		session.debugLog.debugCheck(rightToNode);
 
 		OrdinalEdgeList<? extends Node<?>> leftEdges;
-		if (rightEdge.isClusterEntry())
+		if (rightEdge.isModuleEntry())
 			leftEdges = leftParent.getOutgoingEdges();
 		else
 			leftEdges = leftParent.getOutgoingEdges(rightEdge.getOrdinal());
@@ -292,7 +292,7 @@ public class ClusterHashMatchEngine {
 
 			for (Edge<? extends Node<?>> leftEdge : leftEdges) {
 				if ((leftEdge.getEdgeType() == rightEdge.getEdgeType())
-						|| (leftEdge.isClusterEntry() && rightEdge.isClusterEntry())) {
+						|| (leftEdge.isModuleEntry() && rightEdge.isModuleEntry())) {
 					if (leftEdge.getToNode().getHash() == rightToNode.getHash()) {
 
 						if (session.matchedNodes.containsLeftKey(leftEdge.getToNode().getKey()))
@@ -314,7 +314,7 @@ public class ClusterHashMatchEngine {
 							case UNEXPECTED_RETURN:
 							case GENCODE_PERM:
 							case GENCODE_WRITE:
-								if (leftEdge.isClusterEntry()) {
+								if (leftEdge.isModuleEntry()) {
 									session.statistics.indirectMatch();
 									break;
 								}
@@ -330,7 +330,7 @@ public class ClusterHashMatchEngine {
 						if (session.acceptContext(leftEdge.getToNode())) {
 							candidates.add(leftEdge.getToNode());
 						}
-					} else if (!rightEdge.isClusterEntry()) {
+					} else if (!rightEdge.isModuleEntry()) {
 						// hashes differ on a matching direct edge!
 						session.statistics.possibleRewrite();
 					}
@@ -387,7 +387,7 @@ public class ClusterHashMatchEngine {
 
 		// First check if the current node is already matched
 		if (session.matchedNodes.containsRightKey(rightToNode.getKey())) {
-			Node<?> alreadyMatched = session.left.cluster.getNode(session.matchedNodes.getMatchByRightKey(rightToNode
+			Node<?> alreadyMatched = session.left.module.getNode(session.matchedNodes.getMatchByRightKey(rightToNode
 					.getKey()));
 			return alreadyMatched;
 		}

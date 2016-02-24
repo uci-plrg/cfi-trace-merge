@@ -4,18 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
 import edu.uci.eecs.crowdsafe.graph.data.results.NodeResultsFactory;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 import edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge;
 
-public class ClusterTagMergeResults implements MergeResults {
+public class TagMergeResults implements MergeResults {
 
 	private class Builder {
 		final TagMerge.TagMergeResults.Builder results = TagMerge.TagMergeResults.newBuilder();
-		final TagMerge.TagClusterMerge.Builder cluster = TagMerge.TagClusterMerge.newBuilder();
+		final TagMerge.ModuleTagMerge.Builder merge = TagMerge.ModuleTagMerge.newBuilder();
 		final TagMerge.Mismatch.Builder mismatch = TagMerge.Mismatch.newBuilder();
 		final TagMerge.Subgraph.Builder subgraph = TagMerge.Subgraph.newBuilder();
 		final NodeResultsFactory nodeFactory = new NodeResultsFactory();
@@ -23,9 +23,9 @@ public class ClusterTagMergeResults implements MergeResults {
 	}
 
 	private class ClusterResults {
-		ClusterTagMergeSession session;
+		TagMergeSession session;
 
-		ClusterResults(ClusterTagMergeSession session) {
+		ClusterResults(TagMergeSession session) {
 			this.session = session;
 		}
 
@@ -33,18 +33,18 @@ public class ClusterTagMergeResults implements MergeResults {
 			Log.log("Match count %d, hash mismatch count %d", session.statistics.getAddedNodeCount(),
 					session.statistics.hashMismatches.size());
 
-			builder.cluster.clear().setDistributionName(session.left.cluster.name);
-			builder.cluster.setMergedNodes(session.right.graph.getNodeCount());
-			builder.cluster.setMergedEdges(session.statistics.getMatchedEdgeCount()
+			builder.merge.clear().setDistributionName(session.left.module.name);
+			builder.merge.setMergedNodes(session.right.graph.getNodeCount());
+			builder.merge.setMergedEdges(session.statistics.getMatchedEdgeCount()
 					+ session.statistics.getAddedEdgeCount());
-			builder.cluster.setAddedNodes(session.statistics.getAddedNodeCount());
-			builder.cluster.setAddedEdges(session.statistics.getAddedEdgeCount());
+			builder.merge.setAddedNodes(session.statistics.getAddedNodeCount());
+			builder.merge.setAddedEdges(session.statistics.getAddedEdgeCount());
 
-			for (ClusterTagMergedSubgraphs.Subgraph subgraph : session.subgraphs.getSubgraphs()) {
+			for (TagMergedSubgraphs.Subgraph subgraph : session.subgraphs.getSubgraphs()) {
 				builder.subgraph.clear().setNodeCount(subgraph.getNodeCount());
 				builder.subgraph.setBridgeCount(subgraph.getBridgeCount());
 				builder.subgraph.setInstanceCount(subgraph.getInstanceCount());
-				builder.cluster.addAddedSubgraph(builder.subgraph.build());
+				builder.merge.addAddedSubgraph(builder.subgraph.build());
 			}
 
 			for (int i = 0; i < session.statistics.hashMismatches.size(); i++) {
@@ -52,7 +52,7 @@ public class ClusterTagMergeResults implements MergeResults {
 						builder.nodeFactory.buildNode(session.statistics.hashMismatches.left.get(i)));
 				builder.mismatch
 						.setRight(builder.nodeFactory.buildNode(session.statistics.hashMismatches.right.get(i)));
-				builder.cluster.addHashMismatch(builder.mismatch.build());
+				builder.merge.addHashMismatch(builder.mismatch.build());
 			}
 
 			for (int i = 0; i < session.statistics.edgeMismatches.size(); i++) {
@@ -60,17 +60,17 @@ public class ClusterTagMergeResults implements MergeResults {
 						builder.nodeFactory.buildNode(session.statistics.edgeMismatches.left.get(i)));
 				builder.mismatch
 						.setRight(builder.nodeFactory.buildNode(session.statistics.edgeMismatches.right.get(i)));
-				builder.cluster.addEdgeMismatch(builder.mismatch.build());
+				builder.merge.addEdgeMismatch(builder.mismatch.build());
 			}
 
-			builder.results.addCluster(builder.cluster.build());
-			builder.fragment.addCluster(session.mergeFragment.summarizeCurrentCluster());
+			builder.results.addMerge(builder.merge.build());
+			builder.fragment.addModule(session.mergeFragment.summarizeCurrentCluster());
 			session = null;
 		}
 	}
 
 	private final Builder builder = new Builder();
-	private final Map<AutonomousSoftwareDistribution, ClusterResults> resultsByCluster = new HashMap<AutonomousSoftwareDistribution, ClusterResults>();
+	private final Map<ApplicationModule, ClusterResults> resultsByCluster = new HashMap<ApplicationModule, ClusterResults>();
 
 	private ClusterResults currentCluster = null;
 
@@ -78,7 +78,7 @@ public class ClusterTagMergeResults implements MergeResults {
 	public void setGraphSummaries(Graph.Process leftGraphSummary, Graph.Process rightGraphSummary) {
 		builder.results.setLeft(leftGraphSummary);
 		builder.results.setRight(rightGraphSummary);
-		
+
 		builder.fragment.setName(leftGraphSummary.getName() + " <merge fragment>");
 		builder.fragment.setMetadata(leftGraphSummary.getMetadata());
 	}
@@ -94,11 +94,11 @@ public class ClusterTagMergeResults implements MergeResults {
 		return GraphMergeStrategy.TAG;
 	}
 
-	void beginCluster(ClusterTagMergeSession session) {
+	void beginCluster(TagMergeSession session) {
 		currentCluster = new ClusterResults(session);
-		resultsByCluster.put(session.left.cluster, currentCluster);
+		resultsByCluster.put(session.left.module, currentCluster);
 
-		Log.log("\n  === Merging cluster %s ===\n", session.left.cluster.name);
+		Log.log("\n  === Merging cluster %s ===\n", session.left.module.name);
 	}
 
 	void clusterMergeCompleted() {

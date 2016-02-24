@@ -7,18 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.loader.ClusterGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.execution.loader.ProcessGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.loader.ModuleGraphLoadSession;
 import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.io.execution.ExecutionTraceDataSource;
 import edu.uci.eecs.crowdsafe.graph.io.execution.ExecutionTraceDirectory;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSource;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeDebugLog;
 
 public interface GraphMergeCandidate {
 
@@ -26,29 +26,29 @@ public interface GraphMergeCandidate {
 
 	abstract String parseTraceName();
 
-	abstract void summarizeCluster(AutonomousSoftwareDistribution cluster);
+	abstract void summarizeModule(ApplicationModule module);
 
 	abstract Graph.Process summarizeGraph();
 
-	abstract Collection<AutonomousSoftwareDistribution> getRepresentedClusters();
+	abstract Collection<ApplicationModule> getRepresentedModules();
 
-	abstract ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException;
+	abstract ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException;
 
 	static class Execution implements GraphMergeCandidate {
 
-		private final ClusterHashMergeDebugLog debugLog;
+		private final HashMergeDebugLog debugLog;
 
 		private final ExecutionTraceDataSource dataSource;
 
 		private ProcessExecutionGraph graph;
 
-		public Execution(File directory, ClusterHashMergeDebugLog debugLog) {
+		public Execution(File directory, HashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
 			dataSource = new ExecutionTraceDirectory(directory, ProcessExecutionGraph.EXECUTION_GRAPH_FILE_TYPES,
 					ProcessExecutionGraph.EXECUTION_GRAPH_REQUIRED_FILE_TYPES);
 		}
 
-		public Execution(ProcessExecutionGraph graph, ClusterHashMergeDebugLog debugLog) {
+		public Execution(ProcessExecutionGraph graph, HashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
 			this.graph = graph;
 			dataSource = null;
@@ -74,7 +74,7 @@ public interface GraphMergeCandidate {
 		}
 
 		@Override
-		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+		public void summarizeModule(ApplicationModule module) {
 		}
 
 		@Override
@@ -83,33 +83,33 @@ public interface GraphMergeCandidate {
 		}
 
 		@Override
-		public Collection<AutonomousSoftwareDistribution> getRepresentedClusters() {
-			return graph.getRepresentedClusters();
+		public Collection<ApplicationModule> getRepresentedModules() {
+			return graph.getRepresentedModules();
 		}
 
 		@Override
-		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) {
-			return graph.getModuleGraphCluster(cluster);
+		public ModuleGraph<?> getModuleGraph(ApplicationModule module) {
+			return graph.getModuleGraph(module);
 		}
 	}
 
-	static class Cluster implements GraphMergeCandidate {
+	static class Modular implements GraphMergeCandidate {
 
-		private final ClusterHashMergeDebugLog debugLog;
+		private final HashMergeDebugLog debugLog;
 
-		private ClusterTraceDataSource dataSource;
-		private ClusterGraphLoadSession loadSession;
+		private ModularTraceDataSource dataSource;
+		private ModuleGraphLoadSession loadSession;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		private final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<?>> graphs = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<?>>();
+		private final Map<ApplicationModule, ModuleGraph<?>> graphs = new HashMap<ApplicationModule, ModuleGraph<?>>();
 
-		public Cluster(File directory, ClusterHashMergeDebugLog debugLog) {
+		public Modular(File directory, HashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
-			dataSource = new ClusterTraceDirectory(directory).loadExistingFiles();
+			dataSource = new ModularTraceDirectory(directory).loadExistingFiles();
 			summaryBuilder.setName(directory.getName());
 		}
 
-		public Cluster(ClusterTraceDataSource dataSource, String name, ClusterHashMergeDebugLog debugLog) {
+		public Modular(ModularTraceDataSource dataSource, String name, HashMergeDebugLog debugLog) {
 			this.debugLog = debugLog;
 
 			this.dataSource = dataSource;
@@ -118,7 +118,7 @@ public interface GraphMergeCandidate {
 
 		@Override
 		public void loadData() throws IOException {
-			loadSession = new ClusterGraphLoadSession(dataSource);
+			loadSession = new ModuleGraphLoadSession(dataSource);
 		}
 
 		@Override
@@ -127,13 +127,13 @@ public interface GraphMergeCandidate {
 		}
 
 		@Override
-		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
-			ModuleGraphCluster<?> graph = graphs.remove(cluster);
+		public void summarizeModule(ApplicationModule module) {
+			ModuleGraph<?> graph = graphs.remove(module);
 			if (graph != null) {
-				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
+				summaryBuilder.addModule(graph.summarize(graph.module.isAnonymous));
 
 				if (graph.metadata.isMain()) {
-					Log.log("Setting interval metadata on the main graph %s of %s", graph.cluster.name, dataSource
+					Log.log("Setting interval metadata on the main graph %s of %s", graph.module.name, dataSource
 							.getDirectory().getName());
 					summaryBuilder.setMetadata(graph.metadata.summarizeProcess());
 					if (graph.metadata.getRootSequence() != null) { // hack! FIXME
@@ -150,31 +150,31 @@ public interface GraphMergeCandidate {
 		}
 
 		@Override
-		public Collection<AutonomousSoftwareDistribution> getRepresentedClusters() {
-			return dataSource.getReprsentedClusters();
+		public Collection<ApplicationModule> getRepresentedModules() {
+			return dataSource.getReprsentedModules();
 		}
 
 		@Override
-		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
-			ModuleGraphCluster<?> graph = loadSession.loadClusterGraph(cluster, debugLog);
+		public ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException {
+			ModuleGraph<?> graph = loadSession.loadModuleGraph(module, debugLog);
 			if (graph != null) {
-				graphs.put(cluster, graph);
+				graphs.put(module, graph);
 			}
 			return graph;
 		}
 	}
 
-	static class LoadedClusters implements GraphMergeCandidate {
+	static class LoadedModules implements GraphMergeCandidate {
 
-		private final ClusterHashMergeDebugLog debugLog;
+		private final HashMergeDebugLog debugLog;
 
 		private String name;
-		private Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs;
+		private Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphs;
 		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		public LoadedClusters(String name,
-				Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphs,
-				ClusterHashMergeDebugLog debugLog) {
+		public LoadedModules(String name,
+				Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphs,
+				HashMergeDebugLog debugLog) {
 
 			this.debugLog = debugLog;
 
@@ -193,25 +193,25 @@ public interface GraphMergeCandidate {
 		}
 
 		@Override
-		public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+		public void summarizeModule(ApplicationModule module) {
 		}
 
 		@Override
 		public Graph.Process summarizeGraph() {
-			for (ModuleGraphCluster<ClusterNode<?>> graph : graphs.values()) {
-				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
+			for (ModuleGraph<ModuleNode<?>> graph : graphs.values()) {
+				summaryBuilder.addModule(graph.summarize(graph.module.isAnonymous));
 			}
 			return summaryBuilder.buildPartial();
 		}
 
 		@Override
-		public Collection<AutonomousSoftwareDistribution> getRepresentedClusters() {
+		public Collection<ApplicationModule> getRepresentedModules() {
 			return graphs.keySet();
 		}
 
 		@Override
-		public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
-			return graphs.get(cluster);
+		public ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException {
+			return graphs.get(module);
 		}
 	}
 }

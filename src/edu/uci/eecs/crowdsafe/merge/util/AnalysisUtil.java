@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.uci.eecs.crowdsafe.graph.data.dist.SoftwareUnit;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.execution.ExecutionNode;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashSpeculationScoreRecord.MatchResult;
@@ -126,9 +126,9 @@ public class AnalysisUtil {
 	 * @param n2
 	 * @return
 	 */
-	public static MatchResult getMatchResult(ModuleGraphCluster<?> left, ModuleGraphCluster<?> right, Node<?> leftNode,
+	public static MatchResult getMatchResult(ModuleGraph<?> left, ModuleGraph<?> right, Node<?> leftNode,
 			ExecutionNode rightNode, boolean isIndirect) {
-		SoftwareUnit rightUnit = rightNode.getModule().unit;
+		ApplicationModule rightUnit = rightNode.getModule();
 
 		if (left.getGraphData().HACK_containsEquivalent(rightNode)) {
 			// The corresponding node does not exist in graph1

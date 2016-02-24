@@ -5,13 +5,13 @@ import java.util.UUID;
 
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataExecution;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataSequence;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
-import edu.uci.eecs.crowdsafe.merge.graph.anonymous.AnonymousModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataExecution;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataSequence;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleUIB;
 
 public class ModuleEventFrequencies {
 
@@ -61,8 +61,8 @@ public class ModuleEventFrequencies {
 	static final String ABNORMAL_RETURNS = "abnormal-return-count@";
 	static final String UIB_COUNT = "uib-count@";
 	static final String SUIB_COUNT = "suib-count@";
-	static final String IS_BLACK_BOX = "black-box@";
-	static final String WHITE_BOX_COUNT = "white-box-count@";
+	static final String IS_JIT = "jit@";
+	static final String SDR_COUNT = "standalone-count@";
 
 	// private final IdCounter<Long> indirectEdgeTargetCounts = new IdCounter<Long>();
 	private int gencodePermCount = 0;
@@ -72,8 +72,8 @@ public class ModuleEventFrequencies {
 	private int abnormalReturnCount = 0;
 	private int uibCount = 0;
 	private int suibCount = 0;
-	private int isBlackBox = 0;
-	private int whiteBoxCount = 0;
+	private int isJIT = 0;
+	private int sdrCount = 0;
 
 	public final int moduleId;
 
@@ -83,14 +83,14 @@ public class ModuleEventFrequencies {
 		this.moduleId = moduleId;
 	}
 
-	public void extractStatistics(ModuleGraphCluster<ClusterNode<?>> dataset,
+	public void extractStatistics(ModuleGraph<ModuleNode<?>> dataset,
 			ProgramEventFrequencies programEventFrequencies) {
 
 		if (dataset == null)
 			return;
 
-		for (ClusterNode<?> node : dataset.getAllNodes()) {
-			OrdinalEdgeList<ClusterNode<?>> edgeList = node.getOutgoingEdges();
+		for (ModuleNode<?> node : dataset.getAllNodes()) {
+			OrdinalEdgeList<ModuleNode<?>> edgeList = node.getOutgoingEdges();
 			try {
 				if (node.getType() == MetaNodeType.RETURN) {
 					if (!edgeList.isEmpty()) {
@@ -99,10 +99,10 @@ public class ModuleEventFrequencies {
 					}
 				}
 
-				for (Edge<ClusterNode<?>> edge : edgeList) {
+				for (Edge<ModuleNode<?>> edge : edgeList) {
 					switch (edge.getEdgeType()) {
 						case UNEXPECTED_RETURN:
-							if (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)
+							if (edge.getToNode().getType() == MetaNodeType.MODULE_EXIT)
 								crossModuleUnexpectedReturns++;
 							else
 								intraModuleUnexpectedReturns++;
@@ -122,11 +122,11 @@ public class ModuleEventFrequencies {
 			}
 		}
 
-		ClusterMetadataSequence root = dataset.metadata.getRootSequence();
+		ModuleMetadataSequence root = dataset.metadata.getRootSequence();
 		if (root != null) {
-			ClusterMetadataExecution metadata = root.getHeadExecution();
+			ModuleMetadataExecution metadata = root.getHeadExecution();
 			metadataId = metadata.id;
-			for (ClusterUIB uib : metadata.uibs) {
+			for (ModuleUIB uib : metadata.uibs) {
 				if (uib.isAdmitted)
 					uibCount++;
 				else
@@ -135,15 +135,15 @@ public class ModuleEventFrequencies {
 		}
 	}
 
-	public void extractStatistics(AnonymousModule module, ProgramEventFrequencies programEventFrequencies) {
-		if (module.isBlackBox()) {
-			isBlackBox = 1;
-			programEventFrequencies.incrementBlackBoxCount();
-			whiteBoxCount = 0;
+	public void extractStatistics(AnonymousGraphCollection module, ProgramEventFrequencies programEventFrequencies) {
+		if (module.isJIT()) {
+			isJIT = 1;
+			programEventFrequencies.incrementJITCount();
+			sdrCount = 0;
 		} else {
-			isBlackBox = 0;
-			whiteBoxCount = module.subgraphs.size();
-			programEventFrequencies.addWhiteBoxCount(whiteBoxCount);
+			isJIT = 0;
+			sdrCount = module.subgraphs.size();
+			programEventFrequencies.addStandaloneCount(sdrCount);
 		}
 	}
 
@@ -168,8 +168,8 @@ public class ModuleEventFrequencies {
 		setInt(properties, moduleId, ABNORMAL_RETURNS, abnormalReturnCount);
 		setInt(properties, moduleId, UIB_COUNT, uibCount);
 		setInt(properties, moduleId, SUIB_COUNT, suibCount);
-		setInt(properties, moduleId, IS_BLACK_BOX, isBlackBox);
-		setInt(properties, moduleId, WHITE_BOX_COUNT, whiteBoxCount);
+		setInt(properties, moduleId, IS_JIT, isJIT);
+		setInt(properties, moduleId, SDR_COUNT, sdrCount);
 	}
 
 	public int getAbnormalReturnCount() {

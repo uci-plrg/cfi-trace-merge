@@ -10,10 +10,10 @@ message TagMergeResults {
   optional Process left = 1;
   optional Process right = 2;
   optional Process merge_fragment = 4;
-  repeated TagClusterMerge cluster = 3;
+  repeated ModuleTagMerge merge = 3;
 }
 
-message TagClusterMerge {
+message ModuleTagMerge {
   optional string distribution_name = 1;
   optional int32 merged_nodes = 2;
   optional int32 merged_edges = 3;

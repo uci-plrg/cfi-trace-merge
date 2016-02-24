@@ -6,13 +6,13 @@ import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
 
-public interface ClusterHashMergeResults extends MergeResults {
+public interface HashMergeResults extends MergeResults {
 
-	void beginCluster(ClusterHashMergeSession session);
+	void beginCluster(HashMergeSession session);
 
 	void clusterMergeCompleted();
 
-	public static class Empty implements ClusterHashMergeResults {
+	public static class Empty implements HashMergeResults {
 
 		public static Empty INSTANCE = new Empty();
 
@@ -31,7 +31,7 @@ public interface ClusterHashMergeResults extends MergeResults {
 		}
 
 		@Override
-		public void beginCluster(ClusterHashMergeSession session) {
+		public void beginCluster(HashMergeSession session) {
 		}
 
 		@Override

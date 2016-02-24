@@ -22,7 +22,7 @@ public class HashNodeMatch {
 		this.rightNode = right;
 		this.type = type;
 
-		if ((left.getType() == MetaNodeType.CLUSTER_ENTRY) != (right.getType() == MetaNodeType.CLUSTER_ENTRY))
+		if ((left.getType() == MetaNodeType.MODULE_ENTRY) != (right.getType() == MetaNodeType.MODULE_ENTRY))
 			throw new IllegalArgumentException(String.format(
 					"Cannot match a cluster entry node to some other kind of node! Left: %s, right: %s",
 					left.getType(), right.getType()));

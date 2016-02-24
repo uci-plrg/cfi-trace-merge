@@ -8,13 +8,13 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 class NewEdgeReport implements ReportEntry {
 
-	final Edge<ClusterNode<?>> edge;
+	final Edge<ModuleNode<?>> edge;
 
 	private int moduleSameTarget = 0;
 	private int programSameTarget = 0;
@@ -30,7 +30,7 @@ class NewEdgeReport implements ReportEntry {
 
 	private int riskIndex;
 
-	public NewEdgeReport(Edge<ClusterNode<?>> edge) {
+	public NewEdgeReport(Edge<ModuleNode<?>> edge) {
 		this.edge = edge;
 	}
 
@@ -99,12 +99,12 @@ class NewEdgeReport implements ReportEntry {
 
 		int nodeCrossModuleCount = 0;
 		int nodeIntraModuleCount = 0;
-		OrdinalEdgeList<ClusterNode<?>> edgeList = edge.getFromNode().getOutgoingEdges();
+		OrdinalEdgeList<ModuleNode<?>> edgeList = edge.getFromNode().getOutgoingEdges();
 		try {
-			for (Edge<ClusterNode<?>> walk : edgeList) {
+			for (Edge<ModuleNode<?>> walk : edgeList) {
 				if (walk.getToNode() == edge.getToNode())
 					continue;
-				if (walk.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)
+				if (walk.getToNode().getType() == MetaNodeType.MODULE_EXIT)
 					nodeCrossModuleCount++;
 				else
 					nodeIntraModuleCount++;
@@ -113,7 +113,7 @@ class NewEdgeReport implements ReportEntry {
 			edgeList.release();
 		}
 
-		if (edge.getToNode().getType() == MetaNodeType.CLUSTER_EXIT)
+		if (edge.getToNode().getType() == MetaNodeType.MODULE_EXIT)
 			return 1.0 - calculateUnexpectedReturnPrecedenceScale(crossModule, nodeCrossModuleCount);
 		else
 			return 1.0 - calculateUnexpectedReturnPrecedenceScale(intraModule, nodeIntraModuleCount);

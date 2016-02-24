@@ -7,10 +7,10 @@ import java.util.Map;
 import edu.uci.eecs.crowdsafe.common.exception.WrongEdgeTypeException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.merge.exception.MergedFailedException;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
 
@@ -53,17 +53,17 @@ import edu.uci.eecs.crowdsafe.merge.graph.hash.HashNodeMatch.MatchType;
  * </p>
  * 
  */
-class ClusterHashMergeEngine {
+class HashMergeEngine {
 
-	private final ClusterHashMergeSession session;
-	final ClusterHashMatchEngine matcher;
+	private final HashMergeSession session;
+	final HashMatchEngine matcher;
 
 	public static final long specialHash = new BigInteger("4f1f7a5c30ae8622", 16).longValue();
 	private static final long beginHash = 0x5eee92;
 
-	public ClusterHashMergeEngine(ClusterHashMergeSession session) {
+	public HashMergeEngine(HashMergeSession session) {
 		this.session = session;
-		matcher = new ClusterHashMatchEngine(session);
+		matcher = new HashMatchEngine(session);
 	}
 
 	protected void addUnmatchedNode2Queue(Node<?> rightNode) {
@@ -120,7 +120,7 @@ class ClusterHashMergeEngine {
 					case UNEXPECTED_RETURN:
 					case GENCODE_PERM:
 					case GENCODE_WRITE:
-						if (!rightEdge.isClusterEntry())
+						if (!rightEdge.isModuleEntry())
 							break;
 					case DIRECT:
 					case CALL_CONTINUATION:
@@ -220,12 +220,12 @@ class ClusterHashMergeEngine {
 	}
 
 	protected void buildMergedGraph() {
-		Map<Node<?>, ClusterNode<?>> leftNode2MergedNode = new HashMap<Node<?>, ClusterNode<?>>();
+		Map<Node<?>, ModuleNode<?>> leftNode2MergedNode = new HashMap<Node<?>, ModuleNode<?>>();
 
 		// Copy nodes from left
-		for (Node<?> leftNode : session.left.cluster.getAllNodes()) {
+		for (Node<?> leftNode : session.left.module.getAllNodes()) {
 			session.debugLog.debugCheck(leftNode);
-			ClusterNode<?> mergedNode = session.mergedGraphBuilder.addNode(leftNode.getHash(), leftNode.getModule(),
+			ModuleNode<?> mergedNode = session.mergedGraphBuilder.addNode(leftNode.getHash(), leftNode.getModule(),
 					leftNode.getRelativeTag(), leftNode.getType());
 			leftNode2MergedNode.put(leftNode, mergedNode);
 			session.debugLog.nodeMergedFromLeft(leftNode);
@@ -233,16 +233,16 @@ class ClusterHashMergeEngine {
 
 		// Copy edges from left
 		// Traverse edges by outgoing edges
-		for (Node<? extends Node<?>> leftNode : session.left.cluster.getAllNodes()) {
+		for (Node<? extends Node<?>> leftNode : session.left.module.getAllNodes()) {
 			OrdinalEdgeList<?> leftEdges = leftNode.getOutgoingEdges();
 			try {
 				session.debugLog.mergingEdgesFromLeft(leftNode);
 				for (Edge<? extends Node<?>> leftEdge : leftEdges) {
-					ClusterNode<?> mergedFromNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(
+					ModuleNode<?> mergedFromNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(
 							leftNode).getKey());
-					ClusterNode<?> mergedToNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(
+					ModuleNode<?> mergedToNode = session.mergedGraphBuilder.graph.getNode(leftNode2MergedNode.get(
 							leftEdge.getToNode()).getKey());
-					Edge<ClusterNode<?>> mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
+					Edge<ModuleNode<?>> mergedEdge = new Edge<ModuleNode<?>>(mergedFromNode, mergedToNode,
 							leftEdge.getEdgeType(), leftEdge.getOrdinal());
 					mergedFromNode.addOutgoingEdge(mergedEdge);
 					mergedToNode.addIncomingEdge(mergedEdge);
@@ -254,13 +254,13 @@ class ClusterHashMergeEngine {
 		}
 
 		// Copy nodes from right
-		Map<Node<?>, ClusterNode<?>> rightNode2MergedNode = new HashMap<Node<?>, ClusterNode<?>>();
-		for (Node<?> rightNode : session.right.cluster.getAllNodes()) {
+		Map<Node<?>, ModuleNode<?>> rightNode2MergedNode = new HashMap<Node<?>, ModuleNode<?>>();
+		for (Node<?> rightNode : session.right.module.getAllNodes()) {
 			if (session.isMutuallyUnreachable(rightNode))
 				continue;
 
 			if (!session.matchedNodes.containsRightKey(rightNode.getKey())) {
-				ClusterNode<?> mergedNode = session.mergedGraphBuilder.addNode(rightNode.getHash(),
+				ModuleNode<?> mergedNode = session.mergedGraphBuilder.addNode(rightNode.getHash(),
 						rightNode.getModule(), rightNode.getRelativeTag(), rightNode.getType());
 				// TODO: fails to add the corresponding edges when creating a new version of a node
 				rightNode2MergedNode.put(rightNode, mergedNode);
@@ -268,11 +268,11 @@ class ClusterHashMergeEngine {
 			}
 		}
 
-		addEdgesFromRight(session.right.cluster, leftNode2MergedNode, rightNode2MergedNode);
+		addEdgesFromRight(session.right.module, leftNode2MergedNode, rightNode2MergedNode);
 	}
 
-	private void addEdgesFromRight(ModuleGraphCluster<? extends Node<?>> right,
-			Map<Node<?>, ClusterNode<?>> leftNode2MergedNode, Map<Node<?>, ClusterNode<?>> rightNode2MergedNode) {
+	private void addEdgesFromRight(ModuleGraph<? extends Node<?>> right,
+			Map<Node<?>, ModuleNode<?>> leftNode2MergedNode, Map<Node<?>, ModuleNode<?>> rightNode2MergedNode) {
 
 		// Merge edges from right
 		// Traverse edges in right by outgoing edges
@@ -282,7 +282,7 @@ class ClusterHashMergeEngine {
 
 			session.debugLog.mergingEdgesFromRight(rightFromNode);
 			// New fromNode and toNode in the merged graph
-			Edge<ClusterNode<?>> mergedEdge;
+			Edge<ModuleNode<?>> mergedEdge;
 			OrdinalEdgeList<?> rightEdges = rightFromNode.getOutgoingEdges();
 			try {
 				for (Edge<? extends Node<?>> rightEdge : rightEdges) {
@@ -293,18 +293,18 @@ class ClusterHashMergeEngine {
 					if (session.isMutuallyUnreachable(rightToNode))
 						continue;
 
-					ClusterNode<?> mergedFromNode = leftNode2MergedNode.get(session.left.cluster
+					ModuleNode<?> mergedFromNode = leftNode2MergedNode.get(session.left.module
 							.getNode(session.matchedNodes.getMatchByRightKey(rightFromNode.getKey())));
-					ClusterNode<?> mergedToNode = leftNode2MergedNode.get(session.left.cluster
+					ModuleNode<?> mergedToNode = leftNode2MergedNode.get(session.left.module
 							.getNode(session.matchedNodes.getMatchByRightKey(rightToNode.getKey())));
 					// rightNode2MergedNode.get(rightToNode .getKey());
 					if ((mergedFromNode != null) && (mergedToNode != null)) {
 						// Both are shared nodes, need to check if there are
 						// conflicts again!
-						Edge<? extends ClusterNode<?>> alreadyMergedEdge = null;
-						OrdinalEdgeList<? extends ClusterNode<?>> mergedEdges = mergedFromNode.getOutgoingEdges();
+						Edge<? extends ModuleNode<?>> alreadyMergedEdge = null;
+						OrdinalEdgeList<? extends ModuleNode<?>> mergedEdges = mergedFromNode.getOutgoingEdges();
 						try {
-							for (Edge<? extends ClusterNode<?>> mergedFromEdge : mergedEdges) {
+							for (Edge<? extends ModuleNode<?>> mergedFromEdge : mergedEdges) {
 								if (mergedFromEdge.getToNode().getKey().equals(mergedToNode.getKey())) {
 									alreadyMergedEdge = mergedFromEdge;
 									break;
@@ -316,7 +316,7 @@ class ClusterHashMergeEngine {
 						if ((alreadyMergedEdge == null)
 								|| ((alreadyMergedEdge.isDirect() && rightEdge.isContinuation()) || (alreadyMergedEdge
 										.isContinuation() && rightEdge.isDirect()))) {
-							mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode,
+							mergedEdge = new Edge<ModuleNode<?>>(mergedFromNode, mergedToNode,
 									rightEdge.getEdgeType(), rightEdge.getOrdinal());
 						} else {
 							if (alreadyMergedEdge.getEdgeType() != rightEdge.getEdgeType()
@@ -332,18 +332,18 @@ class ClusterHashMergeEngine {
 					} else if (mergedFromNode != null) {
 						// First node is a shared node
 						mergedToNode = rightNode2MergedNode.get(rightToNode);
-						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
+						mergedEdge = new Edge<ModuleNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					} else if (mergedToNode != null) {
 						// Second node is a shared node
 						mergedFromNode = rightNode2MergedNode.get(rightFromNode);
-						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
+						mergedEdge = new Edge<ModuleNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					} else {
 						// Both are new nodes from G2
 						mergedFromNode = rightNode2MergedNode.get(rightFromNode);
 						mergedToNode = rightNode2MergedNode.get(rightToNode);
-						mergedEdge = new Edge<ClusterNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
+						mergedEdge = new Edge<ModuleNode<?>>(mergedFromNode, mergedToNode, rightEdge.getEdgeType(),
 								rightEdge.getOrdinal());
 					}
 

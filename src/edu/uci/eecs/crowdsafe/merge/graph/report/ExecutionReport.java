@@ -13,7 +13,7 @@ import java.util.Set;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.EdgeType;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 public class ExecutionReport {
@@ -38,26 +38,26 @@ public class ExecutionReport {
 		}
 	}
 
-	static String getModuleName(ClusterNode<?> node) {
+	static String getModuleName(ModuleNode<?> node) {
 		switch (node.getType()) {
-			case CLUSTER_ENTRY:
+			case MODULE_ENTRY:
 				return "Module entry from ";
-			case CLUSTER_EXIT:
+			case MODULE_EXIT:
 				return "Module exit to ";
 			case SINGLETON:
 				return "JIT singleton ";
 			case TRAMPOLINE:
 				return "Dynamic standalone ";
 			default:
-				return node.getModule().unit.filename;
+				return node.getModule().filename;
 		}
 
 	}
 
-	static long getId(ClusterNode<?> node) {
+	static long getId(ModuleNode<?> node) {
 		switch (node.getType()) {
-			case CLUSTER_ENTRY:
-			case CLUSTER_EXIT:
+			case MODULE_ENTRY:
+			case MODULE_EXIT:
 				// ideally show hash source: { <module>!export, <module>!callback, <module>!main }
 				return node.getHash();
 			default:
@@ -88,7 +88,7 @@ public class ExecutionReport {
 	}
 
 	private List<ReportEntry> entries = new ArrayList<ReportEntry>();
-	// private Set<Edge<ClusterNode<?>>> filteredEdges = new HashSet<Edge<ClusterNode<?>>>();
+	// private Set<Edge<ModuleNode<?>>> filteredEdges = new HashSet<Edge<ModuleNode<?>>>();
 
 	private final ProgramEventFrequencies.ProgramPropertyReader programEventFrequencies;
 	private ModuleEventFrequencies.ModulePropertyReader currentModuleEventFrequencies = null;
@@ -126,7 +126,7 @@ public class ExecutionReport {
 		entry.setEventFrequencies(programEventFrequencies, currentModuleEventFrequencies);
 	}
 
-	// void filterEdgeReport(Edge<ClusterNode<?>> edge) {
+	// void filterEdgeReport(Edge<ModuleNode<?>> edge) {
 	// filteredEdges.add(edge);
 	// }
 }

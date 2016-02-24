@@ -17,37 +17,36 @@ import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.loader.ClusterGraphLoadSession;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.loader.ModuleGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSource;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeDebugLog;
 
 public class RoundRobinMerge {
 
-	private static class ProcessClusterGraph {
+	private static class ProcessModuleGraph {
 		final String name;
-		final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> clusters;
+		final Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules;
 
-		public ProcessClusterGraph(String name,
-				Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> clusters) {
+		public ProcessModuleGraph(String name, Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules) {
 			this.name = name;
-			this.clusters = clusters;
+			this.modules = modules;
 		}
 	}
 
 	private static class MergePair {
-		final ProcessClusterGraph left;
-		final ProcessClusterGraph right;
+		final ProcessModuleGraph left;
+		final ProcessModuleGraph right;
 		final String logFilename;
 
-		MergePair(ProcessClusterGraph left, ProcessClusterGraph right, String logFilename) {
+		MergePair(ProcessModuleGraph left, ProcessModuleGraph right, String logFilename) {
 			this.left = left;
 			this.right = right;
 			this.logFilename = logFilename;
@@ -55,8 +54,8 @@ public class RoundRobinMerge {
 	}
 
 	private class GraphLoadThread extends Thread {
-		private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
-		private final List<ProcessClusterGraph> loadedGraphs = new ArrayList<ProcessClusterGraph>();
+		private final HashMergeDebugLog debugLog = new HashMergeDebugLog();
+		private final List<ProcessModuleGraph> loadedGraphs = new ArrayList<ProcessModuleGraph>();
 
 		private String currentGraphPath;
 
@@ -68,12 +67,12 @@ public class RoundRobinMerge {
 					if (currentGraphPath == null)
 						break;
 
-					ClusterTraceDataSource dataSource = new ClusterTraceDirectory(new File(currentGraphPath),
-							ClusterGraph.CLUSTER_GRAPH_STREAM_TYPES).loadExistingFiles();
-					ClusterGraphLoadSession session = new ClusterGraphLoadSession(dataSource);
-					Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> graphsByCluster = new HashMap<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>>();
-					for (AutonomousSoftwareDistribution cluster : dataSource.getReprsentedClusters()) {
-						graphsByCluster.put(cluster, session.loadClusterGraph(cluster, debugLog));
+					ModularTraceDataSource dataSource = new ModularTraceDirectory(new File(currentGraphPath),
+							ApplicationGraph.MODULAR_GRAPH_STREAM_TYPES).loadExistingFiles();
+					ModuleGraphLoadSession session = new ModuleGraphLoadSession(dataSource);
+					Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphsByModule = new HashMap<ApplicationModule, ModuleGraph<ModuleNode<?>>>();
+					for (ApplicationModule module : dataSource.getReprsentedModules()) {
+						graphsByModule.put(module, session.loadModuleGraph(module, debugLog));
 					}
 					String graphName = currentGraphPath;
 					if (graphName.endsWith(File.separator))
@@ -81,7 +80,7 @@ public class RoundRobinMerge {
 					int lastSlash = graphName.lastIndexOf(File.separatorChar);
 					if (lastSlash >= 0)
 						graphName = graphName.substring(lastSlash + 1);
-					loadedGraphs.add(new ProcessClusterGraph(graphName, graphsByCluster));
+					loadedGraphs.add(new ProcessModuleGraph(graphName, graphsByModule));
 				}
 			} catch (Throwable t) {
 				fail(t, String.format("\t@@@@ Loading graph '%s' failed with %s @@@@", currentGraphPath, t.getClass()
@@ -93,7 +92,7 @@ public class RoundRobinMerge {
 	private class MergeThread extends Thread {
 		private final int index = THREAD_INDEX++;
 		private final MergeTwoGraphs executor = new MergeTwoGraphs(commonOptions);
-		private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
+		private final HashMergeDebugLog debugLog = new HashMergeDebugLog();
 
 		private String currentMergeName;
 
@@ -115,10 +114,10 @@ public class RoundRobinMerge {
 					Log.clearThreadOutputs();
 					Log.addThreadOutput(logFile);
 
-					GraphMergeCandidate leftCandidate = new GraphMergeCandidate.LoadedClusters(merge.left.name,
-							merge.left.clusters, debugLog);
-					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedClusters(merge.right.name,
-							merge.right.clusters, debugLog);
+					GraphMergeCandidate leftCandidate = new GraphMergeCandidate.LoadedModules(merge.left.name,
+							merge.left.modules, debugLog);
+					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedModules(merge.right.name,
+							merge.right.modules, debugLog);
 					executor.merge(leftCandidate, rightCandidate, strategy, logFile, completion);
 				}
 			} catch (Throwable t) {
@@ -147,7 +146,7 @@ public class RoundRobinMerge {
 			GraphMergeStrategy.TAG.id);
 	private final OptionArgumentMap.StringOption threadCountOption = OptionArgumentMap.createStringOption('t');
 	private final OptionArgumentMap.BooleanOption unityOption = OptionArgumentMap.createBooleanOption('u');
-	private final OptionArgumentMap.BooleanOption clusterGraphOption = OptionArgumentMap.createBooleanOption('y');
+	private final OptionArgumentMap.BooleanOption moduleGraphOption = OptionArgumentMap.createBooleanOption('y');
 
 	private File logDir;
 	private final ArgumentStack args;
@@ -160,8 +159,8 @@ public class RoundRobinMerge {
 	public RoundRobinMerge(ArgumentStack args) {
 		this.args = args;
 		commonOptions = new CommonMergeOptions(args, CommonMergeOptions.crowdSafeCommonDir,
-				CommonMergeOptions.restrictedClusterOption, CommonMergeOptions.unitClusterOption,
-				CommonMergeOptions.excludeClusterOption, logPathOption, threadCountOption, strategyOption, unityOption);
+				CommonMergeOptions.restrictedModuleOption, CommonMergeOptions.unitModuleOption,
+				CommonMergeOptions.excludeModuleOption, logPathOption, threadCountOption, strategyOption, unityOption);
 	}
 
 	void run() {
@@ -170,9 +169,9 @@ public class RoundRobinMerge {
 		try {
 			commonOptions.parseOptions();
 
-			if (clusterGraphOption.getValue()) {
+			if (moduleGraphOption.getValue()) {
 				throw new UnsupportedOperationException(String.format(
-						"%s merge does not yet support cluster graphs :-(", getClass().getSimpleName()));
+						"%s merge does not yet support module graphs :-(", getClass().getSimpleName()));
 			}
 
 			logDir = new File(logPathOption.getValue());
@@ -201,7 +200,7 @@ public class RoundRobinMerge {
 
 			int threadCount = Integer.parseInt(threadCountOption.getValue());
 			int partitionSize = graphPaths.size() / threadCount;
-			List<ProcessClusterGraph> graphs = new ArrayList<ProcessClusterGraph>();
+			List<ProcessModuleGraph> graphs = new ArrayList<ProcessModuleGraph>();
 
 			{
 				Log.log("Starting %d threads to load %d graphs (~%d each).", threadCount, graphPaths.size(),
@@ -255,7 +254,7 @@ public class RoundRobinMerge {
 		}
 	}
 
-	private void expandMergePairs(List<ProcessClusterGraph> graphs) {
+	private void expandMergePairs(List<ProcessModuleGraph> graphs) {
 		Set<String> logFilenames = new HashSet<String>();
 		boolean includeUnityMerges = unityOption.getValue();
 		NameDisambiguator disambiguator = new NameDisambiguator();
@@ -264,8 +263,8 @@ public class RoundRobinMerge {
 				if ((i == j) && !includeUnityMerges)
 					continue;
 
-				ProcessClusterGraph left = graphs.get(i);
-				ProcessClusterGraph right = graphs.get(j);
+				ProcessModuleGraph left = graphs.get(i);
+				ProcessModuleGraph right = graphs.get(j);
 
 				String logfileBasename = String.format("%s~%s", left.name, right.name);
 				String logFilename = String.format("%s.merge.log", disambiguator.disambiguateName(logfileBasename));
@@ -316,7 +315,7 @@ public class RoundRobinMerge {
 	private void printUsageAndExit() {
 		System.out
 				.println(String
-						.format("Usage: %s -l <log-path> [ -c <cluster-name>,... ]\n\t[ -d <crowd-safe-common-dir> ][ -t <thread-count> ]\n\t[ -u (include unity merge) ] <run-list-file>",
+						.format("Usage: %s -l <log-path> [ -c <module-name>,... ]\n\t[ -d <crowd-safe-common-dir> ][ -t <thread-count> ]\n\t[ -u (include unity merge) ] <run-list-file>",
 								getClass().getSimpleName()));
 		System.exit(1);
 	}

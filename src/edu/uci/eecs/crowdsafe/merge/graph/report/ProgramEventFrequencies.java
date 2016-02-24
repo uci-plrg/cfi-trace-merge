@@ -5,11 +5,11 @@ import java.util.Properties;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.IdCounter;
 import edu.uci.eecs.crowdsafe.common.util.RiskySystemCall;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadata;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataExecution;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterMetadataSequence;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterSSC;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.metadata.ClusterUIB;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadata;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataExecution;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataSequence;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleSSC;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleUIB;
 
 public class ProgramEventFrequencies {
 
@@ -58,8 +58,8 @@ public class ProgramEventFrequencies {
 	static final String ABNORMAL_RETURNS = "abnormal-return-count";
 	static final String GENCODE_PERM_COUNT = "gencode-perm-count";
 	static final String GENCODE_WRITE_COUNT = "gencode-write-count";
-	static final String BLACK_BOX_COUNT = "black-box-count";
-	static final String WHITE_BOX_COUNT = "white-box-count";
+	static final String JIT_COUNT = "jit-count";
+	static final String SDR_COUNT = "sdr-count";
 
 	// private final IdCounter<Long> indirectEdgeTargetCounts = new IdCounter<Long>();
 	private IdCounter<Integer> sscCountsBySysnum = new IdCounter<Integer>();
@@ -68,25 +68,25 @@ public class ProgramEventFrequencies {
 	private int abnormalReturnCount = 0;
 	private int gencodePermCount = 0;
 	private int gencodeWriteCount = 0;
-	private int blackBoxCount = 0;
-	private int whiteBoxCount = 0;
+	private int jitCount = 0;
+	private int sdrCount = 0;
 
-	public void countMetadataEvents(ClusterMetadata metadata) {
-		ClusterMetadataSequence sequence = metadata.getRootSequence();
+	public void countMetadataEvents(ModuleMetadata metadata) {
+		ModuleMetadataSequence sequence = metadata.getRootSequence();
 		if (sequence == null)
 			return;
-		ClusterMetadataExecution execution = sequence.getHeadExecution();
+		ModuleMetadataExecution execution = sequence.getHeadExecution();
 		if (execution == null)
 			return;
 
 		sgeCount += execution.sges.size();
 
-		for (ClusterSSC ssc : execution.sscs) {
+		for (ModuleSSC ssc : execution.sscs) {
 			if (RiskySystemCall.sysnumMap.containsKey(ssc.sysnum))
 				sscCountsBySysnum.increment(ssc.sysnum);
 		}
 
-		for (ClusterUIB uib : execution.uibs) {
+		for (ModuleUIB uib : execution.uibs) {
 			if (!uib.isAdmitted)
 				suibCount++;
 		}
@@ -100,8 +100,8 @@ public class ProgramEventFrequencies {
 		setInt(properties, SUIB_COUNT, suibCount);
 		setInt(properties, GENCODE_PERM_COUNT, gencodePermCount);
 		setInt(properties, GENCODE_WRITE_COUNT, gencodeWriteCount);
-		setInt(properties, BLACK_BOX_COUNT, blackBoxCount);
-		setInt(properties, WHITE_BOX_COUNT, whiteBoxCount);
+		setInt(properties, JIT_COUNT, jitCount);
+		setInt(properties, SDR_COUNT, sdrCount);
 	}
 
 	public int getSuspiciousSysnumCount(int sysnum) {
@@ -140,11 +140,11 @@ public class ProgramEventFrequencies {
 		return gencodeWriteCount;
 	}
 
-	public void incrementBlackBoxCount() {
-		blackBoxCount++;
+	public void incrementJITCount() {
+		jitCount++;
 	}
 
-	public void addWhiteBoxCount(int count) {
-		whiteBoxCount += count;
+	public void addStandaloneCount(int count) {
+		sdrCount += count;
 	}
 }

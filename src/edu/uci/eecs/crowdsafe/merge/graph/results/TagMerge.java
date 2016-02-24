@@ -3,7 +3,6 @@
 
 package edu.uci.eecs.crowdsafe.merge.graph.results;
 
-
 public final class TagMerge {
   private TagMerge() {}
   public static void registerAllExtensions(
@@ -54,29 +53,29 @@ public final class TagMerge {
      */
     edu.uci.eecs.crowdsafe.graph.data.results.Graph.ProcessOrBuilder getMergeFragmentOrBuilder();
 
-    // repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;
+    // repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge> 
-        getClusterList();
+    java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge> 
+        getMergeList();
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge getCluster(int index);
+    edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge getMerge(int index);
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    int getClusterCount();
+    int getMergeCount();
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder> 
-        getClusterOrBuilderList();
+    java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder> 
+        getMergeOrBuilderList();
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder getClusterOrBuilder(
+    edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder getMergeOrBuilder(
         int index);
   }
   /**
@@ -158,10 +157,10 @@ public final class TagMerge {
             }
             case 26: {
               if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                cluster_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge>();
+                merge_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge>();
                 mutable_bitField0_ |= 0x00000008;
               }
-              cluster_.add(input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.PARSER, extensionRegistry));
+              merge_.add(input.readMessage(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.PARSER, extensionRegistry));
               break;
             }
             case 34: {
@@ -186,7 +185,7 @@ public final class TagMerge {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-          cluster_ = java.util.Collections.unmodifiableList(cluster_);
+          merge_ = java.util.Collections.unmodifiableList(merge_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -286,47 +285,47 @@ public final class TagMerge {
       return mergeFragment_;
     }
 
-    // repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;
-    public static final int CLUSTER_FIELD_NUMBER = 3;
-    private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge> cluster_;
+    // repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;
+    public static final int MERGE_FIELD_NUMBER = 3;
+    private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge> merge_;
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge> getClusterList() {
-      return cluster_;
+    public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge> getMergeList() {
+      return merge_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder> 
-        getClusterOrBuilderList() {
-      return cluster_;
+    public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder> 
+        getMergeOrBuilderList() {
+      return merge_;
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    public int getClusterCount() {
-      return cluster_.size();
+    public int getMergeCount() {
+      return merge_.size();
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge getCluster(int index) {
-      return cluster_.get(index);
+    public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge getMerge(int index) {
+      return merge_.get(index);
     }
     /**
-     * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+     * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
      */
-    public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder getClusterOrBuilder(
+    public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder getMergeOrBuilder(
         int index) {
-      return cluster_.get(index);
+      return merge_.get(index);
     }
 
     private void initFields() {
       left_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       right_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
       mergeFragment_ = edu.uci.eecs.crowdsafe.graph.data.results.Graph.Process.getDefaultInstance();
-      cluster_ = java.util.Collections.emptyList();
+      merge_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -346,8 +345,8 @@ public final class TagMerge {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, right_);
       }
-      for (int i = 0; i < cluster_.size(); i++) {
-        output.writeMessage(3, cluster_.get(i));
+      for (int i = 0; i < merge_.size(); i++) {
+        output.writeMessage(3, merge_.get(i));
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeMessage(4, mergeFragment_);
@@ -369,9 +368,9 @@ public final class TagMerge {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, right_);
       }
-      for (int i = 0; i < cluster_.size(); i++) {
+      for (int i = 0; i < merge_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, cluster_.get(i));
+          .computeMessageSize(3, merge_.get(i));
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
@@ -488,7 +487,7 @@ public final class TagMerge {
           getLeftFieldBuilder();
           getRightFieldBuilder();
           getMergeFragmentFieldBuilder();
-          getClusterFieldBuilder();
+          getMergeFieldBuilder();
         }
       }
       private static Builder create() {
@@ -515,11 +514,11 @@ public final class TagMerge {
           mergeFragmentBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000004);
-        if (clusterBuilder_ == null) {
-          cluster_ = java.util.Collections.emptyList();
+        if (mergeBuilder_ == null) {
+          merge_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000008);
         } else {
-          clusterBuilder_.clear();
+          mergeBuilder_.clear();
         }
         return this;
       }
@@ -573,14 +572,14 @@ public final class TagMerge {
         } else {
           result.mergeFragment_ = mergeFragmentBuilder_.build();
         }
-        if (clusterBuilder_ == null) {
+        if (mergeBuilder_ == null) {
           if (((bitField0_ & 0x00000008) == 0x00000008)) {
-            cluster_ = java.util.Collections.unmodifiableList(cluster_);
+            merge_ = java.util.Collections.unmodifiableList(merge_);
             bitField0_ = (bitField0_ & ~0x00000008);
           }
-          result.cluster_ = cluster_;
+          result.merge_ = merge_;
         } else {
-          result.cluster_ = clusterBuilder_.build();
+          result.merge_ = mergeBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -607,29 +606,29 @@ public final class TagMerge {
         if (other.hasMergeFragment()) {
           mergeMergeFragment(other.getMergeFragment());
         }
-        if (clusterBuilder_ == null) {
-          if (!other.cluster_.isEmpty()) {
-            if (cluster_.isEmpty()) {
-              cluster_ = other.cluster_;
+        if (mergeBuilder_ == null) {
+          if (!other.merge_.isEmpty()) {
+            if (merge_.isEmpty()) {
+              merge_ = other.merge_;
               bitField0_ = (bitField0_ & ~0x00000008);
             } else {
-              ensureClusterIsMutable();
-              cluster_.addAll(other.cluster_);
+              ensureMergeIsMutable();
+              merge_.addAll(other.merge_);
             }
             onChanged();
           }
         } else {
-          if (!other.cluster_.isEmpty()) {
-            if (clusterBuilder_.isEmpty()) {
-              clusterBuilder_.dispose();
-              clusterBuilder_ = null;
-              cluster_ = other.cluster_;
+          if (!other.merge_.isEmpty()) {
+            if (mergeBuilder_.isEmpty()) {
+              mergeBuilder_.dispose();
+              mergeBuilder_ = null;
+              merge_ = other.merge_;
               bitField0_ = (bitField0_ & ~0x00000008);
-              clusterBuilder_ = 
+              mergeBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getClusterFieldBuilder() : null;
+                   getMergeFieldBuilder() : null;
             } else {
-              clusterBuilder_.addAllMessages(other.cluster_);
+              mergeBuilder_.addAllMessages(other.merge_);
             }
           }
         }
@@ -1011,244 +1010,244 @@ public final class TagMerge {
         return mergeFragmentBuilder_;
       }
 
-      // repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;
-      private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge> cluster_ =
+      // repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;
+      private java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge> merge_ =
         java.util.Collections.emptyList();
-      private void ensureClusterIsMutable() {
+      private void ensureMergeIsMutable() {
         if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          cluster_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge>(cluster_);
+          merge_ = new java.util.ArrayList<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge>(merge_);
           bitField0_ |= 0x00000008;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder> clusterBuilder_;
+          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder> mergeBuilder_;
 
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge> getClusterList() {
-        if (clusterBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(cluster_);
+      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge> getMergeList() {
+        if (mergeBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(merge_);
         } else {
-          return clusterBuilder_.getMessageList();
+          return mergeBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public int getClusterCount() {
-        if (clusterBuilder_ == null) {
-          return cluster_.size();
+      public int getMergeCount() {
+        if (mergeBuilder_ == null) {
+          return merge_.size();
         } else {
-          return clusterBuilder_.getCount();
+          return mergeBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge getCluster(int index) {
-        if (clusterBuilder_ == null) {
-          return cluster_.get(index);
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge getMerge(int index) {
+        if (mergeBuilder_ == null) {
+          return merge_.get(index);
         } else {
-          return clusterBuilder_.getMessage(index);
+          return mergeBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder setCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge value) {
-        if (clusterBuilder_ == null) {
+      public Builder setMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge value) {
+        if (mergeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureClusterIsMutable();
-          cluster_.set(index, value);
+          ensureMergeIsMutable();
+          merge_.set(index, value);
           onChanged();
         } else {
-          clusterBuilder_.setMessage(index, value);
+          mergeBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder setCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder builderForValue) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.set(index, builderForValue.build());
+      public Builder setMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder builderForValue) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.set(index, builderForValue.build());
           onChanged();
         } else {
-          clusterBuilder_.setMessage(index, builderForValue.build());
+          mergeBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder addCluster(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge value) {
-        if (clusterBuilder_ == null) {
+      public Builder addMerge(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge value) {
+        if (mergeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureClusterIsMutable();
-          cluster_.add(value);
+          ensureMergeIsMutable();
+          merge_.add(value);
           onChanged();
         } else {
-          clusterBuilder_.addMessage(value);
+          mergeBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder addCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge value) {
-        if (clusterBuilder_ == null) {
+      public Builder addMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge value) {
+        if (mergeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureClusterIsMutable();
-          cluster_.add(index, value);
+          ensureMergeIsMutable();
+          merge_.add(index, value);
           onChanged();
         } else {
-          clusterBuilder_.addMessage(index, value);
+          mergeBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder addCluster(
-          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder builderForValue) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.add(builderForValue.build());
+      public Builder addMerge(
+          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder builderForValue) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.add(builderForValue.build());
           onChanged();
         } else {
-          clusterBuilder_.addMessage(builderForValue.build());
+          mergeBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder addCluster(
-          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder builderForValue) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.add(index, builderForValue.build());
+      public Builder addMerge(
+          int index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder builderForValue) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.add(index, builderForValue.build());
           onChanged();
         } else {
-          clusterBuilder_.addMessage(index, builderForValue.build());
+          mergeBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder addAllCluster(
-          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge> values) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          super.addAll(values, cluster_);
+      public Builder addAllMerge(
+          java.lang.Iterable<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge> values) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          super.addAll(values, merge_);
           onChanged();
         } else {
-          clusterBuilder_.addAllMessages(values);
+          mergeBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder clearCluster() {
-        if (clusterBuilder_ == null) {
-          cluster_ = java.util.Collections.emptyList();
+      public Builder clearMerge() {
+        if (mergeBuilder_ == null) {
+          merge_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000008);
           onChanged();
         } else {
-          clusterBuilder_.clear();
+          mergeBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public Builder removeCluster(int index) {
-        if (clusterBuilder_ == null) {
-          ensureClusterIsMutable();
-          cluster_.remove(index);
+      public Builder removeMerge(int index) {
+        if (mergeBuilder_ == null) {
+          ensureMergeIsMutable();
+          merge_.remove(index);
           onChanged();
         } else {
-          clusterBuilder_.remove(index);
+          mergeBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder getClusterBuilder(
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder getMergeBuilder(
           int index) {
-        return getClusterFieldBuilder().getBuilder(index);
+        return getMergeFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder getClusterOrBuilder(
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder getMergeOrBuilder(
           int index) {
-        if (clusterBuilder_ == null) {
-          return cluster_.get(index);  } else {
-          return clusterBuilder_.getMessageOrBuilder(index);
+        if (mergeBuilder_ == null) {
+          return merge_.get(index);  } else {
+          return mergeBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder> 
-           getClusterOrBuilderList() {
-        if (clusterBuilder_ != null) {
-          return clusterBuilder_.getMessageOrBuilderList();
+      public java.util.List<? extends edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder> 
+           getMergeOrBuilderList() {
+        if (mergeBuilder_ != null) {
+          return mergeBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(cluster_);
+          return java.util.Collections.unmodifiableList(merge_);
         }
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder addClusterBuilder() {
-        return getClusterFieldBuilder().addBuilder(
-            edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.getDefaultInstance());
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder addMergeBuilder() {
+        return getMergeFieldBuilder().addBuilder(
+            edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.getDefaultInstance());
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder addClusterBuilder(
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder addMergeBuilder(
           int index) {
-        return getClusterFieldBuilder().addBuilder(
-            index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.getDefaultInstance());
+        return getMergeFieldBuilder().addBuilder(
+            index, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.getDefaultInstance());
       }
       /**
-       * <code>repeated .crowd_safe_data_analysis.TagClusterMerge cluster = 3;</code>
+       * <code>repeated .crowd_safe_data_analysis.ModuleTagMerge merge = 3;</code>
        */
-      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder> 
-           getClusterBuilderList() {
-        return getClusterFieldBuilder().getBuilderList();
+      public java.util.List<edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder> 
+           getMergeBuilderList() {
+        return getMergeFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder> 
-          getClusterFieldBuilder() {
-        if (clusterBuilder_ == null) {
-          clusterBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder>(
-                  cluster_,
+          edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder> 
+          getMergeFieldBuilder() {
+        if (mergeBuilder_ == null) {
+          mergeBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder>(
+                  merge_,
                   ((bitField0_ & 0x00000008) == 0x00000008),
                   getParentForChildren(),
                   isClean());
-          cluster_ = null;
+          merge_ = null;
         }
-        return clusterBuilder_;
+        return mergeBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.TagMergeResults)
@@ -1262,7 +1261,7 @@ public final class TagMerge {
     // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.TagMergeResults)
   }
 
-  public interface TagClusterMergeOrBuilder
+  public interface ModuleTagMergeOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
     // optional string distribution_name = 1;
@@ -1396,24 +1395,24 @@ public final class TagMerge {
         int index);
   }
   /**
-   * Protobuf type {@code crowd_safe_data_analysis.TagClusterMerge}
+   * Protobuf type {@code crowd_safe_data_analysis.ModuleTagMerge}
    */
-  public static final class TagClusterMerge extends
+  public static final class ModuleTagMerge extends
       com.google.protobuf.GeneratedMessage
-      implements TagClusterMergeOrBuilder {
-    // Use TagClusterMerge.newBuilder() to construct.
-    private TagClusterMerge(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      implements ModuleTagMergeOrBuilder {
+    // Use ModuleTagMerge.newBuilder() to construct.
+    private ModuleTagMerge(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private TagClusterMerge(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+    private ModuleTagMerge(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-    private static final TagClusterMerge defaultInstance;
-    public static TagClusterMerge getDefaultInstance() {
+    private static final ModuleTagMerge defaultInstance;
+    public static ModuleTagMerge getDefaultInstance() {
       return defaultInstance;
     }
 
-    public TagClusterMerge getDefaultInstanceForType() {
+    public ModuleTagMerge getDefaultInstanceForType() {
       return defaultInstance;
     }
 
@@ -1423,7 +1422,7 @@ public final class TagMerge {
         getUnknownFields() {
       return this.unknownFields;
     }
-    private TagClusterMerge(
+    private ModuleTagMerge(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1518,28 +1517,28 @@ public final class TagMerge {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor;
+      return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_ModuleTagMerge_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_TagClusterMerge_fieldAccessorTable
+      return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_ModuleTagMerge_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder.class);
+              edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<TagClusterMerge> PARSER =
-        new com.google.protobuf.AbstractParser<TagClusterMerge>() {
-      public TagClusterMerge parsePartialFrom(
+    public static com.google.protobuf.Parser<ModuleTagMerge> PARSER =
+        new com.google.protobuf.AbstractParser<ModuleTagMerge>() {
+      public ModuleTagMerge parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new TagClusterMerge(input, extensionRegistry);
+        return new ModuleTagMerge(input, extensionRegistry);
       }
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<TagClusterMerge> getParserForType() {
+    public com.google.protobuf.Parser<ModuleTagMerge> getParserForType() {
       return PARSER;
     }
 
@@ -1858,53 +1857,53 @@ public final class TagMerge {
       return super.writeReplace();
     }
 
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(byte[] data)
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(java.io.InputStream input)
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseDelimitedFrom(java.io.InputStream input)
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseDelimitedFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parseFrom(
+    public static edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1913,7 +1912,7 @@ public final class TagMerge {
 
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge prototype) {
+    public static Builder newBuilder(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -1925,24 +1924,24 @@ public final class TagMerge {
       return builder;
     }
     /**
-     * Protobuf type {@code crowd_safe_data_analysis.TagClusterMerge}
+     * Protobuf type {@code crowd_safe_data_analysis.ModuleTagMerge}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMergeOrBuilder {
+       implements edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMergeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor;
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_ModuleTagMerge_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_TagClusterMerge_fieldAccessorTable
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_ModuleTagMerge_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.Builder.class);
+                edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.class, edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.Builder.class);
       }
 
-      // Construct using edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.newBuilder()
+      // Construct using edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -2002,23 +2001,23 @@ public final class TagMerge {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor;
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.internal_static_crowd_safe_data_analysis_ModuleTagMerge_descriptor;
       }
 
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge getDefaultInstanceForType() {
-        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.getDefaultInstance();
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge getDefaultInstanceForType() {
+        return edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.getDefaultInstance();
       }
 
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge build() {
-        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge result = buildPartial();
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge build() {
+        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge buildPartial() {
-        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge result = new edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge(this);
+      public edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge buildPartial() {
+        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge result = new edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -2074,16 +2073,16 @@ public final class TagMerge {
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge) {
-          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge)other);
+        if (other instanceof edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge) {
+          return mergeFrom((edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge other) {
-        if (other == edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge.getDefaultInstance()) return this;
+      public Builder mergeFrom(edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge other) {
+        if (other == edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge.getDefaultInstance()) return this;
         if (other.hasDistributionName()) {
           bitField0_ |= 0x00000001;
           distributionName_ = other.distributionName_;
@@ -2191,11 +2190,11 @@ public final class TagMerge {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge parsedMessage = null;
+        edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.TagClusterMerge) e.getUnfinishedMessage();
+          parsedMessage = (edu.uci.eecs.crowdsafe.merge.graph.results.TagMerge.ModuleTagMerge) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -3132,15 +3131,15 @@ public final class TagMerge {
         return edgeMismatchBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.TagClusterMerge)
+      // @@protoc_insertion_point(builder_scope:crowd_safe_data_analysis.ModuleTagMerge)
     }
 
     static {
-      defaultInstance = new TagClusterMerge(true);
+      defaultInstance = new ModuleTagMerge(true);
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.TagClusterMerge)
+    // @@protoc_insertion_point(class_scope:crowd_safe_data_analysis.ModuleTagMerge)
   }
 
   public interface MismatchOrBuilder
@@ -4406,10 +4405,10 @@ public final class TagMerge {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_crowd_safe_data_analysis_TagMergeResults_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor;
+    internal_static_crowd_safe_data_analysis_ModuleTagMerge_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_crowd_safe_data_analysis_TagClusterMerge_fieldAccessorTable;
+      internal_static_crowd_safe_data_analysis_ModuleTagMerge_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_crowd_safe_data_analysis_Mismatch_descriptor;
   private static
@@ -4431,26 +4430,26 @@ public final class TagMerge {
     java.lang.String[] descriptorData = {
       "\n\027tag-merge-results.proto\022\030crowd_safe_da" +
       "ta_analysis\032\013graph.proto\032\020statistics.pro" +
-      "to\"\353\001\n\017TagMergeResults\022/\n\004left\030\001 \001(\0132!.c" +
+      "to\"\350\001\n\017TagMergeResults\022/\n\004left\030\001 \001(\0132!.c" +
       "rowd_safe_data_analysis.Process\0220\n\005right" +
       "\030\002 \001(\0132!.crowd_safe_data_analysis.Proces" +
       "s\0229\n\016merge_fragment\030\004 \001(\0132!.crowd_safe_d" +
-      "ata_analysis.Process\022:\n\007cluster\030\003 \003(\0132)." +
-      "crowd_safe_data_analysis.TagClusterMerge" +
-      "\"\264\002\n\017TagClusterMerge\022\031\n\021distribution_nam" +
-      "e\030\001 \001(\t\022\024\n\014merged_nodes\030\002 \001(\005\022\024\n\014merged_",
-      "edges\030\003 \001(\005\022\023\n\013added_nodes\030\004 \001(\005\022\023\n\013adde" +
-      "d_edges\030\005 \001(\005\022:\n\016added_subgraph\030\006 \003(\0132\"." +
-      "crowd_safe_data_analysis.Subgraph\0229\n\rhas" +
-      "h_mismatch\030\007 \003(\0132\".crowd_safe_data_analy" +
-      "sis.Mismatch\0229\n\redge_mismatch\030\010 \003(\0132\".cr" +
-      "owd_safe_data_analysis.Mismatch\"g\n\010Misma" +
-      "tch\022,\n\004left\030\001 \001(\0132\036.crowd_safe_data_anal" +
-      "ysis.Node\022-\n\005right\030\002 \001(\0132\036.crowd_safe_da" +
-      "ta_analysis.Node\"L\n\010Subgraph\022\022\n\nnode_cou" +
-      "nt\030\001 \001(\005\022\024\n\014bridge_count\030\002 \001(\005\022\026\n\016instan",
-      "ce_count\030\003 \001(\005B6\n*edu.uci.eecs.crowdsafe" +
-      ".merge.graph.resultsB\010TagMerge"
+      "ata_analysis.Process\0227\n\005merge\030\003 \003(\0132(.cr" +
+      "owd_safe_data_analysis.ModuleTagMerge\"\263\002" +
+      "\n\016ModuleTagMerge\022\031\n\021distribution_name\030\001 " +
+      "\001(\t\022\024\n\014merged_nodes\030\002 \001(\005\022\024\n\014merged_edge",
+      "s\030\003 \001(\005\022\023\n\013added_nodes\030\004 \001(\005\022\023\n\013added_ed" +
+      "ges\030\005 \001(\005\022:\n\016added_subgraph\030\006 \003(\0132\".crow" +
+      "d_safe_data_analysis.Subgraph\0229\n\rhash_mi" +
+      "smatch\030\007 \003(\0132\".crowd_safe_data_analysis." +
+      "Mismatch\0229\n\redge_mismatch\030\010 \003(\0132\".crowd_" +
+      "safe_data_analysis.Mismatch\"g\n\010Mismatch\022" +
+      ",\n\004left\030\001 \001(\0132\036.crowd_safe_data_analysis" +
+      ".Node\022-\n\005right\030\002 \001(\0132\036.crowd_safe_data_a" +
+      "nalysis.Node\"L\n\010Subgraph\022\022\n\nnode_count\030\001" +
+      " \001(\005\022\024\n\014bridge_count\030\002 \001(\005\022\026\n\016instance_c",
+      "ount\030\003 \001(\005B6\n*edu.uci.eecs.crowdsafe.mer" +
+      "ge.graph.resultsB\010TagMerge"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4462,12 +4461,12 @@ public final class TagMerge {
           internal_static_crowd_safe_data_analysis_TagMergeResults_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_crowd_safe_data_analysis_TagMergeResults_descriptor,
-              new java.lang.String[] { "Left", "Right", "MergeFragment", "Cluster", });
-          internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor =
+              new java.lang.String[] { "Left", "Right", "MergeFragment", "Merge", });
+          internal_static_crowd_safe_data_analysis_ModuleTagMerge_descriptor =
             getDescriptor().getMessageTypes().get(1);
-          internal_static_crowd_safe_data_analysis_TagClusterMerge_fieldAccessorTable = new
+          internal_static_crowd_safe_data_analysis_ModuleTagMerge_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_crowd_safe_data_analysis_TagClusterMerge_descriptor,
+              internal_static_crowd_safe_data_analysis_ModuleTagMerge_descriptor,
               new java.lang.String[] { "DistributionName", "MergedNodes", "MergedEdges", "AddedNodes", "AddedEdges", "AddedSubgraph", "HashMismatch", "EdgeMismatch", });
           internal_static_crowd_safe_data_analysis_Mismatch_descriptor =
             getDescriptor().getMessageTypes().get(2);
@@ -4488,7 +4487,7 @@ public final class TagMerge {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           edu.uci.eecs.crowdsafe.graph.data.results.Graph.getDescriptor(),
-          edu.uci.eecs.crowdsafe.graph.data.results.Statistics.getDescriptor(),
+          edu.uci.eecs.crowdsafe.common.data.results.Statistics.getDescriptor(),
         }, assigner);
   }
 

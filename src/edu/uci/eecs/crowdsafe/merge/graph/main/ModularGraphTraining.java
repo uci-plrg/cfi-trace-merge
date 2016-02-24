@@ -18,66 +18,65 @@ import edu.uci.eecs.crowdsafe.common.log.LogFile;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
-import edu.uci.eecs.crowdsafe.graph.data.dist.AutonomousSoftwareDistribution;
-import edu.uci.eecs.crowdsafe.graph.data.dist.ConfiguredSoftwareDistributions;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraphCluster;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.ClusterNode;
-import edu.uci.eecs.crowdsafe.graph.data.graph.cluster.loader.ClusterGraphLoadSession;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModuleSet;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
+import edu.uci.eecs.crowdsafe.graph.data.graph.modular.loader.ModuleGraphLoadSession;
 import edu.uci.eecs.crowdsafe.graph.data.results.Graph;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSink;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDataSource;
-import edu.uci.eecs.crowdsafe.graph.io.cluster.ClusterTraceDirectory;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSink;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSource;
+import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
-import edu.uci.eecs.crowdsafe.merge.graph.hash.ClusterHashMergeDebugLog;
+import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeDebugLog;
 
-public class ClusterGraphTraining {
+public class ModularGraphTraining {
 
-	private static class ProcessClusterGraph {
+	private static class ProcessModuleGraph {
 		final String name;
-		final Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> clusters;
+		final Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules;
 
-		public ProcessClusterGraph(String name,
-				Map<AutonomousSoftwareDistribution, ModuleGraphCluster<ClusterNode<?>>> clusters) {
+		public ProcessModuleGraph(String name, Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules) {
 			this.name = name;
-			this.clusters = clusters;
+			this.modules = modules;
 		}
 	}
 
-	private static class ClusterTrainingConfiguration {
-		AutonomousSoftwareDistribution cluster;
+	private static class ModuleTrainingConfiguration {
+		ApplicationModule module;
 		final File sequenceFile;
-		final File clusterLogDir;
+		final File moduleLogDir;
 
-		ClusterTrainingConfiguration(AutonomousSoftwareDistribution cluster, File sequenceFile, File clusterLogDir) {
-			this.cluster = cluster;
+		ModuleTrainingConfiguration(ApplicationModule module, File sequenceFile, File moduleLogDir) {
+			this.module = module;
 			this.sequenceFile = sequenceFile;
-			this.clusterLogDir = clusterLogDir;
+			this.moduleLogDir = moduleLogDir;
 		}
 	}
 
 	private class TrainingThread extends Thread {
 
 		private class TrainingDataset implements GraphMergeCandidate {
-			private ClusterGraph graph;
+			private ApplicationGraph graph;
 			private final Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
 			@Override
-			public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
+			public ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException {
 				return graph.graph;
 			}
 
 			@Override
-			public Collection<AutonomousSoftwareDistribution> getRepresentedClusters() {
-				return Collections.singleton(currentConfiguration.cluster);
+			public Collection<ApplicationModule> getRepresentedModules() {
+				return Collections.singleton(currentConfiguration.module);
 			}
 
 			@Override
 			public void loadData() throws IOException {
-				ClusterGraphLoadSession loadSession = new ClusterGraphLoadSession(dataSources.get(datasetIndex));
-				graph = new ClusterGraph(loadSession.loadClusterGraph(currentConfiguration.cluster));
+				ModuleGraphLoadSession loadSession = new ModuleGraphLoadSession(dataSources.get(datasetIndex));
+				graph = new ApplicationGraph(loadSession.loadModuleGraph(currentConfiguration.module));
 			}
 
 			@Override
@@ -86,35 +85,35 @@ public class ClusterGraphTraining {
 			}
 
 			@Override
-			public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+			public void summarizeModule(ApplicationModule module) {
 			}
 
 			@Override
 			public Graph.Process summarizeGraph() {
 				summaryBuilder.clear().setName("dataset");
-				summaryBuilder.addCluster(graph.graph.summarize(graph.graph.cluster.isAnonymous()));
+				summaryBuilder.addModule(graph.graph.summarize(graph.graph.module.isAnonymous));
 				return summaryBuilder.build();
 			}
 		}
 
 		private class TrainingInstance implements GraphMergeCandidate {
-			private ModuleGraphCluster<?> graph;
+			private ModuleGraph<?> graph;
 			private final Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
 			@Override
-			public ModuleGraphCluster<?> getClusterGraph(AutonomousSoftwareDistribution cluster) throws IOException {
+			public ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException {
 				return graph;
 			}
 
 			@Override
-			public Collection<AutonomousSoftwareDistribution> getRepresentedClusters() {
-				return Collections.singleton(currentConfiguration.cluster);
+			public Collection<ApplicationModule> getRepresentedModules() {
+				return Collections.singleton(currentConfiguration.module);
 			}
 
 			@Override
 			public void loadData() throws IOException {
-				ClusterGraphLoadSession loadSession = new ClusterGraphLoadSession(dataSources.get(instanceIndex));
-				graph = loadSession.loadClusterGraph(currentConfiguration.cluster);
+				ModuleGraphLoadSession loadSession = new ModuleGraphLoadSession(dataSources.get(instanceIndex));
+				graph = loadSession.loadModuleGraph(currentConfiguration.module);
 			}
 
 			@Override
@@ -123,22 +122,22 @@ public class ClusterGraphTraining {
 			}
 
 			@Override
-			public void summarizeCluster(AutonomousSoftwareDistribution cluster) {
+			public void summarizeModule(ApplicationModule module) {
 			}
 
 			@Override
 			public Graph.Process summarizeGraph() {
 				summaryBuilder.clear().setName(parseTraceName());
-				summaryBuilder.addCluster(graph.summarize(graph.cluster.isAnonymous()));
+				summaryBuilder.addModule(graph.summarize(graph.module.isAnonymous));
 				return summaryBuilder.build();
 			}
 		}
 
 		private final int index = THREAD_INDEX++;
 		private final MergeTwoGraphs executor = new MergeTwoGraphs(commonOptions);
-		private final ClusterHashMergeDebugLog debugLog = new ClusterHashMergeDebugLog();
+		private final HashMergeDebugLog debugLog = new HashMergeDebugLog();
 
-		private ClusterTrainingConfiguration currentConfiguration;
+		private ModuleTrainingConfiguration currentConfiguration;
 		private final TrainingDataset dataset = new TrainingDataset();
 		private final TrainingInstance instance = new TrainingInstance();
 		private int datasetIndex;
@@ -148,40 +147,39 @@ public class ClusterGraphTraining {
 		public void run() {
 			try {
 				while (true) {
-					currentConfiguration = getNextCluster();
+					currentConfiguration = getNextModule();
 					if (currentConfiguration == null)
 						break;
 
 					for (datasetIndex = 0; datasetIndex < dataSources.size(); datasetIndex++) {
-						if (dataSources.get(datasetIndex).getReprsentedClusters()
-								.contains(currentConfiguration.cluster))
+						if (dataSources.get(datasetIndex).getReprsentedModules().contains(currentConfiguration.module))
 							break;
 					}
 
 					if (datasetIndex == dataSources.size()) {
-						Log.log("Skipping cluster %s because no runs contain it.", currentConfiguration.cluster.name);
+						Log.log("Skipping module %s because no runs contain it.", currentConfiguration.module.name);
 						continue;
 					}
 
-					File logFile = new File(currentConfiguration.clusterLogDir, "dataset.load.log");
+					File logFile = new File(currentConfiguration.moduleLogDir, "dataset.load.log");
 					Log.clearThreadOutputs();
 					Log.addThreadOutput(logFile);
 					dataset.loadData();
 
-					ClusterTraceDataSink dataSink = new ClusterTraceDirectory(outputDir);
+					ModularTraceDataSink dataSink = new ModularTraceDirectory(outputDir);
 					String filenameFormat = "dataset.%s.%s.%s";
 					MergeTwoGraphs.WriteCompletedGraphs completion = new MergeTwoGraphs.WriteCompletedGraphs(dataSink,
 							filenameFormat);
 
 					PrintWriter sequenceWriter = new PrintWriter(currentConfiguration.sequenceFile);
 					try {
-						Log.sharedLog("Thread %d training cluster %s", index, currentConfiguration.cluster.name);
+						Log.sharedLog("Thread %d training module %s", index, currentConfiguration.module.name);
 						for (instanceIndex = datasetIndex + 1; instanceIndex < dataSources.size(); instanceIndex++) {
-							if (!dataSources.get(instanceIndex).getReprsentedClusters()
-									.contains(currentConfiguration.cluster))
+							if (!dataSources.get(instanceIndex).getReprsentedModules()
+									.contains(currentConfiguration.module))
 								continue;
 
-							logFile = new File(currentConfiguration.clusterLogDir, String.format("%s.merge.log",
+							logFile = new File(currentConfiguration.moduleLogDir, String.format("%s.merge.log",
 									runIds.get(instanceIndex)));
 							Log.clearThreadOutputs();
 							Log.addThreadOutput(logFile);
@@ -197,7 +195,7 @@ public class ClusterGraphTraining {
 				}
 			} catch (Throwable t) {
 				fail(t, String.format("\t@@@@ Merge %s on thread %d failed with %s @@@@",
-						currentConfiguration.cluster.name, index, t.getClass().getSimpleName()));
+						currentConfiguration.module.name, index, t.getClass().getSimpleName()));
 			}
 		}
 	}
@@ -224,7 +222,7 @@ public class ClusterGraphTraining {
 			OptionArgumentMap.OptionMode.REQUIRED);
 	private final OptionArgumentMap.StringOption runListOption = OptionArgumentMap.createStringOption('r',
 			OptionArgumentMap.OptionMode.REQUIRED);
-	private final OptionArgumentMap.StringOption clusterListOption = OptionArgumentMap.createStringOption('c',
+	private final OptionArgumentMap.StringOption moduleListOption = OptionArgumentMap.createStringOption('c',
 			OptionArgumentMap.OptionMode.REQUIRED);
 
 	private File logDir;
@@ -233,16 +231,16 @@ public class ClusterGraphTraining {
 	private final CommonMergeOptions commonOptions;
 	private GraphMergeStrategy strategy;
 
-	private final List<String> clusterNames = new ArrayList<String>();
-	private final List<ClusterTraceDataSource> dataSources = new ArrayList<ClusterTraceDataSource>();
+	private final List<String> moduleNames = new ArrayList<String>();
+	private final List<ModularTraceDataSource> dataSources = new ArrayList<ModularTraceDataSource>();
 	private final List<String> runIds = new ArrayList<String>();
-	private final List<ClusterTrainingConfiguration> trainingConfigurations = new ArrayList<ClusterTrainingConfiguration>();
+	private final List<ModuleTrainingConfiguration> trainingConfigurations = new ArrayList<ModuleTrainingConfiguration>();
 
-	public ClusterGraphTraining(ArgumentStack args) {
+	public ModularGraphTraining(ArgumentStack args) {
 		this.args = args;
 		commonOptions = new CommonMergeOptions(args, CommonMergeOptions.crowdSafeCommonDir,
-				CommonMergeOptions.unitClusterOption, logPathOption, threadCountOption, outputDirectoryOption,
-				runListOption, clusterListOption);
+				CommonMergeOptions.unitModuleOption, logPathOption, threadCountOption, outputDirectoryOption,
+				runListOption, moduleListOption);
 	}
 
 	void run() {
@@ -272,29 +270,29 @@ public class ClusterGraphTraining {
 
 			commonOptions.initializeGraphEnvironment();
 
-			loadClusterList();
+			loadModuleList();
 			loadDataSources();
 
 			long trainingStart = System.currentTimeMillis();
 
 			{
-				for (String clusterName : clusterNames) {
-					AutonomousSoftwareDistribution cluster = ConfiguredSoftwareDistributions.getInstance()
-							.establishCluster(clusterName);
-					File clusterLogDirectory = new File(logDir, cluster.name);
-					clusterLogDirectory.mkdir();
-					File sequenceFile = new File(clusterLogDirectory, "sequence.log");
-					trainingConfigurations.add(new ClusterTrainingConfiguration(cluster, sequenceFile,
-							clusterLogDirectory));
+				for (String moduleName : moduleNames) {
+					ApplicationModule module = ApplicationModuleSet.getInstance().establishModuleByFileSystemName(
+							moduleName);
+					File moduleLogDirectory = new File(logDir, module.name);
+					moduleLogDirectory.mkdir();
+					File sequenceFile = new File(moduleLogDirectory, "sequence.log");
+					trainingConfigurations.add(new ModuleTrainingConfiguration(module, sequenceFile,
+							moduleLogDirectory));
 				}
 
 				List<TrainingThread> threads = new ArrayList<TrainingThread>();
 				int threadCount = Integer.parseInt(threadCountOption.getValue());
-				int clusterCount = trainingConfigurations.size();
-				int mergeCount = clusterCount * clusterNames.size();
+				int moduleCount = trainingConfigurations.size();
+				int mergeCount = moduleCount * moduleNames.size();
 				int partitionSize = mergeCount / threadCount;
 
-				Log.log("Starting %d threads to train %d clusters (~%d merges each)", threadCount,
+				Log.log("Starting %d threads to train %d modules (~%d merges each)", threadCount,
 						trainingConfigurations.size(), partitionSize);
 
 				for (int i = 0; i < threadCount; i++) {
@@ -307,7 +305,7 @@ public class ClusterGraphTraining {
 					thread.join();
 				}
 
-				Log.log("\nTraining of %d clusters (%d merges) on %d threads in %f seconds.", clusterCount, mergeCount,
+				Log.log("\nTraining of %d modules (%d merges) on %d threads in %f seconds.", moduleCount, mergeCount,
 						threadCount, ((System.currentTimeMillis() - trainingStart) / 1000.));
 			}
 
@@ -321,18 +319,18 @@ public class ClusterGraphTraining {
 		}
 	}
 
-	private void loadClusterList() throws IOException {
-		File listFile = new File(clusterListOption.getValue());
+	private void loadModuleList() throws IOException {
+		File listFile = new File(moduleListOption.getValue());
 		if (!listFile.exists())
-			throw new IllegalStateException(String.format("The cluster list file %s does not exist!",
+			throw new IllegalStateException(String.format("The module list file %s does not exist!",
 					listFile.getAbsolutePath()));
 
 		BufferedReader in = new BufferedReader(new FileReader(listFile));
 		try {
 			while (in.ready()) {
-				String clusterName = in.readLine();
-				if (clusterName.length() > 0) {
-					clusterNames.add(clusterName);
+				String moduleName = in.readLine();
+				if (moduleName.length() > 0) {
+					moduleNames.add(moduleName);
 				}
 			}
 		} finally {
@@ -366,12 +364,12 @@ public class ClusterGraphTraining {
 		for (String runPath : runPathSet) {
 			File runDir = new File(runPath);
 			runIds.add(disambiguator.disambiguateName(runDir.getName()));
-			ClusterTraceDataSource dataSource = new ClusterTraceDirectory(runDir).loadExistingFiles();
+			ModularTraceDataSource dataSource = new ModularTraceDirectory(runDir).loadExistingFiles();
 			dataSources.add(dataSource);
 		}
 	}
 
-	private synchronized ClusterTrainingConfiguration getNextCluster() {
+	private synchronized ModuleTrainingConfiguration getNextModule() {
 		if (trainingConfigurations.isEmpty())
 			return null;
 		return trainingConfigurations.remove(trainingConfigurations.size() - 1);
@@ -386,7 +384,7 @@ public class ClusterGraphTraining {
 	}
 
 	public static void main(String[] args) {
-		ClusterGraphTraining merge = new ClusterGraphTraining(new ArgumentStack(args));
+		ModularGraphTraining merge = new ModularGraphTraining(new ArgumentStack(args));
 		merge.run();
 	}
 }
