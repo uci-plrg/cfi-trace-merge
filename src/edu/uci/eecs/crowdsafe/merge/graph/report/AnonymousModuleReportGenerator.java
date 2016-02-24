@@ -15,7 +15,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Node;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ModuleAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleBoundaryNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
@@ -237,8 +237,9 @@ public class AnonymousModuleReportGenerator {
 
 	private final List<ModuleGraph<ModuleNode<?>>> execution;
 	private final List<ModuleGraph<ModuleNode<?>>> dataset;
-	private final AnonymousModuleReportSet leftModuleSet;
-	private final AnonymousModuleReportSet rightModuleSet;
+
+	// private final AnonymousModuleReportSet leftModuleSet;
+	// private final AnonymousModuleReportSet rightModuleSet;
 
 	private AnonymousModuleReportGenerator(ExecutionReport report, GraphMergeCandidate leftData,
 			GraphMergeCandidate rightData, List<ModuleGraph<ModuleNode<?>>> execution,
@@ -249,18 +250,19 @@ public class AnonymousModuleReportGenerator {
 
 		this.execution = execution;
 		this.dataset = dataset;
-		this.leftModuleSet = new AnonymousModuleReportSet("<left>");
-		this.rightModuleSet = new AnonymousModuleReportSet("<right>");
+		// this.leftModuleSet = new AnonymousModuleReportSet("<left>");
+		// this.rightModuleSet = new AnonymousModuleReportSet("<right>");
 	}
 
 	private void addEntries() {
-		leftModuleSet.installSubgraphs(GraphMergeSource.LEFT, execution);
-		rightModuleSet.installSubgraphs(GraphMergeSource.RIGHT, dataset);
+		// leftModuleSet.installSubgraphs(GraphMergeSource.LEFT, execution);
+		// rightModuleSet.installSubgraphs(GraphMergeSource.RIGHT, dataset);
 
-		List<AnonymousGraphCollection> mergedModules = new ArrayList<AnonymousGraphCollection>();
-		for (AnonymousGraphCollection.OwnerKey leftOwner : leftModuleSet.getModuleOwners()) {
-			AnonymousGraphCollection leftModule = leftModuleSet.getModule(leftOwner);
-			AnonymousGraphCollection rightModule = rightModuleSet.getModule(leftOwner);
+		List<ModuleAnonymousGraphs> mergedModules = new ArrayList<ModuleAnonymousGraphs>();
+		List<ModuleAnonymousGraphs.OwnerKey> empty = null;
+		for (ModuleAnonymousGraphs.OwnerKey leftOwner : empty) { // leftModuleSet.getModuleOwners()) {
+			ModuleAnonymousGraphs leftModule = null; // leftModuleSet.getModule(leftOwner);
+			ModuleAnonymousGraphs rightModule = null; // rightModuleSet.getModule(leftOwner);
 
 			if (leftOwner.isJIT) {
 				if (rightModule != null) {
@@ -268,7 +270,7 @@ public class AnonymousModuleReportGenerator {
 				}
 				mergedModules.add(leftModule); // nothing to compile
 			} else {
-				AnonymousGraphCollection mergedModule = new AnonymousGraphCollection(leftOwner.module);
+				ModuleAnonymousGraphs mergedModule = new ModuleAnonymousGraphs(leftOwner.module);
 				if (rightModule != null) {
 					compileStandalones(rightModule, mergedModule, false);
 				} else {
@@ -282,7 +284,7 @@ public class AnonymousModuleReportGenerator {
 		// compileAnonymousGraph(mergedModules);
 	}
 
-	private void mergeJITs(AnonymousGraphCollection executionModule, AnonymousGraphCollection datasetModule) {
+	private void mergeJITs(ModuleAnonymousGraphs executionModule, ModuleAnonymousGraphs datasetModule) {
 		if (executionModule.subgraphs.size() != 1)
 			throw new InvalidGraphException("Black box has %d modules, but exactly one is required.",
 					executionModule.subgraphs.size());
@@ -335,7 +337,8 @@ public class AnonymousModuleReportGenerator {
 		}
 	}
 
-	private void compileStandalones(AnonymousGraphCollection inputModule, AnonymousGraphCollection mergedModule, boolean reportNew) {
+	private void compileStandalones(ModuleAnonymousGraphs inputModule, ModuleAnonymousGraphs mergedModule,
+			boolean reportNew) {
 		HashMergeDebugLog ignoreDebug = new HashMergeDebugLog();
 		List<AnonymousGraph> descendingSizeInputSubgraphs = new ArrayList<AnonymousGraph>(inputModule.subgraphs);
 		Collections.sort(descendingSizeInputSubgraphs, DescendingSizeSorter.INSTANCE);
@@ -369,12 +372,12 @@ public class AnonymousModuleReportGenerator {
 		}
 	}
 
-	private void compileAnonymousGraph(List<AnonymousGraphCollection> mergedModules) {
+	private void compileAnonymousGraph(List<ModuleAnonymousGraphs> mergedModules) {
 		ApplicationGraph compiledGraph = new ApplicationGraph("Compiled anonymous graph",
 				ApplicationModule.ANONYMOUS_MODULE);
 		Map<ModuleNode<?>, ModuleNode<?>> copyMap = new HashMap<ModuleNode<?>, ModuleNode<?>>();
 		int fakeTagIndex = ModuleNode.SYSCALL_SINGLETON_END + 1;
-		for (AnonymousGraphCollection module : mergedModules) {
+		for (ModuleAnonymousGraphs module : mergedModules) {
 			for (AnonymousGraph subgraph : module.subgraphs) {
 				for (ModuleNode<?> node : subgraph.getAllNodes()) {
 					int relativeTag = node.getRelativeTag();

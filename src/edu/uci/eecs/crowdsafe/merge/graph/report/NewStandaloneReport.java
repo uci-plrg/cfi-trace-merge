@@ -4,13 +4,13 @@ import java.io.PrintStream;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ModuleAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies.ModulePropertyReader;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies.ProgramPropertyReader;
 
 public class NewStandaloneReport implements ReportEntry {
 
-	private final AnonymousGraphCollection module;
+	private final ModuleAnonymousGraphs module;
 	private final AnonymousGraph box;
 	private final int expandFrom;
 
@@ -19,11 +19,11 @@ public class NewStandaloneReport implements ReportEntry {
 
 	private int riskIndex;
 
-	NewStandaloneReport(AnonymousGraphCollection module, AnonymousGraph box) {
+	NewStandaloneReport(ModuleAnonymousGraphs module, AnonymousGraph box) {
 		this(module, box, 0);
 	}
 
-	NewStandaloneReport(AnonymousGraphCollection module, AnonymousGraph box, int expandFrom) {
+	NewStandaloneReport(ModuleAnonymousGraphs module, AnonymousGraph box, int expandFrom) {
 		this.module = module;
 		this.box = box;
 		this.expandFrom = expandFrom;

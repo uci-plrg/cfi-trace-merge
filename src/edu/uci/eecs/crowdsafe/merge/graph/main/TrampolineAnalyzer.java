@@ -21,7 +21,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.NodeHashMap;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ModuleAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.MaximalSubgraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleBoundaryNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;

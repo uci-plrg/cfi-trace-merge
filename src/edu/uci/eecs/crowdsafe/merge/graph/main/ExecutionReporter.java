@@ -43,7 +43,7 @@ public class ExecutionReporter {
 		@Override
 		public void mergeCompleted(ApplicationGraph mergedGraph) throws IOException {
 			dataSink.addModule(mergedGraph.graph.module, filenameFormat);
-			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph, dataSink);
+			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph.graph, dataSink);
 			writer.writeGraph();
 		}
 	}
@@ -175,8 +175,7 @@ public class ExecutionReporter {
 			if (rightData.getRepresentedModules().contains(leftModule)) {
 				Log.log("\n > Loading right static module %s at %.3f < \n", leftModule.name, elapsedTime(start));
 				rightGraph = new ApplicationGraph((ModuleGraph<ModuleNode<?>>) rightData.getModuleGraph(leftModule));
-				Log.log("\n > Counting metadata for right module %s at %.3f < \n", leftModule.name,
-						elapsedTime(start));
+				Log.log("\n > Counting metadata for right module %s at %.3f < \n", leftModule.name, elapsedTime(start));
 			} else {
 				Log.log("\n > Skipping right static module %s because it is not represented among %d dataset modules < \n",
 						leftModule.name, rightData.getRepresentedModules().size());

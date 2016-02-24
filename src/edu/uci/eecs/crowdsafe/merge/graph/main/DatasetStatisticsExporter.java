@@ -16,12 +16,9 @@ import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousModuleSet;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
-import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 import edu.uci.eecs.crowdsafe.merge.graph.hash.HashMergeDebugLog;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ModuleEventFrequencies;
 import edu.uci.eecs.crowdsafe.merge.graph.report.ProgramEventFrequencies;
@@ -111,17 +108,20 @@ public class DatasetStatisticsExporter {
 
 		Log.log("Dataset has %d anonymous modules", anonymousGraphs.size());
 		if (!anonymousGraphs.isEmpty()) {
+			/**
+			 * <pre> 
 			AnonymousModuleSet anonymousModuleParser = new AnonymousModuleSet(dataset);
 			anonymousModuleParser.installSubgraphs(anonymousGraphs);
 			anonymousModuleParser.analyzeModules();
 
-			for (AnonymousGraphCollection.OwnerKey owner : anonymousModuleParser.getModuleOwners()) {
-				AnonymousGraphCollection module = anonymousModuleParser.getModule(owner);
+			for (ModuleAnonymousGraphs.OwnerKey owner : anonymousModuleParser.getModuleOwners()) {
+				ModuleAnonymousGraphs module = anonymousModuleParser.getModule(owner);
 				ModuleEventFrequencies moduleFrequencies = moduleEventMap.get(module.owningModule);
 				Log.log("Extract stats for anonymous module owned by %s with %d subgraphs", owner.module.filename,
 						module.subgraphs.size());
 				moduleFrequencies.extractStatistics(module, programEventFrequencies);
 			}
+			 */
 		}
 
 		for (ModuleEventFrequencies moduleEventFrequencies : moduleEventMap.values()) {

@@ -7,7 +7,7 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraphCollection;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ModuleAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataExecution;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.metadata.ModuleMetadataSequence;
@@ -135,7 +135,7 @@ public class ModuleEventFrequencies {
 		}
 	}
 
-	public void extractStatistics(AnonymousGraphCollection module, ProgramEventFrequencies programEventFrequencies) {
+	public void extractStatistics(ModuleAnonymousGraphs module, ProgramEventFrequencies programEventFrequencies) {
 		if (module.isJIT()) {
 			isJIT = 1;
 			programEventFrequencies.incrementJITCount();

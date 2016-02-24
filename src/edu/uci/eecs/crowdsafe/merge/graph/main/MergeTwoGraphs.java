@@ -18,7 +18,6 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.modular.writer.ModuleGraphWriter;
 import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSink;
 import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
-import edu.uci.eecs.crowdsafe.merge.graph.AnonymousGraphMergeEngine;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeCandidate;
 import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeStrategy;
 import edu.uci.eecs.crowdsafe.merge.graph.MergeResults;
@@ -46,7 +45,7 @@ public class MergeTwoGraphs {
 		@Override
 		public void mergeCompleted(ApplicationGraph mergedGraph) throws IOException {
 			dataSink.addModule(mergedGraph.graph.module, filenameFormat);
-			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph, dataSink);
+			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph.graph, dataSink);
 			writer.writeGraph();
 		}
 	}
@@ -312,10 +311,10 @@ public class MergeTwoGraphs {
 					}
 				}
 			}
-			AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
-			ApplicationGraph anonymousGraph = anonymousMerge.createAnonymousGraph(leftAnonymousGraphs,
-					rightAnonymousGraphs);
-			completion.mergeCompleted(anonymousGraph);
+			// AnonymousGraphMergeEngine anonymousMerge = new AnonymousGraphMergeEngine(leftData, rightData, debugLog);
+			// ApplicationGraph anonymousGraph = anonymousMerge.createAnonymousGraph(leftAnonymousGraphs,
+			// rightAnonymousGraphs);
+			// completion.mergeCompleted(anonymousGraph);
 
 			// if (logFile != null)
 			// writeResults(anonymousResults, getCorrespondingDynamicResultsFilename(logFile), logFile);
