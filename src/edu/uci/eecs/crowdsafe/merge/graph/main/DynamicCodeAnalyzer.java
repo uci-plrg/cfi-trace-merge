@@ -29,7 +29,7 @@ import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSource;
 import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
 
-public class TrampolineAnalyzer {
+public class DynamicCodeAnalyzer {
 
 	private static class BoundaryEdge {
 
@@ -66,8 +66,8 @@ public class TrampolineAnalyzer {
 			Set<ApplicationModule> owners = new HashSet<ApplicationModule>();
 
 			for (AnonymousGraph subgraph : graphs.getAllGraphs()) {
-				if (subgraph.isJIT())
-					continue;
+				// if (subgraph.isJIT())
+				// continue;
 
 				Log.log("Reporting graph 0x%x", subgraph.hashCode());
 
@@ -172,7 +172,7 @@ public class TrampolineAnalyzer {
 
 	private AnonymousModuleAnalyzer anonymousModuleAnalyzer = new AnonymousModuleAnalyzer();
 
-	private TrampolineAnalyzer(ArgumentStack args) {
+	private DynamicCodeAnalyzer(ArgumentStack args) {
 		this.args = args;
 		this.options = new CommonMergeOptions(args, CommonMergeOptions.crowdSafeCommonDir);
 	}
@@ -231,7 +231,7 @@ public class TrampolineAnalyzer {
 
 	public static void main(String[] args) {
 		ArgumentStack stack = new ArgumentStack(args);
-		TrampolineAnalyzer analyzer = new TrampolineAnalyzer(stack);
+		DynamicCodeAnalyzer analyzer = new DynamicCodeAnalyzer(stack);
 		analyzer.run();
 	}
 }
