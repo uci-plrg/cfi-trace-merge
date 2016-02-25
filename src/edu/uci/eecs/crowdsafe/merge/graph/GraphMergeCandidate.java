@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.uci.eecs.crowdsafe.common.io.TraceDataSourceException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
@@ -103,7 +104,7 @@ public interface GraphMergeCandidate {
 
 		private final Map<ApplicationModule, ModuleGraph<?>> graphs = new HashMap<ApplicationModule, ModuleGraph<?>>();
 
-		public Modular(File directory, HashMergeDebugLog debugLog) {
+		public Modular(File directory, HashMergeDebugLog debugLog) throws TraceDataSourceException, IOException {
 			this.debugLog = debugLog;
 			dataSource = new ModularTraceDirectory(directory).loadExistingFiles();
 			summaryBuilder.setName(directory.getName());

@@ -12,16 +12,15 @@ import java.util.Set;
 
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.common.util.ArgumentStack;
-import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModuleSet;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
+import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModuleSet;
 import edu.uci.eecs.crowdsafe.graph.data.graph.Edge;
 import edu.uci.eecs.crowdsafe.graph.data.graph.MetaNodeType;
-import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeHashMap;
 import edu.uci.eecs.crowdsafe.graph.data.graph.NodeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.OrdinalEdgeList;
 import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.AnonymousGraph;
-import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ModuleAnonymousGraphs;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ApplicationAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.MaximalSubgraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleBoundaryNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
@@ -29,7 +28,6 @@ import edu.uci.eecs.crowdsafe.graph.data.graph.modular.loader.ModuleGraphLoadSes
 import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDataSource;
 import edu.uci.eecs.crowdsafe.graph.io.modular.ModularTraceDirectory;
 import edu.uci.eecs.crowdsafe.graph.main.CommonMergeOptions;
-import edu.uci.eecs.crowdsafe.merge.graph.GraphMergeSource;
 
 public class TrampolineAnalyzer {
 
@@ -53,16 +51,12 @@ public class TrampolineAnalyzer {
 	private class AnonymousModuleAnalyzer {
 		private final Map<ApplicationModule, Set<Long>> hashesByTrampolineGenerator = new HashMap<ApplicationModule, Set<Long>>();
 
-		private void analyze(ModuleGraph<ModuleNode<?>> anonymous) {
-			if (anonymous == null) {
+		private void analyze(ApplicationAnonymousGraphs graphs) {
+			if (graphs == null) {
 				Log.warn("No anonymous graph for run %d", runIndex);
 				return;
 			}
 
-			Log.log(" === Original anonymous graph:");
-			anonymous.logGraph();
-
-			Set<AnonymousGraph> anonymousSubgraphs = MaximalSubgraphs.getMaximalSubgraphs(anonymous);
 			List<Edge<ModuleNode<?>>> gencodeEntries = new ArrayList<Edge<ModuleNode<?>>>();
 			List<Edge<ModuleNode<?>>> executionEntries = new ArrayList<Edge<ModuleNode<?>>>();
 			List<Edge<ModuleNode<?>>> executionExits = new ArrayList<Edge<ModuleNode<?>>>();
@@ -71,7 +65,7 @@ public class TrampolineAnalyzer {
 			Set<ApplicationModule> entryModules = new HashSet<ApplicationModule>();
 			Set<ApplicationModule> owners = new HashSet<ApplicationModule>();
 
-			for (AnonymousGraph subgraph : anonymousSubgraphs) {
+			for (AnonymousGraph subgraph : graphs.getAllGraphs()) {
 				if (subgraph.isJIT())
 					continue;
 
@@ -89,7 +83,7 @@ public class TrampolineAnalyzer {
 							.get(entryPoint.getHash());
 					OrdinalEdgeList<ModuleNode<?>> edges = entryPoint.getOutgoingEdges();
 					try {
-						fromModule = ApplicationModuleSet.getInstance().modulesByName.get(label.fromModuleName);
+						fromModule = ApplicationModuleSet.getInstance().modulesByFilename.get(label.fromModuleFilename);
 						if (label.isGencode()) {
 							gencodeEntries.addAll(edges);
 							owners.add(fromModule);
@@ -107,7 +101,10 @@ public class TrampolineAnalyzer {
 				for (ModuleNode<?> exitPoint : subgraph.getExitPoints()) {
 					ModuleBoundaryNode.HashLabel label = ApplicationModuleSet.getInstance().crossModuleLabels
 							.get(exitPoint.getHash());
-					if (!label.isGencode()) {
+
+					if (label == null) {
+						Log.error("Error: can't find the label for cross-module hash 0x%x", exitPoint.getHash());
+					} else if (!label.isGencode()) {
 						OrdinalEdgeList<ModuleNode<?>> edges = exitPoint.getIncomingEdges();
 						try {
 							executionExits.addAll(edges);
@@ -161,27 +158,6 @@ public class TrampolineAnalyzer {
 				for (ModuleNode<?> returnNode : returnNodes)
 					Log.log("\t%s", returnNode);
 				Log.log(" === SDR end\n");
-
-				Set<Long> hashes = hashesByTrampolineGenerator.get(owner);
-				if (hashes == null) {
-					hashes = new HashSet<Long>();
-					hashesByTrampolineGenerator.put(owner, hashes);
-				}
-
-				if (false) {
-					NodeHashMap<?> nodeMap = anonymous.getGraphData().nodesByHash;
-					for (Long hash : nodeMap.keySet()) {
-						NodeList<?> nodes = nodeMap.get(hash);
-						for (int i = 0; i < nodes.size(); i++) {
-							ModuleNode<?> node = (ModuleNode<?>) nodes.get(i);
-							if (!hashes.contains(node.getHash())) {
-								hashes.add(node.getHash());
-								Log.log("#%d: Found new hash 0x%x in %s's trampoline", runIndex, node.getHash(),
-										owner.filename);
-							}
-						}
-					}
-				}
 			}
 		}
 	}
@@ -239,7 +215,7 @@ public class TrampolineAnalyzer {
 				dataSource = new ModularTraceDirectory(runDirectory).loadExistingFiles();
 				loadSession = new ModuleGraphLoadSession(dataSource);
 
-				anonymousModuleAnalyzer.analyze(loadSession.loadModuleGraph(ApplicationModule.ANONYMOUS_MODULE));
+				anonymousModuleAnalyzer.analyze(loadSession.loadAnonymousGraphs(ApplicationModule.ANONYMOUS_MODULE));
 			}
 		} catch (Throwable t) {
 			t.printStackTrace(System.err);
