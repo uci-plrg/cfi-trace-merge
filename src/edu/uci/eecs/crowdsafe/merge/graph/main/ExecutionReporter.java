@@ -45,6 +45,7 @@ public class ExecutionReporter {
 			dataSink.addModule(mergedGraph.graph.module, filenameFormat);
 			ModuleGraphWriter writer = new ModuleGraphWriter(mergedGraph.graph, dataSink);
 			writer.writeGraph();
+			writer.close();
 		}
 	}
 

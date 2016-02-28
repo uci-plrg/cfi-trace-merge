@@ -21,6 +21,7 @@ import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModuleSet;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ApplicationAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.loader.ModuleGraphLoadSession;
@@ -69,6 +70,11 @@ public class ModularGraphTraining {
 			}
 
 			@Override
+			public ApplicationAnonymousGraphs getAnonymousGraph() throws IOException {
+				throw new UnsupportedOperationException("Not implemented");
+			}
+
+			@Override
 			public Collection<ApplicationModule> getRepresentedModules() {
 				return Collections.singleton(currentConfiguration.module);
 			}
@@ -103,6 +109,11 @@ public class ModularGraphTraining {
 			@Override
 			public ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException {
 				return graph;
+			}
+
+			@Override
+			public ApplicationAnonymousGraphs getAnonymousGraph() throws IOException {
+				throw new UnsupportedOperationException("Not implemented");
 			}
 
 			@Override
@@ -282,8 +293,8 @@ public class ModularGraphTraining {
 					File moduleLogDirectory = new File(logDir, module.name);
 					moduleLogDirectory.mkdir();
 					File sequenceFile = new File(moduleLogDirectory, "sequence.log");
-					trainingConfigurations.add(new ModuleTrainingConfiguration(module, sequenceFile,
-							moduleLogDirectory));
+					trainingConfigurations
+							.add(new ModuleTrainingConfiguration(module, sequenceFile, moduleLogDirectory));
 				}
 
 				List<TrainingThread> threads = new ArrayList<TrainingThread>();

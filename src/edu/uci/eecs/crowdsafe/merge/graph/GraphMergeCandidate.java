@@ -10,6 +10,7 @@ import edu.uci.eecs.crowdsafe.common.io.TraceDataSourceException;
 import edu.uci.eecs.crowdsafe.common.log.Log;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ApplicationAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.execution.ProcessExecutionGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.execution.loader.ProcessGraphLoadSession;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
@@ -34,6 +35,8 @@ public interface GraphMergeCandidate {
 	abstract Collection<ApplicationModule> getRepresentedModules();
 
 	abstract ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException;
+
+	abstract ApplicationAnonymousGraphs getAnonymousGraph() throws IOException;
 
 	static class Execution implements GraphMergeCandidate {
 
@@ -91,6 +94,11 @@ public interface GraphMergeCandidate {
 		@Override
 		public ModuleGraph<?> getModuleGraph(ApplicationModule module) {
 			return graph.getModuleGraph(module);
+		}
+		
+		@Override
+		public ApplicationAnonymousGraphs getAnonymousGraph() throws IOException {
+			throw new UnsupportedOperationException("Not implemented");
 		}
 	}
 
@@ -163,24 +171,30 @@ public interface GraphMergeCandidate {
 			}
 			return graph;
 		}
+
+		@Override
+		public ApplicationAnonymousGraphs getAnonymousGraph() throws IOException {
+			return loadSession.loadAnonymousGraphs();
+		}
 	}
 
 	static class LoadedModules implements GraphMergeCandidate {
 
 		private final HashMergeDebugLog debugLog;
 
-		private String name;
-		private Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphs;
-		private Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
+		private final String name;
+		private final Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphs;
+		private final ApplicationAnonymousGraphs anonymousGraphs;
+		private final Graph.Process.Builder summaryBuilder = Graph.Process.newBuilder();
 
-		public LoadedModules(String name,
-				Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphs,
-				HashMergeDebugLog debugLog) {
+		public LoadedModules(String name, Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphs,
+				ApplicationAnonymousGraphs anonymousGraphs, HashMergeDebugLog debugLog) {
 
 			this.debugLog = debugLog;
 
 			this.name = name;
 			this.graphs = graphs;
+			this.anonymousGraphs = anonymousGraphs;
 			summaryBuilder.setName(name);
 		}
 
@@ -213,6 +227,11 @@ public interface GraphMergeCandidate {
 		@Override
 		public ModuleGraph<?> getModuleGraph(ApplicationModule module) throws IOException {
 			return graphs.get(module);
+		}
+
+		@Override
+		public ApplicationAnonymousGraphs getAnonymousGraph() throws IOException {
+			return null;
 		}
 	}
 }

@@ -19,6 +19,7 @@ import edu.uci.eecs.crowdsafe.common.util.NameDisambiguator;
 import edu.uci.eecs.crowdsafe.common.util.OptionArgumentMap;
 import edu.uci.eecs.crowdsafe.graph.data.application.ApplicationModule;
 import edu.uci.eecs.crowdsafe.graph.data.graph.ModuleGraph;
+import edu.uci.eecs.crowdsafe.graph.data.graph.anonymous.ApplicationAnonymousGraphs;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ApplicationGraph;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.ModuleNode;
 import edu.uci.eecs.crowdsafe.graph.data.graph.modular.loader.ModuleGraphLoadSession;
@@ -34,10 +35,13 @@ public class RoundRobinMerge {
 	private static class ProcessModuleGraph {
 		final String name;
 		final Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules;
+		final ApplicationAnonymousGraphs anonymousGraphs;
 
-		public ProcessModuleGraph(String name, Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules) {
+		public ProcessModuleGraph(String name, Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> modules,
+				ApplicationAnonymousGraphs anonymousGraphs) {
 			this.name = name;
 			this.modules = modules;
+			this.anonymousGraphs = anonymousGraphs;
 		}
 	}
 
@@ -71,6 +75,7 @@ public class RoundRobinMerge {
 							ApplicationGraph.MODULAR_GRAPH_STREAM_TYPES).loadExistingFiles();
 					ModuleGraphLoadSession session = new ModuleGraphLoadSession(dataSource);
 					Map<ApplicationModule, ModuleGraph<ModuleNode<?>>> graphsByModule = new HashMap<ApplicationModule, ModuleGraph<ModuleNode<?>>>();
+					ApplicationAnonymousGraphs anonymousGraphs = session.loadAnonymousGraphs(debugLog);
 					for (ApplicationModule module : dataSource.getReprsentedModules()) {
 						graphsByModule.put(module, session.loadModuleGraph(module, debugLog));
 					}
@@ -80,7 +85,7 @@ public class RoundRobinMerge {
 					int lastSlash = graphName.lastIndexOf(File.separatorChar);
 					if (lastSlash >= 0)
 						graphName = graphName.substring(lastSlash + 1);
-					loadedGraphs.add(new ProcessModuleGraph(graphName, graphsByModule));
+					loadedGraphs.add(new ProcessModuleGraph(graphName, graphsByModule, anonymousGraphs));
 				}
 			} catch (Throwable t) {
 				fail(t, String.format("\t@@@@ Loading graph '%s' failed with %s @@@@", currentGraphPath, t.getClass()
@@ -115,9 +120,9 @@ public class RoundRobinMerge {
 					Log.addThreadOutput(logFile);
 
 					GraphMergeCandidate leftCandidate = new GraphMergeCandidate.LoadedModules(merge.left.name,
-							merge.left.modules, debugLog);
+							merge.left.modules, merge.left.anonymousGraphs, debugLog);
 					GraphMergeCandidate rightCandidate = new GraphMergeCandidate.LoadedModules(merge.right.name,
-							merge.right.modules, debugLog);
+							merge.right.modules, merge.right.anonymousGraphs, debugLog);
 					executor.merge(leftCandidate, rightCandidate, strategy, logFile, completion);
 				}
 			} catch (Throwable t) {

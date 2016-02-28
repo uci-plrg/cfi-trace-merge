@@ -215,7 +215,7 @@ public class DynamicCodeAnalyzer {
 				dataSource = new ModularTraceDirectory(runDirectory).loadExistingFiles();
 				loadSession = new ModuleGraphLoadSession(dataSource);
 
-				anonymousModuleAnalyzer.analyze(loadSession.loadAnonymousGraphs(ApplicationModule.ANONYMOUS_MODULE));
+				anonymousModuleAnalyzer.analyze(loadSession.loadAnonymousGraphs());
 			}
 		} catch (Throwable t) {
 			t.printStackTrace(System.err);
