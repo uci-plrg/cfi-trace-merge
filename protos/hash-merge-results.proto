@@ -1,9 +1,14 @@
-package crowd_safe_data_analysis;
+package cfi_data_analysis;
+
+// to generate Java sources:
+//    > cd <project-dir>
+//    > csg=<graph-dir> csc=<common-dir> \
+//      protoc --proto_path=protos:$csg/protos:$csc/protos --java_out=src protos/*.proto
 
 import "graph.proto";
 import "statistics.proto";
 
-option java_package = "edu.uci.eecs.crowdsafe.merge.graph.results";
+option java_package = "edu.uci.plrg.cfi.x86.merge.graph.results";
 option java_outer_classname = "HashMerge";
 
 message HashMergeResults {
@@ -46,4 +51,4 @@ message HashMergeSummary {
   optional int32 module_relative_tag_mismatches = 5;
   optional int32 mismatched_subgraph_count = 6;
   repeated int32 largest_mismatched_subgraphs_size = 7;
-}  
+}

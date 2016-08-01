@@ -31,7 +31,7 @@ function merge() {
   #rm $run_list_file
 }
 
-main_class="edu.uci.eecs.crowdsafe.merge.graph.main.RoundRobinMerge"
+main_class="edu.uci.plrg.cfi.x86.merge.graph.main.RoundRobinMerge"
 append_classpath "CROWD_SAFE_MERGE_DIR"
 append_classpath "CROWD_SAFE_COMMON_DIR"
 jvm_options="-Xms6144M -Xmx12288M"

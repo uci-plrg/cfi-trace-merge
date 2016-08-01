@@ -19,7 +19,7 @@ append_classpath "CROWD_SAFE_COMMON_DIR"
 
 # echo "classpath: $cp"
 
-main_class="edu.uci.eecs.crowdsafe.merge.graph.main.ExecutionReporter"
+main_class="edu.uci.plrg.cfi.x86.merge.graph.main.ExecutionReporter"
 
 java $vm_args -cp $cp $main_class $@
 #java -cp $cp $main_class $@
